@@ -26,6 +26,8 @@ class TBvhBuilder final
 	static_assert(N > 1);
 	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
+	inline static constexpr std::size_t MAX_SAH_BUCKETS = 64;
+
 public:
 	using InfoNodeType = TBvhInfoNode<N, Item>;
 	using ItemInfoType = TBvhItemInfo<Item>;
@@ -112,6 +114,24 @@ private:
 		TSpan<ItemInfoType> itemInfos,
 		std::size_t splitDimension,
 		std::array<TSpan<ItemInfoType>, N>* out_parts);
+
+	bool splitWithSahBuckets(
+		TSpan<ItemInfoType> itemInfos,
+		std::size_t splitDimension,
+		const AABB3D& itemsAABB,
+		const AABB3D& itemsCentroidAABB,
+		std::array<TSpan<ItemInfoType>, N>* out_parts);
+
+	void splitWithSahBucketsBacktracking(
+		std::size_t splitDimension,
+		const AABB3D& itemsAABB,
+		TSpanView<SahBucket> buckets,
+		std::size_t numSplits,
+		std::size_t splitBegin,
+		const std::array<std::size_t, N>& splitEnds,
+		real cost,
+		real* out_bestCost,
+		std::array<std::size_t, N>* out_bestSplitEnds) const;
 
 	std::vector<ItemInfoType> m_infoBuffer;
 	std::vector<InfoNodeType> m_infoNodes;

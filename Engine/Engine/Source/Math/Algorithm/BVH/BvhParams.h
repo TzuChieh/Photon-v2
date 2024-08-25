@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Common/primitive_type.h>
+
 #include <cstddef>
 
 namespace ph::math
@@ -18,13 +20,16 @@ class BvhParams final
 {
 public:
 	/*! Maximum number of items in a leaf node. */
-	std::size_t maxNodeItems = 1;
+	uint32 maxNodeItems = 1;
+
+	/*! Number of buckets to use for bucket-based SAH splitting. */
+	uint32 numSahBuckets = 64;
 
 	/*! Cost for traversing a node. */
-	float traversalCost = 1.0f / 8.0f;
+	float32 traversalCost = 1.0f / 8.0f;
 
 	/*! Cost for interacting with an item in a node. */
-	float interactCost = 1.0f;
+	float32 interactCost = 1.0f;
 
 	/*! The algorithm for splitting a node. */
 	EBvhNodeSplitMethod splitMethod = EBvhNodeSplitMethod::SAH_Buckets_OneAxis;

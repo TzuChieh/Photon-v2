@@ -9,6 +9,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/utility.h>
 
 #include <algorithm>
 #include <cmath>
@@ -26,7 +27,9 @@ inline TBvhBuilder<N, Item, ItemToAABB>
 	, m_infoNodes()
 	, m_params(params)
 	, m_itemToAABB(std::move(itemToAABB))
-{}
+{
+	PH_ASSERT_IN_RANGE_INCLUSIVE(params.numSahBuckets, 2, MAX_SAH_BUCKETS);
+}
 
 template<std::size_t N, typename Item, typename ItemToAABB>
 inline auto TBvhBuilder<N, Item, ItemToAABB>
@@ -227,6 +230,15 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 					maxDimension,
 					&itemParts);
 			}
+			else if constexpr(SPLIT_METHOD == EBvhNodeSplitMethod::SAH_Buckets_OneAxis)
+			{
+				isSplitted = splitWithSahBuckets(
+					itemInfos,
+					maxDimension,
+					nodeAABB,
+					centroidsAABB,
+					&itemParts);
+			}
 			else
 			{
 				PH_DEFAULT_DEBUG_LOG(
@@ -324,12 +336,8 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 {
 	static_assert(N == 2, "Requires a binary BVH builder.");
 
-	if(itemInfos.size() < 2)
-	{
-		PH_DEFAULT_LOG(Warning,
-			"at `BvhBuilder::splitWithEqualPrimitives()`, number of items < 2, cannot split");
-		return false;
-	}
+	// Binary variant is more strict: cannot split if number of items < 2
+	PH_ASSERT_GE(itemInfos.size(), 2);
 
 	const std::size_t midIndex = itemInfos.size() / 2 - 1;
 
@@ -362,34 +370,27 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 {
 	static_assert(N == 2, "Requires a binary BVH builder.");
 
-	if(itemInfos.size() < 2)
-	{
-		PH_DEFAULT_LOG(Warning,
-			"at `BvhBuilder::binarySplitWithSahBuckets()`, number of items < 2, cannot split");
-		return false;
-	}
-
-	constexpr std::size_t numBuckets = 64;
+	// Binary variant is more strict: cannot split if number of items < 2
+	PH_ASSERT_GE(itemInfos.size(), 2);
 
 	const auto dim            = splitDimension;
 	const real rcpSplitExtent = safe_rcp(itemsCentroidAABB.getExtents()[dim]);
 
 	PH_ASSERT_GE(rcpSplitExtent, 0.0_r);
 
-	SahBucket buckets[numBuckets];
+	std::array<SahBucket, MAX_SAH_BUCKETS> buckets{};
 	for(const ItemInfoType& itemInfo : itemInfos)
 	{
 		const real factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
-		auto bucketIndex = static_cast<std::size_t>(factor * numBuckets);
-		bucketIndex = (bucketIndex == numBuckets) ? bucketIndex - 1 : bucketIndex;
+		const auto bucketIndex = clamp<std::size_t>(static_cast<std::size_t>(factor * m_params.numSahBuckets), 0, m_params.numSahBuckets - 1);
 
 		buckets[bucketIndex].aabb = buckets[bucketIndex].isEmpty()
 			? itemInfo.aabb: buckets[bucketIndex].aabb.unionWith(itemInfo.aabb);
 		buckets[bucketIndex].numItems++;
 	}
 
-	std::array<real, numBuckets - 1> splitCosts{};
-	for(std::size_t i = 0; i < numBuckets - 1; ++i)
+	std::array<real, MAX_SAH_BUCKETS - 1> splitCosts{};
+	for(std::size_t i = 0; i < m_params.numSahBuckets - 1; ++i)
 	{
 		std::size_t numNegPartItems = 0;
 		auto negPartAABB = AABB3D::makeEmpty();
@@ -401,7 +402,7 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 
 		std::size_t numPosPartItems = 0;
 		auto posPartAABB = AABB3D::makeEmpty();
-		for(std::size_t j = i + 1; j < numBuckets; ++j)
+		for(std::size_t j = i + 1; j < m_params.numSahBuckets; ++j)
 		{
 			numPosPartItems += buckets[j].numItems;
 			posPartAABB.unionWith(buckets[j].aabb);
@@ -421,7 +422,7 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	}
 
 	const auto minCostIndex = static_cast<std::size_t>(
-		std::min_element(splitCosts.begin(), splitCosts.end()) - splitCosts.begin());
+		std::min_element(splitCosts.begin(), splitCosts.begin() + m_params.numSahBuckets) - splitCosts.begin());
 	const real minSplitCost = splitCosts[minCostIndex];
 	const real noSplitCost  = m_params.interactCost * static_cast<real>(itemInfos.size());
 
@@ -433,11 +434,10 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		auto posPartBegin = std::partition(
 			sortedItemInfos.begin(),
 			sortedItemInfos.end(),
-			[itemsCentroidAABB, dim, rcpSplitExtent, minCostIndex](const ItemInfoType& itemInfo)
+			[this, itemsCentroidAABB, dim, rcpSplitExtent, minCostIndex](const ItemInfoType& itemInfo)
 			{
 				const real factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
-				auto bucketIndex = static_cast<std::size_t>(factor * numBuckets);
-				bucketIndex = (bucketIndex == numBuckets) ? bucketIndex - 1 : bucketIndex;
+				const auto bucketIndex = clamp<std::size_t>(static_cast<std::size_t>(factor * m_params.numSahBuckets), 0, m_params.numSahBuckets - 1);
 				return bucketIndex <= minCostIndex;
 			});
 
@@ -460,9 +460,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 {
 	PH_ASSERT(out_parts);
 
-	// Partition `itemInfos` into N parts. This is done by a O(n*N/2) method where n is the number of items.
-	// Divide and conquer can achieve O(n*logN), but the gain should only be significant for N > 4. We keep
-	// this simpler approach for now.
+	// Partition `itemInfos` into N parts. This is done by a O(n*N/2) method where n is the number
+	// of items. Divide and conquer can achieve O(n*logN), but the gain should only be significant
+	// for N > 4. We keep this simpler approach for now.
 	auto sortedItemInfos = itemInfos;
 	for(std::size_t i = 0; i < N; ++i)
 	{
@@ -484,6 +484,170 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		(*out_parts)[i] = sortedItemInfos.subspan(beginIdx, endIdx - beginIdx);
 	}
 	return true;
+}
+
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline bool TBvhBuilder<N, Item, ItemToAABB>
+::splitWithSahBuckets(
+	const TSpan<ItemInfoType> itemInfos,
+	const std::size_t splitDimension,
+	const AABB3D& itemsAABB,
+	const AABB3D& itemsCentroidAABB,
+	std::array<TSpan<ItemInfoType>, N>* const out_parts)
+{
+	PH_ASSERT(out_parts);
+
+	constexpr std::size_t numBuckets = 64;
+
+	const auto dim            = splitDimension;
+	const auto rcpSplitExtent = safe_rcp(itemsCentroidAABB.getExtents()[dim]);
+
+	PH_ASSERT_GE(rcpSplitExtent, 0.0_r);
+
+	std::array<SahBucket, MAX_SAH_BUCKETS> buckets{};
+	for(const ItemInfoType& itemInfo : itemInfos)
+	{
+		const real factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
+		const auto bucketIndex = clamp<std::size_t>(static_cast<std::size_t>(factor * m_params.numSahBuckets), 0, m_params.numSahBuckets - 1);
+
+		buckets[bucketIndex].aabb = buckets[bucketIndex].isEmpty()
+			? itemInfo.aabb: buckets[bucketIndex].aabb.unionWith(itemInfo.aabb);
+		buckets[bucketIndex].numItems++;
+	}
+
+	const auto emptySplitEnds = make_array<std::size_t, N>(m_params.numSahBuckets);
+
+	auto bestSplitCost = std::numeric_limits<real>::max();
+	auto bestSplitEnds = emptySplitEnds;
+	splitWithSahBucketsBacktracking(
+		splitDimension,
+		itemsAABB,
+		{buckets.begin(), m_params.numSahBuckets},
+		0,
+		0,
+		emptySplitEnds,
+		m_params.traversalCost,
+		&bestSplitCost,
+		&bestSplitEnds);
+
+	const auto noSplitCost = static_cast<real>(m_params.interactCost * itemInfos.size());
+
+	if(bestSplitCost < noSplitCost || itemInfos.size() > m_params.maxNodeItems)
+	{
+		// Partition `itemInfos` into N parts. The complexity of the current implementation is similar
+		// to `splitWithEqualItems()`.
+		auto sortedItemInfos = itemInfos;
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			const auto splitBegin = i > 0 ? bestSplitEnds[i - 1] : 0;
+			const auto splitEnd = bestSplitEnds[i];
+
+			// No need to rearrange for empty range and the last part
+			auto nextPartBegin = sortedItemInfos.end();
+			if(splitBegin < splitEnd && i < N - 1)
+			{
+				nextPartBegin = std::partition(
+					sortedItemInfos.begin(),
+					sortedItemInfos.end(),
+					[this, itemsCentroidAABB, dim, rcpSplitExtent, splitEnd](const ItemInfoType& itemInfo)
+					{
+						const auto factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
+						const auto bucketIndex = clamp<std::size_t>(static_cast<std::size_t>(factor * m_params.numSahBuckets), 0, m_params.numSahBuckets - 1);
+						return bucketIndex < splitEnd;
+					});
+			}
+
+			const auto numPartItems = nextPartBegin - sortedItemInfos.begin();
+			(*out_parts)[i] = sortedItemInfos.subspan(0, numPartItems);
+			sortedItemInfos = sortedItemInfos.subspan(numPartItems);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline void TBvhBuilder<N, Item, ItemToAABB>
+::splitWithSahBucketsBacktracking(
+	const std::size_t splitDimension,
+	const AABB3D& itemsAABB,
+	const TSpanView<SahBucket> buckets,
+	const std::size_t numSplits,
+	const std::size_t splitBegin,
+	const std::array<std::size_t, N>& splitEnds,
+	const real cost,
+	real* const out_bestCost,
+	std::array<std::size_t, N>* const out_bestSplitEnds) const
+{
+	PH_ASSERT(out_bestCost);
+	PH_ASSERT(out_bestSplitEnds);
+
+	// No need to explore further if cost is already too high
+	if(cost >= *out_bestCost)
+	{
+		return;
+	}
+
+	// Finish by running out of bucket or no more split can be made
+	if(splitBegin == buckets.size() || numSplits == N)
+	{
+		PH_ASSERT_LT(cost, *out_bestCost);
+		*out_bestCost = cost;
+		*out_bestSplitEnds = splitEnds;
+		
+		return;
+	}
+
+	PH_ASSERT_LT(splitBegin, buckets.size());
+	PH_ASSERT_LT(numSplits, N);
+
+	// If this is the last split, the only choice is taking all remaining buckets
+	std::size_t splitEnd = numSplits == N - 1 ? buckets.size() : splitBegin + 1;
+		
+	// Recursively explore all possible split ends
+	while(splitEnd <= buckets.size())
+	{
+		auto newSplitEnds = splitEnds;
+		newSplitEnds[numSplits] = splitEnd;
+
+		std::size_t numItems = 0;
+		auto aabb = AABB3D::makeEmpty();
+		for(std::size_t bi = splitBegin; bi < splitEnd; ++bi)
+		{
+			numItems += buckets[bi].numItems;
+			aabb.unionWith(buckets[bi].aabb);
+		}
+
+		// Safe clamping probabilities to [0, 1] as the AABBs may be empty, point, plane,
+		// or being super large to be Inf/NaN
+		const auto testProb = safe_clamp(
+			aabb.getSurfaceArea() / itemsAABB.getSurfaceArea(), 0.0_r, 1.0_r);
+
+		const auto newCost = static_cast<real>(
+			cost + numItems * m_params.interactCost * testProb);
+
+		splitWithSahBucketsBacktracking(
+			splitDimension,
+			itemsAABB,
+			buckets,
+			numSplits + 1,
+			splitEnd,
+			newSplitEnds,
+			newCost,
+			out_bestCost,
+			out_bestSplitEnds);
+
+		// If new cost is already worse, all further splits will only be of higher costs
+		if(newCost >= *out_bestCost)
+		{
+			break;
+		}
+
+		++splitEnd;
+	}
 }
 
 }// end namespace ph::math
