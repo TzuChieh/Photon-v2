@@ -33,7 +33,7 @@ public:
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
-	template<typename TesterFunc, bool IS_ROBUST = true>
+	template<bool IS_ROBUST = true, typename TesterFunc>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
 	bool isEmpty() const;
@@ -42,6 +42,11 @@ public:
 	std::size_t numItems() const;
 
 private:
+	template<bool IS_ROBUST, bool IS_SINGLE_SPLIT_AXIS, typename TesterFunc>
+	bool nearestTraversalNaive(
+		const TLineSegment<real>& segment,
+		TesterFunc&& intersectionTester) const;
+
 	/*! Directly map informative nodes to wide nodes if the branch factor is the same.
 	*/
 	void convertChildNodesRecursive(
@@ -57,6 +62,8 @@ private:
 	std::unique_ptr<Item[]> m_items;
 	Index m_numNodes = 0;
 	Index m_numItems = 0;
+	uint32f m_isCollapsedNodes : 1 = false;
+	uint32f m_isSingleSplitAxisNodes : 1 = false;
 };
 
 }// end namespace ph::math

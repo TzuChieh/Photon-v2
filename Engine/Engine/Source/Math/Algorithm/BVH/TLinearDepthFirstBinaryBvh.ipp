@@ -8,6 +8,8 @@
 
 #include <Common/assertion.h>
 
+#include <limits>
+
 namespace ph::math
 {
 
@@ -60,10 +62,12 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 	bool hasHit = false;
 
 	// Precompute common values
+
 	const bool isNegDir[3] = {
 		segment.getDir().x() < 0,
 		segment.getDir().y() < 0,
 		segment.getDir().z() < 0};
+
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
 	// Traverse nodes
@@ -102,14 +106,17 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 			}
 			else
 			{
+				PH_ASSERT_LE(node.getChildOffset(), std::numeric_limits<Index>::max());
+				const auto childOffset = static_cast<Index>(node.getChildOffset());
+
 				if(isNegDir[node.getSplitAxis()])
 				{
 					todoNodes.push(currentNodeIndex + 1);
-					currentNodeIndex = node.getChildOffset();
+					currentNodeIndex = childOffset;
 				}
 				else
 				{
-					todoNodes.push(node.getChildOffset());
+					todoNodes.push(childOffset);
 					currentNodeIndex = currentNodeIndex + 1;
 				}
 			}

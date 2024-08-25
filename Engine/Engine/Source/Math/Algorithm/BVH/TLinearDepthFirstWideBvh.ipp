@@ -10,6 +10,8 @@
 
 #include <type_traits>
 #include <array>
+#include <utility>
+#include <limits>
 
 namespace ph::math
 {
@@ -35,6 +37,9 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 	// Can directly convert if the branch factor matches
 	if constexpr(SrcN == N)
 	{
+		// Will be updated by the following method if needed
+		m_isSingleSplitAxisNodes = true;
+
 		if(rootNode->isLeaf())
 		{
 			const auto itemOffset = m_numItems;
@@ -44,11 +49,15 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 			}
 			m_numItems += rootNode->getItems().size();
 
+			// Does not matter as there is only a single child
+			constexpr std::size_t singleLeafSplitAxis = constant::X_AXIS;
+
 			m_numNodes = 1;
 			m_nodes[0].setLeaf(
 				0,
 				rootNode->getAABB(),
 				itemOffset,
+				singleLeafSplitAxis,
 				rootNode->getItems().size());
 		}
 		else
@@ -66,7 +75,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<typename TesterFunc, bool IS_ROBUST>
+template<bool IS_ROBUST, typename TesterFunc>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
@@ -80,6 +89,35 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	PH_ASSERT(m_nodes);
 	PH_ASSERT(m_items);
 
+	if(m_isCollapsedNodes)
+	{
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
+	else
+	{
+		if(m_isSingleSplitAxisNodes)
+		{
+			return nearestTraversalNaive<IS_ROBUST, true>(
+				segment,
+				std::forward<TesterFunc>(intersectionTester));
+		}
+		else
+		{
+			return nearestTraversalNaive<IS_ROBUST, false>(
+				segment,
+				std::forward<TesterFunc>(intersectionTester));
+		}
+	}
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<bool IS_ROBUST, bool IS_SINGLE_SPLIT_AXIS, typename TesterFunc>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
+::nearestTraversalNaive(
+	const TLineSegment<real>& segment,
+	TesterFunc&& intersectionTester) const
+{
 	// Traversal states
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
 	Index currentNodeIndex = 0;
@@ -87,7 +125,17 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	bool hasHit = false;
 
 	// Precompute common values
+
 	const auto rcpSegmentDir = segment.getDir().rcp();
+
+	std::array<bool, 3> isNegDir;
+	if constexpr(IS_SINGLE_SPLIT_AXIS)
+	{
+		isNegDir = {
+			segment.getDir().x() < 0,
+			segment.getDir().y() < 0,
+			segment.getDir().z() < 0};
+	}
 
 	// Traverse nodes
 	while(true)
@@ -95,8 +143,19 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
 
-		for(std::size_t ci = 0; ci < N; ++ci)
+		std::array<Index, N> nextChildNodes;
+		std::size_t numNextChildNodes = 0;
+		for(std::size_t i = 0; i < N; ++i)
 		{
+			// If all children have the same split axis, traverse from the nearest one
+			std::size_t ci = i;
+			if constexpr(IS_SINGLE_SPLIT_AXIS)
+			{
+				const auto singleSplitAxis = node.getSplitAxis(0);
+				PH_ASSERT_LT(singleSplitAxis, isNegDir.size());
+				ci = isNegDir[singleSplitAxis] ? N - 1 - i : i;
+			}
+
 			const auto [aabbMinT, aabbMaxT] = node.getAABB(ci).isIntersectingVolume<IS_ROBUST>(
 				longestSegment, rcpSegmentDir);
 			if(aabbMinT <= aabbMaxT)
@@ -118,9 +177,18 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				}
 				else
 				{
-					todoNodes.push(node.getChildOffset(ci));
+					PH_ASSERT_LE(node.getChildOffset(), std::numeric_limits<Index>::max());
+					nextChildNodes[numNextChildNodes] = static_cast<Index>(node.getChildOffset(ci));
+					++numNextChildNodes;
 				}
 			}
+		}
+
+		// Push nodes to stack such that the nearest one is on top
+		while(numNextChildNodes > 0)
+		{
+			--numNextChildNodes;
+			todoNodes.push(nextChildNodes[numNextChildNodes]);
 		}
 
 		if(todoNodes.isEmpty())
@@ -180,6 +248,8 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 	// Leaf node should be converted already
 	PH_ASSERT_MSG(!infoNode->isLeaf(), "this method expects internal node as input");
 
+	m_isSingleSplitAxisNodes &= infoNode->isSingleSplitAxis();
+
 	const auto nodeIndex = m_numNodes;
 	NodeType* const node = &(m_nodes[nodeIndex]);
 	m_numNodes += 1;
@@ -192,6 +262,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 			continue;
 		}
 
+		const auto splitAxis = infoNode->getSplitAxis(ci);
 		if(childInfoNode->isLeaf())
 		{
 			const auto itemOffset = m_numItems;
@@ -205,6 +276,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 				ci,
 				childInfoNode->getAABB(),
 				itemOffset,
+				splitAxis,
 				childInfoNode->getItems().size());
 		}
 		else if(childInfoNode->isInternal())
@@ -216,7 +288,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 				ci,
 				childInfoNode->getAABB(),
 				childNodeIndex,
-				childInfoNode->getSplitAxis(ci));
+				splitAxis);
 		}
 		else
 		{

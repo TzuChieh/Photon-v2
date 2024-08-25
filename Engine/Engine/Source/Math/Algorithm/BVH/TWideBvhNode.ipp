@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Algorithm/BVH/TWideBvhNode.h"
-#include "Math/constant.h"
 
 namespace ph::math
 {
@@ -11,7 +10,7 @@ inline TWideBvhNode<N, Item, Index>
 ::TWideBvhNode()
 	: m_aabbs(make_array<AABB3D, 4>(AABB3D::makeEmpty()))
 	, m_offsets(make_array<Index, 4>(static_cast<Index>(-1)))
-	, m_numItemsAndFlags(make_array<uint8, 4>(LEAF_FLAG))// leaf with 0 item
+	, m_childrenData{}
 {}
 
 template<std::size_t N, typename Item, typename Index>
@@ -28,9 +27,9 @@ template<std::size_t N, typename Item, typename Index>
 inline bool TWideBvhNode<N, Item, Index>
 ::isLeaf(const std::size_t childIdx) const
 {
-	PH_ASSERT_LT(childIdx, m_numItemsAndFlags.size());
+	PH_ASSERT_LT(childIdx, m_childrenData.size());
 
-	return (m_numItemsAndFlags[childIdx] & FLAG_BITS_MASK) == LEAF_FLAG;
+	return m_childrenData[childIdx].isLeaf;
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -55,9 +54,7 @@ inline auto TWideBvhNode<N, Item, Index>
 ::getSplitAxis(const std::size_t childIdx) const
 -> std::size_t
 {
-	PH_ASSERT(isInternal(childIdx));
-
-	return static_cast<std::size_t>(m_numItemsAndFlags[childIdx] & FLAG_BITS_MASK);
+	return static_cast<std::size_t>(m_childrenData[childIdx].splitAxis);
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -77,7 +74,7 @@ inline auto TWideBvhNode<N, Item, Index>
 {
 	PH_ASSERT(isLeaf(childIdx));
 
-	return static_cast<std::size_t>(m_numItemsAndFlags[childIdx] >> NUM_FLAG_BITS);
+	return static_cast<std::size_t>(m_childrenData[childIdx].numItems);
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -89,16 +86,15 @@ inline auto TWideBvhNode<N, Item, Index>
 	const std::size_t splitAxis)
 -> TWideBvhNode&
 {
-	static_assert(constant::X_AXIS == X_AXIS_FLAG);
-	static_assert(constant::Y_AXIS == Y_AXIS_FLAG);
-	static_assert(constant::Z_AXIS == Z_AXIS_FLAG);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(splitAxis, 0, 2);
-
 	PH_ASSERT_LT(childIdx, m_aabbs.size());
+	PH_ASSERT_IN_RANGE_INCLUSIVE(splitAxis, 0, 2);
 
 	m_aabbs[childIdx] = childAABB;
 	m_offsets[childIdx] = lossless_cast<Index>(childOffset);
-	m_numItemsAndFlags[childIdx] = static_cast<uint8>(splitAxis);
+	m_childrenData[childIdx] = {
+		.isLeaf = false,
+		.splitAxis = static_cast<uint8>(splitAxis),
+		.numItems = 0};
 
 	return *this;
 }
@@ -109,14 +105,19 @@ inline auto TWideBvhNode<N, Item, Index>
 	const std::size_t childIdx,
 	const AABB3D& childAABB,
 	const std::size_t itemOffset,
+	const std::size_t splitAxis,
 	const std::size_t numItems)
 -> TWideBvhNode&
 {
+	PH_ASSERT_IN_RANGE_INCLUSIVE(splitAxis, 0, 2);
 	PH_ASSERT_LE(numItems, MAX_NODE_ITEMS);
 
 	m_aabbs[childIdx] = childAABB;
 	m_offsets[childIdx] = lossless_cast<Index>(itemOffset);
-	m_numItemsAndFlags[childIdx] = static_cast<uint8>((numItems << NUM_FLAG_BITS) | LEAF_FLAG);
+	m_childrenData[childIdx] = {
+		.isLeaf = true,
+		.splitAxis = static_cast<uint8>(splitAxis),
+		.numItems = static_cast<uint8>(numItems)};
 
 	return *this;
 }

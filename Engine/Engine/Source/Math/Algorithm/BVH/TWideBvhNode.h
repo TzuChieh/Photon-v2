@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/Geometry/TAABB3D.h"
+#include "Math/constant.h"
 
 #include <Common/primitive_type.h>
 #include <Common/utility.h>
@@ -22,14 +23,16 @@ class TWideBvhNode final
 	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
 
-	inline static constexpr std::size_t NUM_FLAG_BITS  = 2;
-	inline static constexpr std::size_t NUM_ITEMS_BITS = sizeof_in_bits<uint8>() - NUM_FLAG_BITS;
+	inline static constexpr std::size_t NUM_ITEMS_BITS = 5;
 
-	inline static constexpr uint8 FLAG_BITS_MASK = 0b11;
-	inline static constexpr uint8 X_AXIS_FLAG    = 0b00;
-	inline static constexpr uint8 Y_AXIS_FLAG    = 0b01;
-	inline static constexpr uint8 Z_AXIS_FLAG    = 0b10;
-	inline static constexpr uint8 LEAF_FLAG      = 0b11;
+	inline static constexpr uint8 X_AXIS_FLAG  = 0b00;
+	inline static constexpr uint8 Y_AXIS_FLAG  = 0b01;
+	inline static constexpr uint8 Z_AXIS_FLAG  = 0b10;
+	inline static constexpr uint8 NO_AXIS_FLAG = 0b11;
+
+	static_assert(constant::X_AXIS == X_AXIS_FLAG);
+	static_assert(constant::Y_AXIS == Y_AXIS_FLAG);
+	static_assert(constant::Z_AXIS == Z_AXIS_FLAG);
 
 public:
 	/*! Maximum number of items in a single node. */
@@ -66,35 +69,38 @@ public:
 		std::size_t childIdx,
 		const AABB3D& childAABB,
 		std::size_t itemOffset,
+		std::size_t splitAxis,
 		std::size_t numItems);
 
 private:
+	struct ChildData
+	{
+		uint8 isLeaf : 1 = true;
+		uint8 splitAxis : 2 = NO_AXIS_FLAG;
+		uint8 numItems : NUM_ITEMS_BITS = 0;
+	};
+
+	static_assert(sizeof(ChildData) == sizeof(uint8));
+
 	std::array<AABB3D, N> m_aabbs;
 
 	/*!
 	For internal nodes, this is the child offset. The first child offset does not need to be stored
 	for linear depth first trees. Since this node may contain both internal and leaf nodes, this
 	helps to simplify the logics.
+
 	For leaf nodes, this is the item offset. 
 	*/
 	std::array<Index, N> m_offsets;
 
 	/*!
-	We divide `uint8` into two parts: [6 bits][2 bits].
-	
-	The [6 bits] part:
-	- For internal nodes, the upper [6 bits] is unused.
-	- For leaf nodes, `numItems` is stored in the upper [6 bits]. 
-	
-	The [2 bits] part:
-	- `X_AXIS_FLAG`: splitting axis is X
-	- `Y_AXIS_FLAG`: splitting axis is Y
-	- `Z_AXIS_FLAG`: splitting axis is Z
-	- `LEAF_FLAG`  : this node is leaf
+	Since this is a fat node (children are directly stored in their parent), all child nodes have
+	an associated split axis. The axes stored can have multiple interpretations. See `getSplitAxis()`
+	for more details.
 
-	The axes stored can have multiple interpretations. See `getSplitAxis()` for more details.
+	For internal nodes, `numItems` is unused.
 	*/
-	std::array<uint8, N> m_numItemsAndFlags;
+	std::array<ChildData, N> m_childrenData;
 };
 
 }// end namespace ph::math
