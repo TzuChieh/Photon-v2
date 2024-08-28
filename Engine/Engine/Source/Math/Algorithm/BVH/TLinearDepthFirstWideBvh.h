@@ -20,7 +20,7 @@ template<std::size_t N, typename Item, typename Index>
 class TLinearDepthFirstWideBvh final
 {
 public:
-	using NodeType = TWideBvhNode<N, Item, Index>;
+	using NodeType = TWideBvhNode<N, Index>;
 
 	/*! Stack size for BVH traversal. The default should be enough for most cases, unless the tree
 	is highly unbalanced (and we should avoid this). */
@@ -40,6 +40,7 @@ public:
 	const NodeType& getRoot() const;
 	std::size_t numNodes() const;
 	std::size_t numItems() const;
+	std::size_t memoryUsage() const;
 
 private:
 	template<bool IS_ROBUST, bool IS_SINGLE_SPLIT_AXIS, typename TesterFunc>

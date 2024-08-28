@@ -18,9 +18,11 @@ inline auto TBvhInfoNode<N, Item>
 {
 	PH_ASSERT_LT(singleSplitAxis, NO_AXIS_FLAG);
 
+	const auto splitAxis = lossless_cast<uint8>(singleSplitAxis);
+
 	TBvhInfoNode internalNode{};
 	internalNode.m_children = children;
-	internalNode.m_singleSplitAxis = lossless_cast<uint8>(singleSplitAxis);
+	internalNode.m_singleSplitAxis = splitAxis;
 	internalNode.m_isLeaf = false;
 
 	for(std::size_t ci = 0; ci < children.size(); ++ci)
@@ -30,7 +32,7 @@ inline auto TBvhInfoNode<N, Item>
 			internalNode.m_aabb.unionWith(children[ci]->getAABB());
 		}
 
-		internalNode.m_perChildFlags[ci].splitAxis = lossless_cast<uint8>(singleSplitAxis);
+		internalNode.m_perChildFlags[ci].splitAxis = splitAxis;
 	}
 
 	return internalNode;

@@ -39,6 +39,7 @@ public:
 	const NodeType& getRoot() const;
 	std::size_t numNodes() const;
 	std::size_t numItems() const;
+	std::size_t memoryUsage() const;
 
 private:
 	void buildNodesRecursive(

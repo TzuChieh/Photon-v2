@@ -188,6 +188,16 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 					centroidsAABB,
 					&negativeChildItems,
 					&positiveChildItems);
+
+				// Potentially fallback to equal-item split if needed
+				if(!isSplitted && itemInfos.size() > m_params.maxNodeItems)
+				{
+					isSplitted = binarySplitWithEqualItems(
+						itemInfos,
+						maxDimension,
+						&negativeChildItems,
+						&positiveChildItems);
+				}
 			}
 			else
 			{
@@ -196,13 +206,15 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 				isSplitted = false;
 			}// end split method
 
+#if PH_DEBUG
 			if(isSplitted && (negativeChildItems.empty() || positiveChildItems.empty()))
 			{
 				PH_DEFAULT_DEBUG_LOG(
-					"BVH{} builder: bad split detected: #neg-child={}, #pos-child={}",
+					"BVH{} builder: bad binary split detected: #neg-child={}, #pos-child={}",
 					N, negativeChildItems.size(), positiveChildItems.size());
 				isSplitted = false;
 			}
+#endif
 
 			if(isSplitted)
 			{
@@ -238,6 +250,15 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 					nodeAABB,
 					centroidsAABB,
 					&itemParts);
+
+				// Potentially fallback to equal-item split if needed
+				if(!isSplitted && itemInfos.size() > m_params.maxNodeItems)
+				{
+					isSplitted = splitWithEqualItems(
+						itemInfos,
+						maxDimension,
+						&itemParts);
+				}
 			}
 			else
 			{
@@ -355,6 +376,8 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	PH_ASSERT(out_positivePart);
 	*out_negativePart = sortedItemInfos.subspan(0, midIndex + 1);
 	*out_positivePart = sortedItemInfos.subspan(midIndex + 1);
+
+	PH_ASSERT(!out_negativePart->empty() && !out_positivePart->empty());
 	return true;
 }
 
@@ -443,7 +466,7 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 
 		*out_negativePart = sortedItemInfos.subspan(0, posPartBegin - sortedItemInfos.begin());
 		*out_positivePart = sortedItemInfos.subspan(posPartBegin - sortedItemInfos.begin());
-		return true;
+		return !out_negativePart->empty() && !out_positivePart->empty();
 	}
 	else
 	{
@@ -464,6 +487,7 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	// of items. Divide and conquer can achieve O(n*logN), but the gain should only be significant
 	// for N > 4. We keep this simpler approach for now.
 	auto sortedItemInfos = itemInfos;
+	bool hasAnySplit = true;
 	for(std::size_t i = 0; i < N; ++i)
 	{
 		const auto [beginIdx, endIdx] = ith_evenly_divided_range(i, itemInfos.size(), N);
@@ -482,8 +506,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		}
 
 		(*out_parts)[i] = sortedItemInfos.subspan(beginIdx, endIdx - beginIdx);
+		hasAnySplit = hasAnySplit && (*out_parts)[i].size() < itemInfos.size();
 	}
-	return true;
+	return hasAnySplit;
 }
 
 template<std::size_t N, typename Item, typename ItemToAABB>
@@ -496,8 +521,6 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	std::array<TSpan<ItemInfoType>, N>* const out_parts)
 {
 	PH_ASSERT(out_parts);
-
-	constexpr std::size_t numBuckets = 64;
 
 	const auto dim            = splitDimension;
 	const auto rcpSplitExtent = safe_rcp(itemsCentroidAABB.getExtents()[dim]);
@@ -515,12 +538,13 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		buckets[bucketIndex].numItems++;
 	}
 
+	const auto noSplitCost = static_cast<real>(m_params.interactCost * itemInfos.size());
 	const auto emptySplitEnds = make_array<std::size_t, N>(m_params.numSahBuckets);
 
-	auto bestSplitCost = std::numeric_limits<real>::max();
+	auto bestSplitCost = noSplitCost;
 	auto bestSplitEnds = emptySplitEnds;
 	splitWithSahBucketsBacktracking(
-		splitDimension,
+		dim,
 		itemsAABB,
 		{buckets.begin(), m_params.numSahBuckets},
 		0,
@@ -530,13 +554,12 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		&bestSplitCost,
 		&bestSplitEnds);
 
-	const auto noSplitCost = static_cast<real>(m_params.interactCost * itemInfos.size());
-
 	if(bestSplitCost < noSplitCost || itemInfos.size() > m_params.maxNodeItems)
 	{
 		// Partition `itemInfos` into N parts. The complexity of the current implementation is similar
 		// to `splitWithEqualItems()`.
 		auto sortedItemInfos = itemInfos;
+		bool hasAnySplit = true;
 		for(std::size_t i = 0; i < N; ++i)
 		{
 			const auto splitBegin = i > 0 ? bestSplitEnds[i - 1] : 0;
@@ -560,8 +583,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 			const auto numPartItems = nextPartBegin - sortedItemInfos.begin();
 			(*out_parts)[i] = sortedItemInfos.subspan(0, numPartItems);
 			sortedItemInfos = sortedItemInfos.subspan(numPartItems);
+			hasAnySplit = hasAnySplit && (*out_parts)[i].size() < itemInfos.size();
 		}
-		return true;
+		return hasAnySplit;
 	}
 	else
 	{
@@ -591,7 +615,7 @@ inline void TBvhBuilder<N, Item, ItemToAABB>
 		return;
 	}
 
-	// Finish by running out of bucket or no more split can be made
+	// Finish due to running out of bucket or no more split can be made
 	if(splitBegin == buckets.size() || numSplits == N)
 	{
 		PH_ASSERT_LT(cost, *out_bestCost);

@@ -124,14 +124,27 @@ message(STATUS
     "Third-party library install directory set to \"${LIBS_INSTALL_DIR}\"; Modify by setting \"PH_THIRD_PARTY_LIBS_INSTALL_DIR\".")
 
 set(USE_FAST_MATH_DEFAULT OFF)
+set(USE_SIMD_DEFAULT ON)
 
-option(PH_ENABLE_DEBUG "Enable debug functionalities." ON)
-option(PH_ENABLE_PROFILING "Enable profiling functionalities." OFF)
-option(PH_DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
+option(PH_ENABLE_DEBUG
+    "Enable debug functionalities."
+    ON)
+
+option(PH_ENABLE_PROFILING
+    "Enable profiling functionalities."
+    OFF)
+
+option(PH_DOUBLE_PRECISION_REAL
+    "Use double precision type for real numbers."
+    OFF)
 
 option(PH_USE_FAST_MATH
-    "More room for optimization, may not preserve strict IEEE compliance." 
+    "More room for optimizations. This may not preserve strict IEEE compliance." 
     ${USE_FAST_MATH_DEFAULT})
+
+option(PH_USE_SIMD
+    "Use vector instruction set found on the target hardware to accelerate computing." 
+    ${USE_SIMD_DEFAULT})
 
 ###############################################################################
 # Compiler Settings                                                           #
@@ -435,7 +448,17 @@ if(PH_ENABLE_PROFILING)
             "Tracy not loaded. Tracy-related functionalities will not be available.")
     endif()
 endif()
-    
+   
+###############################################################################
+# Perform Feature Tests                                                       #
+###############################################################################
+
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_check_hardware_features.cmake")
+
+if(PH_USE_SIMD)
+    check_hardware_features()
+endif()
+
 ###############################################################################
 # Add CMake Subdirectories                                                    #
 ###############################################################################

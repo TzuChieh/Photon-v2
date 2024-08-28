@@ -172,6 +172,14 @@ inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
 }
 
 template<typename Item, typename IndexType>
+inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
+::memoryUsage() const
+-> std::size_t
+{
+	return sizeof(*this) + m_numNodes * sizeof(NodeType) + m_numItems * sizeof(Item);
+}
+
+template<typename Item, typename IndexType>
 inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
 ::buildNodesRecursive(
 	const TBvhInfoNode<2, Item>* infoNode)

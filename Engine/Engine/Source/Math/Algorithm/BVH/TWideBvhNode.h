@@ -2,9 +2,11 @@
 
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/constant.h"
+#include "Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
 #include <Common/utility.h>
+#include <Common/compiler.h>
 
 #include <cstddef>
 #include <type_traits>
@@ -17,7 +19,7 @@ namespace ph::math
 @note The layout of this node is different to ordinary node layout--children are directly stored in
 their parent, resulting in a "fat" node.
 */
-template<std::size_t N, typename Item, typename Index>
+template<std::size_t N, typename Index>
 class TWideBvhNode final
 {
 	static_assert(N >= 2);
@@ -42,10 +44,12 @@ public:
 	*/
 	TWideBvhNode();
 
-	const AABB3D& getAABB(std::size_t childIdx) const;
+	AABB3D getAABB(std::size_t childIdx) const;
 	bool isLeaf(std::size_t childIdx) const;
 	bool isInternal(std::size_t childIdx) const;
 	std::size_t getChildOffset(std::size_t childIdx) const;
+	TSpanView<real, N> getMinVerticesOnAxis(std::size_t axis) const;
+	TSpanView<real, N> getMaxVerticesOnAxis(std::size_t axis) const;
 
 	/*!
 	The most straightforward interpretation of the split axis is the axis that this child (`childIdx`)
@@ -72,6 +76,10 @@ public:
 		std::size_t splitAxis,
 		std::size_t numItems);
 
+	TWideBvhNode& setEmptyLeaf(
+		std::size_t childIdx,
+		std::size_t splitAxis);
+
 private:
 	struct ChildData
 	{
@@ -82,7 +90,8 @@ private:
 
 	static_assert(sizeof(ChildData) == sizeof(uint8));
 
-	std::array<AABB3D, N> m_aabbs;
+	alignas(16) std::array<std::array<real, N>, 3> m_aabbMins;
+	alignas(16) std::array<std::array<real, N>, 3> m_aabbMaxs;
 
 	/*!
 	For internal nodes, this is the child offset. The first child offset does not need to be stored

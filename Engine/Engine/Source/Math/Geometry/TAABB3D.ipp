@@ -400,7 +400,7 @@ inline std::pair<T, T> TAABB3D<T>::intersectVolumeRobust(
 	// Find ray-slab hitting interval in the i-th dimension then intersect with (tMin, tMax)
 	for(std::size_t i = 0; i < 3; ++i)
 	{
-		const T minMaxSlabDist[2] = {
+		const std::array<T, 2> minMaxSlabDist{
 			m_minVertex[i] - segment.getOrigin()[i],
 			m_maxVertex[i] - segment.getOrigin()[i]};
 

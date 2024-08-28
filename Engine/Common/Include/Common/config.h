@@ -19,9 +19,9 @@
 Assertions will be enabled on debug mode.
 */
 #ifdef PH_CONFIG_ENABLE_DEBUG
-	#define PH_DEBUG 1
+#define PH_DEBUG 1
 #else
-	#define PH_DEBUG 0
+#define PH_DEBUG 0
 #endif
 
 #ifdef PH_CONFIG_ENABLE_PROFILING
@@ -135,6 +135,56 @@ Note that a byte is not necessarily 8-bit.
 #define PH_HIT_PROBE_CACHE_BYTES 32
 
 #define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
+
+///////////////////////////////////////////////////////////////////////////////
+// Hardware Dependent Instruction Sets                                       //
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef PH_CONFIG_USE_SIMD
+#define PH_USE_SIMD 1
+#else
+#define PH_USE_SIMD 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSE
+#define PH_HARDWARE_HAS_SSE 1
+#else
+#define PH_HARDWARE_HAS_SSE 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSE2
+#define PH_HARDWARE_HAS_SSE2 1
+#else
+#define PH_HARDWARE_HAS_SSE2 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSE3
+#define PH_HARDWARE_HAS_SSE3 1
+#else
+#define PH_HARDWARE_HAS_SSE3 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSSE3
+#define PH_HARDWARE_HAS_SSSE3 1
+#else
+#define PH_HARDWARE_HAS_SSSE3 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSE4_1
+#define PH_HARDWARE_HAS_SSE4_1 1
+#else
+#define PH_HARDWARE_HAS_SSE4_1 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_SSE4_2
+#define PH_HARDWARE_HAS_SSE4_2 1
+#else
+#define PH_HARDWARE_HAS_SSE4_2 0
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+// Miscellaneous                                                             //
+///////////////////////////////////////////////////////////////////////////////
 
 namespace ph
 {

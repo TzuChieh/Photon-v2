@@ -5,6 +5,7 @@
 #include "Core/Ray.h"
 #include "Math/Algorithm/BVH/TBvhBuilder.h"
 #include "Math/Geometry/TAABB3D.h"
+#include "Math/math.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -83,7 +84,8 @@ inline void TClassicBvhIntersector<Index>
 	
 	PH_DEFAULT_LOG(Note,
 		"intersector: Classic BVH ({}-byte index), total intersectables: {}, total nodes: {}, "
-		"max tree depth: {}", sizeof(Index), m_bvh.numItems(), m_bvh.numNodes(), treeDepth);
+		"max tree depth: {}, memory usage: {} GiB", sizeof(Index), m_bvh.numItems(),
+		m_bvh.numNodes(), treeDepth, math::bytes_to_GiB<double>(m_bvh.memoryUsage()));
 
 	if(treeDepth > m_bvh.TRAVERSAL_STACK_SIZE)
 	{

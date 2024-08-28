@@ -3,6 +3,7 @@
 #include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
+#include "Math/Algorithm/BVH/TBvhSseF32Context.h"
 #include "Math/Algorithm/traversal_concepts.h"
 #include "Utility/TArrayStack.h"
 
@@ -31,7 +32,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 	}
 
 	// Allocate memory for nodes and items
-	m_nodes = std::make_unique<TWideBvhNode<N, Item, Index>[]>(totalInfoNodes);
+	m_nodes = std::make_unique<TWideBvhNode<N, Index>[]>(totalInfoNodes);
 	m_items = std::make_unique<Item[]>(totalItems);
 
 	// Can directly convert if the branch factor matches
@@ -137,11 +138,17 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			segment.getDir().z() < 0};
 	}
 
+	TBvhSseF32Context<N, Index> ctx;
+	ctx.setSegment(segment.getOrigin(), rcpSegmentDir);
+
 	// Traverse nodes
 	while(true)
 	{
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
+
+		ctx.setNode(node);
+		const auto hitMask = ctx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
 
 		std::array<Index, N> nextChildNodes;
 		std::size_t numNextChildNodes = 0;
@@ -156,9 +163,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				ci = isNegDir[singleSplitAxis] ? N - 1 - i : i;
 			}
 
-			const auto [aabbMinT, aabbMaxT] = node.getAABB(ci).isIntersectingVolume<IS_ROBUST>(
-				longestSegment, rcpSegmentDir);
-			if(aabbMinT <= aabbMaxT)
+			/*const auto [aabbMinT, aabbMaxT] = node.getAABB(ci).isIntersectingVolume<IS_ROBUST>(
+				longestSegment, rcpSegmentDir);*/
+			//if(aabbMinT <= aabbMaxT)
+			if((hitMask >> ci) & 0b1)
 			{
 				if(node.isLeaf(ci))
 				{
@@ -177,7 +185,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				}
 				else
 				{
-					PH_ASSERT_LE(node.getChildOffset(), std::numeric_limits<Index>::max());
+					PH_ASSERT_LE(node.getChildOffset(ci), std::numeric_limits<Index>::max());
 					nextChildNodes[numNextChildNodes] = static_cast<Index>(node.getChildOffset(ci));
 					++numNextChildNodes;
 				}
@@ -239,6 +247,14 @@ inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
 }
 
 template<std::size_t N, typename Item, typename IndexType>
+inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+::memoryUsage() const
+-> std::size_t
+{
+	return sizeof(*this) + m_numNodes * sizeof(NodeType) + m_numItems * sizeof(Item);
+}
+
+template<std::size_t N, typename Item, typename IndexType>
 inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::convertChildNodesRecursive(
 	const TBvhInfoNode<N, Item>* const infoNode)
@@ -257,12 +273,13 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 	for(std::size_t ci = 0; ci < infoNode->numChildren(); ++ci)
 	{
 		const TBvhInfoNode<N, Item>* const childInfoNode = infoNode->getChild(ci);
+		const auto splitAxis = infoNode->getSplitAxis(ci);
 		if(!childInfoNode)
 		{
+			node->setEmptyLeaf(ci, splitAxis);
 			continue;
 		}
-
-		const auto splitAxis = infoNode->getSplitAxis(ci);
+		
 		if(childInfoNode->isLeaf())
 		{
 			const auto itemOffset = m_numItems;

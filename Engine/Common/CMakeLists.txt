@@ -60,5 +60,35 @@ if(PH_DOUBLE_PRECISION_REAL)
 		PUBLIC PH_CONFIG_DOUBLE_PRECISION_REAL)
 endif()
 
+if(PH_USE_SIMD)
+	target_compile_definitions(Common
+		PUBLIC PH_CONFIG_USE_SIMD)
+
+	if(PH_HARDWARE_HAS_SSE)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE)
+	endif()
+	if(PH_HARDWARE_HAS_SSE2)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE2)
+	endif()
+	if(PH_HARDWARE_HAS_SSE3)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE3)
+	endif()
+	if(PH_HARDWARE_HAS_SSSE3)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSSE3)
+	endif()
+	if(PH_HARDWARE_HAS_SSE4_1)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE4_1)
+	endif()
+	if(PH_HARDWARE_HAS_SSE4_2)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE4_2)
+	endif()
+endif()
+
 source_group(TREE ${COMMON_LIB_DIR} FILES ${COMMON_LIB_HEADER_FILES})
 source_group(TREE ${COMMON_LIB_DIR} FILES ${COMMON_LIB_SOURCE_FILES})
