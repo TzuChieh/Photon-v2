@@ -85,7 +85,9 @@ private:
 		CookingContext& ctx,
 		std::vector<TransientVisualElement>& out_elements);
 
-	void createTopLevelAccelerator(EAccelerator acceleratorType);
+	static std::unique_ptr<Intersector> createTopLevelAccelerator(
+		EAccelerator acceleratorType,
+		TSpanView<const Intersectable*> intersectables);
 
 	static math::AABB3D calcElementBound(TSpanView<TransientVisualElement> elements);
 };

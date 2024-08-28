@@ -170,8 +170,11 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_PROFILE_NAMED_SCOPE("Update accelerators");
 		PH_SCOPED_TIMER(UpdateAccelerators);
 
-		createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType());
-		m_tlas->update(visibleIntersectables);
+		m_tlas = createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType(), visibleIntersectables);
+		if(m_tlas)
+		{
+			m_tlas->update(visibleIntersectables);
+		}
 	}
 
 	PH_LOG(VisualWorld, Note, "updating light sampler...");
@@ -236,7 +239,9 @@ void VisualWorld::cookActors(
 	}
 }
 
-void VisualWorld::createTopLevelAccelerator(EAccelerator acceleratorType)
+std::unique_ptr<Intersector> VisualWorld::createTopLevelAccelerator(
+	EAccelerator acceleratorType,
+	TSpanView<const Intersectable*> intersectables)
 {
 	if(acceleratorType == EAccelerator::Unspecified)
 	{
@@ -246,38 +251,52 @@ void VisualWorld::createTopLevelAccelerator(EAccelerator acceleratorType)
 		acceleratorType = EAccelerator::BVH;
 	}
 
-	switch(acceleratorType)
-	{
-	case EAccelerator::BruteForce:
-		m_tlas = std::make_unique<BruteForceIntersector>();
-		break;
-
-	case EAccelerator::BVH:
-		m_tlas = std::make_unique<TClassicBvhIntersector<std::size_t>>();
-		break;
-
-	case EAccelerator::BVH4:
-		m_tlas = std::make_unique<TGeneralBvhIntersector<4, std::size_t>>();
-		break;
-
-	case EAccelerator::Kdtree:
-		m_tlas = std::make_unique<KdtreeIntersector>();
-		break;
-
-	// FIXME: need to ensure sufficient max value
-	case EAccelerator::IndexedKdtree:
-		m_tlas = std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
-		break;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		m_tlas = nullptr;
-		break;
-	}
-
 	PH_LOG(VisualWorld, Note,
 		"top-level acceleration structure (TLAS): {}",
 		sdl::name_to_title_case(TSdlEnum<EAccelerator>{}[acceleratorType]));
+
+	switch(acceleratorType)
+	{
+	case EAccelerator::BruteForce:
+		return std::make_unique<BruteForceIntersector>();
+
+	case EAccelerator::BVH:
+		return std::make_unique<TClassicBvhIntersector<std::size_t>>();
+
+	case EAccelerator::BVH4:
+		if(intersectables.size() <= std::numeric_limits<uint8>::max())
+		{
+			return std::make_unique<TGeneralBvhIntersector<4, uint8>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint16>::max())
+		{
+			return std::make_unique<TGeneralBvhIntersector<4, uint16>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint32>::max())
+		{
+			return std::make_unique<TGeneralBvhIntersector<4, uint32>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint64>::max())
+		{
+			return std::make_unique<TGeneralBvhIntersector<4, uint64>>();
+		}
+		else
+		{
+			PH_ASSERT_UNREACHABLE_SECTION();
+			return nullptr;
+		}
+
+	case EAccelerator::Kdtree:
+		return std::make_unique<KdtreeIntersector>();
+
+	// FIXME: need to ensure sufficient max value
+	case EAccelerator::IndexedKdtree:
+		return std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return nullptr;
+	}
 }
 
 math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)

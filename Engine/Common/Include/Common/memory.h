@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <array>
 
 namespace ph
 {
@@ -61,6 +62,18 @@ using TAlignedMemoryUniquePtr = std::unique_ptr<T, detail::AlignedMemoryDeleter>
 // 
 // The following test will ensure this is true:
 static_assert(sizeof(TAlignedMemoryUniquePtr<void>) == sizeof(void*));
+
+/*! @brief Aligned version of `std::array`.
+[class.mem] section 20 (https://timsong-cpp.github.io/cppwp/n3337/class.mem#20) supports that the
+alignment can pass through to the inherited `std::array` as long as the derived type is also a
+standard-layout type.
+*/
+template<typename T, std::size_t N, std::size_t ALIGNMENT_IN_BYTES = 0>
+struct alignas(ALIGNMENT_IN_BYTES) TAlignedArray : public std::array<T, N>
+{
+	// Do not add any member here. This struct must be a standard-layout type and nothing else but
+	// being an aligned alias to `std::array`.
+};
 
 /*! @brief Create an aligned memory resource.
 

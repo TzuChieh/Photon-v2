@@ -7,6 +7,7 @@
 #include <Common/primitive_type.h>
 #include <Common/utility.h>
 #include <Common/compiler.h>
+#include <Common/memory.h>
 
 #include <cstddef>
 #include <type_traits>
@@ -48,8 +49,15 @@ public:
 	bool isLeaf(std::size_t childIdx) const;
 	bool isInternal(std::size_t childIdx) const;
 	std::size_t getChildOffset(std::size_t childIdx) const;
+
+	/*! @brief Obtain min. and max. vertices of the child AABBs in SoA layout.
+	@param axis The axis (dimension) to obtain.
+	@return View of the coordinates on the specified axis. The view has at least 16-byte alignment.
+	*/
+	///@{
 	TSpanView<real, N> getMinVerticesOnAxis(std::size_t axis) const;
 	TSpanView<real, N> getMaxVerticesOnAxis(std::size_t axis) const;
+	///@}
 
 	/*!
 	The most straightforward interpretation of the split axis is the axis that this child (`childIdx`)
@@ -90,8 +98,8 @@ private:
 
 	static_assert(sizeof(ChildData) == sizeof(uint8));
 
-	alignas(16) std::array<std::array<real, N>, 3> m_aabbMins;
-	alignas(16) std::array<std::array<real, N>, 3> m_aabbMaxs;
+	TAlignedArray<std::array<real, N>, 3, 16> m_aabbMins;
+	TAlignedArray<std::array<real, N>, 3, 16> m_aabbMaxs;
 
 	/*!
 	For internal nodes, this is the child offset. The first child offset does not need to be stored

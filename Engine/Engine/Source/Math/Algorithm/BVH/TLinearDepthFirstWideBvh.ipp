@@ -3,14 +3,13 @@
 #include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
-#include "Math/Algorithm/BVH/TBvhSseF32Context.h"
+#include "Math/Algorithm/BVH/TBvhSseF32ComputingContext.h"
 #include "Math/Algorithm/traversal_concepts.h"
 #include "Utility/TArrayStack.h"
 
 #include <Common/assertion.h>
 
 #include <type_traits>
-#include <array>
 #include <utility>
 #include <limits>
 
@@ -48,7 +47,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 			{
 				m_items[itemOffset + i] = rootNode->getItems()[i].item;
 			}
-			m_numItems += rootNode->getItems().size();
+			m_numItems += static_cast<Index>(rootNode->getItems().size());
 
 			// Does not matter as there is only a single child
 			constexpr std::size_t singleLeafSplitAxis = constant::X_AXIS;
@@ -81,6 +80,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+	static_assert(std::numeric_limits<real>::has_infinity);
 
 	if(isEmpty())
 	{
@@ -94,6 +94,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	{
 		// TODO
 		PH_ASSERT_UNREACHABLE_SECTION();
+		return false;
 	}
 	else
 	{
@@ -127,6 +128,8 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 
 	// Precompute common values
 
+	//constexpr auto singleSplitAxisOrderTable = makeSingleSplitAxisOrderTable();
+
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
 	std::array<bool, 3> isNegDir;
@@ -138,8 +141,11 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			segment.getDir().z() < 0};
 	}
 
-	TBvhSseF32Context<N, Index> ctx;
-	ctx.setSegment(segment.getOrigin(), rcpSegmentDir);
+	TBvhSseF32ComputingContext<N, Index> sseCtx;
+	if constexpr(sseCtx.isSupported())
+	{
+		sseCtx.setSegment(segment.getOrigin(), rcpSegmentDir);
+	}
 
 	// Traverse nodes
 	while(true)
@@ -147,8 +153,26 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
 
-		ctx.setNode(node);
-		const auto hitMask = ctx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+		//uint32f sseHitMask = 0;
+		decltype(sseCtx.getIntersectResultAsMinTsOr(0)) sseHitTs;
+		if constexpr(sseCtx.isSupported())
+		{
+			sseCtx.setNode(node);
+			sseCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+			sseHitTs = sseCtx.getIntersectResultAsMinTsOr(std::numeric_limits<real>::infinity());
+			//sseHitMask = sseCtx.getIntersectResultAsMask();
+		}
+
+		std::array<real, N> hitTs;
+		if constexpr(!sseCtx.isSupported())
+		{
+			for(std::size_t i = 0; i < N; ++i)
+			{
+				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
+					longestSegment, rcpSegmentDir);
+				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : std::numeric_limits<real>::infinity();
+			}
+		}
 
 		std::array<Index, N> nextChildNodes;
 		std::size_t numNextChildNodes = 0;
@@ -161,12 +185,21 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				const auto singleSplitAxis = node.getSplitAxis(0);
 				PH_ASSERT_LT(singleSplitAxis, isNegDir.size());
 				ci = isNegDir[singleSplitAxis] ? N - 1 - i : i;
+				//ci = singleSplitAxisOrderTable[isNegDir[singleSplitAxis]][i];
 			}
 
-			/*const auto [aabbMinT, aabbMaxT] = node.getAABB(ci).isIntersectingVolume<IS_ROBUST>(
-				longestSegment, rcpSegmentDir);*/
-			//if(aabbMinT <= aabbMaxT)
-			if((hitMask >> ci) & 0b1)
+			bool isChildHit = false;
+			if constexpr(sseCtx.isSupported())
+			{
+				//isChildHit = (sseHitMask >> ci) & 0b1;
+				isChildHit = sseHitTs[ci] < longestSegment.getMaxT();
+			}
+			else
+			{
+				isChildHit = hitTs[ci] < longestSegment.getMaxT();
+			}
+
+			if(isChildHit)
 			{
 				if(node.isLeaf(ci))
 				{
@@ -213,15 +246,15 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	return hasHit;
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline bool TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::isEmpty() const
 {
 	return m_numNodes == 0;
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::getRoot() const
 -> const NodeType&
 {
@@ -230,32 +263,32 @@ inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
 	return m_nodes[0];
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::numNodes() const
 -> std::size_t
 {
 	return m_numNodes;
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::numItems() const
 -> std::size_t
 {
 	return m_numItems;
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::memoryUsage() const
 -> std::size_t
 {
 	return sizeof(*this) + m_numNodes * sizeof(NodeType) + m_numItems * sizeof(Item);
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline void TLinearDepthFirstWideBvh<N, Item, Index>
 ::convertChildNodesRecursive(
 	const TBvhInfoNode<N, Item>* const infoNode)
 {
@@ -287,7 +320,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 			{
 				m_items[itemOffset + i] = childInfoNode->getItems()[i].item;
 			}
-			m_numItems += childInfoNode->getItems().size();
+			m_numItems += static_cast<Index>(childInfoNode->getItems().size());
 
 			node->setLeaf(
 				ci,
@@ -314,8 +347,8 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 	}
 }
 
-template<std::size_t N, typename Item, typename IndexType>
-inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
+template<std::size_t N, typename Item, typename Index>
+inline void TLinearDepthFirstWideBvh<N, Item, Index>
 ::refitBuffer(const std::size_t nodeBufferSize, const std::size_t itemBufferSize)
 {
 	// For potentially better performance on buffer content copying
@@ -339,6 +372,23 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 
 		m_items = std::move(items);
 	}
+}
+
+template<std::size_t N, typename Item, typename Index>
+inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
+::makeSingleSplitAxisOrderTable()
+-> std::array<std::array<std::size_t, N>, 2>
+{
+	std::array<std::array<std::size_t, N>, 2> table;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		// Positive segment direction
+		table[0][i] = i;
+
+		// Negative segment direction
+		table[1][i] = N - 1 - i;
+	}
+	return table;
 }
 
 }// end namespace ph::math

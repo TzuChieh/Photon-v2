@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <memory>
+#include <array>
 
 namespace ph::math
 {
@@ -58,6 +59,9 @@ private:
 		const TBvhInfoNode<SrcN, Item>* infoNode);
 
 	void refitBuffer(std::size_t nodeBufferSize, std::size_t itemBufferSize);
+
+	static constexpr auto makeSingleSplitAxisOrderTable()
+	-> std::array<std::array<std::size_t, N>, 2>;
 
 	std::unique_ptr<NodeType[]> m_nodes;
 	std::unique_ptr<Item[]> m_items;
