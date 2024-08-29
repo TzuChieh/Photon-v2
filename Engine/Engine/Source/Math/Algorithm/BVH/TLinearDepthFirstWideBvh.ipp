@@ -4,7 +4,7 @@
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
 #include "Math/Algorithm/BVH/TBvhSseF32ComputingContext.h"
-#include "Math/Algorithm/traversal_concepts.h"
+#include "Math/Algorithm/acceleration_structure_basics.h"
 #include "Utility/TArrayStack.h"
 
 #include <Common/assertion.h>
@@ -24,6 +24,10 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 	const std::size_t totalInfoNodes,
 	const std::size_t totalItems)
 {
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+	PH_PROFILE_SCOPE();
+#endif
+
 	*this = TLinearDepthFirstWideBvh{};
 	if(!rootNode)
 	{
@@ -82,6 +86,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 	static_assert(std::numeric_limits<real>::has_infinity);
 
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+	PH_PROFILE_SCOPE();
+#endif
+
 	if(isEmpty())
 	{
 		return false;
@@ -120,6 +128,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	const TLineSegment<real>& segment,
 	TesterFunc&& intersectionTester) const
 {
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+	PH_PROFILE_SCOPE();
+#endif
+
 	// Traversal states
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
 	Index currentNodeIndex = 0;
@@ -129,6 +141,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	// Precompute common values
 
 	//constexpr auto singleSplitAxisOrderTable = makeSingleSplitAxisOrderTable();
+	constexpr auto largestHitT = std::numeric_limits<real>::infinity();
 
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
@@ -150,6 +163,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	// Traverse nodes
 	while(true)
 	{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+		PH_PROFILE_NAMED_SCOPE("Traversal loop body");
+#endif
+
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
 
@@ -157,20 +174,28 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		decltype(sseCtx.getIntersectResultAsMinTsOr(0)) sseHitTs;
 		if constexpr(sseCtx.isSupported())
 		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("SSE batch AABB intersection");
+#endif
+
 			sseCtx.setNode(node);
 			sseCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
-			sseHitTs = sseCtx.getIntersectResultAsMinTsOr(std::numeric_limits<real>::infinity());
+			sseHitTs = sseCtx.getIntersectResultAsMinTsOr(largestHitT);
 			//sseHitMask = sseCtx.getIntersectResultAsMask();
 		}
 
 		std::array<real, N> hitTs;
 		if constexpr(!sseCtx.isSupported())
 		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("Batch AABB intersection");
+#endif
+
 			for(std::size_t i = 0; i < N; ++i)
 			{
 				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
-				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : std::numeric_limits<real>::infinity();
+				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
 			}
 		}
 
@@ -188,25 +213,21 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				//ci = singleSplitAxisOrderTable[isNegDir[singleSplitAxis]][i];
 			}
 
-			bool isChildHit = false;
+			real minT = hitTs[ci];
 			if constexpr(sseCtx.isSupported())
 			{
 				//isChildHit = (sseHitMask >> ci) & 0b1;
-				isChildHit = sseHitTs[ci] < longestSegment.getMaxT();
-			}
-			else
-			{
-				isChildHit = hitTs[ci] < longestSegment.getMaxT();
+				minT = sseHitTs[ci];
 			}
 
-			if(isChildHit)
+			if(minT < longestSegment.getMaxT())
 			{
 				if(node.isLeaf(ci))
 				{
 					const auto numItems = node.numItems(ci);
-					for(std::size_t i = 0; i < numItems; ++i)
+					for(std::size_t ii = 0; ii < numItems; ++ii)
 					{
-						const Item& item = m_items[node.getItemOffset(ci) + i];
+						const Item& item = m_items[node.getItemOffset(ci) + ii];
 
 						const auto optHitT = intersectionTester(item, longestSegment);
 						if(optHitT)

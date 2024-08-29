@@ -3,7 +3,7 @@
 #include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
-#include "Math/Algorithm/traversal_concepts.h"
+#include "Math/Algorithm/acceleration_structure_basics.h"
 #include "Utility/TArrayStack.h"
 
 #include <Common/assertion.h>

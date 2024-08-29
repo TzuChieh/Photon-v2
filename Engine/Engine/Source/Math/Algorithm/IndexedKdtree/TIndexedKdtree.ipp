@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
-#include "Math/Algorithm/traversal_concepts.h"
+#include "Math/Algorithm/acceleration_structure_basics.h"
 
 #include <limits>
 #include <array>

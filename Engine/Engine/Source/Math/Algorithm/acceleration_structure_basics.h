@@ -3,10 +3,17 @@
 #include "Math/Geometry/TLineSegment.h"
 
 #include <Common/primitive_type.h>
+#include <Common/config.h>
 
 #include <concepts>
 #include <optional>
 #include <cstddef>
+
+#define PH_PROFILE_ACCELERATION_STRUCTURES (1 && PH_PROFILING)
+
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+#include <Common/profiling.h>
+#endif
 
 namespace ph::math
 {

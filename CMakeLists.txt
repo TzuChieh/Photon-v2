@@ -195,6 +195,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # object file is not compatible to pre-2005 MSVC linker).
     add_compile_options(/bigobj)
 
+    # Disable security checks on Release as they have slight overhead (~0.01% on my machine) 
+    add_compile_options($<$<CONFIG:Release>:/GS->)
+
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
