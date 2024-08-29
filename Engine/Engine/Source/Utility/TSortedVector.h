@@ -107,7 +107,8 @@ public:
 
 private:
 	std::vector<ValueType> m_sortedValues;
-	IsLess                 m_isLess;
+
+	[[no_unique_address]] IsLess m_isLess;
 
 	/*!
 	Find the index to the first value x that satisfies x >= `targetValue`.

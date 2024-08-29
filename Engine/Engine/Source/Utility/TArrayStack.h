@@ -20,11 +20,13 @@ public:
 	TArrayStack();
 
 	/*! @brief Adds an item to the stack.
+	The item originally at the target index will be overwritten.
 	*/
 	template<typename U>
 	void push(U&& item);
 
-	/*! @brief Removes an item from the stack.
+	/*! @brief Removes the top item from the stack.
+	The item originally at the target index is still alive after this call.
 	*/
 	void pop();
 

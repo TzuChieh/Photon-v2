@@ -17,10 +17,17 @@ class TArrayVector final
 public:
 	TArrayVector();
 
+	/*! @brief Add an item to the back of the vector.
+	The item originally at the target index will be overwritten.
+	*/
 	template<typename U>
 	void pushBack(U&& item);
 
+	/*! @brief Removes an item from the back of the vector.
+	The item originally at the target index is still alive after this call.
+	*/
 	void popBack();
+
 	T& front();
 	const T& front() const;
 	T& back();
