@@ -6,12 +6,14 @@
 #include "Math/Algorithm/BVH/TBvhSseF32ComputingContext.h"
 #include "Math/Algorithm/acceleration_structure_basics.h"
 #include "Utility/TArrayStack.h"
+#include "Utility/TArrayHeap.h"
 
 #include <Common/assertion.h>
 
 #include <type_traits>
 #include <utility>
 #include <limits>
+#include <functional>
 
 namespace ph::math
 {
@@ -132,15 +134,31 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	PH_PROFILE_SCOPE();
 #endif
 
+	struct GeneralTodoNode
+	{
+		real minT;
+		Index nodeIndex;
+
+		bool operator > (const GeneralTodoNode& other) const
+		{
+			return minT > other.minT;
+		}
+	};
+
 	// Traversal states
+
+	// For general case: greedily extract minimum t using a min heap
+	TArrayHeap<GeneralTodoNode, TRAVERSAL_STACK_SIZE, std::greater<>> generalTodoNodes;
+
+	// For single split axis: add nodes to a stack
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
+
 	Index currentNodeIndex = 0;
 	TLineSegment<real> longestSegment(segment);
 	bool hasHit = false;
 
 	// Precompute common values
 
-	//constexpr auto singleSplitAxisOrderTable = makeSingleSplitAxisOrderTable();
 	constexpr auto largestHitT = std::numeric_limits<real>::infinity();
 
 	const auto rcpSegmentDir = segment.getDir().rcp();
@@ -166,31 +184,25 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #if PH_PROFILE_ACCELERATION_STRUCTURES
 		PH_PROFILE_NAMED_SCOPE("Traversal loop body");
 #endif
-
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
 
-		//uint32f sseHitMask = 0;
+		std::array<real, N> hitTs;
 		decltype(sseCtx.getIntersectResultAsMinTsOr(0)) sseHitTs;
 		if constexpr(sseCtx.isSupported())
 		{
 #if PH_PROFILE_ACCELERATION_STRUCTURES
-			PH_PROFILE_NAMED_SCOPE("SSE batch AABB intersection");
+			PH_PROFILE_NAMED_SCOPE("SSE batched AABB intersection");
 #endif
-
 			sseCtx.setNode(node);
 			sseCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
 			sseHitTs = sseCtx.getIntersectResultAsMinTsOr(largestHitT);
-			//sseHitMask = sseCtx.getIntersectResultAsMask();
 		}
-
-		std::array<real, N> hitTs;
-		if constexpr(!sseCtx.isSupported())
+		else
 		{
 #if PH_PROFILE_ACCELERATION_STRUCTURES
-			PH_PROFILE_NAMED_SCOPE("Batch AABB intersection");
+			PH_PROFILE_NAMED_SCOPE("Batched AABB intersection");
 #endif
-
 			for(std::size_t i = 0; i < N; ++i)
 			{
 				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
@@ -207,16 +219,12 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			std::size_t ci = i;
 			if constexpr(IS_SINGLE_SPLIT_AXIS)
 			{
-				const auto singleSplitAxis = node.getSplitAxis(0);
-				PH_ASSERT_LT(singleSplitAxis, isNegDir.size());
-				ci = isNegDir[singleSplitAxis] ? N - 1 - i : i;
-				//ci = singleSplitAxisOrderTable[isNegDir[singleSplitAxis]][i];
+				ci = isNegDir[node.getSplitAxis(0)] ? N - 1 - i : i;
 			}
 
 			real minT = hitTs[ci];
 			if constexpr(sseCtx.isSupported())
 			{
-				//isChildHit = (sseHitMask >> ci) & 0b1;
 				minT = sseHitTs[ci];
 			}
 
@@ -240,27 +248,52 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				else
 				{
 					PH_ASSERT_LE(node.getChildOffset(ci), std::numeric_limits<Index>::max());
-					nextChildNodes[numNextChildNodes] = static_cast<Index>(node.getChildOffset(ci));
-					++numNextChildNodes;
+					const auto childNodeIndex = static_cast<Index>(node.getChildOffset(ci));
+					if constexpr(IS_SINGLE_SPLIT_AXIS)
+					{
+						nextChildNodes[numNextChildNodes] = childNodeIndex;
+						++numNextChildNodes;
+					}
+					else
+					{
+						generalTodoNodes.push(GeneralTodoNode{
+							.minT = minT,
+							.nodeIndex = childNodeIndex});
+					}
 				}
 			}
 		}
 
-		// Push nodes to stack such that the nearest one is on top
-		while(numNextChildNodes > 0)
+		if constexpr(IS_SINGLE_SPLIT_AXIS)
 		{
-			--numNextChildNodes;
-			todoNodes.push(nextChildNodes[numNextChildNodes]);
-		}
+			// Push nodes to stack such that the nearest one is on top
+			while(numNextChildNodes > 0)
+			{
+				--numNextChildNodes;
+				todoNodes.push(nextChildNodes[numNextChildNodes]);
+			}
 
-		if(todoNodes.isEmpty())
-		{
-			break;
+			if(todoNodes.isEmpty())
+			{
+				break;
+			}
+			else
+			{
+				currentNodeIndex = todoNodes.top();
+				todoNodes.pop();
+			}
 		}
 		else
 		{
-			currentNodeIndex = todoNodes.top();
-			todoNodes.pop();
+			if(generalTodoNodes.isEmpty())
+			{
+				break;
+			}
+			else
+			{
+				currentNodeIndex = generalTodoNodes.top().nodeIndex;
+				generalTodoNodes.pop();
+			}
 		}
 	}
 	

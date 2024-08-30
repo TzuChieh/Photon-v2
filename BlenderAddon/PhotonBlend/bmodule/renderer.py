@@ -483,6 +483,7 @@ class PH_RENDERING_PT_data_structures(PhRenderPanel):
             ('brute-force', "Brute Force", "Iteratively test every object. Super-duper SLOW.", 0),
             ('bvh', "BVH", "Bounding volume hierarchy.", 1),
             ('bvh4', "BVH4", "Bounding volume hierarchy (branch factor = 4).", 3),
+            ('bvh8', "BVH8", "Bounding volume hierarchy (branch factor = 8).", 4),
             ('indexed-kd-tree', "Indexed Kd-tree", "Indexed Kd-tree.", 2)
         ],
         name="Top Level Accelerator",

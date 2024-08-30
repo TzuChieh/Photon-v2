@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Core/Intersection/BVH/TGeneralBvhIntersector.h"
+#include "Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Math/Algorithm/BVH/TBvhBuilder.h"
+#include "Math/Geometry/TAABB3D.h"
 #include "Math/math.h"
 
 #include <Common/assertion.h>
@@ -14,15 +15,15 @@
 namespace ph
 {
 
-template<std::size_t N, typename Index>
-inline void TGeneralBvhIntersector<N, Index>
+template<typename Index>
+inline void TBinaryBvhIntersector<Index>
 ::update(TSpanView<const Intersectable*> intersectables)
 {
 	rebuildWithIntersectables(intersectables);
 }
 
-template<std::size_t N, typename Index>
-inline bool TGeneralBvhIntersector<N, Index>
+template<typename Index>
+inline bool TBinaryBvhIntersector<Index>
 ::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	return m_bvh.nearestTraversal(
@@ -49,16 +50,21 @@ inline bool TGeneralBvhIntersector<N, Index>
 		});
 }
 
-template<std::size_t N, typename Index>
-inline auto TGeneralBvhIntersector<N, Index>
+template<typename Index>
+inline auto TBinaryBvhIntersector<Index>
 ::calcAABB() const
 -> math::AABB3D
 {
-	return m_rootAABB;
+	if(m_bvh.isEmpty())
+	{
+		return math::AABB3D::makeEmpty();
+	}
+
+	return m_bvh.getRoot().getAABB();
 }
 
-template<std::size_t N, typename Index>
-inline void TGeneralBvhIntersector<N, Index>
+template<typename Index>
+inline void TBinaryBvhIntersector<Index>
 ::rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables)
 {
 	constexpr auto itemToAABB =
@@ -67,40 +73,25 @@ inline void TGeneralBvhIntersector<N, Index>
 			return item->calcAABB();
 		};
 
-	math::BvhParams params;
-	//params.splitMethod = math::EBvhNodeSplitMethod::EqualItems;
-	params.splitMethod = math::EBvhNodeSplitMethod::SAH_Buckets_OneAxis;
-	params.numSahBuckets = 32;
-
-	math::TBvhBuilder<N, const Intersectable*, decltype(itemToAABB)> builder{params};
+	math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder{};
 
 	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
 	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());
 
-	// Wide BVH uses fat nodes, we need to calculate root AABB by ourselves
-	m_rootAABB = math::AABB3D::makeEmpty();
-	if(!m_bvh.isEmpty())
-	{
-		for(std::size_t ci = 0; ci < N; ++ci)
-		{
-			m_rootAABB.unionWith(m_bvh.getRoot().getAABB(ci));
-		}
-	}
-
-	// Check the constructed BVH and print some information
+	// Check the constructed linear BVH and print some information
 #if PH_DEBUG
 	const std::size_t treeDepth = builder.calcMaxDepth(rootInfoNode);
 	
 	PH_DEFAULT_LOG(Note,
-		"intersector: BVH{} ({}-byte index), total intersectables: {}, total nodes: {}, "
-		"max tree depth: {}, memory usage: {} GiB", N, sizeof(Index), m_bvh.numItems(),
+		"intersector: Binary BVH ({}-byte index), total intersectables: {}, total nodes: {}, "
+		"max tree depth: {}, memory usage: {} GiB", sizeof(Index), m_bvh.numItems(),
 		m_bvh.numNodes(), treeDepth, math::bytes_to_GiB<double>(m_bvh.memoryUsage()));
 
 	if(treeDepth > m_bvh.TRAVERSAL_STACK_SIZE)
 	{
 		PH_DEFAULT_LOG(Error,
-			"BVH{} depth ({}) exceeds traversal stack size ({})",
-			N, treeDepth, m_bvh.TRAVERSAL_STACK_SIZE);
+			"BVH depth ({}) exceeds traversal stack size ({})",
+			treeDepth, m_bvh.TRAVERSAL_STACK_SIZE);
 	}
 #endif
 }

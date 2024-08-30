@@ -11,7 +11,7 @@
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
 #include "World/Foundation/CookingContext.h"
-#include "Core/Intersection/BVH/TClassicBvhIntersector.h"
+#include "Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "World/Foundation/CookOrder.h"
 
 #include <algorithm>

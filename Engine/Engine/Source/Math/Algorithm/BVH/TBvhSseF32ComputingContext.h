@@ -47,7 +47,7 @@ public:
 	*/
 	static constexpr bool isSupported()
 	{
-		return PH_HARDWARE_HAS_SSE4_1 && std::is_same_v<real, float32>;
+		return PH_USE_SSE4_1 && std::is_same_v<real, float32>;
 	}
 
 public:
@@ -56,7 +56,7 @@ public:
 		const TVector3<float32>& segmentOrigin,
 		const TVector3<float32>& rcpSegmentDir)
 	{
-#if PH_HARDWARE_HAS_SSE
+#if PH_USE_SSE
 		for(std::size_t di = 0; di < 3; ++di)
 		{
 			m_segmentOrigins[di] = _mm_set1_ps(segmentOrigin[di]);
@@ -70,7 +70,7 @@ public:
 	{
 		const auto& emptyAABB = AABB3D::makeEmpty();
 
-#if PH_HARDWARE_HAS_SSE
+#if PH_USE_SSE
 		for(std::size_t di = 0; di < 3; ++di)
 		{
 			for(std::size_t ci = 0; ci < N; ci += 4)
@@ -95,8 +95,8 @@ public:
 				}
 				else
 				{
-					m_aabbMins[di][ci / 4] = _mm_load_ps(node.getMinVerticesOnAxis(di).data());
-					m_aabbMaxs[di][ci / 4] = _mm_load_ps(node.getMaxVerticesOnAxis(di).data());
+					m_aabbMins[di][ci / 4] = _mm_load_ps(&(node.getMinVerticesOnAxis(di)[ci]));
+					m_aabbMaxs[di][ci / 4] = _mm_load_ps(&(node.getMaxVerticesOnAxis(di)[ci]));
 				}
 			}
 		}
@@ -110,7 +110,7 @@ public:
 		// The implementation is similar to `TAABB3D<T>::intersectVolumeTavian()` and 
 		// `TAABB3D<T>::intersectVolumeRobust()`
 
-#if PH_HARDWARE_HAS_SSE
+#if PH_USE_SSE
 		m_aabbMinTs = make_array<__m128, B>(_mm_set1_ps(segmentMinT));
 		m_aabbMaxTs = make_array<__m128, B>(_mm_set1_ps(segmentMaxT));
 		for(std::size_t di = 0; di < 3; ++di)
@@ -161,7 +161,7 @@ public:
 
 		MaskType hitMask = 0;
 
-#if PH_HARDWARE_HAS_SSE
+#if PH_USE_SSE
 		for(std::size_t bi = 0; bi < B; ++bi)
 		{
 			hitMask <<= 4;
@@ -177,7 +177,7 @@ public:
 	{
 		TAlignedArray<float32, B * 4> results;
 
-#if PH_HARDWARE_HAS_SSE4_1
+#if PH_USE_SSE4_1
 		for(std::size_t bi = 0; bi < B; ++bi)
 		{
 			// Perform `value = aabbMinT <= aabbMaxTs ? aabbMaxTs : missValue`
@@ -193,7 +193,7 @@ public:
 		return results;
 	}
 
-#if PH_HARDWARE_HAS_SSE
+#if PH_USE_SSE
 private:
 	std::array<std::array<__m128, B>, 3> m_aabbMins;
 	std::array<std::array<__m128, B>, 3> m_aabbMaxs;

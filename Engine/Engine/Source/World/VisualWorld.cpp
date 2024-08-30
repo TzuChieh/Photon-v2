@@ -7,8 +7,8 @@
 #include "EngineEnv/sdl_accelerator_type.h"
 #include "Actor/Actor.h"
 #include "Core/Intersection/BruteForceIntersector.h"
-#include "Core/Intersection/BVH/TClassicBvhIntersector.h"
-#include "Core/Intersection/BVH/TGeneralBvhIntersector.h"
+#include "Core/Intersection/BVH/TBinaryBvhIntersector.h"
+#include "Core/Intersection/BVH/TWideBvhIntersector.h"
 #include "Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Intersection/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
@@ -261,24 +261,47 @@ std::unique_ptr<Intersector> VisualWorld::createTopLevelAccelerator(
 		return std::make_unique<BruteForceIntersector>();
 
 	case EAccelerator::BVH:
-		return std::make_unique<TClassicBvhIntersector<std::size_t>>();
+		return std::make_unique<TBinaryBvhIntersector<std::size_t>>();
 
 	case EAccelerator::BVH4:
 		if(intersectables.size() <= std::numeric_limits<uint8>::max())
 		{
-			return std::make_unique<TGeneralBvhIntersector<4, uint8>>();
+			return std::make_unique<TWideBvhIntersector<4, uint8>>();
 		}
 		else if(intersectables.size() <= std::numeric_limits<uint16>::max())
 		{
-			return std::make_unique<TGeneralBvhIntersector<4, uint16>>();
+			return std::make_unique<TWideBvhIntersector<4, uint16>>();
 		}
 		else if(intersectables.size() <= std::numeric_limits<uint32>::max())
 		{
-			return std::make_unique<TGeneralBvhIntersector<4, uint32>>();
+			return std::make_unique<TWideBvhIntersector<4, uint32>>();
 		}
 		else if(intersectables.size() <= std::numeric_limits<uint64>::max())
 		{
-			return std::make_unique<TGeneralBvhIntersector<4, uint64>>();
+			return std::make_unique<TWideBvhIntersector<4, uint64>>();
+		}
+		else
+		{
+			PH_ASSERT_UNREACHABLE_SECTION();
+			return nullptr;
+		}
+
+	case EAccelerator::BVH8:
+		if(intersectables.size() <= std::numeric_limits<uint8>::max())
+		{
+			return std::make_unique<TWideBvhIntersector<8, uint8>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint16>::max())
+		{
+			return std::make_unique<TWideBvhIntersector<8, uint16>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint32>::max())
+		{
+			return std::make_unique<TWideBvhIntersector<8, uint32>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint64>::max())
+		{
+			return std::make_unique<TWideBvhIntersector<8, uint64>>();
 		}
 		else
 		{
@@ -289,9 +312,28 @@ std::unique_ptr<Intersector> VisualWorld::createTopLevelAccelerator(
 	case EAccelerator::Kdtree:
 		return std::make_unique<KdtreeIntersector>();
 
-	// FIXME: need to ensure sufficient max value
 	case EAccelerator::IndexedKdtree:
-		return std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
+		if(intersectables.size() <= std::numeric_limits<uint8>::max())
+		{
+			return std::make_unique<TIndexedKdtreeIntersector<uint8>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint16>::max())
+		{
+			return std::make_unique<TIndexedKdtreeIntersector<uint16>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint32>::max())
+		{
+			return std::make_unique<TIndexedKdtreeIntersector<uint32>>();
+		}
+		else if(intersectables.size() <= std::numeric_limits<uint64>::max())
+		{
+			return std::make_unique<TIndexedKdtreeIntersector<uint64>>();
+		}
+		else
+		{
+			PH_ASSERT_UNREACHABLE_SECTION();
+			return nullptr;
+		}
 
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();

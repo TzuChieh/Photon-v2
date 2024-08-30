@@ -15,6 +15,7 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EAccelerator>)
 	sdlEnum.addEntry(EnumType::BruteForce,    "brute-force");
 	sdlEnum.addEntry(EnumType::BVH,           "bvh");
 	sdlEnum.addEntry(EnumType::BVH4,          "bvh4");
+	sdlEnum.addEntry(EnumType::BVH8,          "bvh8");
 	sdlEnum.addEntry(EnumType::Kdtree,        "kd-tree");
 	sdlEnum.addEntry(EnumType::IndexedKdtree, "indexed-kd-tree");
 

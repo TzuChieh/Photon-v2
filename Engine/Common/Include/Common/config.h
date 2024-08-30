@@ -147,39 +147,39 @@ Note that a byte is not necessarily 8-bit.
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE
-#define PH_HARDWARE_HAS_SSE 1
+#define PH_USE_SSE 1
 #else
-#define PH_HARDWARE_HAS_SSE 0
+#define PH_USE_SSE 0
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE2
-#define PH_HARDWARE_HAS_SSE2 1
+#define PH_USE_SSE2 1
 #else
-#define PH_HARDWARE_HAS_SSE2 0
+#define PH_USE_SSE2 0
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE3
-#define PH_HARDWARE_HAS_SSE3 1
+#define PH_USE_SSE3 1
 #else
-#define PH_HARDWARE_HAS_SSE3 0
+#define PH_USE_SSE3 0
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSSE3
-#define PH_HARDWARE_HAS_SSSE3 1
+#define PH_USE_SSSE3 1
 #else
-#define PH_HARDWARE_HAS_SSSE3 0
+#define PH_USE_SSSE3 0
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE4_1
-#define PH_HARDWARE_HAS_SSE4_1 1
+#define PH_USE_SSE4_1 1
 #else
-#define PH_HARDWARE_HAS_SSE4_1 0
+#define PH_USE_SSE4_1 0
 #endif
 
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE4_2
-#define PH_HARDWARE_HAS_SSE4_2 1
+#define PH_USE_SSE4_2 1
 #else
-#define PH_HARDWARE_HAS_SSE4_2 0
+#define PH_USE_SSE4_2 0
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
