@@ -1,5 +1,30 @@
 #pragma once
 
+/*! @file
+
+@brief Configurations for the entire toolset.
+
+## Hardware Dependent Instruction Sets
+
+Use `PH_USE_SIMD` to check if SIMD intrinsics can be used. You can also check for a more specific
+instruction set, as listed below:
+
+- SSE Family
+  - `PH_USE_SSE`
+  - `PH_USE_SSE2`
+  - `PH_USE_SSE3`
+  - `PH_USE_SSSE3`
+  - `PH_USE_SSE4_1`
+  - `PH_USE_SSE4_2`
+- AVX Family
+  - `PH_USE_AVX`
+  - `PH_USE_AVX2`
+
+Beware that mixing SSE and AVX instructions can result in significant performance degradation under
+certain microarchitectures, see https://stackoverflow.com/questions/41303780/why-is-this-sse-code-6-times-slower-without-vzeroupper-on-skylake.
+
+*/
+
 #include <cstddef>
 #include <string>
 
@@ -146,6 +171,8 @@ Note that a byte is not necessarily 8-bit.
 #define PH_USE_SIMD 0
 #endif
 
+#if PH_USE_SIMD
+
 #ifdef PH_CONFIG_HARDWARE_HAS_SSE
 #define PH_USE_SSE 1
 #else
@@ -181,6 +208,21 @@ Note that a byte is not necessarily 8-bit.
 #else
 #define PH_USE_SSE4_2 0
 #endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_AVX
+#define PH_USE_AVX 1
+#else
+#define PH_USE_AVX 0
+#endif
+
+#ifdef PH_CONFIG_HARDWARE_HAS_AVX2
+#define PH_USE_AVX2 1
+#else
+#define PH_USE_AVX2 0
+#endif
+
+#endif
+// end `PH_USE_SIMD`
 
 ///////////////////////////////////////////////////////////////////////////////
 // Miscellaneous                                                             //

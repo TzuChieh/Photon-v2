@@ -88,6 +88,14 @@ if(PH_USE_SIMD)
 		target_compile_definitions(Common
 			PUBLIC PH_CONFIG_HARDWARE_HAS_SSE4_2)
 	endif()
+	if(PH_HARDWARE_HAS_AVX)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_AVX)
+	endif()
+	if(PH_HARDWARE_HAS_AVX2)
+		target_compile_definitions(Common
+			PUBLIC PH_CONFIG_HARDWARE_HAS_AVX2)
+	endif()
 endif()
 
 source_group(TREE ${COMMON_LIB_DIR} FILES ${COMMON_LIB_HEADER_FILES})

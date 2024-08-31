@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <type_traits>
 #include <array>
+#include <algorithm>
 
 namespace ph::math
 {
@@ -41,6 +42,12 @@ public:
 	/*! Maximum number of items in a single node. */
 	inline static constexpr std::size_t MAX_NODE_ITEMS = (std::size_t(1) << NUM_ITEMS_BITS) - 1;
 
+	/*! Alignment in bytes for the SoA data view. The alignment is intended for use with SIMD
+	computing. Note that additional alignment for double is generally not needed. For example,
+	AVX for 8-wide packed double requires only 32-byte alignment. */
+	inline static constexpr std::size_t SOA_VIEW_ALIGNMENT = std::clamp(
+		N * 4, std::size_t(16), std::size_t(64));
+
 	/*! @brief Creates a node that contains `N` empty leaves.
 	*/
 	TWideBvhNode();
@@ -50,9 +57,10 @@ public:
 	bool isInternal(std::size_t childIdx) const;
 	std::size_t getChildOffset(std::size_t childIdx) const;
 
-	/*! @brief Obtain min. and max. vertices of the child AABBs in SoA layout.
+	/*! @brief Obtain a view to min. and max. vertices of the child AABBs in SoA layout.
 	@param axis The axis (dimension) to obtain.
-	@return View of the coordinates on the specified axis. The view has at least 16-byte alignment.
+	@return View of the coordinates on the specified axis. The view is suitably aligned (see
+	`SOA_VIEW_ALIGNMENT`) for SIMD computing.
 	*/
 	///@{
 	TSpanView<real, N> getMinVerticesOnAxis(std::size_t axis) const;
@@ -98,8 +106,8 @@ private:
 
 	static_assert(sizeof(ChildData) == sizeof(uint8));
 
-	TAlignedArray<std::array<real, N>, 3, 16> m_aabbMins;
-	TAlignedArray<std::array<real, N>, 3, 16> m_aabbMaxs;
+	TAlignedArray<std::array<real, N>, 3, SOA_VIEW_ALIGNMENT> m_aabbMins;
+	TAlignedArray<std::array<real, N>, 3, SOA_VIEW_ALIGNMENT> m_aabbMaxs;
 
 	/*!
 	For internal nodes, this is the child offset. The first child offset does not need to be stored

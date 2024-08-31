@@ -3,7 +3,7 @@
 #include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
-#include "Math/Algorithm/BVH/TBvhSseF32ComputingContext.h"
+#include "Math/Algorithm/BVH/TBvhSimdComputingContext.h"
 #include "Math/Algorithm/acceleration_structure_basics.h"
 #include "Utility/TArrayStack.h"
 #include "Utility/TArrayHeap.h"
@@ -172,10 +172,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			segment.getDir().z() < 0};
 	}
 
-	TBvhSseF32ComputingContext<N, Index> sseCtx;
-	if constexpr(sseCtx.isSupported())
+	TBvhSimdComputingContext<N, Index> simdCtx;
+	if constexpr(simdCtx.isSupported())
 	{
-		sseCtx.setSegment(segment.getOrigin(), rcpSegmentDir);
+		simdCtx.setSegment(segment.getOrigin(), rcpSegmentDir);
 	}
 
 	// Traverse nodes
@@ -188,15 +188,15 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		const NodeType& node = m_nodes[currentNodeIndex];
 
 		std::array<real, N> hitTs;
-		decltype(sseCtx.getIntersectResultAsMinTsOr(0)) sseHitTs;
-		if constexpr(sseCtx.isSupported())
+		decltype(simdCtx.getIntersectResultAsMinTsOr(0)) simdHitTs;
+		if constexpr(simdCtx.isSupported())
 		{
 #if PH_PROFILE_ACCELERATION_STRUCTURES
-			PH_PROFILE_NAMED_SCOPE("SSE batched AABB intersection");
+			PH_PROFILE_NAMED_SCOPE("SIMD batched AABB intersection");
 #endif
-			sseCtx.setNode(node);
-			sseCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
-			sseHitTs = sseCtx.getIntersectResultAsMinTsOr(largestHitT);
+			simdCtx.setNode(node);
+			simdCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
 		}
 		else
 		{
@@ -223,9 +223,9 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			}
 
 			real minT = hitTs[ci];
-			if constexpr(sseCtx.isSupported())
+			if constexpr(simdCtx.isSupported())
 			{
-				minT = sseHitTs[ci];
+				minT = simdHitTs[ci];
 			}
 
 			if(minT < longestSegment.getMaxT())
