@@ -55,9 +55,9 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 	// Try to collapse into target branch factor
 	else if constexpr(is_power_of<SrcN>(N))
 	{
-		m_order = EBvhSplitAxisOrder::Balanced;
-
 		collapseNodesRecursive(rootNode);
+
+		m_order = is_power_of_2(N) ? EBvhSplitAxisOrder::BalancedPow2 : EBvhSplitAxisOrder::Balanced;
 	}
 	else
 	{
@@ -90,18 +90,35 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 
 	switch(m_order)
 	{
+	// TODO: this order is not specialized/optimized yet
 	case EBvhSplitAxisOrder::Unbalanced:
-		return nearestTraversalGeneral<IS_ROBUST, EBvhSplitAxisOrder::Unbalanced>(
+		return nearestTraversalGeneral<IS_ROBUST>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
 
+	// TODO: this order is not specialized/optimized yet
 	case EBvhSplitAxisOrder::Balanced:
-		return nearestTraversalGeneral<IS_ROBUST, EBvhSplitAxisOrder::Balanced>(
+		return nearestTraversalGeneral<IS_ROBUST>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
+
+	case EBvhSplitAxisOrder::BalancedPow2:
+		// This check is required, so unused code can be eliminated
+		if constexpr(is_power_of_2(N))
+		{
+			return nearestTraversalOrdered<IS_ROBUST, EBvhSplitAxisOrder::BalancedPow2>(
+				segment,
+				std::forward<TesterFunc>(intersectionTester));
+		}
+		else
+		{
+			PH_DEFAULT_LOG(ErrorOnce,
+				"BVH{} ({}-byte index) tried to use `BalancedPow2` order.", N, sizeof(Index));
+			return false;
+		}
 
 	case EBvhSplitAxisOrder::Single:
-		return nearestTraversalGeneral<IS_ROBUST, EBvhSplitAxisOrder::Single>(
+		return nearestTraversalOrdered<IS_ROBUST, EBvhSplitAxisOrder::Single>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
 
@@ -112,7 +129,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
+template<bool IS_ROBUST, typename TesterFunc>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::nearestTraversalGeneral(
 	const TLineSegment<real>& segment,
@@ -138,7 +155,129 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	// For general case: greedily extract minimum t using a min heap
 	TArrayHeap<GeneralTodoNode, TRAVERSAL_STACK_SIZE, std::greater<>> generalTodoNodes;
 
-	// For single split axis: add nodes to a stack
+	Index currentNodeIndex = 0;
+	TLineSegment<real> longestSegment(segment);
+	bool hasHit = false;
+
+	// Precompute common values
+
+	constexpr auto largestHitT = std::numeric_limits<real>::infinity();
+
+	const auto rcpSegmentDir = segment.getDir().rcp();
+
+	TBvhSimdComputingContext<N, Index> simdCtx;
+	if constexpr(simdCtx.isSupported())
+	{
+		simdCtx.setSegment(segment.getOrigin(), rcpSegmentDir);
+	}
+
+	// Traverse nodes
+	while(true)
+	{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+		PH_PROFILE_NAMED_SCOPE("Traversal loop body");
+#endif
+		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
+		const NodeType& node = m_nodes[currentNodeIndex];
+
+		std::array<real, N> hitTs;
+		decltype(simdCtx.getIntersectResultAsMinTsOr(0)) simdHitTs;
+		if constexpr(simdCtx.isSupported())
+		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("SIMD batched AABB intersection");
+#endif
+			simdCtx.setNode(node);
+			simdCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
+		}
+		else
+		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("Batched AABB intersection");
+#endif
+			for(uint8 i = 0; i < N; ++i)
+			{
+				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
+					longestSegment, rcpSegmentDir);
+				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
+			}
+		}
+
+		for(uint8 i = 0; i < N; ++i)
+		{
+			// Default is traversing with memory order (could be improved with some sorting mechanism)
+			const uint8 ci = i;
+
+			real minT = hitTs[ci];
+			if constexpr(simdCtx.isSupported())
+			{
+				minT = simdHitTs[ci];
+			}
+
+			if(minT < longestSegment.getMaxT())
+			{
+				if(node.isLeaf(ci))
+				{
+					const auto numItems = node.numItems(ci);
+					for(std::size_t ii = 0; ii < numItems; ++ii)
+					{
+						const Item& item = m_items[node.getItemOffset(ci) + ii];
+
+						const auto optHitT = intersectionTester(item, longestSegment);
+						if(optHitT)
+						{
+							longestSegment.setMaxT(*optHitT);
+							hasHit = true;
+						}
+					}
+				}
+				else
+				{
+					PH_ASSERT_LE(node.getChildOffset(ci), std::numeric_limits<Index>::max());
+					const auto childNodeIndex = static_cast<Index>(node.getChildOffset(ci));
+
+					generalTodoNodes.push(GeneralTodoNode{
+						.minT = minT,
+						.nodeIndex = childNodeIndex});
+				}
+			}
+		}
+
+		// Skip to a potentially closer node
+		while(!generalTodoNodes.isEmpty() && generalTodoNodes.top().minT >= longestSegment.getMaxT())
+		{
+			generalTodoNodes.pop();
+		}
+
+		if(generalTodoNodes.isEmpty())
+		{
+			break;
+		}
+		else
+		{
+			currentNodeIndex = generalTodoNodes.top().nodeIndex;
+			generalTodoNodes.pop();
+		}
+	}
+	
+	return hasHit;
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
+::nearestTraversalOrdered(
+	const TLineSegment<real>& segment,
+	TesterFunc&& intersectionTester) const
+{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+	PH_PROFILE_SCOPE();
+#endif
+
+	// Traversal states
+
+	// Add pending nodes to a stack
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
 
 	Index currentNodeIndex = 0;
@@ -151,8 +290,10 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
-	std::array<bool, 3> isNegDir;
-	if constexpr(ORDER == EBvhSplitAxisOrder::Single)
+	std::array<uint8, 3> isNegDir;
+	if constexpr(
+		ORDER == EBvhSplitAxisOrder::Single ||
+		ORDER == EBvhSplitAxisOrder::BalancedPow2)
 	{
 		isNegDir = {
 			segment.getDir().x() < 0,
@@ -191,7 +332,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #if PH_PROFILE_ACCELERATION_STRUCTURES
 			PH_PROFILE_NAMED_SCOPE("Batched AABB intersection");
 #endif
-			for(std::size_t i = 0; i < N; ++i)
+			for(uint8 i = 0; i < N; ++i)
 			{
 				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
@@ -199,16 +340,40 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			}
 		}
 
+		std::array<uint8, N> orderTable;
+
+		// All children have the same split axis, traverse from the nearest one
+		if constexpr(ORDER == EBvhSplitAxisOrder::Single)
+		{
+			constexpr auto table = makeSingleOrderTable();
+			orderTable = table[isNegDir[node.getSplitAxis(0)]];
+		}
+		// Children are split by balanced axes (and N is power-of-2)
+		else if constexpr(ORDER == EBvhSplitAxisOrder::BalancedPow2)
+		{
+			constexpr auto table = makeBalancedPow2OrderTable();
+
+			uint32 permutationIdx = 0;
+			for(uint32 si = 0; si < N - 1; ++si)
+			{
+				permutationIdx <<= 1;
+				permutationIdx |= isNegDir[node.getSplitAxis(si)];
+			}
+
+			orderTable = table[permutationIdx];
+		}
+		else
+		{
+			constexpr auto table = makeIdentityOrderTable();
+			orderTable = table;
+		}
+
 		std::array<Index, N> nextChildNodes;
 		std::size_t numNextChildNodes = 0;
-		for(std::size_t i = 0; i < N; ++i)
+		for(uint8 i = 0; i < N; ++i)
 		{
-			// If all children have the same split axis, traverse from the nearest one
-			std::size_t ci = i;
-			if constexpr(ORDER == EBvhSplitAxisOrder::Single)
-			{
-				ci = isNegDir[node.getSplitAxis(0)] ? N - 1 - i : i;
-			}
+			// Get the permuted child index
+			const uint8 ci = orderTable[i];
 
 			real minT = hitTs[ci];
 			if constexpr(simdCtx.isSupported())
@@ -237,57 +402,28 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 				{
 					PH_ASSERT_LE(node.getChildOffset(ci), std::numeric_limits<Index>::max());
 					const auto childNodeIndex = static_cast<Index>(node.getChildOffset(ci));
-					if constexpr(ORDER == EBvhSplitAxisOrder::Single)
-					{
-						nextChildNodes[numNextChildNodes] = childNodeIndex;
-						++numNextChildNodes;
-					}
-					else
-					{
-						generalTodoNodes.push(GeneralTodoNode{
-							.minT = minT,
-							.nodeIndex = childNodeIndex});
-					}
+
+					nextChildNodes[numNextChildNodes] = childNodeIndex;
+					++numNextChildNodes;
 				}
 			}
 		}
 
-		if constexpr(ORDER == EBvhSplitAxisOrder::Single)
+		// Push nodes to stack such that the nearest one is on top
+		while(numNextChildNodes > 0)
 		{
-			// Push nodes to stack such that the nearest one is on top
-			while(numNextChildNodes > 0)
-			{
-				--numNextChildNodes;
-				todoNodes.push(nextChildNodes[numNextChildNodes]);
-			}
+			--numNextChildNodes;
+			todoNodes.push(nextChildNodes[numNextChildNodes]);
+		}
 
-			if(todoNodes.isEmpty())
-			{
-				break;
-			}
-			else
-			{
-				currentNodeIndex = todoNodes.top();
-				todoNodes.pop();
-			}
+		if(todoNodes.isEmpty())
+		{
+			break;
 		}
 		else
 		{
-			// Skip to a potentially closer node
-			while(!generalTodoNodes.isEmpty() && generalTodoNodes.top().minT >= longestSegment.getMaxT())
-			{
-				generalTodoNodes.pop();
-			}
-
-			if(generalTodoNodes.isEmpty())
-			{
-				break;
-			}
-			else
-			{
-				currentNodeIndex = generalTodoNodes.top().nodeIndex;
-				generalTodoNodes.pop();
-			}
+			currentNodeIndex = todoNodes.top();
+			todoNodes.pop();
 		}
 	}
 	
@@ -573,7 +709,7 @@ inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 					// Obtain split axis
 					if(!isLastChild)
 					{
-						// Does not matter which axis is chosen for empty node
+						// Does not matter which axis is chosen for empty and leaf nodes
 						auto splitAxis = parentNode && parentNode->isInternal()
 							? parentNode->getSplitAxis(ci) : noAxis;
 						splitAxis = splitAxis != noAxis
@@ -594,8 +730,9 @@ inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 							}
 							else if(parentNode->isLeaf())
 							{
-								// Forward leaf node to next level
-								childNode = parentNode;
+								// Forward leaf node to next level (only do this for the first child
+								// index so we will not have duplicated leaf nodes)
+								childNode = ci == 0 ? parentNode : nullptr;
 							}
 						}
 
@@ -637,6 +774,21 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 
 template<std::size_t N, typename Item, typename Index>
 inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
+::makeIdentityOrderTable()
+-> std::array<uint8, N>
+{
+	static_assert(N - 1 <= std::numeric_limits<uint8>::max());
+
+	std::array<uint8, N> table;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		table[i] = static_cast<uint8>(i);
+	}
+	return table;
+}
+
+template<std::size_t N, typename Item, typename Index>
+inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::makeSingleOrderTable()
 -> std::array<std::array<uint8, N>, 2>
 {
@@ -670,12 +822,6 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 	static_assert(is_power_of_2(N));
 	static_assert(N - 1 <= std::numeric_limits<uint8>::max());
 
-	std::array<uint8, N> identityPermutation;
-	for(std::size_t ni = 0; ni < N; ++ni)
-	{
-		identityPermutation[ni] = static_cast<uint8>(ni);
-	}
-
 	constexpr auto reverseRange =
 		[](const std::size_t begin, const std::size_t end, std::array<uint8, N>& permutation)
 		{
@@ -703,44 +849,43 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 		};
 
 	std::array<std::array<uint8, N>, BALANCED_POW2_ORDER_TABLE_SIZE> table;
-	table.fill(identityPermutation);
+	table.fill(makeIdentityOrderTable());
 
 	// Minus one since the bottom level has no split axis
 	constexpr auto numLevels = numTreeletLevels<2>() - 1;
+	constexpr auto numDirBits = N - 1;
 
-	// Reverse child index permutations for each level recursively
-	std::size_t entryStep = table.size() / 2;
-	std::size_t numSteps = 2;
-	std::size_t numNodesInLevel = 1;
-	std::size_t permutationRange = N;
-	for(std::size_t levelIdx = 0; levelIdx < numLevels; ++levelIdx)
+	// Reverse child index permutations for each level recursively (from bottom to top, otherwise
+	// upper levels will affect the order of bottom level, which is more difficult to track)
+	for(std::size_t entryIdx = 0; entryIdx < table.size(); ++entryIdx)
 	{
-		for(std::size_t ni = 0; ni < numNodesInLevel; ++ni)
+		std::size_t numSplitsInLevel = N / 2;
+		std::size_t splitIdxInLevel = 0;
+		std::size_t permutationRange = 2;
+		for(std::size_t bi = 0; bi < numDirBits; ++bi)
 		{
-			for(std::size_t si = 0; si < numSteps; ++si)
+			const auto bit = (entryIdx >> bi) & 0b1;
+
+			// Negative segment direction: use reversed child order
+			if(bit)
 			{
-				for(std::size_t entryIdx = entryStep * si; entryIdx < entryStep * (si + 1); ++entryIdx)
-				{
-					// Negative segment direction: use reversed child order
-					if(si % 2)
-					{
-						reverseRange(
-							permutationRange * ni,
-							permutationRange * (ni + 1),
-							table[entryIdx]);
-					}
-					// Positive segment direction: use original child order
-					else
-					{}
-				}
+				reverseRange(
+					permutationRange * (numSplitsInLevel - splitIdxInLevel - 1),
+					permutationRange * (numSplitsInLevel - splitIdxInLevel),
+					table[entryIdx]);
 			}
+			// Positive segment direction: use original child order
+			else
+			{}
 
-			entryStep /= 2;
-			numSteps *= 2;
+			++splitIdxInLevel;
+			if(splitIdxInLevel == numSplitsInLevel)
+			{
+				numSplitsInLevel /= 2;
+				splitIdxInLevel = 0;
+				permutationRange *= 2;
+			}
 		}
-
-		numNodesInLevel *= 2;
-		permutationRange /= 2;
 	}
 
 	return table;

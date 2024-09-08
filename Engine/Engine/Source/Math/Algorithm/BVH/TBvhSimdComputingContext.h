@@ -275,7 +275,7 @@ public:
 	/*!
 	@return A mask storing the hit result. The i-th bit is 1 if the i-th AABB is hit; 0 otherwise.
 	*/
-	template<std::unsigned_integral MaskType = uint32f>
+	template<std::unsigned_integral MaskType = uint32>
 	[[PH_ALWAYS_INLINE]]
 	auto getIntersectResultAsMask() const
 	-> MaskType

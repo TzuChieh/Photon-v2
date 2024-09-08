@@ -78,8 +78,13 @@ private:
 		std::array<std::size_t, N> splitAxes = make_array<std::size_t, N>(constant::X_AXIS);
 	};
 
-	template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
+	template<bool IS_ROBUST, typename TesterFunc>
 	bool nearestTraversalGeneral(
+		const TLineSegment<real>& segment,
+		TesterFunc&& intersectionTester) const;
+
+	template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
+	bool nearestTraversalOrdered(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
@@ -108,6 +113,9 @@ private:
 	template<std::size_t SrcN>
 	static constexpr auto numTreeletLevels()
 	-> std::size_t;
+
+	static constexpr auto makeIdentityOrderTable()
+	-> std::array<uint8, N>;
 
 	static constexpr auto makeSingleOrderTable()
 	-> std::array<std::array<uint8, N>, 2>;

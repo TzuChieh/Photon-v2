@@ -8,6 +8,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/math_basics.h>
 
 #include <optional>
 
@@ -89,7 +90,10 @@ inline void TWideBvhIntersector<N, Index>
 		}
 	}
 
-	//PH_DEFAULT_LOG(Note, "{}", m_bvh.balancedPow2OrderTableToString());
+	/*if constexpr(math::is_power_of_2(N))
+	{
+		PH_DEFAULT_LOG(Note, "{}", m_bvh.balancedPow2OrderTableToString());
+	}*/
 
 	// Check the constructed BVH and print some information
 #if PH_DEBUG
