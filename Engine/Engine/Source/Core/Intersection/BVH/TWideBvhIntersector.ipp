@@ -74,6 +74,7 @@ inline void TWideBvhIntersector<N, Index>
 	params.numSahBuckets = 16;
 
 	math::TBvhBuilder<N, const Intersectable*, decltype(itemToAABB)> builder{params};
+	//math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder{params};
 
 	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
 	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());
@@ -87,6 +88,8 @@ inline void TWideBvhIntersector<N, Index>
 			m_rootAABB.unionWith(m_bvh.getRoot().getAABB(ci));
 		}
 	}
+
+	//PH_DEFAULT_LOG(Note, "{}", m_bvh.balancedPow2OrderTableToString());
 
 	// Check the constructed BVH and print some information
 #if PH_DEBUG

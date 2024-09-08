@@ -36,6 +36,7 @@ public:
 
 	static constexpr bool isBinary();
 	static constexpr std::size_t numChildren();
+	static constexpr std::size_t noAxisFlag();
 
 public:
 	TBvhInfoNode();

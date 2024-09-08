@@ -15,7 +15,7 @@ For more math functions, see `Engine` project's `math.h`.
 namespace ph::math
 {
 
-/*! @brief Determines whether @p value is a power of 2 number.
+/*! @brief Determines whether @p value is a power-of-2 number.
 */
 template<typename T>
 inline constexpr bool is_power_of_2(const T value)
@@ -28,6 +28,45 @@ inline constexpr bool is_power_of_2(const T value)
 	else
 	{
 		return (value > 0) && !(value & (value - 1));
+	}
+}
+
+/*! @brief Determines whether @p value is a power-of-`BASE` number.
+Checks the equality `BASE^n == value`, where `n` is an integer.
+*/
+template<std::size_t BASE, typename T>
+inline constexpr bool is_power_of(const T value)
+{
+	if constexpr(BASE == 0)
+	{
+		return value == 0;
+	}
+	else if constexpr(BASE == 1)
+	{
+		return value == 1;
+	}
+	else if constexpr(BASE == 2)
+	{
+		return is_power_of_2(value);
+	}
+	else
+	{
+		if(value > 0)
+		{
+			static_assert(BASE <= std::numeric_limits<T>::max());
+
+			T powVal = 1;
+			while(powVal < value)
+			{
+				powVal *= static_cast<T>(BASE);// TODO: overflow check
+			}
+
+			return powVal == value;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 

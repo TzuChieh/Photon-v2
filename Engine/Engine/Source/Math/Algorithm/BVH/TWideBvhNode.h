@@ -70,8 +70,8 @@ public:
 	/*!
 	The most straightforward interpretation of the split axis is the axis that this child (`childIdx`)
 	and next child (`childIdx + 1`) is divided upon. However, some tree types may store the split axis
-	in a way such that the axis associated with `childIdx` is for `childIdx + n` and `childIdx + n + 1`,
-	where `n >= 0` (and `n` may be different for each child) for efficiency reasons.
+	in a way such that the axis associated with `childIdx` is interpreted differently for
+	efficiency reasons.
 	@return The split axis associated with the specified child.
 	*/
 	std::size_t getSplitAxis(std::size_t childIdx) const;

@@ -140,7 +140,7 @@ public:
 	than returning a boolean. This can potentially remove a branch if the returned distances
 	are all the caller needs.
 	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
-	@$f t_{near} <= t_{far} @$f.
+	@f$ t_{near} <= t_{far} @f$.
 	*/
 	template<bool IS_ROBUST = true>
 	[[PH_ALWAYS_INLINE]]
@@ -232,7 +232,7 @@ private:
 	Reference: Kay and Kayjia's "slab method" from a project of the ACM
 	SIGGRAPH Education Committee named HyperGraph.
 	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
-	@$f t_{near} <= t_{far} @$f.
+	@f$ t_{near} <= t_{far} @f$.
 	*/
 	[[PH_ALWAYS_INLINE]]
 	std::pair<T, T> intersectVolumeKajiyaKay(
@@ -243,7 +243,7 @@ private:
 	A fast and branchless method developed by Tavian Barnes. The algorithm is
 	based on slab method.
 	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
-	@$f t_{near} <= t_{far} @$f.
+	@f$ t_{near} <= t_{far} @f$.
 	*/
 	[[PH_ALWAYS_INLINE]]
 	std::pair<T, T> intersectVolumeTavian(
@@ -255,7 +255,7 @@ private:
 	Angle (develops the Arnold renderer). This method implements the "MaxMult" algorithm described
 	in the paper, with slight modifications to adapt to our rendering system.
 	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
-	@$f t_{near} <= t_{far} @$f.
+	@f$ t_{near} <= t_{far} @f$.
 	*/
 	[[PH_ALWAYS_INLINE]]
 	std::pair<T, T> intersectVolumeRobust(

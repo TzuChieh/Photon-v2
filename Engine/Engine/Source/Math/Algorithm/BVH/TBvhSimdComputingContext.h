@@ -16,6 +16,7 @@
 #include <array>
 #include <limits>
 #include <concepts>
+#include <utility>
 
 #if PH_USE_SIMD
 #if PH_COMPILER_IS_MSVC
@@ -49,6 +50,8 @@ class TBvhSimdComputingContext final
 	using BFloatType = __m128;
 #else
 	inline static constexpr std::size_t BATCH_SIZE = 4;
+
+	using BFloatType = float32;
 #endif
 
 	// Number of batches
@@ -272,9 +275,10 @@ public:
 	/*!
 	@return A mask storing the hit result. The i-th bit is 1 if the i-th AABB is hit; 0 otherwise.
 	*/
-	template<bool IS_ROBUST = true, std::unsigned_integral MaskType = uint32f>
+	template<std::unsigned_integral MaskType = uint32f>
 	[[PH_ALWAYS_INLINE]]
-	MaskType getIntersectResultAsMask() const
+	auto getIntersectResultAsMask() const
+	-> MaskType
 	{
 		static_assert(N <= sizeof_in_bits<MaskType>(), "Need more bits for `MaskType`.");
 
@@ -302,9 +306,10 @@ public:
 	}
 
 	[[PH_ALWAYS_INLINE]]
-	TAlignedArray<float32, B * 4> getIntersectResultAsMinTsOr(const float32 missValue) const
+	auto getIntersectResultAsMinTsOr(const float32 missValue) const
+	-> TAlignedArray<float32, B * BATCH_SIZE, sizeof(float32) * BATCH_SIZE>
 	{
-		TAlignedArray<float32, B * 4> results;
+		TAlignedArray<float32, B * BATCH_SIZE, sizeof(float32) * BATCH_SIZE> results;
 
 		// Perform `value = aabbMinT <= aabbMaxTs ? aabbMaxTs : missValue`
 		for(std::size_t bi = 0; bi < B; ++bi)

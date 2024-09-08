@@ -69,6 +69,14 @@ inline constexpr auto TBvhInfoNode<N, Item>
 }
 
 template<std::size_t N, typename Item>
+inline constexpr auto TBvhInfoNode<N, Item>
+::noAxisFlag()
+-> std::size_t
+{
+	return NO_AXIS_FLAG;
+}
+
+template<std::size_t N, typename Item>
 inline TBvhInfoNode<N, Item>::TBvhInfoNode()
 	: m_children{}
 	, m_items{}

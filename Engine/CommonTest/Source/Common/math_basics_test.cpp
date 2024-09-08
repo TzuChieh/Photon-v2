@@ -10,20 +10,74 @@ using namespace ph::math;
 
 TEST(MathBasicsTest, CheckIsPowerOf2)
 {
-	EXPECT_FALSE(is_power_of_2(0));
-	EXPECT_TRUE (is_power_of_2(1));
-	EXPECT_TRUE (is_power_of_2(2));
-	EXPECT_FALSE(is_power_of_2(3));
-	EXPECT_TRUE (is_power_of_2(1 << 17));
-	EXPECT_FALSE(is_power_of_2((1 << 17) + 1));
-	EXPECT_FALSE(is_power_of_2(-1));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::max()));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::min()));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned int>::max()));
-	EXPECT_FALSE(is_power_of_2(0ULL));
-	EXPECT_TRUE (is_power_of_2(1ULL << 50));
-	EXPECT_FALSE(is_power_of_2((1ULL << 50) + 1));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned long long>::max()));
+	// Specialized function
+	{
+		EXPECT_FALSE(is_power_of_2(0));
+		EXPECT_TRUE(is_power_of_2(1));
+		EXPECT_TRUE(is_power_of_2(2));
+		EXPECT_FALSE(is_power_of_2(3));
+		EXPECT_TRUE(is_power_of_2(1 << 17));
+		EXPECT_FALSE(is_power_of_2((1 << 17) + 1));
+		EXPECT_FALSE(is_power_of_2(-1));
+		EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::max()));
+		EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::min()));
+		EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned int>::max()));
+		EXPECT_FALSE(is_power_of_2(0ULL));
+		EXPECT_TRUE(is_power_of_2(1ULL << 50));
+		EXPECT_FALSE(is_power_of_2((1ULL << 50) + 1));
+		EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned long long>::max()));
+	}
+	
+	// General function
+	{
+		EXPECT_FALSE(is_power_of<2>(0));
+		EXPECT_TRUE(is_power_of<2>(1));
+		EXPECT_TRUE(is_power_of<2>(2));
+		EXPECT_FALSE(is_power_of<2>(3));
+		EXPECT_TRUE(is_power_of<2>(1 << 17));
+		EXPECT_FALSE(is_power_of<2>((1 << 17) + 1));
+		EXPECT_FALSE(is_power_of<2>(-1));
+		EXPECT_FALSE(is_power_of<2>(std::numeric_limits<int>::max()));
+		EXPECT_FALSE(is_power_of<2>(std::numeric_limits<int>::min()));
+		EXPECT_FALSE(is_power_of<2>(std::numeric_limits<unsigned int>::max()));
+		EXPECT_FALSE(is_power_of<2>(0ULL));
+		EXPECT_TRUE(is_power_of<2>(1ULL << 50));
+		EXPECT_FALSE(is_power_of<2>((1ULL << 50) + 1));
+		EXPECT_FALSE(is_power_of<2>(std::numeric_limits<unsigned long long>::max()));
+	}
+}
+
+TEST(MathBasicsTest, CheckIsPowerOf)
+{
+	// Base 3
+	{
+		EXPECT_FALSE(is_power_of<3>(0));
+		EXPECT_TRUE(is_power_of<3>(1));
+		EXPECT_FALSE(is_power_of<3>(2));
+		EXPECT_TRUE(is_power_of<3>(3));
+		EXPECT_TRUE(is_power_of<3>(3 * 3 * 3 * 3 * 3));
+	}
+
+	// Base 11
+	{
+		EXPECT_FALSE(is_power_of<11>(0));
+		EXPECT_TRUE(is_power_of<11>(1));
+
+		for(int i = 2; i <= 10; ++i)
+		{
+			EXPECT_FALSE(is_power_of<11>(i));
+		}
+		
+		EXPECT_TRUE(is_power_of<11>(11));
+
+		for(int i = 12; i <= 120; ++i)
+		{
+			EXPECT_FALSE(is_power_of<11>(i));
+		}
+
+		EXPECT_TRUE(is_power_of<11>(121));
+		EXPECT_TRUE(is_power_of<11>(11 * 11 * 11 * 11));
+	}
 }
 
 TEST(MathBasicsTest, CeiledPositiveIntegerDivision)
