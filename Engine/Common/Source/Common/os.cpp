@@ -202,7 +202,7 @@ std::filesystem::path get_executable_path()
 	return length > 0 ? buffer.data() : L"";
 #elif PH_OPERATING_SYSTEM_IS_LINUX
 	std::array<char, PATH_MAX> buffer{};
-	const ssize_t numBytes = readlink( = readlink("/proc/self/exe", buffer/data(), buffer.size());
+	const ssize_t numBytes = readlink("/proc/self/exe", buffer/data(), buffer.size());
 	return numBytes > 0 ? buffer.data() : "";
 #else
 	return "";
