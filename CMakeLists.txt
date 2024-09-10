@@ -160,9 +160,8 @@ option(PH_USE_SIMD
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     # Use C++23 and C17
-    # If this does not work, you should consider using `/std:c++latest` or other flags
-    # (VS does not fully support all C++23 features on VS 2022 v17.10.1)
     # add_compile_options(/std:c++23 /std:c17)
+    # Use `/std:c++latest` as VS does not fully support all C++23 features on VS 2022 v17.10.1)
     add_compile_options(/std:c++latest /std:c17)
 
     # Use PDB files for debugging, which also provides potential optimizations
@@ -199,7 +198,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     # Use C++23 and C17
-    add_compile_options(-std=c++23 -std=c17)
+    # add_compile_options(-std=c++23 -std=c17)
+    # Use `-std=c++2b` as g++ 13.2.0 does not fully support all C++23 features
+    add_compile_options(-std=c++2b -std=c17)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
@@ -287,16 +288,6 @@ load_library_via_config(${ASIO_LIB_NAME}
 #------------------------------------------------------------------------------
 # OpenEXR
 #------------------------------------------------------------------------------
-# if(NOT TARGET Threads::Threads)
-#     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-#     set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-#     find_package(Threads)
-#     if(NOT Threads_FOUND)
-#         message(SEND_ERROR 
-#             "Unable to find a threading library which is required for OpenEXR::IlmThread")
-#     endif()
-# endif()
-
 set(IMATH_LIB_NAME   "Imath")
 set(OPENEXR_LIB_NAME "OpenEXR")
 
