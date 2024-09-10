@@ -31,7 +31,7 @@ For Windows, just use CMake-GUI to generate project files for your favorite IDE.
 For Linux and macOS, run the following commands:
 
 * `cd ./build/`
-* `cmake -DCMAKE_BUILD_TYPE=release ../`
+* `cmake -DCMAKE_BUILD_TYPE=Release ../`
 * `make`
 
 ## Step 3: Have Fun
@@ -52,7 +52,7 @@ and substitute `SOME_OPTION` and `SOME_VALUE` with the options listed below.
 
 | Options          | Values        | Effects  |
 | -------------    | ------------- | ----- |
-| CMAKE_BUILD_TYPE | release, debug | When set, build binaries with optimizations enabled; otherwise no optimization is done. |
+| CMAKE_BUILD_TYPE | Release, Debug | When set, build binaries with optimizations enabled; otherwise no optimization is done. |
 | PH_BUILD_TESTS | ON (default), OFF | Build unit tests. They should be executed from the build folder. |
 | PH_BUILD_EDITOR_JNI | ON, OFF (default) | Build JNI for Photon Studio (previous editor). |
 | PH_BUILD_EDITOR | ON (default), OFF | Build editor application. |

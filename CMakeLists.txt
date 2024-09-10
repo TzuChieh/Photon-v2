@@ -197,10 +197,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-    # Use C++23 and C17
-    # add_compile_options(-std=c++23 -std=c17)
+    # Use C++23
+    # add_compile_options(-std=c++23)
     # Use `-std=c++2b` as g++ 13.2.0 does not fully support all C++23 features
-    add_compile_options(-std=c++2b -std=c17)
+    add_compile_options(-std=c++2b)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
@@ -209,8 +209,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 # Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-    # Use C++23 and C17
-    add_compile_options(-std=c++23 -std=c17)
+    # Use C++23
+    add_compile_options(-std=c++23)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
@@ -220,11 +220,9 @@ else()
     message(WARNING
         "Unknown compiler ID <${CMAKE_CXX_COMPILER_ID}>, unable to set specific flags.")
 
-    # Compile with C++23 and C17 standard enabled
+    # Compile with C++23 standard enabled
     set(CMAKE_CXX_STANDARD          23)
-    set(CMAKE_C_STANDARD            17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_C_STANDARD_REQUIRED   ON)
 endif()
 
 # TODO: add g++ MT MD equivalent flags?
