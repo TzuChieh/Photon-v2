@@ -33,7 +33,7 @@ concept CHasToString = requires (const ObjType& obj)
 }// end namespace ph::string_utils
 
 #define PH_DEFINE_INLINE_TO_STRING_FORMATTER_SPECIALIZATION(...)\
-	struct ::std::formatter<__VA_ARGS__> : ::std::formatter<::std::string>\
+	struct std::formatter<__VA_ARGS__> : std::formatter<std::string>\
 	{\
 		static_assert(::ph::string_utils::CHasToString<__VA_ARGS__>,\
 			"type " #__VA_ARGS__ " must have a const method toString() and the result should be "\
@@ -42,9 +42,9 @@ concept CHasToString = requires (const ObjType& obj)
 		/* `parse()` is inherited from the base class */\
 	\
 		/* Define `format()` by calling `std::string`'s implementation with custom type's `toString()`*/\
-		inline auto format(const __VA_ARGS__& value, ::std::format_context& ctx) const\
+		inline auto format(const __VA_ARGS__& value, std::format_context& ctx) const\
 		{\
-			return ::std::formatter<::std::string>::format(\
+			return std::formatter<std::string>::format(\
 				value.toString(), ctx);\
 		}\
 	}
