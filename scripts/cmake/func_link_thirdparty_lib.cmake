@@ -68,15 +68,20 @@ function(link_thirdparty_lib targetName libName)
     endif()
 
     if(${libName}_RUNTIME_DIR)
-        # TODO: no copy if no change, and option to force copy
-        # TODO: `add_custom_command()` supports generator expression
-        file(COPY
-            "${${libName}_RUNTIME_DIR}/"
-            DESTINATION ${BUILD_OUTPUT_DIR})
+        if(EXISTS "${${libName}_RUNTIME_DIR}")
+            # TODO: no copy if no change, and option to force copy
+            # TODO: `add_custom_command()` supports generator expression
+            file(COPY
+                "${${libName}_RUNTIME_DIR}"
+                DESTINATION ${BUILD_OUTPUT_DIR})
 
-        # TODO: better if we can just copy what debug build needs (e.g., reading target property for dll location)
-        file(COPY
-            "${${libName}_RUNTIME_DIR}/"
-            DESTINATION ${DEBUG_BUILD_OUTPUT_DIR})   
+            # TODO: better if we can just copy what debug build needs (e.g., reading target property for dll location)
+            file(COPY
+                "${${libName}_RUNTIME_DIR}"
+                DESTINATION ${DEBUG_BUILD_OUTPUT_DIR})
+        else()
+            message(STATUS 
+                "Skipping copy of runtime: directory \"${${libName}_RUNTIME_DIR}\" does not exist.")
+        endif()
     endif()
 endfunction()

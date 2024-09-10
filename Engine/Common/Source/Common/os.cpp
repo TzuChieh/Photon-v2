@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <unistd.h>
 
 #elif PH_OPERATING_SYSTEM_IS_OSX
 
@@ -159,7 +160,10 @@ std::size_t get_L1_cache_line_size_in_bytes_internal()
 	unsigned int lineSize = 0;
 	if(p)
 	{
-		fscanf(p, "%d", &lineSize);
+		if(fscanf(p, "%d", &lineSize) != 1)
+		{
+			lineSize = 0;
+		}
 		fclose(p);
 	}
 	return lineSize;
