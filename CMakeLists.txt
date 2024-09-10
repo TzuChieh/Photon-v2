@@ -152,7 +152,7 @@ option(PH_USE_SIMD
 
 # Set compiler-dependent settings
 
-# Note: We do not use standard CMAKE_CXX_STANDARD and CMAKE_CXX_STANDARD_REQUIRED
+# Note: We do not use standard `CMAKE_CXX_STANDARD` and `CMAKE_CXX_STANDARD_REQUIRED`
 # settings since their behavior is depending on the CMake version in use. We set 
 # appropriate flags manually and only use standard variables as a fallback.
 
@@ -160,9 +160,9 @@ option(PH_USE_SIMD
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     # Use C++23 and C17
-    # If this does not work, you should consider using /std:c++latest or other flags
-    # (VS does not fully support all C++23 features on VS 2022 v17.7.5)
-    # add_compile_options(/std:c++23)
+    # If this does not work, you should consider using `/std:c++latest` or other flags
+    # (VS does not fully support all C++23 features on VS 2022 v17.10.1)
+    # add_compile_options(/std:c++23 /std:c17)
     add_compile_options(/std:c++latest /std:c17)
 
     # Use PDB files for debugging, which also provides potential optimizations
@@ -173,9 +173,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     # Use intrinsic functions
     add_compile_options(/Oi)
-
-    # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-    # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
     # VS2019 requires the flag for standard conformant preprocessor; otherwise
     # things may not work correctly (e.g., __VA_ARGS__ will remove preceding 
@@ -288,82 +285,58 @@ load_library_via_config(${ASIO_LIB_NAME}
     CONFIG_DIR "${LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
-# zlib
-#------------------------------------------------------------------------------
-
-# Note that zlib's .pc file is not suitable for use on Windows (commenting
-# out the "prefix" entry and replace the "-lz" link flag with "-lzlib" will
-# work, but we avoid the use of package mode on Windows nevertheless).
-
-set(ZLIB_LIB_NAME "zlib")
-
-set(ZLIB_ROOT "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/")
-find_package(ZLIB MODULE)
-if(ZLIB_FOUND)
-    load_library_manually(${ZLIB_LIB_NAME}
-        TARGETS     "ZLIB::ZLIB"
-        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
-# Fallback to manual loading
-else()
-    # FIXME: openexr links to ZLIB::ZLIB, manual loading does not specify that
-    load_library_manually(${ZLIB_LIB_NAME}
-        INC_DIRS    "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/include/"
-        LIB_DIRS    "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/lib/"
-        LIB_NAMES   "zlib z"
-        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
-endif()
-
-#------------------------------------------------------------------------------
 # OpenEXR
 #------------------------------------------------------------------------------
-if(NOT TARGET Threads::Threads)
-    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-    find_package(Threads)
-    if(NOT Threads_FOUND)
-        message(SEND_ERROR 
-            "Unable to find a threading library which is required for IlmThread")
-    endif()
-endif()
+# if(NOT TARGET Threads::Threads)
+#     set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+#     set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+#     find_package(Threads)
+#     if(NOT Threads_FOUND)
+#         message(SEND_ERROR 
+#             "Unable to find a threading library which is required for OpenEXR::IlmThread")
+#     endif()
+# endif()
 
-set(ILMBASE_LIB_NAME "IlmBase")
+set(IMATH_LIB_NAME   "Imath")
 set(OPENEXR_LIB_NAME "OpenEXR")
 
-if(WIN32)
-    load_library_via_config(${ILMBASE_LIB_NAME} OPTIONAL
-        TARGETS     "Half" "Iex" "IexMath" "IlmThread" "Imath"
-        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
-        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
-
-    load_library_via_config(${OPENEXR_LIB_NAME} OPTIONAL
-        TARGETS     "IlmImf" "IlmImfUtil"
-        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
-        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
-else()
-    load_library_via_pkgconfig(${ILMBASE_LIB_NAME} OPTIONAL
-        TARGETS     "IlmBase"
+load_library_via_config(${IMATH_LIB_NAME} OPTIONAL
+    TARGETS     "Imath"
+    CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${IMATH_LIB_NAME}/"
+    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+    
+if(NOT ${IMATH_LIB_NAME}_LOADED)
+    load_library_via_pkgconfig(${IMATH_LIB_NAME} OPTIONAL
+        TARGETS     "Imath"
         CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
         RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
+    # Fallback to manual loading
+    load_library_manually(${IMATH_LIB_NAME}
+        LIB_NAMES   "Imath"
+        LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
+        INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/OpenEXR/bin/")
+endif()
+
+load_library_via_config(${OPENEXR_LIB_NAME} OPTIONAL
+    TARGETS     "OpenEXR"
+    CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
+    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+
+if(NOT ${OPENEXR_LIB_NAME}_LOADED)
     load_library_via_pkgconfig(${OPENEXR_LIB_NAME} OPTIONAL
         TARGETS     "OpenEXR"
         CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
         RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+
+    # Fallback to manual loading
+    load_library_manually(${OPENEXR_LIB_NAME}
+        LIB_NAMES   "OpenEXR"
+        LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
+        INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/OpenEXR/bin/")
 endif()
-
-# Fallback to manual loading
-
-load_library_manually(${ILMBASE_LIB_NAME}
-    LIB_NAMES   "Half" "Iex" "IexMath" "IlmThread" "Imath"
-    LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
-    INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
-    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
-
-load_library_manually(${OPENEXR_LIB_NAME}
-    LIB_NAMES   "IlmImf" "IlmImfUtil"
-    LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
-    INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
-    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
 #------------------------------------------------------------------------------
 # glfw

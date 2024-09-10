@@ -52,12 +52,16 @@ class RenderProcess:
 
         self.process.terminate()
 
-        timeout_seconds = 10
+        # Make sure to end the process and log the return code (useful for diagnosing potential errors)
+        timeout_seconds = 15
         try:
-            self.process.wait(timeout=timeout_seconds)
+            return_code = self.process.wait(timeout=timeout_seconds)
+            print(f"process exited with code {return_code}")
         except subprocess.TimeoutExpired as e:
-            print("warning: process does not terminate, killing")
+            print("note: process does not terminate, killing")
             self.process.kill()
+
+        self.process = None
 
     def set_scene_file_path(self, scene_file_path):
         self._set_argument("-s", "\"" + str(scene_file_path) + "\"")

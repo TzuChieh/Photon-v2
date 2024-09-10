@@ -42,8 +42,7 @@ target_link_libraries(Engine
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
 link_thirdparty_lib(Engine ${STB_LIB_NAME})
-link_thirdparty_lib(Engine ${ZLIB_LIB_NAME})
-link_thirdparty_lib(Engine ${ILMBASE_LIB_NAME} OPTIONAL)
+link_thirdparty_lib(Engine ${IMATH_LIB_NAME} OPTIONAL)
 link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME} OPTIONAL
 	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_OPENEXR)
 link_thirdparty_lib(Engine ${CONCURRENTQUEUE_LIB_NAME} PUBLIC)

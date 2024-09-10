@@ -71,11 +71,11 @@ inline void TWideBvhIntersector<N, Index>
 	math::BvhParams params;
 	//params.splitMethod = math::EBvhNodeSplitMethod::EqualItems;
 	params.splitMethod = math::EBvhNodeSplitMethod::SAH_Buckets_OneAxis;
-	//params.numSahBuckets = 32;
-	params.numSahBuckets = 16;
+	params.numSahBuckets = 32;
+	//params.numSahBuckets = 16;
 
-	math::TBvhBuilder<N, const Intersectable*, decltype(itemToAABB)> builder{params};
-	//math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder{params};
+	//math::TBvhBuilder<N, const Intersectable*, decltype(itemToAABB)> builder{params};
+	math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder{params};
 
 	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
 	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());

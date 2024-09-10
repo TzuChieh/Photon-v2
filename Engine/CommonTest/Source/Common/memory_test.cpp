@@ -1,4 +1,5 @@
 #include <Common/memory.h>
+#include <Common/compiler.h>
 
 #include <gtest/gtest.h>
 
@@ -29,22 +30,38 @@ TEST(MemoryTest, AllocateAlignedMemory)
 	}
 }
 
+#if PH_COMPILER_IS_MSVC
+
+#pragma warning(push)
+
+// Alignment specifier is less than actual alignment(4), and will be ignored.
+#pragma warning(disable: 4359)
+
+#endif
+
 TEST(MemoryTest, AlignedArrayRequirements)
 {
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<int, 10, 0>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<int, 10, 1>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<int, 10, 2>>);
-	static_assert(std::is_standard_layout_v<ph::TAlignedArray<int, 10, 3>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<int, 10, 4>>);
 
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 6, 0>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 7, 1>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 8, 2>>);
-	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 9, 30>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 9, 32>>);
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 10, 64>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<double, 10, 128>>);
 
 	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 3>, 8, 0>>);
-	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 4>, 9, 12>>);
-	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 5>, 10, 13>>);
-	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 5>, 10, 24>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 4>, 9, 16>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 5>, 10, 32>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 5>, 10, 64>>);
+	static_assert(std::is_standard_layout_v<ph::TAlignedArray<std::array<float, 5>, 10, 128>>);
 }
+
+#if PH_COMPILER_IS_MSVC
+
+#pragma warning(pop)
+
+#endif
