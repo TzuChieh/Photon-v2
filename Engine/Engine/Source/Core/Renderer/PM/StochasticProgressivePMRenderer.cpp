@@ -120,21 +120,21 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		radianceEvalRegion.viewpoints.resize(statisticsRes.product());
 		for(Viewpoint& viewpoint : radianceEvalRegion.viewpoints)
 		{
-			if constexpr(Viewpoint::template has<EViewpointData::Radius>())
+			if constexpr(Viewpoint::has<EViewpointData::Radius>())
 			{
 				viewpoint.template set<EViewpointData::Radius>(getCommonParams().kernelRadius);
 			}
-			if constexpr(Viewpoint::template has<EViewpointData::NumPhotons>())
+			if constexpr(Viewpoint::has<EViewpointData::NumPhotons>())
 			{
-				viewpoint.template set<EViewpointData::NumPhotons>(0.0_r);
+				viewpoint.set<EViewpointData::NumPhotons>(0.0_r);
 			}
-			if constexpr(Viewpoint::template has<EViewpointData::Tau>())
+			if constexpr(Viewpoint::has<EViewpointData::Tau>())
 			{
-				viewpoint.template set<EViewpointData::Tau>(math::Spectrum(0));
+				viewpoint.set<EViewpointData::Tau>(math::Spectrum(0));
 			}
-			if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+			if constexpr(Viewpoint::has<EViewpointData::ViewRadiance>())
 			{
-				viewpoint.template set<EViewpointData::ViewRadiance>(math::Spectrum(0));
+				viewpoint.set<EViewpointData::ViewRadiance>(math::Spectrum(0));
 			}
 		}
 

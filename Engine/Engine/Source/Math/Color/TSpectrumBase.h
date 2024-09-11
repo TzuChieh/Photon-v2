@@ -185,7 +185,7 @@ public:
 
 	friend Derived operator - (const T rhs, const Derived& lhs)
 	{
-		return lhs.negate().add(rhs);
+		return Derived{rhs}.sub(lhs);
 	}
 
 	friend Derived operator * (const T rhs, const Derived& lhs)

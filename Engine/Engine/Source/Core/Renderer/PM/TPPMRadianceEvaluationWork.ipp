@@ -71,16 +71,16 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	std::vector<FullPhoton> photonCache;
 	for(Viewpoint& viewpoint : m_viewpoints)
 	{
-		const SurfaceHit&    surfaceHit = viewpoint.get<EViewpointData::SurfaceHit>();
-		const math::Vector3R L          = viewpoint.get<EViewpointData::ViewDir>();
+		const SurfaceHit&    surfaceHit = viewpoint.template get<EViewpointData::SurfaceHit>();
+		const math::Vector3R L          = viewpoint.template get<EViewpointData::ViewDir>();
 		const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
 		const math::Vector3R Ns         = surfaceHit.getShadingNormal();
-		const real           R          = viewpoint.get<EViewpointData::Radius>();
+		const real           R          = viewpoint.template get<EViewpointData::Radius>();
 
 		photonCache.clear();
 		m_photonMap->find(surfaceHit.getPos(), R, photonCache);
 
-		const real N    = viewpoint.get<EViewpointData::NumPhotons>();
+		const real N    = viewpoint.template get<EViewpointData::NumPhotons>();
 		const real M    = static_cast<real>(photonCache.size());
 		const real newN = N + m_alpha * M;
 		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
@@ -107,23 +107,23 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 			tauM.addLocal(tau);
 		}
-		const math::Spectrum tauN   = viewpoint.get<EViewpointData::Tau>();
+		const math::Spectrum tauN   = viewpoint.template get<EViewpointData::Tau>();
 		const math::Spectrum newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : math::Spectrum(0);
 
-		viewpoint.set<EViewpointData::Radius>(newR);
-		viewpoint.set<EViewpointData::NumPhotons>(newN);
-		viewpoint.set<EViewpointData::Tau>(newTau);
+		viewpoint.template set<EViewpointData::Radius>(newR);
+		viewpoint.template set<EViewpointData::NumPhotons>(newN);
+		viewpoint.template set<EViewpointData::Tau>(newTau);
 		
 		// Evaluate radiance using current iteration's data
 
 		const real kernelArea         = newR * newR * math::constant::pi<real>;
 		const real radianceMultiplier = m_rcpTotalPhotonPaths / kernelArea;
 
-		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
-		radiance.mulLocal(viewpoint.get<EViewpointData::ViewThroughput>());
-		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
+		math::Spectrum radiance(viewpoint.template get<EViewpointData::Tau>() * radianceMultiplier);
+		radiance.mulLocal(viewpoint.template get<EViewpointData::ViewThroughput>());
+		radiance.addLocal(viewpoint.template get<EViewpointData::ViewRadiance>());
 
-		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RasterCoord>();
+		const math::Vector2D rasterCoord = viewpoint.template get<EViewpointData::RasterCoord>();
 		m_film->addSample(rasterCoord.x(), rasterCoord.y(), radiance);
 	}
 }

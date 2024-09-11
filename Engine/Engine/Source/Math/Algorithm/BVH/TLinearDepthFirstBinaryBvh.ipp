@@ -76,7 +76,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
 		const NodeType& node = m_nodes[currentNodeIndex];
 
-		const auto [aabbMinT, aabbMaxT] = node.getAABB().isIntersectingVolume<IS_ROBUST>(
+		const auto [aabbMinT, aabbMaxT] = node.getAABB().template isIntersectingVolume<IS_ROBUST>(
 			longestSegment, rcpSegmentDir);
 		if(aabbMinT <= aabbMaxT)
 		{

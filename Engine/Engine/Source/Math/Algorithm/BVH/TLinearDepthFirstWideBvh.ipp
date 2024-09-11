@@ -198,7 +198,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #endif
 			for(uint8 i = 0; i < N; ++i)
 			{
-				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
+				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).template isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
 				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
 			}
@@ -334,7 +334,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #endif
 			for(uint8 i = 0; i < N; ++i)
 			{
-				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).isIntersectingVolume<IS_ROBUST>(
+				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).template isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
 				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
 			}
