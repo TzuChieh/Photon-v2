@@ -266,7 +266,7 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 	math::Spectrum radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
-		const math::Vector3R V = photon.get<EPhotonData::FromDir>();
+		const math::Vector3R V = photon.template get<EPhotonData::FromDir>();
 		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, bsdfContext.sidedness))
 		{
 			continue;
