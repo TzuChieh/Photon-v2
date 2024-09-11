@@ -62,7 +62,7 @@ void SurfaceHitRefinery::init(const EngineInitSettings& settings)
 auto SurfaceHitRefinery::iterativeOffset(
 	const SurfaceHit& X, 
 	const math::Vector3R& dir,
-	const std::size_t numIterations)
+	const std::size_t numIters)
 -> IterativeOffsetResult
 {
 	// Possibly fallback to empirical offset
@@ -113,7 +113,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 
 	// Then use bisection method to find the smallest distance that results in no intersection
 	std::size_t numRefinements = 0;
-	while(numRefinements < numIterations)
+	while(numRefinements < numIters)
 	{
 		const real midDist = (minDist + maxDist) * 0.5_r;
 		if(!(minDist < midDist && midDist < maxDist))
@@ -155,10 +155,10 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	const SurfaceHit& X,
 	const SurfaceHit& X2,
 	const math::Vector3R& dir,
-	const std::size_t numIterations)
+	const std::size_t numIters)
 -> IterativeOffsetResult
 {
-	const IterativeOffsetResult resultX = iterativeOffset(X, dir, numIterations);
+	const IterativeOffsetResult resultX = iterativeOffset(X, dir, numIters);
 	PH_ASSERT_GT(resultX.maxDistance, 0.0_r);
 
 	// Now we have escaped from `X`. To escape `X2` from `X`, we use the method from `iterativeOffset()`,
@@ -214,7 +214,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 
 	// Then use bisection method to find the smallest distance that results in no intersection
 	std::size_t numRefinements = 0;
-	while(distanceToX2 > maxDist && numRefinements < numIterations)
+	while(distanceToX2 > maxDist && numRefinements < numIters)
 	{
 		const real midDist = (minDist + maxDist) * 0.5_r;
 		if(!(minDist < midDist && midDist < maxDist))

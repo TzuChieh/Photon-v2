@@ -56,12 +56,12 @@ public:
 	This variant is in general the most accurate one but is 5 % ~ 15 % more expensive than
 	`escapeManually()`.
 	@param dir The direction to escape. No need to be normalized.
-	@param numIterations The desired number of improvements to have on the offset.
+	@param numIters The desired number of improvements to have on the offset.
 	@return The longest ray in `dir` that avoids this surface.
 	*/
 	Ray escapeIteratively(
 		const math::Vector3R& dir, 
-		std::size_t numIterations = numIterations()) const;
+		std::size_t numIters = numIterations()) const;
 
 	/*! @brief Mutually escape from `X` and `X2`.
 	The method to use for escaping the surfaces is determined by engine settings.
@@ -85,12 +85,12 @@ public:
 
 	/*! @brief Mutually escape from `X` and `X2` by iteratively re-intersect with the surfaces.
 	@param X2 The other surface to escape from.
-	@param numIterations The desired number of improvements to have on the offset.
+	@param numIters The desired number of improvements to have on the offset.
 	@return The ray that avoids both surfaces.
 	*/
 	std::optional<Ray> tryEscapeIteratively(
 		const SurfaceHit& X2,
-		std::size_t numIterations = numIterations()) const;
+		std::size_t numIters = numIterations()) const;
 
 public:
 	/*! @brief Initialize from engine settings.
@@ -121,13 +121,13 @@ private:
 	static IterativeOffsetResult iterativeOffset(
 		const SurfaceHit& X, 
 		const math::Vector3R& dir,
-		std::size_t numIterations);
+		std::size_t numIters);
 
 	static IterativeOffsetResult iterativeMutualOffset(
 		const SurfaceHit& X,
 		const SurfaceHit& X2,
 		const math::Vector3R& dir,
-		std::size_t numIterations);
+		std::size_t numIters);
 
 	static bool reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe);
 
@@ -245,13 +245,13 @@ inline Ray SurfaceHitRefinery::escapeEmpirically(const math::Vector3R& dir) cons
 
 inline Ray SurfaceHitRefinery::escapeIteratively(
 	const math::Vector3R& dir,
-	const std::size_t numIterations) const
+	const std::size_t numIters) const
 {
 #if PH_ENABLE_HIT_EVENT_STATS
 	s_stats.markEvent();
 #endif
 
-	const IterativeOffsetResult result = iterativeOffset(m_X, dir, numIterations);
+	const IterativeOffsetResult result = iterativeOffset(m_X, dir, numIters);
 	PH_ASSERT_GT(result.maxDistance, 0.0_r);
 
 	return Ray(
@@ -336,14 +336,14 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const Surface
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 	const SurfaceHit& X2,
-	const std::size_t numIterations) const
+	const std::size_t numIters) const
 {
 #if PH_ENABLE_HIT_EVENT_STATS
 	s_stats.markEvent(2);
 #endif
 
 	const auto xToX2 = X2.getPos() - m_X.getPos();
-	const IterativeOffsetResult result = iterativeMutualOffset(m_X, X2, xToX2, numIterations);
+	const IterativeOffsetResult result = iterativeMutualOffset(m_X, X2, xToX2, numIters);
 	if(result.maxDistance > 0.0_r && std::isfinite(result.maxDistance))
 	{
 		return Ray(
