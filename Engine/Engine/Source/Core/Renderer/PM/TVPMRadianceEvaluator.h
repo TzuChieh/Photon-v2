@@ -167,7 +167,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
 
-	constexpr auto smoothEnoughPhenomena = {
+	const auto smoothEnoughPhenomena = {
 		DIFFUSE_SURFACE_PHENOMENA,
 		ESurfacePhenomenon::NearDiffuseReflection,
 		ESurfacePhenomenon::NearDiffuseTransmission};
