@@ -402,7 +402,7 @@ private:
 	// Member variables: smallest possible size of `TFunction` is two pointers--one for `UnifiedCaller` 
 	// and another one in `Data`
 
-	Data m_data = EmptyStruct{};
+	Data m_data = {EmptyStruct{}};
 
 	// Wrapper function with unified signature for calling the actual function.
 	UnifiedCaller m_caller = &invalidFunctionCaller;
