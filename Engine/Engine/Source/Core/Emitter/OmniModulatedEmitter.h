@@ -7,6 +7,8 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
+#include <memory>
+
 namespace ph
 {
 
