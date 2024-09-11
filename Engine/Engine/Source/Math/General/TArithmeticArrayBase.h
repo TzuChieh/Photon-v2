@@ -129,11 +129,11 @@ protected:
 	These methods is only defined for signed element types.
 	*/
 	///@{
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived negate() const;
+	Derived negate() const
+	requires std::is_signed_v<T>;
 
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived& negateLocal();
+	Derived& negateLocal()
+	requires std::is_signed_v<T>;
 	///@}
 
 	T sum() const;
@@ -199,8 +199,8 @@ protected:
 	Derived& operator /= (const Derived& rhs);
 	Derived& operator /= (T rhs);
 
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived operator - () const;
+	Derived operator - () const
+	requires std::is_signed_v<T>;
 
 	auto begin() noexcept -> typename std::array<T, N>::iterator;
 	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;

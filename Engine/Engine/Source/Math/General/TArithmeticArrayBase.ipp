@@ -517,17 +517,17 @@ inline auto TArithmeticArrayBase<Derived, T, N>::complementLocal()
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename>
 inline auto TArithmeticArrayBase<Derived, T, N>::negate() const
 -> Derived
+requires std::is_signed_v<T>
 {
 	return Derived(static_cast<const Derived&>(*this)).negateLocal();
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename>
 inline auto TArithmeticArrayBase<Derived, T, N>::negateLocal()
 -> Derived&
+requires std::is_signed_v<T>
 {
 	return mulLocal(static_cast<T>(-1));
 }
@@ -786,9 +786,9 @@ inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const T rhs)
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename>
 inline auto TArithmeticArrayBase<Derived, T, N>::operator - () const
 -> Derived
+requires std::is_signed_v<T>
 {
 	return negate();
 }
