@@ -8,31 +8,7 @@
 #include <cstddef>
 #include <string>
 #include <utility>
-
-// TODO: other platforms and versions that do not need the "experimental" folder
-// NOTE: g++ 8.0 supports filesystem finally
-#if PH_COMPILER_IS_MSVC
-
-	#include <filesystem>
-	namespace std_filesystem = std::filesystem;
-
-#elif PH_COMPILER_IS_GCC
-
-	#include <experimental/filesystem>
-	namespace std_filesystem = std::experimental::filesystem;
-
-#else
-
-	/*
-		Assuming OSX here.
-		Since OSX has no support for filesystem library before Xcode 10.1, we use
-		an alternative Path implementation that does not depend on STL's filesystem.
-	*/
-	#define PH_USE_ALTERNATIVE_PATH_IMPL
-
-#endif
-
-#ifndef PH_USE_ALTERNATIVE_PATH_IMPL
+#include <filesystem>
 
 namespace ph
 {
@@ -203,16 +179,3 @@ inline std::filesystem::path Path::toStdPath() const
 }// end namespace ph
 
 PH_DEFINE_INLINE_TO_STRING_FORMATTER(ph::Path);
-
-#else
-
-#include "DataIO/FileSystem/AltPath.h"
-
-namespace ph
-{
-
-using Path = AltPath;
-
-}// end namespace ph
-	
-#endif
