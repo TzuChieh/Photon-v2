@@ -4,10 +4,78 @@
 #include <Common/logging.h>
 
 #include <cwchar>
+#include <cstring>
 #include <algorithm>
+#include <type_traits>
 
 namespace ph
 {
+
+namespace
+{
+
+template<typename NativeCharType>
+inline std::size_t path_to_native_char_string(
+	const std::filesystem::path& path,
+	TSpan<char> out_buffer,
+	std::size_t* const out_numTotalChars,
+	const bool isNullTerminated)
+{
+	PH_ASSERT(!out_buffer.empty());
+
+	std::size_t numCopiedChars = 0;
+
+	// Example filesystem: Windows
+	if constexpr(std::is_same_v<NativeCharType, wchar_t>)
+	{
+		const wchar_t* nativeStr = path.native().c_str();
+		std::mbstate_t state{};
+
+		if(out_numTotalChars)
+		{
+			*out_numTotalChars = std::wcsrtombs(nullptr, &nativeStr, 0, &state) + isNullTerminated;
+		}
+
+		// `numCopiedChars` does not count null-terminator here
+		numCopiedChars = std::wcsrtombs(out_buffer.data(), &nativeStr, out_buffer.size(), &state);
+	}
+	// Example filesystem: POSIX (e.g., Linux, macOS)
+	else if constexpr(std::is_same_v<NativeCharType, char>)
+	{
+		if(out_numTotalChars)
+		{
+			*out_numTotalChars = path.native().size() + isNullTerminated;
+		}
+
+		// `numCopiedChars` does not count null-terminator here
+		numCopiedChars = std::min(path.native().size(), out_buffer.size());
+
+		std::strncpy(out_buffer.data(), path.native().c_str(), numCopiedChars);
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
+
+	// Possibly always make the result null-terminated
+	if(isNullTerminated)
+	{
+		if(numCopiedChars == out_buffer.size())
+		{
+			out_buffer.back() = '\0';
+		}
+		else
+		{
+			PH_ASSERT_LT(numCopiedChars, out_buffer.size());
+			out_buffer[numCopiedChars] = '\0';
+			++numCopiedChars;
+		}
+	}
+
+	return numCopiedChars;
+}
+
+}// end anonymous namespace
 
 Path::Path()
 	: m_path()
@@ -171,34 +239,8 @@ std::size_t Path::toNativeString(
 	std::size_t* const out_numTotalChars,
 	const bool isNullTerminated) const
 {
-	PH_ASSERT(!out_buffer.empty());
-
-	const wchar_t* wstr = m_path.native().c_str();
-	std::mbstate_t state{};
-
-	if(out_numTotalChars)
-	{
-		*out_numTotalChars = std::wcsrtombs(nullptr, &wstr, 0, &state) + isNullTerminated;
-	}
-
-	// `numCopiedChars` does not count null-terminator here
-	auto numCopiedChars = std::wcsrtombs(out_buffer.data(), &wstr, out_buffer.size(), &state);
-
-	// Possibly always make the result null-terminated
-	if(isNullTerminated)
-	{
-		if(numCopiedChars == out_buffer.size())
-		{
-			out_buffer.back() = '\0';
-		}
-		else
-		{
-			out_buffer[numCopiedChars] = '\0';
-			++numCopiedChars;
-		}
-	}
-
-	return numCopiedChars;
+	return path_to_native_char_string<std::filesystem::path::value_type>(
+		m_path, out_buffer, out_numTotalChars, isNullTerminated);
 }
 
 wchar_t Path::charToWchar(const char ch)

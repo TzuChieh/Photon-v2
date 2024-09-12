@@ -82,7 +82,8 @@ public:
 	This variant guarantees no dynamic allocation takes place.
 	@param[out] out_buffer The buffer to store the string.
 	@param[out] out_numTotalChars Total number of characters in the string representation of this path
-	(including the null terminator).
+	(including the null terminator). If `isNullTerminated` is `false`, the number will not include
+	the null terminator.
 	@param isNullTerminated Whether the resultant string should be null-terminated. If true,
 	null terminator will present even if the string is not fully copied.
 	@return Number of copied characters (including the null terminator).
@@ -146,9 +147,9 @@ public:
 	bool operator == (const Path& other) const;
 
 private:
-	std::filesystem::path m_path;
-
 	static wchar_t charToWchar(const char ch);
+
+	std::filesystem::path m_path;
 };
 
 inline bool Path::isRelative() const

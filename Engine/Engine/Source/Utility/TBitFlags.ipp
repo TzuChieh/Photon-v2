@@ -163,7 +163,7 @@ template<typename Value, typename Input>
 inline constexpr Value TBitFlags<Value, Input>::collectFlags(const FlagsSet& flagsSet)
 {
 	Value inputFlags = 0;
-	for(const auto& flag : flagsSet)
+	for(const Input& flag : flagsSet)
 	{
 		inputFlags |= static_cast<Value>(flag);
 	}
