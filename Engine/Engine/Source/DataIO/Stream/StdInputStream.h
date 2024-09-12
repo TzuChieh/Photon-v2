@@ -16,7 +16,7 @@ class StdInputStream : public IInputStream
 public:
 	inline StdInputStream() = default;
 	explicit StdInputStream(std::unique_ptr<std::istream> stream);
-	StdInputStream(StdInputStream&& other);
+	StdInputStream(StdInputStream&& other) noexcept;
 
 	void read(std::size_t numBytes, std::byte* out_bytes) override;
 	void readString(std::string* out_string, char delimiter) override;
@@ -27,7 +27,7 @@ public:
 
 	std::istream* getStream() const;
 
-	StdInputStream& operator = (StdInputStream&& rhs);
+	StdInputStream& operator = (StdInputStream&& rhs) noexcept;
 
 protected:
 	bool isStreamGoodForRead() const;
@@ -47,14 +47,15 @@ private:
 
 // In-header Implementations:
 
-inline StdInputStream::StdInputStream(StdInputStream&& other)
+inline StdInputStream::StdInputStream(StdInputStream&& other) noexcept
 {
 	*this = std::move(other);
 }
 
-inline StdInputStream& StdInputStream::operator = (StdInputStream&& rhs)
+inline StdInputStream& StdInputStream::operator = (StdInputStream&& rhs) noexcept
 {
 	m_istream = std::move(rhs.m_istream);
+	return *this;
 }
 
 inline StdInputStream::operator bool () const
