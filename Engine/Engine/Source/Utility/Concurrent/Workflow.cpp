@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Utility/Concurrent/Workflow.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 
