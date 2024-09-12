@@ -165,7 +165,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 	}
 
-	constexpr auto smoothEnoughPhenomena = {
+	const auto smoothEnoughPhenomena = {
 		DIFFUSE_SURFACE_PHENOMENA,
 		ESurfacePhenomenon::NearDiffuseReflection,
 		ESurfacePhenomenon::NearDiffuseTransmission};
