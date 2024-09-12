@@ -52,8 +52,8 @@ inline uint64 TUrbg32x2<URBG1, URBG2>::impl_generate()
 	// Generate 8-byte bits by combining two 4-byte bits
 	// (prefer `URGB1` by placing it in the higher bits, since some algorithm consider higher bits
 	// may be of better quality by default)
-	const auto higher4B = uint64(m_urbg1.generate<uint32>()) << 32;
-	const auto lower4B = uint64(m_urbg2.generate<uint32>());
+	const auto higher4B = uint64(m_urbg1.template generate<uint32>()) << 32;
+	const auto lower4B = uint64(m_urbg2.template generate<uint32>());
 	return higher4B | lower4B;
 }
 
