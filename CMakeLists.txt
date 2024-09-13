@@ -198,9 +198,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     # Use C++23
-    # add_compile_options(-std=c++23)
-    # Use `-std=c++2b` as g++ 13.2.0 does not fully support all C++23 features
-    add_compile_options(-std=c++2b)
+    add_compile_options(-std=c++23)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)

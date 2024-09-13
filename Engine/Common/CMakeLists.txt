@@ -43,6 +43,10 @@ link_thirdparty_lib(Common ${TRACY_LIB_NAME} PUBLIC OPTIONAL
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	target_compile_definitions(Common
 		PUBLIC _CRT_SECURE_NO_WARNINGS)
+# Using gcc/g++
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	#target_link_options(Common
+	#	PUBLIC -lstdc++_libbacktrace)
 endif()
 
 if(PH_ENABLE_DEBUG)

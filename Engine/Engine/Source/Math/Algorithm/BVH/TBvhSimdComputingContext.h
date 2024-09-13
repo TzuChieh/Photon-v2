@@ -372,6 +372,11 @@ public:
 		return results;
 	}
 
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 #if PH_USE_AVX || PH_USE_SSE
 private:
 	std::array<std::array<BFloat, B>, 3> m_aabbMins;
@@ -382,6 +387,10 @@ private:
 
 	std::array<BFloat, B> m_aabbMinTs;
 	std::array<BFloat, B> m_aabbMaxTs;
+#endif
+
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic pop
 #endif
 };
 
