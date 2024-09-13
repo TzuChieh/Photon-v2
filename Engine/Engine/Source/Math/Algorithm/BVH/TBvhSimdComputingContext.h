@@ -29,6 +29,33 @@
 namespace ph::math
 {
 
+namespace detail::bvh
+{
+
+template<std::size_t N>
+struct TFloatN
+{
+	using Type = void;
+};
+
+#if PH_USE_SSE
+template<>
+struct TFloatN<4>
+{
+	using Type = __m128;
+};
+#endif
+
+#if PH_USE_AVX
+template<>
+struct TFloatN<8>
+{
+	using Type = __m256;
+};
+#endif
+
+}// end namespace detail::bvh
+
 /*! @brief A SIMD computing context for BVH.
 Use `isSupported()` to check the availability of the required hardware feature.
 */
@@ -39,29 +66,6 @@ class TBvhSimdComputingContext final
 
 	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
-
-	// A dummy argument is required so specializations are partial (full is forbidden by the standard)
-	template<std::size_t NUM_FLOATS, typename Dummy = void>
-	struct TFloatN
-	{
-		using Type = void;
-	};
-
-#if PH_USE_SSE
-	template<>
-	struct TFloatN<4>
-	{
-		using Type = __m128;
-	};
-#endif
-
-#if PH_USE_AVX
-	template<>
-	struct TFloatN<8>
-	{
-		using Type = __m256;
-	};
-#endif
 
 #if PH_USE_AVX && PH_USE_SSE
 	inline static constexpr std::size_t BATCH_SIZE = N <= 4 ? 4 : 8;
@@ -74,7 +78,7 @@ class TBvhSimdComputingContext final
 #endif
 
 	// The batched float type
-	using BFloat = TFloatN<BATCH_SIZE>::Type;
+	using BFloat = detail::bvh::TFloatN<BATCH_SIZE>::Type;
 
 	// Number of batches
 	inline static constexpr std::size_t B = N % BATCH_SIZE ? N / BATCH_SIZE + 1 : N / BATCH_SIZE;
