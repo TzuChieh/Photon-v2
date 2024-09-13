@@ -45,8 +45,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		PUBLIC _CRT_SECURE_NO_WARNINGS)
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	#target_link_options(Common
-	#	PUBLIC -lstdc++_libbacktrace)
+	# We need `libstdc++exp.a` for `std::stacktrace` for now (g++ 14.0.1)
+	# https://gcc.gnu.org/gcc-14/changes.html
+	target_link_libraries(Common
+		PRIVATE stdc++exp)
 endif()
 
 if(PH_ENABLE_DEBUG)
