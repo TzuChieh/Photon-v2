@@ -91,6 +91,7 @@ private:
 
 	// For implicit copy/move from derived performer.
 	// (would be better if more constraints can be specified in the friend declaration)
+	template<typename OtherTarget, typename OtherPerformer>
 	friend class TQuery;
 };
 
