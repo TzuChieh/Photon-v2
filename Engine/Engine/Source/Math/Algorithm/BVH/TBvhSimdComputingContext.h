@@ -40,7 +40,7 @@ class TBvhSimdComputingContext final
 	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
 
-	template<std::size_t N>
+	template<std::size_t NUM_FLOATS>
 	struct TFloatN
 	{
 		using Type = void;
