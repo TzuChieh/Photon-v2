@@ -40,19 +40,40 @@ class TBvhSimdComputingContext final
 	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
 
-#if PH_USE_AVX
-	inline static constexpr std::size_t BATCH_SIZE = N <= 4 ? 4 : 8;
+	template<std::size_t N>
+	struct TFloatN
+	{
+		using Type = void;
+	};
 
-	using BFloatType = std::conditional_t<BATCH_SIZE == 4, __m128, __m256>;
+#if PH_USE_SSE
+	template<>
+	struct TFloatN<4>
+	{
+		using Type = __m128;
+	};
+#endif
+
+#if PH_USE_AVX
+	template<>
+	struct TFloatN<8>
+	{
+		using Type = __m256;
+	};
+#endif
+
+#if PH_USE_AVX && PH_USE_SSE
+	inline static constexpr std::size_t BATCH_SIZE = N <= 4 ? 4 : 8;
 #elif PH_USE_SSE
 	inline static constexpr std::size_t BATCH_SIZE = 4;
-
-	using BFloatType = __m128;
+#elif PH_USE_AVX
+	inline static constexpr std::size_t BATCH_SIZE = 8;
 #else
 	inline static constexpr std::size_t BATCH_SIZE = 4;
-
-	using BFloatType = float32;
 #endif
+
+	// The batched float type
+	using BFloat = TFloatN<BATCH_SIZE>::Type;
 
 	// Number of batches
 	inline static constexpr std::size_t B = N % BATCH_SIZE ? N / BATCH_SIZE + 1 : N / BATCH_SIZE;
@@ -343,14 +364,14 @@ public:
 
 #if PH_USE_AVX || PH_USE_SSE
 private:
-	std::array<std::array<BFloatType, B>, 3> m_aabbMins;
-	std::array<std::array<BFloatType, B>, 3> m_aabbMaxs;
+	std::array<std::array<BFloat, B>, 3> m_aabbMins;
+	std::array<std::array<BFloat, B>, 3> m_aabbMaxs;
 
-	std::array<BFloatType, 3> m_segmentOrigins;
-	std::array<BFloatType, 3> m_rcpSegmentDirs;
+	std::array<BFloat, 3> m_segmentOrigins;
+	std::array<BFloat, 3> m_rcpSegmentDirs;
 
-	std::array<BFloatType, B> m_aabbMinTs;
-	std::array<BFloatType, B> m_aabbMaxTs;
+	std::array<BFloat, B> m_aabbMinTs;
+	std::array<BFloat, B> m_aabbMaxTs;
 #endif
 };
 
