@@ -173,10 +173,10 @@ void DesignerDataPacketInterface::generate(
 void DesignerDataPacketInterface::parseTextPacket(const std::string& text, SdlInputClauses& out_clauses)
 {
 	nlohmann::json jsonObj = nlohmann::json::parse(text);
-	for(auto& itemEntry : jsonObj.items())
+	for(auto&& jsonEntry : jsonObj.items())
 	{
 		SdlInputClause clause;
-		parseSingleClause(itemEntry.key(), itemEntry.value(), clause);
+		parseSingleClause(jsonEntry.key(), jsonEntry.value().dump(), clause);
 		out_clauses.add(std::move(clause));
 	}
 }
