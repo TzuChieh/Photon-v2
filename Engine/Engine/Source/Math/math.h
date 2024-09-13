@@ -224,7 +224,7 @@ inline T log2_floor(const T value)
 
 		return static_cast<T>(first1BitFromLeftIndex);
 
-#elif PH_COMPILER_IS_CLANG || PH_COMPILER_IS_GCC
+#elif PH_COMPILER_IS_CLANG || PH_COMPILER_IS_GNU
 
 		if constexpr(sizeof(T) <= sizeof(unsigned int))
 		{
