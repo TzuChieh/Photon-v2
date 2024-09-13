@@ -63,7 +63,7 @@ inline auto TClassEventDispatcher<EventType, ClassType>::addListener(
 	Class* const instancePtr)
 -> Listener*
 {
-	return m_dispatcher.addListener(Listener{}.set<MethodPtr>(instancePtr));
+	return m_dispatcher.addListener(Listener{}.template set<MethodPtr>(instancePtr));
 }
 
 template<typename EventType, typename ClassType>
