@@ -83,6 +83,11 @@ class TBvhSimdComputingContext final
 	// Number of batches
 	inline static constexpr std::size_t B = N % BATCH_SIZE ? N / BATCH_SIZE + 1 : N / BATCH_SIZE;
 
+	// Ensure proper alignment
+#if PH_USE_AVX || PH_USE_SSE
+	static_assert(alignof(BFloat) >= sizeof(BFloat));
+#endif
+
 public:
 	/*!
 	@return Whether this SIMD computing context is supported by the current hardware and configuration.
