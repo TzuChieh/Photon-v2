@@ -40,7 +40,8 @@ class TBvhSimdComputingContext final
 	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
 
-	template<std::size_t NUM_FLOATS>
+	// A dummy argument is required so specializations are partial (full is forbidden by the standard)
+	template<std::size_t NUM_FLOATS, typename Dummy = void>
 	struct TFloatN
 	{
 		using Type = void;
