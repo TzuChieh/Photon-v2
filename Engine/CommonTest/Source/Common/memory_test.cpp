@@ -30,13 +30,16 @@ TEST(MemoryTest, AllocateAlignedMemory)
 	}
 }
 
+// Supress the warning: Alignment specifier is less than actual alignment(4), and will be ignored.
 #if PH_COMPILER_IS_MSVC
-
 #pragma warning(push)
-
-// Alignment specifier is less than actual alignment(4), and will be ignored.
 #pragma warning(disable: 4359)
+#endif
 
+// Supress the warning: Requested alignment '0' is not a positive power of 2.
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
 #endif
 
 TEST(MemoryTest, AlignedArrayRequirements)
@@ -61,7 +64,9 @@ TEST(MemoryTest, AlignedArrayRequirements)
 }
 
 #if PH_COMPILER_IS_MSVC
-
 #pragma warning(pop)
+#endif
 
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic pop
 #endif
