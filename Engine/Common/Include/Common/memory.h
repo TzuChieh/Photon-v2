@@ -69,7 +69,7 @@ This type shares the same traits as `std::array`.
 alignment can pass through to the inherited `std::array` as long as the derived type is also a
 standard-layout type.
 */
-template<typename T, std::size_t N, std::size_t ALIGNMENT_IN_BYTES = 0>
+template<typename T, std::size_t N, std::size_t ALIGNMENT_IN_BYTES = sizeof(T)>
 struct alignas(ALIGNMENT_IN_BYTES) TAlignedArray : public std::array<T, N>
 {
 	/*! The alignment (in bytes) of this array. */
