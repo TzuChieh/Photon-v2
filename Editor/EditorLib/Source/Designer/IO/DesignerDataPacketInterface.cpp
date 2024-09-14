@@ -175,9 +175,20 @@ void DesignerDataPacketInterface::parseTextPacket(const std::string& text, SdlIn
 	nlohmann::json jsonObj = nlohmann::json::parse(text);
 	for(auto&& jsonEntry : jsonObj.items())
 	{
-		SdlInputClause clause;
-		parseSingleClause(jsonEntry.key(), jsonEntry.value().dump(), clause);
-		out_clauses.add(std::move(clause));
+		try
+		{
+			// For now JSON encoded packets are all string values
+			const auto& jsonValue = jsonEntry.value().get_ref<const nlohmann::json::string_t&>();
+
+			SdlInputClause clause;
+			parseSingleClause(jsonEntry.key(), jsonValue, clause);
+			out_clauses.add(std::move(clause));
+		}
+		catch(const nlohmann::json::exception& e)
+		{
+			throw_formatted<SdlLoadError>(
+				"JSON encoded packet error: {}", e.what());
+		}
 	}
 }
 
