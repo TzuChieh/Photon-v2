@@ -111,11 +111,11 @@ TEST(TSortedVectorTest, AddAndRemoval)
 {
 	{
 		TSortedVector<float> vec(10);
-		vec.addValue(-2.0f);
-		vec.addValue(-1.0f);
-		vec.addValue(0.0f);
-		vec.addValue(10.0f);
-		vec.addValue(20.0f);
+		EXPECT_EQ(vec.addValue(-2.0f), 0);
+		EXPECT_EQ(vec.addValue(-1.0f), 1);
+		EXPECT_EQ(vec.addValue( 0.0f), 2);
+		EXPECT_EQ(vec.addValue(10.0f), 3);
+		EXPECT_EQ(vec.addValue(20.0f), 4);
 
 		EXPECT_EQ(vec.size(), 5);
 

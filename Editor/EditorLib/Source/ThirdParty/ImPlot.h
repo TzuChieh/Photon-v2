@@ -2,4 +2,4 @@
 
 #include "ThirdParty/DearImGui.h"
 
-#include <ImPlot.h>
+#include <implot.h>
