@@ -107,7 +107,7 @@ void ImguiSampleInspector::buildControlPanelContent()
 	{
 		ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.2f, 1.0f));
-		ImGui::TextWrapped(m_paramSafeguardMessage.c_str());
+		ImGui::TextWrapped("%s", m_paramSafeguardMessage.c_str());
 		ImGui::PopStyleColor();
 		ImGui::Spacing();
 	}

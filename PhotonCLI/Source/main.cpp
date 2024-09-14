@@ -13,13 +13,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cmath>
-
-// FIXME: add osx fs headers once it is supported
-#if defined(_WIN32)
-	#include <filesystem>
-#elif defined(__linux__)
-	#include <experimental/filesystem>
-#endif
+#include <filesystem>
 
 using namespace ph::cli;
 
@@ -116,8 +110,6 @@ int main(int argc, char* argv[])
 namespace ph::cli
 {
 
-#ifndef __APPLE__
-
 void renderImageSeries(const ProcessedArguments& args)
 {
 	namespace fs = std::filesystem;
@@ -187,14 +179,5 @@ void renderImageSeries(const ProcessedArguments& args)
 		renderer.render();
 	}
 }
-
-#else
-
-void renderImageSeries(const ProcessedArguments& args)
-{
-	std::cerr << "ERROR: currently image series rendering is not supported on OSX" << std::endl;
-}
-
-#endif
 
 }// end namespace ph::cli
