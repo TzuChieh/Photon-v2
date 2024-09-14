@@ -40,15 +40,15 @@ class TOrthonormalBasis3;
 template<typename T>
 class TFraction;
 
-using Vector2I  = TVector2<int32f>;
-using Vector2UI = TVector2<uint32f>;
+using Vector2I  = TVector2<int32>;
+using Vector2UI = TVector2<uint32>;
 using Vector2R  = TVector2<real>;
 using Vector2F  = TVector2<float32>;
 using Vector2D  = TVector2<float64>;
 using Vector2S  = TVector2<std::size_t>;
 
-using Vector3I  = TVector3<int32f>;
-using Vector3UI = TVector3<uint32f>;
+using Vector3I  = TVector3<int32>;
+using Vector3UI = TVector3<uint32>;
 using Vector3R  = TVector3<real>;
 using Vector3F  = TVector3<float32>;
 using Vector3D  = TVector3<float64>;
