@@ -100,9 +100,9 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 	}
 	
 	ImGui::Spacing();
-	ImGui::Text("Initial Content:");
+	ImGui::TextUnformatted("Initial Content:");
 	ImGui::BeginDisabled();
-	ImGui::TextWrapped(m_initialContentSummary.c_str());
+	ImGui::TextWrapped("%s", m_initialContentSummary.c_str());
 	ImGui::EndDisabled();
 
 	ImGui::Spacing();
@@ -140,9 +140,9 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 		}
 
 		ImGui::Spacing();
-		ImGui::Text("Directory Preview:");
+		ImGui::TextUnformatted("Directory Preview:");
 		ImGui::BeginDisabled();
-		ImGui::TextWrapped(m_workingDirectoryPreview.c_str());
+		ImGui::TextWrapped("%s", m_workingDirectoryPreview.c_str());
 		ImGui::EndDisabled();
 	}
 	
@@ -153,7 +153,7 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 	if(!m_unsatisfactionMessage.empty())
 	{
 		ImGui::Spacing();
-		ImGui::TextColored(getEditorUI().getTheme().warningColor, m_unsatisfactionMessage.c_str());
+		ImGui::TextColored(getEditorUI().getTheme().warningColor, "%s", m_unsatisfactionMessage.c_str());
 		ImGui::Spacing();
 	}
 

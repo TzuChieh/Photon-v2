@@ -76,7 +76,7 @@ void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpe
 		// Pop out full object name in case there was not enough space for it
 		if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 		{
-			ImGui::SetTooltip(primaryObj->getName().c_str());
+			ImGui::SetTooltip("%s", primaryObj->getName().c_str());
 		}
 
 		const std::size_t numSelectedObjs = activeScene ? activeScene->getSelection().size() : 0;
@@ -242,7 +242,7 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 				if(!prop.getHelpMessage().empty())
 				{
 					ImGui::Separator();
-					ImGui::TextWrapped(prop.getHelpMessage().c_str());
+					ImGui::TextWrapped("%s", prop.getHelpMessage().c_str());
 				}
 				ImGui::EndTooltip();
 			}

@@ -332,7 +332,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	{
 		for(const std::string& name : info.stats.layerNames)
 		{
-			ImGui::BulletText(name.c_str());
+			ImGui::BulletText("%s", name.c_str());
 		}
 	}
 	ImGui::EndGroup();

@@ -28,7 +28,7 @@ inline void build_visibility_toggle_widget(const char* const label, bool& visibi
 		visibilityState = !visibilityState;
 	}
 	ImGui::SameLine();
-	ImGui::Text(label);
+	ImGui::TextUnformatted(label);
 
 	ImGui::PopID();
 }

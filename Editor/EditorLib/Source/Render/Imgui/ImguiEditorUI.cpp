@@ -543,7 +543,7 @@ void ImguiEditorUI::buildSidebarWindow()
 			ImGui::PushFont(originalFont);
 			if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 			{
-				ImGui::SetTooltip(tooltip);
+				ImGui::SetTooltip("%s", tooltip);
 			}
 			ImGui::PopFont();
 		};
@@ -622,7 +622,7 @@ void ImguiEditorUI::buildToolbarWindow()
 			const bool isClicked = ImGui::Button(buttonIcon);
 			if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 			{
-				ImGui::SetTooltip(tooltip);
+				ImGui::SetTooltip("%s", tooltip);
 			}
 
 			return isClicked;
