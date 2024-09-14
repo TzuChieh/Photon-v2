@@ -97,10 +97,10 @@ TEST(TFunctionTest, Traits)
 	{
 		using IntAdder = TFunction<int(int, int)>;
 
-		auto lambdaFunc = [](int, int) -> int {};
+		auto lambdaFunc = [](int, int) -> int { return -1; };
 		
 		int val;
-		auto lambdaFunc2 = [val](int, int) -> int {};
+		auto lambdaFunc2 = [val](int, int) -> int { return -1; };
 
 		static_assert(IntAdder::TIsEmptyFunctor<Adder>{} == true);
 		static_assert(IntAdder::TIsEmptyFunctor<SimpleGetSet>{} == false);
