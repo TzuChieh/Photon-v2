@@ -226,7 +226,7 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 
 void ImguiRenderModule::setDisplayFramebufferSizePx(const math::Vector2S& sizePx)
 {
-	m_displayFramebufferSizePx = sizePx.losslessCast<uint32f>();
+	m_displayFramebufferSizePx = sizePx.losslessCast<uint32>();
 }
 
 void ImguiRenderModule::initializeImgui(Editor& editor)
