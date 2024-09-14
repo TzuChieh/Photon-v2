@@ -1,21 +1,6 @@
 #include "StaticImageRenderer.h"
 
-#include <asio.hpp>
-
-#include <iostream>
-#include <string>
-#include <thread>
-#include <chrono>
-#include <atomic>
-#include <limits>
-#include <cstdint>
-
-// FIXME: add osx fs headers once it is supported
-#if defined(_WIN32)
-	#include <filesystem>
-#elif defined(__linux__)
-	#include <experimental/filesystem>
-#endif
+#include <filesystem>
 
 namespace ph::cli
 {
@@ -36,23 +21,10 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 {
 	m_args.setSceneFilePath(path);
 
-// REFACTOR: use a getReference directory-from-file-path function
-#ifndef __APPLE__
+	// Use the directory of the scene file as working directory
 	namespace fs = std::filesystem;
 	const std::string sceneDirectory = fs::path(path).parent_path().string();
 	phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
-#else
-	const std::size_t slashIndex = path.find_last_of('/');
-	if(slashIndex != std::string::npos)
-	{
-		const std::string sceneDirectory = path.substr(0, slashIndex + 1);
-		phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
-	}
-	else
-	{
-		std::cerr << "warning: cannot retrieve scene directory from path <" << path << ">" << std::endl;
-	}
-#endif
 }
 
 void StaticImageRenderer::setImageOutputPath(const std::string& path)
