@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief Write text with basic auto formatting applied.
+*/
 class FormattedTextOutputStream : public StdOutputStream
 {
 public:

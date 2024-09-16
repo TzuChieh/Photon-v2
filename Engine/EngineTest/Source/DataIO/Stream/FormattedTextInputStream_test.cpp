@@ -28,6 +28,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 		EXPECT_STREQ(content.c_str(), "abc de fg hijk");
 	}
 
+	// Check if line endings are preserved no matter the platform
 	{
 		auto stream = FormattedTextInputStream(
 			"0, \n"
@@ -243,23 +244,12 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-		// CRLF should be formatted to LF only
+		// No matter new line is CRLF or LF in the file, all cases should be formatted to LF only
 		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\n'});
 
 		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
-#else
-		ASSERT_NO_THROW(stream.read(1, &byte));
-		EXPECT_EQ(byte, std::byte{'\r'});
-
-		ASSERT_NO_THROW(stream.read(1, &byte));
-		EXPECT_EQ(byte, std::byte{'\n'});
-
-		ASSERT_NO_THROW(stream.read(1, &byte));
-		EXPECT_EQ(byte, std::byte{'v'});
-#endif
 	}
 }
 
@@ -274,13 +264,13 @@ TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 		ASSERT_NO_THROW(stream.seekGet(5));
 		EXPECT_EQ(stream.tellGet(), 5);
 
-		// try multiple tells
+		// Try multiple tells
 		for(std::size_t i = 0; i < 10; ++i)
 		{
 			EXPECT_EQ(stream.tellGet(), 5);
 		}
 
-		// seek to EOF
+		// Seek to EOF
 		ASSERT_NO_THROW(stream.seekGet(9));
 		EXPECT_EQ(stream.tellGet(), 9);
 	}

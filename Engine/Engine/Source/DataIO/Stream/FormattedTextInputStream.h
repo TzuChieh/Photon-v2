@@ -10,6 +10,8 @@
 namespace ph
 {
 
+/*! @brief Read text with basic auto formatting applied.
+*/
 class FormattedTextInputStream : public StdInputStream
 {
 public:
@@ -30,6 +32,8 @@ public:
 	std::string acquireName() const override;
 
 	/*! @brief Read all remaining text. All contents are preserved.
+	All original input contents are preserved (including any line endings such as CRLF, LF), no matter
+	what platform the stream is operating on.
 	@param[out] out_allText Buffer to store all text from this stream.
 	*/
 	void readAll(std::string* out_allText);
