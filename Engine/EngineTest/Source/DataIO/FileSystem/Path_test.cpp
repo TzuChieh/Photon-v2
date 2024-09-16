@@ -39,7 +39,7 @@ TEST(FileSystemPathTest, ToStringHasGenericForm)
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
 		Path path(fs::path("hello\\more\\path\\abc.def"));
 #else
-		Path path(fs::path("hello/more/path"));
+		Path path(fs::path("hello/more/path/abc.def"));
 #endif
 		EXPECT_STREQ(path.toString().c_str(), "hello/more/path/abc.def");
 	}
