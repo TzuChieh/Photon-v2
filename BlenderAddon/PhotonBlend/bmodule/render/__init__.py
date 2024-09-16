@@ -39,12 +39,12 @@ class RenderProcess:
             print("warning: cannot run render process, no installation path is set")
             return
 
-        argument_string = self._generate_argument_string()
+        arg_strs = self._generate_argument_strings()
 
-        print("Using renderer installation: %s" % self.installation_path)
-        print("Renderer arguments: %s" % argument_string)
+        print(f"Using renderer installation: {self.installation_path}")
+        print(f"Renderer arguments: {arg_strs}")
 
-        self.process = subprocess.Popen(argument_string, cwd=self.installation_path)
+        self.process = subprocess.Popen(arg_strs, cwd=self.installation_path)
 
     def exit(self):
         if self.process is None:
@@ -64,10 +64,10 @@ class RenderProcess:
         self.process = None
 
     def set_scene_file_path(self, scene_file_path):
-        self._set_argument("-s", "\"" + str(scene_file_path) + "\"")
+        self._set_argument("-s", str(scene_file_path))
 
     def set_image_output_path(self, image_output_path):
-        self._set_argument("-o", "\"" + str(image_output_path) + "\"")
+        self._set_argument("-o", str(image_output_path))
 
     def set_image_format(self, image_format):
         self._set_argument("-of", image_format)
@@ -99,16 +99,19 @@ class RenderProcess:
 
         return self.process.poll() is None
 
-    def _generate_argument_string(self):
-        argument_string = ""
+    def _generate_argument_strings(self):
+        arg_strs = []
 
         executable_path = (Path(self.installation_path) / "bin" / "PhotonCLI").resolve()
-        argument_string += str(executable_path) + " "
+        arg_strs.append(str(executable_path))
 
         for key, value in self.arguments.items():
-            argument_string += key + " " + value + " "
+            if key:
+                arg_strs.append(key)
+            if value:
+                arg_strs.append(value)
 
-        return argument_string
+        return arg_strs
 
     def _set_argument(self, key, value):
         self.arguments[key] = value

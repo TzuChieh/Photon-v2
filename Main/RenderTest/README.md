@@ -4,6 +4,8 @@
 
 This directory (`./Main/RenderTest/`) contains the primary end-to-end tests for Photon renderer. **Do not run the test directly in this directory.** After setup (by running the setup script in project root), the test will be installed to the build directory and you can run it from there. As always, use the build directory as the working directory when running tests.
 
+Multiple dependencies are needed in order to run render tests. You can install them in one go by executing `pip install -r ./RenderTest/requirements.txt` (in the build directory, presumably under an [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#create-and-use-virtual-environments)).
+
 In the build directory, you can run tests using
 
 ```shell
