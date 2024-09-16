@@ -18,6 +18,7 @@
 
 #include <ph_core.h>
 #include <Common/profiling.h>
+#include <Common/os.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
 
@@ -275,8 +276,14 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 
 	PH_LOG(DearImGui, Note, "setting-up platform renderer backends...");
 
+	auto shaderVersionHeader = "#version 460";
+	if constexpr(PH_OPERATING_SYSTEM_IS_LINUX)
+	{
+		shaderVersionHeader = "#version 450";
+	}
+
 	ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
-	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init(shaderVersionHeader);
 
 	// A single-frame dummy run to initialize some internal structures
 	// (although we can manually call backend functions such as `ImGui_ImplOpenGL3_CreateFontsTexture()` 

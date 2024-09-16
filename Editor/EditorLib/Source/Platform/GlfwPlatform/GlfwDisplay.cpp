@@ -51,8 +51,6 @@ void GlfwDisplay::initialize(
 		int minorVersion = 6;
 		if constexpr(PH_OPERATING_SYSTEM_IS_LINUX)
 		{
-			// FIXME: this is basically due to my hardware limitation; should query for max supported
-			// version instead
 			minorVersion = 5;
 		}
 
