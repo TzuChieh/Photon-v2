@@ -12,6 +12,7 @@
 #include <Common/logging.h>
 #include <Common/assertion.h>
 #include <Common/utility.h>
+#include <Common/os.h>
 
 namespace ph::editor
 {
@@ -45,10 +46,21 @@ void GlfwDisplay::initialize(
 
 	if(graphicsAPI == ghi::EGraphicsAPI::OpenGL)
 	{
-		PH_LOG(GlfwDisplay, Note, "target graphics API: OpenGL, requesting version 4.6");
+		// We need at least OpenGL 4.5 for DSA
+		int majorVersion = 4;
+		int minorVersion = 6;
+		if constexpr(PH_OPERATING_SYSTEM_IS_LINUX)
+		{
+			// FIXME: this is basically due to my hardware limitation; should query for max supported
+			// version instead
+			minorVersion = 5;
+		}
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		PH_LOG(GlfwDisplay, Note, "target graphics API: OpenGL, requesting version {}.{}",
+			majorVersion, minorVersion);
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
 	}

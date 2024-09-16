@@ -52,12 +52,18 @@ and substitute `SOME_OPTION` and `SOME_VALUE` with the options listed below.
 
 | Options          | Values        | Effects  |
 | -------------    | ------------- | ----- |
-| CMAKE_BUILD_TYPE | Release, Debug | When set, build binaries with optimizations enabled; otherwise no optimization is done. |
-| PH_BUILD_TESTS | ON (default), OFF | Build unit tests. They should be executed from the build folder. |
-| PH_BUILD_EDITOR_JNI | ON, OFF (default) | Build JNI for Photon Studio (previous editor). |
-| PH_BUILD_EDITOR | ON (default), OFF | Build editor application. |
-| PH_BUILD_SDL_GEN | ON (default), OFF | Build SDL automation tool. |
-| PH_BUILD_PHOTON_CLI | ON (default), OFF | Build command-line application. |
+| `CMAKE_BUILD_TYPE` | `Release`, `Debug` (default) | When set to `Release`, builds binaries with optimizations enabled; otherwise, no optimization is done (same as `Debug`). |
+| `PH_BUILD_TESTS` | ON (default), OFF | Build unit tests. They should be executed from the build folder. |
+| `PH_BUILD_EDITOR_JNI` | `ON`, `OFF` (default) | Build JNI for Photon Studio (previous editor). |
+| `PH_BUILD_EDITOR` | `ON` (default), `OFF` | Build editor application. |
+| `PH_BUILD_SDL_GEN` | `ON` (default), `OFF` | Build SDL automation tool. |
+| `PH_BUILD_PHOTON_CLI` | `ON` (default), `OFF` | Build command-line application. |
+| `PH_BUILD_OPTIONAL_TOOLS` | `ON`, `OFF` (default) | Build additional tools for the renderer. |
+| `PH_ENABLE_DEBUG` | `ON` (default), `OFF` | Enable debug functionalities (this is not a code optimization flag). |
+| `PH_ENABLE_PROFILING` | `ON`, `OFF` (default) | Enable profiling functionalities. |
+| `PH_DOUBLE_PRECISION_REAL` | `ON`, `OFF` (default) | Use double precision type for real numbers. |
+| `PH_USE_FAST_MATH` | `ON`, `OFF` (default) | More room for optimizations. This may not preserve strict IEEE compliance. |
+| `PH_USE_SIMD` | `ON` (default), `OFF` | Use vector instruction set found on the target hardware to accelerate computing. |
 
 > [!tip]
 > You can also obtain a complete list of options with descriptions by running `cmake -LAH ../` in the build folder.
