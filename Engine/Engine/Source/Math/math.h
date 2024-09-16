@@ -695,7 +695,7 @@ inline IntType quantize_normalized_float(const FloatType floatVal)
 inline void uint64_mul(const uint64 lhs, const uint64 rhs, uint64& out_high64, uint64& out_low64)
 {
 #if defined(__SIZEOF_INT128__)
-	const auto result128 = __uint128_t(lhs) + __uint128_t(rhs);
+	const auto result128 = __uint128_t(lhs) * __uint128_t(rhs);
 	out_high64 = static_cast<uint64>(result128 >> 64);
 	out_low64 = static_cast<uint64>(result128);
 #elif PH_COMPILER_IS_MSVC
