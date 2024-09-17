@@ -45,7 +45,7 @@ if not args.skipdl:
     resource_downloader.download_external_resource(build_dir)
 
 # Setup libraries (for now, only non-Windows platforms need this)
-print("Setup libraries...")
+print("Setting up libraries...")
 if sys.platform != 'win32':
     lib_setup_msg = console.run_python_from(build_dir / "Photon-v2-ThirdParty", "./Prebuilt/unpack.py")
     print(lib_setup_msg)
