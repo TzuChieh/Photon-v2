@@ -16,7 +16,7 @@ If you want to build the editor in previous version, you will also need:
 
 * JDK 1.8+ and Maven
 
-This is not required for building the new C++ based editor.
+This is not required for building the new C++ based editor. To run the editor, you will need to have a graphics driver that supports OpenGL (>= 4.6 on Windows, >= 4.5 otherwise).
 
 *Note that the working directory is assumed to be the project root (in the folder that you cloned) if not stated, and please use `./build/` as build folder for now since build scripts are more or less hard-coded to use this path, currently.*
 
@@ -34,9 +34,29 @@ For Linux and macOS, run the following commands:
 * `cmake -DCMAKE_BUILD_TYPE=Release ../`
 * `make`
 
+You can use a compiler of your choice by setting `CC` (for C compiler) and `CXX` (for C++ compiler) environment variables. For example:
+
+* `export CC=gcc-15`
+* `export CXX=g++-15`
+
+> [!tip]
+> `CC` and `CXX` can also take a path to the compiler executable.
+
 ## Step 3: Have Fun
 
 The compiled binaries will be in the `./build/bin/` folder.
+
+Try running [PhotonCLI](@ref photon_cli_readme) with the following command in the build directory to render our hello-world scene:
+
+```shell
+./bin/PhotonCLI -s ../scenes/cornell_box.p2 -t 4
+```
+
+It will produce an image file named `./rendered_scene.png` after some time, which should look like this:
+
+![Hello World Scene](Example/cornell_box_hello_world.jpg "A gold sphere placed inside a box."){html: width=40%}
+
+Happy rendering @emoji :smile:!
 
 ## Appendix A: Available CMake Options
 
@@ -53,17 +73,17 @@ and substitute `SOME_OPTION` and `SOME_VALUE` with the options listed below.
 | Options          | Values        | Effects  |
 | -------------    | ------------- | ----- |
 | `CMAKE_BUILD_TYPE` | `Release`, `Debug` (default) | When set to `Release`, builds binaries with optimizations enabled; otherwise, no optimization is done (same as `Debug`). |
-| `PH_BUILD_TESTS` | ON (default), OFF | Build unit tests. They should be executed from the build folder. |
-| `PH_BUILD_EDITOR_JNI` | `ON`, `OFF` (default) | Build JNI for Photon Studio (previous editor). |
-| `PH_BUILD_EDITOR` | `ON` (default), `OFF` | Build editor application. |
-| `PH_BUILD_SDL_GEN` | `ON` (default), `OFF` | Build SDL automation tool. |
-| `PH_BUILD_PHOTON_CLI` | `ON` (default), `OFF` | Build command-line application. |
-| `PH_BUILD_OPTIONAL_TOOLS` | `ON`, `OFF` (default) | Build additional tools for the renderer. |
-| `PH_ENABLE_DEBUG` | `ON` (default), `OFF` | Enable debug functionalities (this is not a code optimization flag). |
-| `PH_ENABLE_PROFILING` | `ON`, `OFF` (default) | Enable profiling functionalities. |
-| `PH_DOUBLE_PRECISION_REAL` | `ON`, `OFF` (default) | Use double precision type for real numbers. |
-| `PH_USE_FAST_MATH` | `ON`, `OFF` (default) | More room for optimizations. This may not preserve strict IEEE compliance. |
-| `PH_USE_SIMD` | `ON` (default), `OFF` | Use vector instruction set found on the target hardware to accelerate computing. |
+| `PH_BUILD_TESTS` | `ON`, `OFF` (default: `ON`) | Build unit tests. They should be executed from the build folder. |
+| `PH_BUILD_EDITOR_JNI` | `ON`, `OFF` (default: `OFF`) | Build JNI for Photon Studio (previous editor). |
+| `PH_BUILD_EDITOR` | `ON`, `OFF` (default: `ON`) | Build editor application. |
+| `PH_BUILD_SDL_GEN` | `ON`, `OFF` (default: `ON`) | Build SDL automation tool. |
+| `PH_BUILD_PHOTON_CLI` | `ON`, `OFF` (default: `ON`) | Build command-line application. |
+| `PH_BUILD_OPTIONAL_TOOLS` | `ON`, `OFF` (default: `OFF`) | Build additional tools for the renderer. |
+| `PH_ENABLE_DEBUG` | `ON`, `OFF` (default: `ON`) | Enable debug functionalities (this is not a code optimization flag). |
+| `PH_ENABLE_PROFILING` | `ON`, `OFF` (default: `OFF`) | Enable profiling functionalities. |
+| `PH_DOUBLE_PRECISION_REAL` | `ON`, `OFF` (default: `OFF`) | Use double precision type for real numbers. |
+| `PH_USE_FAST_MATH` | `ON`, `OFF` (default: `OFF`) | More room for optimizations. This may not preserve strict IEEE compliance. |
+| `PH_USE_SIMD` | `ON`, `OFF` (default: `ON`) | Use vector instruction set found on the target hardware to accelerate computing. |
 
 > [!tip]
 > You can also obtain a complete list of options with descriptions by running `cmake -LAH ../` in the build folder.

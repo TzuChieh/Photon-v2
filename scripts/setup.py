@@ -5,6 +5,7 @@ import blender_addon
 import render_test
 import content
 from utility import config
+from utility import console
 
 import sys
 import shutil
@@ -42,6 +43,12 @@ print(f"Using build directory: {build_dir}")
 if not args.skipdl:
     library_downloader.download_thirdparty_library(build_dir, setup_config)
     resource_downloader.download_external_resource(build_dir)
+
+# Setup libraries (for now, only non-Windows platforms need this)
+print("Setup libraries...")
+if sys.platform != 'win32':
+    lib_setup_msg = console.run_python_from(build_dir / "Photon-v2-ThirdParty", "./Prebuilt/unpack.py")
+    print(lib_setup_msg)
 
 # Setup Blender addon
 blender_addon.setup_photon_blend(setup_config)
