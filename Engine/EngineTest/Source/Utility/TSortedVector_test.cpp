@@ -1,5 +1,7 @@
 #include <Utility/TSortedVector.h>
+
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 #include <gtest/gtest.h>
 
@@ -107,6 +109,19 @@ TEST(TSortedVectorTest, AddValuesAndRead)
 	}
 }
 
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic push
+
+// g++ 14.0.1 will emit warning: void* __builtin_memmove(void*, const void*, long unsigned int)
+// writing between 5 and 9223372036854775807 bytes into a region of size 0 overflows the destination
+// [-Wstringop-overflow=] for `vec.addValue()`. Seems to be a false positive, see
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100366
+#if __GNUC__ == 14 && __GNUC_MINOR__ == 0 && __GNUC_PATCHLEVEL__ == 1
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+
+#endif
+
 TEST(TSortedVectorTest, AddAndRemoval)
 {
 	{
@@ -154,3 +169,7 @@ TEST(TSortedVectorTest, AddAndRemoval)
 		EXPECT_TRUE(vec.isEmpty());
 	}
 }
+
+#if PH_COMPILER_IS_GNU
+#pragma GCC diagnostic pop
+#endif

@@ -374,7 +374,14 @@ public:
 
 #if PH_COMPILER_IS_GNU
 #pragma GCC diagnostic push
+
+// g++ 14 will emit "-Wignored-attributes" warnings for `BFloat`, see
+// https://stackoverflow.com/questions/41676311/implication-of-gcc-warning-ignoring-attributes-on-template-argument-wignored.
+// Ignoring for now as tests are passed.
+#if __GNUC__ == 14
 #pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 #endif
 
 #if PH_USE_AVX || PH_USE_SSE
