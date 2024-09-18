@@ -8,8 +8,8 @@ Building Photon is super easy since the renderer is mostly coded from scratch us
 
 Photon uses CMake as its main build system, and the toolkits you need are as follows:
 
-* CMake 3.20+ (3.28+ recommended)
-* Python 3 (3.12 recommended)
+* CMake >= 3.20 (>= 3.28 recommended)
+* Python 3 (>= 3.12 recommended)
 * C++23 compliant compiler (necessary)
   - MSVC >= 17.10.1
   - GCC >= 14.0.1
