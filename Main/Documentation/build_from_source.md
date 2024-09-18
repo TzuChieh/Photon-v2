@@ -2,7 +2,7 @@
 
 [TOC]
 
-Building Photon is super easy since the renderer is mostly coded from scratch using standard C++. Each of the required third-party libraries is either header only or pre-compiled, and can be handled automatically with the setup script.
+Building Photon is super easy since the renderer is mostly coded from scratch using standard C++. Each of the [required third-party libraries](https://github.com/TzuChieh/Photon-v2-ThirdParty) is either header only or pre-compiled, and can be handled automatically with the setup script.
 
 ## Prerequisites
 
@@ -11,6 +11,8 @@ Photon uses CMake as its main build system, and the toolkits you need are as fol
 * CMake 3.20+ (3.28+ recommended)
 * Python 3 (3.12 recommended)
 * C++23 compliant compiler (necessary)
+  - MSVC >= 17.10.1
+  - GCC >= 14.0.1
 
 If you want to build the editor in previous version, you will also need:
 

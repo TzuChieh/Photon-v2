@@ -12,11 +12,30 @@ In the build directory, you can run tests using
 pytest ./RenderTest/
 ```
 
-or run and produce a markdown report with
+or run and produce a [markdown report](https://github.com/TzuChieh/Photon-v2-TestReport/blob/main/RenderTest/2024_07_05/82d2799/report.md) with
 
 ```shell
 python ./RenderTest/run_and_report.py
 ```
+
+### Using Virtual Environment
+
+Running tests under a Python [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#create-and-use-virtual-environments) can be beneficial, as the packages installed are the exact versions we required and is less likely to interfere with other projects. First, create a virtual environment under the build directory with
+
+```shell
+python -m venv ./RenderTestEnv/
+```
+
+This will create a directory named `RenderTestEnv` (or the name of your choice). To start using the virtual environment we just created, execute the following command:
+
+```shell
+source ./RenderTestEnv/bin/activate
+```
+
+After this, you can execute `pip install -r ./RenderTest/requirements.txt` to install all dependencies and run the tests with `python ./RenderTest/run_and_report.py`.
+
+> [!tip]
+> Depending on the system, you may need to use `python3` to run the python scripts instead.
 
 ## Parallel Test Execution
 
