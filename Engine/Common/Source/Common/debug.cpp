@@ -58,21 +58,17 @@
 #endif
 //*****************************************************************************
 
-#if __cpp_lib_stacktrace && !PH_COMPILER_IS_CLANG
-		#include <stacktrace>
-#elif __cpp_lib_stacktrace && PH_COMPILER_IS_CLANG
-	// clang++ 18 has no `std::stacktrace`, but defined a positive `__cpp_lib_stacktrace`
-	#if __clang_major__ >= 19
-		#include <stacktrace>
-	#elif PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
-		#include <execinfo.h>
-	#else
-		#error "No stack trace implementation for Clang."
-	#endif
+#if\
+	(__cpp_lib_stacktrace && !PH_COMPILER_IS_CLANG) ||\
+	/* clang++ 18 has no `std::stacktrace`, but defined a positive `__cpp_lib_stacktrace`*/\
+	(__cpp_lib_stacktrace && PH_COMPILER_IS_CLANG && __clang_major__ >= 19)
+
+	#include <stacktrace>
+
 #elif PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
+
 	#include <execinfo.h>
-#else
-	#error "No stack trace implementation."
+
 #endif
 
 namespace ph
@@ -85,13 +81,15 @@ void debug_break()
 
 std::string obtain_stack_trace()
 {
-#if __cpp_lib_stacktrace
+#if\
+	(__cpp_lib_stacktrace && !PH_COMPILER_IS_CLANG) ||\
+	/* clang++ 18 has no `std::stacktrace`, but defined a positive `__cpp_lib_stacktrace`*/\
+	(__cpp_lib_stacktrace && PH_COMPILER_IS_CLANG && __clang_major__ >= 19)
 
 	auto stackTrace = std::stacktrace::current();
 	return std::to_string(stackTrace);
 
-#else
-#if PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
+#elif PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
 
     const int ENTRY_BUFFER_SIZE = 64;
 
@@ -116,7 +114,6 @@ std::string obtain_stack_trace()
 
     return "stack trace unavailable";
 
-#endif
 #endif
 }
 
