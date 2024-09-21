@@ -196,8 +196,10 @@ inline constexpr auto get_any_element_from_color_values(const ColorValuesType& c
 		/* Note: According to [expr.type.conv]/2, quote:
 		"if the type is cv void and the initializer is () or {} (after pack expansion, if any), 
 		the expression is a prvalue of the specified type that performs no initialization."
+		But clang++18 does not like it, so we use `std::false_type` instead.
 		*/
-		return void{};
+		//return void{};
+		return std::false_type{};
 	}
 }
 

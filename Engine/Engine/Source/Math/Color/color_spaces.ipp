@@ -564,7 +564,7 @@ inline constexpr bool is_compatible()
 {
 	using ColorValuesType = std::remove_cvref_t<InColorValuesType>;
 	using ElementType = detail::TColorValuesElementType<ColorValuesType>;
-	if constexpr(std::is_same_v<ElementType, void>)
+	if constexpr(std::is_same_v<ElementType, std::false_type>)
 	{
 		return false;
 	}
