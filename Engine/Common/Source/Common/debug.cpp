@@ -1,6 +1,7 @@
 #include "Common/debug.h"
 #include "Common/config.h"
 #include "Common/os.h"
+#include "Common/compiler.h"
 
 #include <version>
 
@@ -57,12 +58,21 @@
 #endif
 //*****************************************************************************
 
-#if __cpp_lib_stacktrace
-	#include <stacktrace>
-#else
-	#if PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
+#if __cpp_lib_stacktrace && !PH_COMPILER_IS_CLANG
+		#include <stacktrace>
+#elif __cpp_lib_stacktrace && PH_COMPILER_IS_CLANG
+	// clang++ 18 has no `std::stacktrace`, but defined a positive `__cpp_lib_stacktrace`
+	#if __clang_major__ >= 19
+		#include <stacktrace>
+	#elif PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
 		#include <execinfo.h>
+	#else
+		#error "No stack trace implementation for Clang."
 	#endif
+#elif PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
+	#include <execinfo.h>
+#else
+	#error "No stack trace implementation."
 #endif
 
 namespace ph

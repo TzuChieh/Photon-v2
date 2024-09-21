@@ -7,6 +7,7 @@
 #include "Common/Utility/string_utils_table.h"
 #include "Common/assertion.h"
 #include "Common/exceptions.h"
+#include "Common/compiler.h"
 
 #include <cstddef>
 #include <string>
@@ -349,12 +350,27 @@ inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
 	//     https://en.cppreference.com/w/cpp/utility/from_chars
 	// [2] https://stackoverflow.com/a/63567008
 	//
-	constexpr std::errc NO_ERROR_VALUE = std::errc();
+	constexpr auto NO_ERROR_VALUE = std::errc{};
 
 	switch(errorCode)
 	{
+#if PH_COMPILER_IS_CLANG
+#pragma clang diagnostic push
+
+// clang++ 18 will emit "-Wswitch" warnings for `NO_ERROR_VALUE` (which is basically 0), while it is
+// actually a valid value (just not widely documented)
+#if __clang_major__ == 18
+#pragma clang diagnostic ignored "-Wswitch"
+#endif
+
+#endif
+
 	case NO_ERROR_VALUE:
 		return;
+
+#if PH_COMPILER_IS_CLANG
+#pragma clang diagnostic pop
+#endif
 
 	case std::errc::invalid_argument:
 		throw InvalidArgumentException(
