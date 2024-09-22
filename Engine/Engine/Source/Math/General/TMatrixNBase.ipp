@@ -83,7 +83,9 @@ inline void TMatrixNBase<Derived, T, N>::mul(const Derived& rhsMatrix, Derived* 
 	PH_ASSERT(out_result);
 	PH_ASSERT(out_result != this);
 
-	Base::template multiplyMatrix<N>(rhsMatrix.Self::m, &(out_result->Self::m));
+	Base::template multiplyMatrix<N>(
+		static_cast<const Self&>(rhsMatrix).m,
+		&(static_cast<Self*>(out_result)->m));
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -91,7 +93,9 @@ inline void TMatrixNBase<Derived, T, N>::mulTransposed(const Derived& rhsMatrix,
 {
 	PH_ASSERT(out_result);
 
-	Base::template multiplyTransposedMatrix<N>(rhsMatrix.Self::m, &(out_result->Self::m));
+	Base::template multiplyTransposedMatrix<N>(
+		static_cast<const Self&>(rhsMatrix).m,
+		&(static_cast<Self*>(out_result)->m));
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -99,7 +103,7 @@ inline auto TMatrixNBase<Derived, T, N>::transpose() const
 -> Derived
 {
 	Derived result(static_cast<const Derived&>(*this));
-	result.Self::transposeLocal();
+	static_cast<Self&>(result).transposeLocal();
 	return result;
 }
 

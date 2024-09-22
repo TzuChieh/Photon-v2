@@ -13,7 +13,7 @@ namespace ph::math
 template<typename Derived, typename T, std::size_t N>
 inline T TVectorNBase<Derived, T, N>::dot(const Derived& rhs) const
 {
-	return ::ph::math::dot_product(m, rhs.Self::m);
+	return ::ph::math::dot_product(m, static_cast<const Self&>(rhs).m);
 }
 
 template<typename Derived, typename T, std::size_t N>
