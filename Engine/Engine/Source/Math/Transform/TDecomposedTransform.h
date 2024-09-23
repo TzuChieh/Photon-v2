@@ -6,6 +6,7 @@
 #include "Math/math.h"
 
 #include <Common/assertion.h>
+#include <Common/compiler.h>
 
 #include <cstdlib>
 
@@ -121,7 +122,10 @@ public:
 	bool isIdentity() const;
 
 	bool operator == (const TDecomposedTransform& rhs) const;
+
+#if !PH_COMPILER_HAS_P2468R2
 	bool operator != (const TDecomposedTransform& rhs) const;
+#endif
 
 private:
 	TVector3<T> m_pos;
@@ -224,11 +228,13 @@ inline bool TDecomposedTransform<T>::operator == (const TDecomposedTransform& rh
 	       m_scale == rhs.m_scale;
 }
 
+#if !PH_COMPILER_HAS_P2468R2
 template<typename T>
 inline bool TDecomposedTransform<T>::operator != (const TDecomposedTransform& rhs) const
 {
 	return !(*this == rhs);
 }
+#endif
 
 template<typename T>
 inline TVector3<T> TDecomposedTransform<T>::getPos() const

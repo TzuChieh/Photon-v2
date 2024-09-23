@@ -9,6 +9,7 @@
 #include <Common/primitive_type.h>
 #include <Common/memory.h>
 #include <Common/os.h>
+#include <Common/compiler.h>
 #include <Common/math_basics.h>
 #include <Common/exceptions.h>
 #include <Common/config.h>
@@ -139,11 +140,13 @@ public:
 			return m_currentIdx == rhs.m_currentIdx && m_pool == rhs.m_pool;
 		}
 
+#if !PH_COMPILER_HAS_P2468R2
 		// Inequality
 		bool operator != (const TIterator& rhs) const
 		{
 			return !(*this == rhs);
 		}
+#endif
 
 		/*!
 		@return Fresh handle of the current valid item.

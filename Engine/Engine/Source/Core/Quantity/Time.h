@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 namespace ph
 {
@@ -35,10 +36,12 @@ public:
 		       relativeT == other.relativeT;
 	}
 
+#if !PH_COMPILER_HAS_P2468R2
 	bool operator != (const Time& other) const
 	{
 		return !(*this == other);
 	}
+#endif
 };
 
 }// end namespace ph
