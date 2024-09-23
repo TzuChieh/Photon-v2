@@ -30,9 +30,9 @@ inline TLinearGradientTexture<OutputType>::TLinearGradientTexture(
 	const std::shared_ptr<TTexture<OutputType>>& endTexture) :
 
 	TLinearGradientTexture(
-		{beginUV.x, beginUV.y, 0},
+		{beginUV.x(), beginUV.y(), 0},
 		beginTexture, 
-		{endUV.x, endUV.y, 0},
+		{endUV.x(), endUV.y(), 0},
 		endTexture)
 {}
 
