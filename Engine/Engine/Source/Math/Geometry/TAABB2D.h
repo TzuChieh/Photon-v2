@@ -5,6 +5,7 @@
 #include "Math/hash.h"
 
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 #include <string>
 #include <utility>
@@ -83,7 +84,10 @@ public:
 	bool isEqual(const TAABB2D& other) const;
 
 	bool operator == (const TAABB2D& other) const;
+
+#if !PH_COMPILER_HAS_P2468R2
 	bool operator != (const TAABB2D& other) const;
+#endif
 
 private:
 	TVector2<T> m_minVertex;

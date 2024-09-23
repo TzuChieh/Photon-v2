@@ -7,6 +7,8 @@
 #include "Math/Color/color_basics.h"
 #include "Utility/utility.h"
 
+#include <Common/compiler.h>
+
 #include <cstddef>
 #include <type_traits>
 #include <concepts>
@@ -163,7 +165,10 @@ public:
 
 	using Base::operator [];
 	using Base::operator ==;
+
+#if !PH_COMPILER_HAS_P2468R2
 	using Base::operator !=;
+#endif
 
 	using Base::operator +;
 	using Base::operator +=;

@@ -5,6 +5,7 @@
 #include "Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 #include <cstddef>
 #include <array>
@@ -179,7 +180,10 @@ protected:
 	bool isEqual(const Derived& other) const;
 	bool isNear(const Derived& other, T margin) const;
 	bool operator == (const Derived& other) const;
+
+#if !PH_COMPILER_HAS_P2468R2
 	bool operator != (const Derived& other) const;
+#endif
 
 	Derived operator + (const Derived& rhs) const;
 	Derived operator + (T rhs) const;

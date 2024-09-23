@@ -243,10 +243,12 @@ inline bool TAABB2D<T>::operator == (const TAABB2D& other) const
 	return isEqual(other);
 }
 
+#if !PH_COMPILER_HAS_P2468R2
 template<typename T>
 inline bool TAABB2D<T>::operator != (const TAABB2D& other) const
 {
 	return !isEqual(other);
 }
+#endif
 
 }// end namespace ph::math

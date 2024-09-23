@@ -2,6 +2,8 @@
 
 #include "Math/General/TArithmeticArrayBase.h"
 
+#include <Common/compiler.h>
+
 #include <cstddef>
 #include <array>
 
@@ -90,7 +92,10 @@ public:
 
 	using Base::operator [];
 	using Base::operator ==;
+
+#if !PH_COMPILER_HAS_P2468R2
 	using Base::operator !=;
+#endif
 
 	using Base::operator +;
 	using Base::operator +=;

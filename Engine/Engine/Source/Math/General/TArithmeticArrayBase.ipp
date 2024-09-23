@@ -667,11 +667,13 @@ inline bool TArithmeticArrayBase<Derived, T, N>::operator == (const Derived& oth
 	return isEqual(other);
 }
 
+#if !PH_COMPILER_HAS_P2468R2
 template<typename Derived, typename T, std::size_t N>
 inline bool TArithmeticArrayBase<Derived, T, N>::operator != (const Derived& other) const
 {
 	return !isEqual(other);
 }
+#endif
 
 template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::operator + (const Derived& rhs) const
