@@ -179,10 +179,21 @@ protected:
 
 	bool isEqual(const Derived& other) const;
 	bool isNear(const Derived& other, T margin) const;
-	bool operator == (const Derived& other) const;
+
+	/*!
+	@return `true` if the elements are equal to those in `other`, `false` otherwise.
+	@note To support C++20's rewritten comparison operators without ambiguity, `other` is not of
+	`Derived` type. If this is undesirable, use `isEqual()`.
+	*/
+	bool operator == (const Self& other) const;
 
 #if !PH_COMPILER_HAS_P2468R2
-	bool operator != (const Derived& other) const;
+	/*!
+	@return `true` if the elements are not equal to those in `other`, `false` otherwise.
+	@note To support C++20's rewritten comparison operators without ambiguity, `other` is not of
+	`Derived` type. If this is undesirable, use `!isEqual()`.
+	*/
+	bool operator != (const Self& other) const;
 #endif
 
 	Derived operator + (const Derived& rhs) const;

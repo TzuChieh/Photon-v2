@@ -662,16 +662,16 @@ inline bool TArithmeticArrayBase<Derived, T, N>::isNear(const Derived& other, co
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline bool TArithmeticArrayBase<Derived, T, N>::operator == (const Derived& other) const
+inline bool TArithmeticArrayBase<Derived, T, N>::operator == (const Self& other) const
 {
-	return isEqual(other);
+	return isEqual(static_cast<const Derived&>(other));
 }
 
 #if !PH_COMPILER_HAS_P2468R2
 template<typename Derived, typename T, std::size_t N>
-inline bool TArithmeticArrayBase<Derived, T, N>::operator != (const Derived& other) const
+inline bool TArithmeticArrayBase<Derived, T, N>::operator != (const Self& other) const
 {
-	return !isEqual(other);
+	return !isEqual(static_cast<const Derived&>(other));
 }
 #endif
 
