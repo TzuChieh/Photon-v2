@@ -97,9 +97,12 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 
 	case pixel_texture::ESampleMode::Bilinear:
 		return samplePixelBufferBilinear(sampleUV);
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return {};
 	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
 	return {};
 }
 
