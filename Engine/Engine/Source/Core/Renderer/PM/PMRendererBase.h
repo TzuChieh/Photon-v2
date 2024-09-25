@@ -39,7 +39,7 @@ public:
 		const Region& region,
 		HdrRgbFrame& out_frame) override = 0;
 
-	RenderObservationInfo getObservationInfo() const = 0;
+	RenderObservationInfo getObservationInfo() const override = 0;
 
 	/*! @brief Gather cooked data. Perform any required initialization before render.
 	*/
