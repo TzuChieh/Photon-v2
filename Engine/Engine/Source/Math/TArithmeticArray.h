@@ -14,6 +14,7 @@ template<typename T, std::size_t N>
 class TArithmeticArray final : public TArithmeticArrayBase<TArithmeticArray<T, N>, T, N>
 {
 private:
+	using Self = TArithmeticArray;
 	using Base = TArithmeticArrayBase<TArithmeticArray<T, N>, T, N>;
 
 protected:
@@ -91,10 +92,16 @@ public:
 	using Base::toArray;
 
 	using Base::operator [];
-	using Base::operator ==;
 
 #if !PH_COMPILER_HAS_P2468R2
+	using Base::operator ==;
 	using Base::operator !=;
+#else
+	/*! With using-declaration, it is as if the operator is defined in this class. The first argument
+	(the implicit `this`) will be `Self` in this case, while `other` will be the base type. This will
+	cause ambiguity when the operator is being rewritten, hence we declare the operator manually.
+	*/
+	bool operator == (const Self& other) const;
 #endif
 
 	using Base::operator +;

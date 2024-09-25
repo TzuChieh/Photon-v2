@@ -18,6 +18,7 @@ template<typename T>
 class TQuaternion final : public TArithmeticArrayBase<TQuaternion<T>, T, 4>
 {
 private:
+	using Self = TQuaternion;
 	using Base = TArithmeticArrayBase<TQuaternion<T>, T, 4>;
 
 protected:
@@ -87,10 +88,16 @@ public:
 	using Base::toView;
 
 	using Base::operator [];
-	using Base::operator ==;
 
 #if !PH_COMPILER_HAS_P2468R2
+	using Base::operator ==;
 	using Base::operator !=;
+#else
+	/*! With using-declaration, it is as if the operator is defined in this class. The first argument
+	(the implicit `this`) will be `Self` in this case, while `other` will be the base type. This will
+	cause ambiguity when the operator is being rewritten, hence we declare the operator manually.
+	*/
+	bool operator == (const Self& other) const;
 #endif
 };
 

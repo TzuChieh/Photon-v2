@@ -278,4 +278,14 @@ inline void TQuaternion<T>::toRotationMatrix(TMatrix4<T>* const out_result) cons
 	out_result->m[3][3] = 1;
 }
 
+#if PH_COMPILER_HAS_P2468R2
+
+template<typename T>
+inline bool TQuaternion<T>::operator == (const Self& other) const
+{
+	return Base::operator == (other);
+}
+
+#endif
+
 }// end namespace ph::math

@@ -271,4 +271,14 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::putEnergy(const T energyL
 	}
 }
 
+#if PH_COMPILER_HAS_P2468R2
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+inline bool TSpectrumBase<Derived, COLOR_SPACE, T, N>::operator == (const Self& other) const
+{
+	return Base::operator == (other);
+}
+
+#endif
+
 }// end namespace ph::math

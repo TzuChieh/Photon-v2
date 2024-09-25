@@ -15,4 +15,15 @@ inline TArithmeticArray<T, N>::TArithmeticArray(const TArithmeticArray<U, N>& ot
 	}
 }
 
+#if PH_COMPILER_HAS_P2468R2
+
+template<typename T, std::size_t N>
+inline bool TArithmeticArray<T, N>::operator == (const Self& other) const
+{
+	return Base::operator == (other);
+}
+
+#endif
+
+
 }// end namespace ph::math

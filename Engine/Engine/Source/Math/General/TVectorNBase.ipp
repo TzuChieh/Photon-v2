@@ -84,4 +84,14 @@ inline std::size_t TVectorNBase<Derived, T, N>::maxDimension() const
 	return this->maxIndex();
 }
 
+#if PH_COMPILER_HAS_P2468R2
+
+template<typename Derived, typename T, std::size_t N>
+inline bool TVectorNBase<Derived, T, N>::operator == (const Self& other) const
+{
+	return Base::operator == (other);
+}
+
+#endif
+
 }// end namespace ph::math

@@ -29,6 +29,7 @@ template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 class TSpectrumBase : public TArithmeticArrayBase<Derived, T, N>
 {
 private:
+	using Self = TSpectrumBase;
 	using Base = TArithmeticArrayBase<Derived, T, N>;
 
 protected:
@@ -164,10 +165,16 @@ public:
 	using Base::toVector;
 
 	using Base::operator [];
-	using Base::operator ==;
 
 #if !PH_COMPILER_HAS_P2468R2
+	using Base::operator ==;
 	using Base::operator !=;
+#else
+	/*! With using-declaration, it is as if the operator is defined in this class. The first argument
+	(the implicit `this`) will be `Self` in this case, while `other` will be the base type. This will
+	cause ambiguity when the operator is being rewritten, hence we declare the operator manually.
+	*/
+	bool operator == (const Self& other) const;
 #endif
 
 	using Base::operator +;
