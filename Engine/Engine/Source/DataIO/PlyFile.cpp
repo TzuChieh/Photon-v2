@@ -48,6 +48,8 @@ inline std::string_view format_to_ply_keyword(const EPlyDataFormat format)
 		PH_LOG(PlyFile, Warning, "Unknown PLY format, cannot convert to keyword.");
 		return "";
 	}
+
+	return {};
 }
 
 inline EPlyDataFormat ply_keyword_to_format(const std::string_view keyword)
@@ -80,6 +82,8 @@ inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
 		PH_LOG(PlyFile, Warning, "Unknown PLY entry, cannot convert to keyword.");
 		return "";
 	}
+
+	return {};
 }
 
 inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
@@ -118,6 +122,8 @@ inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
 		PH_LOG(PlyFile, Warning, "Unknown PLY data type, cannot convert to keyword.");
 		return "";
 	}
+
+	return {};
 }
 
 inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
@@ -222,7 +228,7 @@ inline std::size_t sizeof_ply_data_type(const EPlyDataType dataType)
 		return 0;
 	}
 
-	return 0;
+	return {};
 }
 
 template<typename DataType>
@@ -286,7 +292,7 @@ inline float64 bytes_to_ply_data(const std::byte* const binaryPlyData, const EPl
 		return 0.0;
 	}
 
-	return 0.0;
+	return {};
 }
 
 inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, std::byte* const out_binaryPlyData)
@@ -356,7 +362,7 @@ inline float64 ascii_ply_data_to_bytes(
 		return 0.0;
 	}
 
-	return 0.0;
+	return {};
 }
 
 /*!

@@ -114,10 +114,14 @@ SampleFilter PhotonMappingVisualizer::makeSampleFilter() const
 
 	case ESampleFilter::BlackmanHarris:
 		return SampleFilter::makeBlackmanHarris();
+
+	default:
+		PH_LOG(PhotonMappingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
+		return SampleFilter::makeBlackmanHarris();
 	}
 
-	PH_LOG(PhotonMappingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
-	return SampleFilter::makeBlackmanHarris();
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return {};
 }
 
 PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
