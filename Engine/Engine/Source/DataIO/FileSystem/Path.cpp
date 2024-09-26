@@ -15,12 +15,14 @@ namespace
 {
 
 template<typename NativeCharType>
-inline std::size_t path_to_native_char_string(
-	const std::filesystem::path& path,
+inline std::size_t native_path_to_char_string(
+	const NativeCharType* const nativeStr,
+	const std::size_t nativeStrLen,
 	TSpan<char> out_buffer,
 	std::size_t* const out_numTotalChars,
 	const bool isNullTerminated)
 {
+	PH_ASSERT(nativeStr);
 	PH_ASSERT(!out_buffer.empty());
 
 	std::size_t numCopiedChars = 0;
@@ -28,29 +30,29 @@ inline std::size_t path_to_native_char_string(
 	// Example filesystem: Windows
 	if constexpr(std::is_same_v<NativeCharType, wchar_t>)
 	{
-		const wchar_t* nativeStr = path.native().c_str();
+		const wchar_t* srcStr = nativeStr;
 		std::mbstate_t state{};
 
 		if(out_numTotalChars)
 		{
-			*out_numTotalChars = std::wcsrtombs(nullptr, &nativeStr, 0, &state) + isNullTerminated;
+			*out_numTotalChars = std::wcsrtombs(nullptr, &srcStr, 0, &state) + isNullTerminated;
 		}
 
 		// `numCopiedChars` does not count null-terminator here
-		numCopiedChars = std::wcsrtombs(out_buffer.data(), &nativeStr, out_buffer.size(), &state);
+		numCopiedChars = std::wcsrtombs(out_buffer.data(), &srcStr, out_buffer.size(), &state);
 	}
 	// Example filesystem: POSIX (e.g., Linux, macOS)
 	else if constexpr(std::is_same_v<NativeCharType, char>)
 	{
 		if(out_numTotalChars)
 		{
-			*out_numTotalChars = path.native().size() + isNullTerminated;
+			*out_numTotalChars = nativeStrLen + isNullTerminated;
 		}
 
 		// `numCopiedChars` does not count null-terminator here
-		numCopiedChars = std::min(path.native().size(), out_buffer.size());
+		numCopiedChars = std::min(nativeStrLen, out_buffer.size());
 
-		std::strncpy(out_buffer.data(), path.native().c_str(), numCopiedChars);
+		std::strncpy(out_buffer.data(), nativeStr, numCopiedChars);
 	}
 	else
 	{
@@ -239,8 +241,12 @@ std::size_t Path::toNativeString(
 	std::size_t* const out_numTotalChars,
 	const bool isNullTerminated) const
 {
-	return path_to_native_char_string<std::filesystem::path::value_type>(
-		m_path, out_buffer, out_numTotalChars, isNullTerminated);
+	return native_path_to_char_string(
+		m_path.native().c_str(),
+		m_path.native().size(),
+		out_buffer,
+		out_numTotalChars,
+		isNullTerminated);
 }
 
 wchar_t Path::charToWchar(const char ch)
