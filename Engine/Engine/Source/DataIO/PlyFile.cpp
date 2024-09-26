@@ -43,6 +43,7 @@ inline std::string_view format_to_ply_keyword(const EPlyDataFormat format)
 	case EPlyDataFormat::ASCII:              return "ascii";
 	case EPlyDataFormat::BinaryLittleEndian: return "binary_little_endian";
 	case EPlyDataFormat::BinaryBigEndian:    return "binary_big_endian";
+
 	default: 
 		PH_LOG(PlyFile, Warning, "Unknown PLY format, cannot convert to keyword.");
 		return "";
@@ -74,6 +75,7 @@ inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
 	case EPlyHeaderEntry::Element:  return "element";
 	case EPlyHeaderEntry::Comment:  return "comment";
 	case EPlyHeaderEntry::Format:   return "format";
+
 	default: 
 		PH_LOG(PlyFile, Warning, "Unknown PLY entry, cannot convert to keyword.");
 		return "";
@@ -111,6 +113,7 @@ inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
 	case EPlyDataType::UInt32:  return "uint";
 	case EPlyDataType::Float32: return "float";
 	case EPlyDataType::Float64: return "double";
+
 	default: 
 		PH_LOG(PlyFile, Warning, "Unknown PLY data type, cannot convert to keyword.");
 		return "";
@@ -213,9 +216,12 @@ inline std::size_t sizeof_ply_data_type(const EPlyDataType dataType)
 
 	case EPlyDataType::Float64:
 		return 8;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0;
 	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
 	return 0;
 }
 
@@ -274,9 +280,12 @@ inline float64 bytes_to_ply_data(const std::byte* const binaryPlyData, const EPl
 	case EPlyDataType::UInt32:  return read_binary_ply_data<uint32>(binaryPlyData);
 	case EPlyDataType::Float32: return read_binary_ply_data<float32>(binaryPlyData);
 	case EPlyDataType::Float64: return read_binary_ply_data<float64>(binaryPlyData);
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0.0;
 	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
 	return 0.0;
 }
 
@@ -315,9 +324,11 @@ inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, 
 	case EPlyDataType::Float64:
 		write_binary_ply_data<float64>(static_cast<float64>(value), out_binaryPlyData);
 		break;
-	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
 }
 
 /*!
@@ -339,9 +350,12 @@ inline float64 ascii_ply_data_to_bytes(
 	case EPlyDataType::UInt32:  return ascii_ply_data_to_bytes<uint32>(asciiPlyData, out_binaryPlyData);
 	case EPlyDataType::Float32: return ascii_ply_data_to_bytes<float32>(asciiPlyData, out_binaryPlyData);
 	case EPlyDataType::Float64: return ascii_ply_data_to_bytes<float64>(asciiPlyData, out_binaryPlyData);
+	
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0.0;
 	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
 	return 0.0;
 }
 
@@ -386,9 +400,11 @@ inline void bytes_to_ascii_ply_data(
 	case EPlyDataType::Float64:
 		bytes_to_ascii_ply_data<float64>(binaryPlyData, out_asciiPlyData);
 		break;
-	}
 
-	PH_ASSERT_UNREACHABLE_SECTION();
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
 }
 
 }// end anonymous namespace
