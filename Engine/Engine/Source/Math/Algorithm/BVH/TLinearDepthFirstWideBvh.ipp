@@ -697,7 +697,7 @@ inline auto TLinearDepthFirstWideBvh<N, Item, Index>
 		}
 		else
 		{
-			constexpr auto noAxis = infoNode->noAxisFlag();
+			constexpr auto noAxis = TBvhInfoNode<SrcN, Item>::noAxisFlag();
 
 			TArrayVector<const TBvhInfoNode<SrcN, Item>*, N> childNodes;
 			for(const TBvhInfoNode<SrcN, Item>* parentNode : levelNodes)
