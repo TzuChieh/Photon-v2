@@ -83,11 +83,15 @@ Path SdlResourceLocator::toPath(std::string_view sri) const
 	{
 		return external_SRI_to_path(sri);
 	}
+
+	default:
+	{
+		throw_formatted<SdlException>(
+			"failed to generate path: {} is not a valid SDL resource identifier", sri);
+	}
 	}
 
-	throw_formatted<SdlException>(
-		"failed to generate path: {} is not a valid SDL resource identifier",
-		sri);
+	return {};
 }
 
 std::string SdlResourceLocator::toBundleSRI(std::string_view sri) const
@@ -121,11 +125,15 @@ std::string SdlResourceLocator::toBundleSRI(std::string_view sri) const
 
 		return ":" + resourceRelPath.toString();
 	}
+
+	default:
+	{
+		throw_formatted<SdlException>(
+			"failed to generate bundle identifier: {} is not a valid SDL resource identifier", sri);
+	}
 	}
 
-	throw_formatted<SdlException>(
-		"failed to generate bundle identifier: {} is not a valid SDL resource identifier",
-		sri);
+	return {};
 }
 
 std::string SdlResourceLocator::toExternalSRI(std::string_view sri) const
@@ -143,11 +151,15 @@ std::string SdlResourceLocator::toExternalSRI(std::string_view sri) const
 		// The identifier is already what we want
 		return std::string(string_utils::trim_head(sri));
 	}
+
+	default:
+	{
+		throw_formatted<SdlException>(
+			"failed to generate external identifier: {} is not a valid SDL resource identifier", sri);
+	}
 	}
 
-	throw_formatted<SdlException>(
-		"failed to generate external identifier: {} is not a valid SDL resource identifier",
-		sri);
+	return {};
 }
 
 ResourceIdentifier SdlResourceLocator::toBundleIdentifier(const Path& path) const
