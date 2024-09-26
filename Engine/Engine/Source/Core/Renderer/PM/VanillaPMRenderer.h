@@ -27,7 +27,7 @@ public:
 		const Region& region,
 		HdrRgbFrame& out_frame) override;
 
-	RenderObservationInfo getObservationInfo() const;
+	RenderObservationInfo getObservationInfo() const override;
 
 private:
 	void renderWithVanillaPM();
