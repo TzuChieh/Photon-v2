@@ -527,7 +527,8 @@ PhBool phAsyncPollUpdatedFrameRegion(
 	}
 
 	RenderRegionStatus region;
-	const auto numRegions = engine->getRenderer()->asyncPollUpdatedRegions(TSpan{&region, 1});
+	const auto numRegions = engine->getRenderer()->asyncPollUpdatedRegions(
+		TSpan<RenderRegionStatus>{&region, 1});
 	if(numRegions == 0)
 	{
 		return PH_FALSE;
