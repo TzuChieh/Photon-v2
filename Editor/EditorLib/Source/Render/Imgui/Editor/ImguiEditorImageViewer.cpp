@@ -311,7 +311,7 @@ void ImguiEditorImageViewer::buildBottomToolbar()
 		pointedPixelPos = state.pointedPixelPos;
 	}
 
-	const char* imageFormat = "Unknown";
+	const char* imageFormat = nullptr;
 	switch(format)
 	{
 	case ghi::ESizedPixelFormat::RGB_8: imageFormat = "RGB, 8-bit channels"; break;
@@ -320,6 +320,7 @@ void ImguiEditorImageViewer::buildBottomToolbar()
 	case ghi::ESizedPixelFormat::RGBA_16F: imageFormat = "RGBA, 16-bit channels"; break;
 	case ghi::ESizedPixelFormat::RGB_32F: imageFormat = "RGB, 32-bit channels"; break;
 	case ghi::ESizedPixelFormat::RGBA_32F: imageFormat = "RGBA, 32-bit channels"; break;
+	default: imageFormat = "Unknown"; break;
 	}
 
 	std::snprintf(

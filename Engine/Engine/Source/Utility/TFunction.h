@@ -177,11 +177,23 @@ public:
 		}
 		else
 		{
-			static_assert(TIsNonEmptyFunctor<Func>::value,
-				"Cannot direct-init TFunction with the input functor. Possible cause of errors: "
-				"(1) sizeof functor exceeds current limit, reduce functor size or increase the limit; "
-				"(2) Invalid/mismatched functor signature; "
-				"(3) The direct-init ctor only works for functors. For other function types, please use setters.");
+			if constexpr(!CNonEmptyFunctorForm<Func, R, Args...>)
+			{
+				PH_STATIC_ASSERT_DEPENDENT_FALSE(Func,
+					"Cannot direct-init `TFunction`. Possible causes of the error: "
+					"(1) Invalid/mismatched functor signature; "
+					"(2) The direct-init ctor only works for functors. For other function types, please use setters; "
+					"(3) The functor type voilates `CNonEmptyFunctorForm`.");
+			}
+			else if constexpr(!TIsNonEmptyFunctor<Func>::value)
+			{
+				PH_STATIC_ASSERT_DEPENDENT_FALSE(Func,
+					"Cannot direct-init `TFunction` with the input functor. Possible cause of the error: "
+					"(1) `sizeof` functor exceeds current limit, reduce functor size or increase the limit; "
+					"(2) Alignment requirement of the functor is too high.");
+			}
+
+			static_assert(TIsNonEmptyFunctor<Func>::value);
 
 			set<Func>(std::forward<Func>(func));
 		}

@@ -250,6 +250,10 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 					return a.typeName > b.typeName;
 				});
 			break;
+
+		default:
+			PH_ASSERT_UNREACHABLE_SECTION();
+			break;
 		}
 	}
 }

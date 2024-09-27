@@ -18,10 +18,10 @@ public:
 	RenderConfig getRenderConfig() const override;
 	void render(RenderConfig config) override;
 
-	void renderInit(RenderThreadCaller& caller);
-	void renderUninit(RenderThreadCaller& caller);
-	void update(const MainThreadUpdateContext& ctx);
-	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
+	void renderInit(RenderThreadCaller& caller) override;
+	void renderUninit(RenderThreadCaller& caller) override;
+	void update(const MainThreadUpdateContext& ctx) override;
+	void renderUpdate(const MainThreadRenderUpdateContext& ctx) override;
 
 private:
 	render::OfflineRenderer* m_renderer = nullptr;
