@@ -2,6 +2,7 @@
 
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/sdl_fwd.h"
+#include "SDL/Introspect/SdlNativeData.h"
 
 namespace ph
 {

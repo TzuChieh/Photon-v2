@@ -3,6 +3,7 @@
 #include <SDL/sdl_helpers.h>
 #include <SDL/Introspect/ISdlInstantiable.h>
 #include <SDL/Introspect/SdlField.h>
+#include <SDL/Introspect/SdlNativeData.h>
 
 #include <utility>
 

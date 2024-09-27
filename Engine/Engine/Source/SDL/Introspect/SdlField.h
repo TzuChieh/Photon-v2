@@ -2,7 +2,6 @@
 
 #include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/EFieldImportance.h"
-#include "SDL/Introspect/SdlNativeData.h"
 
 #include <Common/logging.h>
 
