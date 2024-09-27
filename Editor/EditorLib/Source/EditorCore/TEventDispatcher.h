@@ -3,7 +3,6 @@
 #include "EditorCore/Event/Event.h"
 #include "EditorCore/TEventListener.h"
 
-#include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
 #include <Common/exceptions.h>

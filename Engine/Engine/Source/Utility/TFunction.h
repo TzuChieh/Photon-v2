@@ -183,12 +183,12 @@ public:
 					"Cannot direct-init `TFunction`. Possible causes of the error: "
 					"(1) Invalid/mismatched functor signature; "
 					"(2) The direct-init ctor only works for functors. For other function types, please use setters; "
-					"(3) The functor type voilates `CNonEmptyFunctorForm`.");
+					"(3) The functor type voilates `CNonEmptyFunctorForm`. Check the concept for more information.");
 			}
 			else if constexpr(!TIsNonEmptyFunctor<Func>::value)
 			{
 				PH_STATIC_ASSERT_DEPENDENT_FALSE(Func,
-					"Cannot direct-init `TFunction` with the input functor. Possible cause of the error: "
+					"Cannot direct-init `TFunction` with the input functor. Possible causes of the error: "
 					"(1) `sizeof` functor exceeds current limit, reduce functor size or increase the limit; "
 					"(2) Alignment requirement of the functor is too high.");
 			}

@@ -15,7 +15,6 @@
 #include <Core/Engine.h>
 #include <Core/Renderer/Renderer.h>
 #include <Core/Renderer/RenderRegionStatus.h>
-#include <Utility/TFunction.h>
 #include <DataIO/io_utils.h>
 #include <Frame/TFrame.h>
 #include <Core/Renderer/RenderProgress.h>
