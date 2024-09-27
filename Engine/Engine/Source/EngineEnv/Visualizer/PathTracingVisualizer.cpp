@@ -50,10 +50,13 @@ SampleFilter PathTracingVisualizer::makeSampleFilter() const
 
 	case ESampleFilter::BlackmanHarris:
 		return SampleFilter::makeBlackmanHarris();
+
+	default:
+		PH_LOG(PathTracingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
+		return SampleFilter::makeBlackmanHarris();
 	}
 
-	PH_LOG(PathTracingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
-	return SampleFilter::makeBlackmanHarris();
+	return {};
 }
 
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const
@@ -68,10 +71,13 @@ std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() cons
 
 	case ERayEnergyEstimator::BVPTDL:
 		return std::make_unique<BVPTDLEstimator>();
+
+	default:
+		PH_LOG(PathTracingVisualizer, Note, "no ray energy estimator unspecified, using BNEEPT");
+		return std::make_unique<BNEEPTEstimator>();
 	}
 
-	PH_LOG(PathTracingVisualizer, Note, "no ray energy estimator unspecified, using BNEEPT");
-	return std::make_unique<BNEEPTEstimator>();
+	return {};
 }
 
 }// end namespace ph
