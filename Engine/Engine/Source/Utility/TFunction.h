@@ -52,10 +52,7 @@ template<typename Func, typename R, typename... Args>
 concept CNonEmptyFunctorForm = 
 	!std::is_empty_v<std::decay_t<Func>> &&// to disambiguate from the empty form
 	!std::is_function_v<std::remove_pointer_t<std::decay_t<Func>>> &&// to disambiguate from the free function form
-	(
-		std::is_constructible_v<std::decay_t<Func>, Func&&> ||// we can placement new from an instance
-		std::is_trivially_copyable_v<std::decay_t<Func>>      // or copy to a byte buffer
-	) &&
+	std::is_trivially_copyable_v<std::decay_t<Func>> &&// for byte buffer copying
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// we are neither storing dtor nor calling it
 	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
 
@@ -183,7 +180,7 @@ public:
 					"Cannot direct-init `TFunction`. Possible causes of the error: "
 					"(1) Invalid/mismatched functor signature; "
 					"(2) The direct-init ctor only works for functors. For other function types, please use setters; "
-					"(3) The functor type voilates `CNonEmptyFunctorForm`. Check the concept for more information.");
+					"(3) The functor type violates `CNonEmptyFunctorForm`. Check the concept for more information.");
 			}
 			else if constexpr(!TIsNonEmptyFunctor<Func>::value)
 			{
@@ -284,8 +281,11 @@ public:
 	{
 		using Functor = std::decay_t<Func>;
 
-		// Favor constructed functor since it is more efficient in general
-		if constexpr(std::is_constructible_v<Functor, Func&&>)
+		// Favor constructed functor (basically placement new from an instance) since it is more
+		// efficient in general
+		if constexpr(
+			std::is_constructible_v<Functor, Func&&> &&
+			TCanFitBuffer<Functor>::value)
 		{
 			// IOC of array of size 1
 			Functor* const storage = start_implicit_lifetime_as<Functor>(m_data.u_buffer);
@@ -293,12 +293,16 @@ public:
 			std::construct_at(storage, std::forward<Func>(func));
 			m_caller = &nonEmptyConstructedFunctorCaller<Functor>;
 		}
-		else
+		else if constexpr(
+			sizeof(Functor) <= BUFFER_SIZE)
 		{
-			static_assert(std::is_trivially_copyable_v<Functor>);
-
 			std::copy_n(reinterpret_cast<const std::byte*>(&func), sizeof(Functor), m_data.u_buffer);
 			m_caller = &nonEmptyCopiedFunctorCaller<Functor>();
+		}
+		else
+		{
+			PH_STATIC_ASSERT_DEPENDENT_FALSE(Func,
+				"Cannot store a functor (or lambda with captures) via setter.");
 		}
 		
 		return *this;
@@ -355,6 +359,8 @@ private:
 	inline static R emptyFunctorCaller(const TFunction* /* unused */, Args... args)
 		requires TIsEmptyFunctor<Func>::value
 	{
+		static_assert(std::is_default_constructible_v<Func>);
+
 		// Under the assumption that a stateless functor should be cheap to create (and without any
 		// side effects), we construct a new `Func` on every call to it
 		return Func{}(std::forward<Args>(args)...);
@@ -363,6 +369,10 @@ private:
 	template<typename Func>
 	inline static R nonEmptyConstructedFunctorCaller(const TFunction* const self, Args... args)
 	{
+		static_assert(std::is_trivially_copyable_v<Func>,
+			"`Func` must be trivially copyable as `TFunction` is copyable and copies constructed "
+			"functor byte-by-byte.");
+
 		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`).
 		// Instead, we cast it from raw buffer and laundering is required by the standard
 		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
