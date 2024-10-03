@@ -19,7 +19,10 @@ TEST(RadicalInverseTest, RadicalInverse)
 
 		PH_EXPECT_REAL_EQ(
 			(math::radical_inverse<2, real>(bits)),
-			reversedBits / 0x1p64_r);
+			static_cast<real>(reversedBits) / 0x1p64_r);
+		//  ^^^^^^^^^^^^^^^^^
+		//  `reversedBits` cannot be expressed in `real` exactly, this explicit cast makes the intent clear
+		//  and removes some warnings
 	}
 
 	// Base-17

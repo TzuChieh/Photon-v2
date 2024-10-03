@@ -8,15 +8,8 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
-#include <limits>
 #include <cstdint>
-
-// FIXME: add osx fs headers once it is supported
-#if defined(_WIN32)
-	#include <filesystem>
-#elif defined(__linux__)
-	#include <experimental/filesystem>
-#endif
+#include <algorithm>
 
 namespace ph::cli
 {
@@ -104,9 +97,8 @@ void CliStaticImageRenderer::render()
 						imageFilePath += std::to_string(deltaMs / 1000.0f) + "s";
 					}
 
-					const float fms = getArgs().getIntermediateOutputInterval() * 1000;
-					const int ims = fms < std::numeric_limits<int>::max() ? static_cast<int>(fms) : std::numeric_limits<int>::max();
-					queryInterval = std::chrono::milliseconds(ims);
+					const float32 fms = std::clamp(getArgs().getIntermediateOutputInterval() * 1000, 0.0f, 86400.0f);
+					queryInterval = std::chrono::milliseconds(static_cast<int>(fms));
 				}
 
 				if(shouldSaveImage)
