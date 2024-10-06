@@ -65,7 +65,7 @@ inline void TSPSCExecutor<Work>::addWork(DeducedWork&& work)
 	PH_ASSERT(isProducerThread());
 	PH_ASSERT(m_thread.hasStarted());
 
-	m_workloadQueue.enqueue(std::forward<DeducedWork>(work));
+	m_workloadQueue.enqueue(Workload(std::in_place_type<Work>, std::forward<DeducedWork>(work)));
 }
 
 template<typename Work>
@@ -88,7 +88,7 @@ inline void TSPSCExecutor<Work>::waitAllWorks()
 			isFinished.test_and_set(std::memory_order_release);
 			isFinished.notify_one();
 		};
-	m_workloadQueue.enqueue(std::move(waitWork));
+	m_workloadQueue.enqueue(Workload(std::in_place_type<CustomCallable>, std::move(waitWork)));
 
 	// Wait for works added by this thread to finish; memory effects on consumer thread should be 
 	// made visible
@@ -220,7 +220,7 @@ inline void TSPSCExecutor<Work>::terminate()
 		{
 			m_isTerminationRequested.test_and_set(std::memory_order_relaxed);
 		};
-	m_workloadQueue.enqueue(std::move(terminateWork));
+	m_workloadQueue.enqueue(Workload(std::in_place_type<CustomCallable>, std::move(terminateWork)));
 }
 
 }// end namespace ph
