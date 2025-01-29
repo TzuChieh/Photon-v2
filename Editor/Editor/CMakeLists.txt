@@ -5,7 +5,7 @@ get_filename_component(EDITOR_DIR "./" ABSOLUTE)
 set(EDITOR_INCLUDE_DIR         "${EDITOR_DIR}/Include/")
 set(EDITOR_PRIVATE_INCLUDE_DIR "${EDITOR_DIR}/Source/")
 
-file(GLOB_RECURSE EDITOR_LIB_HEADER_FILES 
+file(GLOB_RECURSE EDITOR_HEADER_FILES 
 	"${EDITOR_DIR}/Include/*.h"
 	"${EDITOR_DIR}/Source/*.h"
 	"${EDITOR_DIR}/Source/*.ipp"
