@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/TVector2.h"
-#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 
@@ -13,44 +12,40 @@
 namespace ph::math
 {
 	
-/*! @brief A piecewise linear function.
-A class defining a piecewise linear function, where points @f$ (x, y) @f$ are
-connected by straight lines; function values between two nearby points
-are evaluated by linearly interpolating their y-coordinates. Function
-values beyond the domain of specified x coordinates are evaluated with
-its nearest point's y value. If the function have got no points,
-evaluation results in zero no matter the inputs.
-*/
+// A class defining a piecewise linear function, where points (x, y) are
+// connected by straight lines; function values between two nearby points 
+// are evaluated by linearly interpolating their y-coordinates. Function 
+// values beyond the domain of specified x coordinates are evaluated with 
+// its nearest point's y value. If the function have got no points, 
+// evaluation results in zero no matter the inputs.
+// 
+// Notice that update() must be called before feeding this function into 
+// any other methods.
 template<typename T>
-class TPiecewiseLinear1D final
+class TPiecewiseConstant1D final
 {
 public:
-	/*! @brief Evaluates function value at `x`.
-	*/
+	// Evaluates function value at <x>.
 	T evaluate(T x) const;
 
-	/*! @brief Evaluates function value at `x` by linearly interpolating two points.
-	Note that the two points may not be neighbors.
-	*/
+	// Evaluates function value at <x> by linearly interpolating two points.
+	// Note that the two points may not be neighbors.
 	T evaluate(T x, std::size_t p0Index, std::size_t p1Index) const;
+
+	// TODO: eliminate the need for update
+	void update();
 	
 	void addPoint(const TVector2<T>& point);
-
 	void addPoints(const TPiecewiseLinear1D& points);
-	void addPoints(TSpanView<TVector2<T>> points);
-	void addPoints(TSpanView<T> xs, TSpanView<T> ys);
-
 	TPiecewiseLinear1D getMirrored(T pivotX) const;
 	std::size_t numPoints() const;
 	TVector2<T> getPoint(std::size_t pointIndex) const;
 	std::string toString() const;
 
 private:
-	void sortPointsByDomain();
+	std::vector<TVector2<T>> m_points;
 
 	static bool pointDomainComparator(const TVector2<T>& pA, const TVector2<T>& pB);
-
-	std::vector<TVector2<T>> m_points;
 };
 
 // implementations:
@@ -91,42 +86,23 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x,
 }
 
 template<typename T>
+inline void TPiecewiseLinear1D<T>::update()
+{
+	std::stable_sort(m_points.begin(), m_points.end(), 
+	                 &TPiecewiseLinear1D::pointDomainComparator);
+}
+
+template<typename T>
 inline void TPiecewiseLinear1D<T>::addPoint(const TVector2<T>& point)
 {
 	m_points.push_back(point);
-
-	// OPT: could be improved by binary search + insertion as `m_points` are sorted
-	sortPointsByDomain();
 }
 
 template<typename T>
 inline void TPiecewiseLinear1D<T>::addPoints(const TPiecewiseLinear1D& points)
 {
-	addPoints(TSpan<TVector2<T>>(points.m_points));
-}
-
-template<typename T>
-inline void TPiecewiseLinear1D<T>::addPoints(TSpanView<TVector2<T>> points)
-{
-	m_points.insert(
-		std::end(m_points),
-		std::begin(points),
-		std::end(points));
-
-	sortPointsByDomain();
-}
-
-template<typename T>
-inline void TPiecewiseLinear1D<T>::addPoints(TSpanView<T> xs, TSpanView<T> ys)
-{
-	PH_ASSERT_EQ(xs.size(), ys.size());
-
-	for(std::size_t i = 0; i < xs.size(); ++i)
-	{
-		m_points.push_back({xs[i], ys[i]});
-	}
-
-	sortPointsByDomain();
+	m_points.insert(std::end(m_points), 
+	                std::begin(points.m_points), std::end(points.m_points));
 }
 
 template<typename T>
@@ -162,15 +138,6 @@ inline std::string TPiecewiseLinear1D<T>::toString() const
 		result += point.toString();
 	}
 	return result;
-}
-
-template<typename T>
-inline void TPiecewiseLinear1D<T>::sortPointsByDomain()
-{
-	std::stable_sort(
-		std::begin(m_points),
-		std::end(m_points),
-		&TPiecewiseLinear1D::pointDomainComparator);
 }
 
 template<typename T>

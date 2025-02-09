@@ -51,9 +51,9 @@ ExactConductorFresnel::ExactConductorFresnel(
 
 	// TODO: this conversion part should be performed in data containers
 	const auto& sampledInnerNs = math::resample_spectral_samples<math::ColorValue, real>(
-		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
+		iorWavelengthsNm, iorInnerNs);
 	const auto& sampledInnerKs = math::resample_spectral_samples<math::ColorValue, real>(
-		iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
+		iorWavelengthsNm, iorInnerKs);
 
 	math::Spectrum iorInnerN, iorInnerK;
 	iorInnerN.setSpectral(sampledInnerNs, math::EColorUsage::Raw);

@@ -111,7 +111,7 @@ math::Spectrum load_spectrum(
 			}
 			
 			auto spectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue>(
-				values.data(), values.data() + N, N));
+				{values.data(), N}, {values.data() + N, N}));
 			return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
 		}
 		else

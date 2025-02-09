@@ -13,7 +13,6 @@ TEST(MathSolverTest, AnalyticallyIntegratePiecewiseLinearFunction)
 	func.addPoint(TVector2<float32>(-1, 1));
 	func.addPoint(TVector2<float32>( 0, 2));
 	func.addPoint(TVector2<float32>( 1, 1));
-	func.update();
 
 	TAnalyticalIntegrator1D<float32> integrator1(-2, -1);
 	EXPECT_FLOAT_EQ(integrator1.integrate(func), 1.0f);

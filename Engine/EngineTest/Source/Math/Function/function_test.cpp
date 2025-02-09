@@ -143,7 +143,6 @@ TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
 	// trial 1: no point added
 
 	TPiecewiseLinear1D<float32> func1;
-	func1.update();
 
 	EXPECT_EQ(func1.evaluate( 0.0f), 0.0f);
 	EXPECT_EQ(func1.evaluate( 1.1f), 0.0f);
@@ -153,7 +152,6 @@ TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
 
 	TPiecewiseLinear1D<float32> func2;
 	func2.addPoint(TVector2<float32>(1.0f, 2.0f));
-	func2.update();
 
 	EXPECT_FLOAT_EQ(func2.evaluate(-1.0f), 2.0f);
 	EXPECT_FLOAT_EQ(func2.evaluate( 1.0f), 2.0f);
@@ -166,7 +164,6 @@ TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
 	func3.addPoint(TVector2<float32>(commonX, -1.0f));
 	func3.addPoint(TVector2<float32>(commonX,  0.0f));
 	func3.addPoint(TVector2<float32>(commonX,  2.0f));
-	func3.update();
 
 	EXPECT_FLOAT_EQ(func3.evaluate(-5.0f), -1.0f);
 	EXPECT_FLOAT_EQ(func3.evaluate( 5.0f),  2.0f);
@@ -178,7 +175,6 @@ TEST(MathFunctionTest, TPiecewiseLinear1Doperations)
 	func4.addPoint(TVector2<float32>( 1.0f, -1.0f));
 	func4.addPoint(TVector2<float32>( 2.0f,  5.0f));
 	func4.addPoint(TVector2<float32>(-1.0f,  2.0f));
-	func4.update();
 
 	EXPECT_FLOAT_EQ(func4.evaluate(-1.5f), 2.0f);
 	EXPECT_FLOAT_EQ(func4.evaluate( 2.5f), 5.0f);

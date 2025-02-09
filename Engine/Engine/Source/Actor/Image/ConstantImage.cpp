@@ -162,10 +162,10 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		// (N wavelength values followed by N sample values)
 		else if(!m_values.empty() && math::is_even(m_values.size()))
 		{
-			sampledSpectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue, float64>(
-				m_values.data(),
-				m_values.data() + m_values.size() / 2,
-				m_values.size() / 2));
+			const auto numPoints = m_values.size() / 2;
+			sampledSpectrum = math::SampledSpectrum(
+				math::resample_spectral_samples<math::ColorValue, float64>(
+					{m_values.data(), numPoints}, {m_values.data() + numPoints, numPoints}));
 		}
 		else
 		{

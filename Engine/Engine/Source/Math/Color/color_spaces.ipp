@@ -356,39 +356,32 @@ struct TSmitsSPDBasis final
 		const std::size_t NUM_SMITS_POINTS = std::tuple_size_v<spectral_data::ArraySmits>;
 
 		const auto sampledValuesWhite = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_white().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_white());
 
 		const auto sampledValuesCyan = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_cyan().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_cyan());
 
 		const auto sampledValuesMagenta = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_magenta().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_magenta());
 
 		const auto sampledValuesYellow = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_yellow().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_yellow());
 
 		const auto sampledValuesRed = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_red().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_red());
 
 		const auto sampledValuesGreen = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_green().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_green());
 
 		const auto sampledValuesBlue = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
-			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
-			spectral_data::smits_linear_sRGB_to_spectrum_E_blue().data(),
-			NUM_SMITS_POINTS);
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_blue());
 
 		white.set(sampledValuesWhite);
 		cyan.set(sampledValuesCyan);

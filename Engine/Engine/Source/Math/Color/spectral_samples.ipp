@@ -66,13 +66,11 @@ inline constexpr TSpectralSampleValues<T, SampleProps> constant_spectral_samples
 
 template<typename T, typename U, CSpectralSampleProps SampleProps>
 inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
-	const U* const          wavelengthsNM,
-	const U* const          values,
-	const std::size_t       numPoints,
+	const TSpanView<U>      wavelengthsNM,
+	const TSpanView<U>      values,
 	const ESpectralResample algorithm)
 {
-	PH_ASSERT(wavelengthsNM);
-	PH_ASSERT(values);
+	PH_ASSERT_EQ(wavelengthsNM.size(), values.size());
 	PH_ASSERT(algorithm != ESpectralResample::Unspecified);
 
 	TSpectralSampleValues<T, SampleProps> sampled;
@@ -84,14 +82,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 		// TODO: add option for clamp to edge or set as zero, etc. for out of bound samples
 
 		TPiecewiseLinear1D<U> curve;
-		for(std::size_t i = 0; i < numPoints; i++)
-		{
-			const U wavelengthNm = wavelengthsNM[i];
-			const U value        = values[i];
-
-			curve.addPoint({wavelengthNm, value});
-		}
-		curve.update();
+		curve.addPoints(wavelengthsNM, values);
 
 		// Sample curve values by averaging each wavelength interval
 		// (note that <numPoints> does not necessarily equal to <SampleProps::NUM_SAMPLES>)
@@ -129,9 +120,8 @@ template<typename T, CSpectralSampleProps SampleProps>
 inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 {
 	const auto samples = resample_spectral_samples<T, spectral_data::ArrayD65::value_type, SampleProps>(
-		spectral_data::CIE_D65_wavelengths_nm().data(),
-		spectral_data::CIE_D65_values().data(), 
-		std::tuple_size_v<spectral_data::ArrayD65>);
+		spectral_data::CIE_D65_wavelengths_nm(),
+		spectral_data::CIE_D65_values());
 
 	return normalize_samples_energy<T, SampleProps>(samples);
 }
@@ -180,9 +170,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_black_body_spectral_radian
 		&spectralRadianceLambdas);
 
 	const auto samples = resample_spectral_samples<T, ComputeT, SampleProps>(
-		spectralRadianceLambdas.data(),
-		spectralRadianceValues.data(),
-		spectralRadianceValues.size());
+		spectralRadianceLambdas, spectralRadianceValues);
 
 	return samples;
 }
@@ -211,19 +199,16 @@ struct TCIEXYZCmfKernel final
 		constexpr auto NMU_XYZ_CMF_POINTS = std::tuple_size_v<spectral_data::ArrayXYZCMF>;
 
 		const auto sampledCmfValuesX = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
-			NMU_XYZ_CMF_POINTS);
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm(),
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_X());
 
 		const auto sampledCmfValuesY = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
-			NMU_XYZ_CMF_POINTS);
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm(),
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_Y());
 
 		const auto sampledCmfValuesZ = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
-			spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
-			NMU_XYZ_CMF_POINTS);
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm(),
+			spectral_data::XYZ_CMF_CIE_1931_2_degree_Z());
 
 		weights[0].set(sampledCmfValuesX);
 		weights[1].set(sampledCmfValuesY);

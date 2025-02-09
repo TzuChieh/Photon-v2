@@ -18,14 +18,12 @@ void ThinFilm::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) 
 	std::vector<math::SampledSpectrum> transmittanceTable(91);
 	for(std::size_t i = 0; i <= 90; ++i)
 	{
-		reflectanceTable[i].setColorValues(math::resample_spectral_samples<math::ColorValue, real>(
-			m_wavelengthTable.data() + i * 31,
-			m_reflectanceTable.data() + i * 31,
-			31));
-		transmittanceTable[i].setColorValues(math::resample_spectral_samples<math::ColorValue, real>(
-			m_wavelengthTable.data() + i * 31,
-			m_transmittanceTable.data() + i * 31,
-			31));
+		reflectanceTable[i].setColorValues(
+			math::resample_spectral_samples<math::ColorValue, real>(
+				{m_wavelengthTable.data() + i * 31, 31}, {m_reflectanceTable.data() + i * 31, 31}));
+		transmittanceTable[i].setColorValues(
+			math::resample_spectral_samples<math::ColorValue, real>(
+				{m_wavelengthTable.data() + i * 31, 31}, {m_transmittanceTable.data() + i * 31, 31}));
 	}
 
 	auto optics = std::make_shared<ThinDielectricFilm>(

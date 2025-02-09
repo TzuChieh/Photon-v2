@@ -2,6 +2,7 @@
 
 #include "Math/Color/color_enums.h"
 #include "Math/Color/color_basics.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 
@@ -23,24 +24,36 @@ constexpr T wavelength_interval_of() noexcept;
 template<typename T, CSpectralSampleProps SampleProps>
 constexpr std::pair<T, T> wavelength_range_of(std::size_t sampleIndex) noexcept;
 
+/*!
+@return Total energy carried by the spectral samples.
+*/
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 T estimate_samples_energy(const TSpectralSampleValues<T, SampleProps>& srcSamples);
 
 /*! @brief Normalize spectral samples as if they carry energy.
 Normalized spectral samples, together, represents the expected amount of energy that 1 unit of 
 total energy would distribute on each wavelength interval (implying that the samples should sum to 1).
+@return Normalized spectral samples.
 */
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> normalize_samples_energy(const TSpectralSampleValues<T, SampleProps>& srcSamples);
 
+/*!
+@return Spectral samples with each samples equals to `constant`.
+*/
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 constexpr TSpectralSampleValues<T, SampleProps> constant_spectral_samples(T constant);
 
-template<typename T, typename U, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
+/*!
+@param wavelengthsNM Wavelength values in nanometers.
+@param values Data values (where each value corresponds to a wavelength).
+@param algorithm The algorithm for the resampling process.
+@return Spectral samples representing the input data points.
+*/
+template<typename T, typename U = T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
-	const U*          wavelengthsNM,
-	const U*          values,
-	std::size_t       numPoints,
+	TSpanView<U>      wavelengthsNM,
+	TSpanView<U>      values,
 	ESpectralResample algorithm = ESpectralResample::Default);
 
 /*! @brief SPD of standard illuminants.
