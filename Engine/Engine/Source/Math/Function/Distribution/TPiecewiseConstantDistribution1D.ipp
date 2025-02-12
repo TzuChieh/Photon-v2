@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Random/TPwcDistribution1D.h"
+#include "Math/Function/Distribution/TPiecewiseConstantDistribution1D.h"
 #include "Math/math.h"
 
 #include <Common/assertion.h>
@@ -12,17 +12,17 @@ namespace ph::math
 {
 
 template<typename T>
-inline TPwcDistribution1D<T>::TPwcDistribution1D(
+inline TPiecewiseConstantDistribution1D<T>::TPiecewiseConstantDistribution1D(
 	const T min, const T max,
 	const std::vector<T>& weights) :
 
-	TPwcDistribution1D(
+	TPiecewiseConstantDistribution1D(
 		min, max, 
 		weights.data(), weights.size())
 {}
 
 template<typename T>
-inline TPwcDistribution1D<T>::TPwcDistribution1D(
+inline TPiecewiseConstantDistribution1D<T>::TPiecewiseConstantDistribution1D(
 	const T           min, 
 	const T           max,
 	const T* const    weights,
@@ -88,15 +88,15 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 }
 
 template<typename T>
-inline TPwcDistribution1D<T>::TPwcDistribution1D(const std::vector<T>& weights) :
-	TPwcDistribution1D(0, 1, weights)
+inline TPiecewiseConstantDistribution1D<T>::TPiecewiseConstantDistribution1D(const std::vector<T>& weights) :
+	TPiecewiseConstantDistribution1D(0, 1, weights)
 {}
 
 template<typename T>
-inline TPwcDistribution1D<T>::TPwcDistribution1D() = default;
+inline TPiecewiseConstantDistribution1D<T>::TPiecewiseConstantDistribution1D() = default;
 
 template<typename T>
-inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T sample) const
+inline std::size_t TPiecewiseConstantDistribution1D<T>::sampleDiscrete(const T sample) const
 {
 	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), sample);
 	PH_ASSERT_MSG(result != m_cdf.end(), 
@@ -107,14 +107,14 @@ inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T sample) const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::sampleContinuous(const T sample) const
+inline T TPiecewiseConstantDistribution1D<T>::sampleContinuous(const T sample) const
 {
 	const std::size_t sampledColumn = sampleDiscrete(sample);
 	return continuouslySampleValue(sample, sampledColumn);
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::sampleContinuous(const T sample, T* const out_pdf) const
+inline T TPiecewiseConstantDistribution1D<T>::sampleContinuous(const T sample, T* const out_pdf) const
 {
 	PH_ASSERT(out_pdf);
 
@@ -125,7 +125,7 @@ inline T TPwcDistribution1D<T>::sampleContinuous(const T sample, T* const out_pd
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::sampleContinuous(
+inline T TPiecewiseConstantDistribution1D<T>::sampleContinuous(
 	const T            sample,
 	T* const           out_pdf, 
 	std::size_t* const out_straddledColumn) const
@@ -139,7 +139,7 @@ inline T TPwcDistribution1D<T>::sampleContinuous(
 }
 
 template<typename T>
-inline std::size_t TPwcDistribution1D<T>::numColumns() const
+inline std::size_t TPiecewiseConstantDistribution1D<T>::numColumns() const
 {
 	PH_ASSERT(m_cdf.size() >= 2);
 
@@ -147,13 +147,13 @@ inline std::size_t TPwcDistribution1D<T>::numColumns() const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::pdfContinuous(const T sample) const
+inline T TPiecewiseConstantDistribution1D<T>::pdfContinuous(const T sample) const
 {
 	return pdfContinuous(continuousToDiscrete(sample));
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::pdfContinuous(const std::size_t columnIndex) const
+inline T TPiecewiseConstantDistribution1D<T>::pdfContinuous(const std::size_t columnIndex) const
 {
 	PH_ASSERT(!m_cdf.empty() && 
 	          0 <= columnIndex && columnIndex < numColumns());
@@ -162,7 +162,7 @@ inline T TPwcDistribution1D<T>::pdfContinuous(const std::size_t columnIndex) con
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::pdfDiscrete(const std::size_t columnIndex) const
+inline T TPiecewiseConstantDistribution1D<T>::pdfDiscrete(const std::size_t columnIndex) const
 {
 	PH_ASSERT(!m_cdf.empty() && 
 	          0 <= columnIndex && columnIndex < numColumns());
@@ -171,7 +171,7 @@ inline T TPwcDistribution1D<T>::pdfDiscrete(const std::size_t columnIndex) const
 }
 
 template<typename T>
-std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
+std::size_t TPiecewiseConstantDistribution1D<T>::continuousToDiscrete(const T sample) const
 {
 	PH_ASSERT_MSG(m_min <= sample && sample <= m_max,
 		"m_min = "  + std::to_string(m_min) + ", "
@@ -184,7 +184,7 @@ std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
 }
 
 template<typename T>
-inline T TPwcDistribution1D<T>::continuouslySampleValue(const T sample, const std::size_t straddledColumn) const
+inline T TPiecewiseConstantDistribution1D<T>::continuouslySampleValue(const T sample, const std::size_t straddledColumn) const
 {
 	PH_ASSERT(straddledColumn < numColumns());
 

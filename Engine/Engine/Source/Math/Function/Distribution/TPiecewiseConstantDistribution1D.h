@@ -12,7 +12,7 @@ to each column's relative heights. Each generated sample is guaranteed to
 have a non-zero PDF.
 */
 template<typename T>
-class TPwcDistribution1D final
+class TPiecewiseConstantDistribution1D final
 {
 	static_assert(std::is_floating_point_v<T>);
 
@@ -22,15 +22,15 @@ public:
 	weight of each column is specified via `weights`.
 	*/
 	///@{
-	TPwcDistribution1D(T min, T max, const T* weights, std::size_t numWeights);
-	TPwcDistribution1D(T min, T max, const std::vector<T>& weights);
+	TPiecewiseConstantDistribution1D(T min, T max, const T* weights, std::size_t numWeights);
+	TPiecewiseConstantDistribution1D(T min, T max, const std::vector<T>& weights);
 	///@}
 
 	/*! @brief Constructs a distribution with range [0, 1].
 	*/
-	explicit TPwcDistribution1D(const std::vector<T>& weights);
+	explicit TPiecewiseConstantDistribution1D(const std::vector<T>& weights);
 
-	TPwcDistribution1D();
+	TPiecewiseConstantDistribution1D();
 
 	/*! @brief Generate a continuous sample.
 	Given a uniform unit random sample, generate a continuous sample according to
@@ -94,4 +94,4 @@ private:
 
 }// end namespace ph::math
 
-#include "Math/Random/TPwcDistribution1D.ipp"
+#include "Math/Function/Distribution/TPiecewiseConstantDistribution1D.ipp"

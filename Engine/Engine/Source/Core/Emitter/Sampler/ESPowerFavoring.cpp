@@ -22,7 +22,7 @@ void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
-	m_distribution      = math::TPwcDistribution1D<real>();
+	m_distribution      = math::TPiecewiseConstantDistribution1D<real>();
 	m_emitterToIndexMap = std::unordered_map<const Emitter*, std::size_t>();
 
 	for(const Emitter* emitter : emitters)
@@ -45,7 +45,7 @@ void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
 		sampleWeights[i] = emitter->calcRadiantFluxApprox();
 		m_emitterToIndexMap[emitter] = i;
 	}
-	m_distribution = math::TPwcDistribution1D<real>(sampleWeights);
+	m_distribution = math::TPiecewiseConstantDistribution1D<real>(sampleWeights);
 }
 
 const Emitter* ESPowerFavoring::pickEmitter(SampleFlow& sampleFlow, real* const out_pdf) const

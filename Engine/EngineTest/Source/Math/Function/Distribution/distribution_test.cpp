@@ -1,5 +1,5 @@
-#include <Math/Random/TPwcDistribution1D.h>
-#include <Math/Random/TPwcDistribution2D.h>
+#include <Math/Function/Distribution/TPiecewiseConstantDistribution1D.h>
+#include <Math/Function/Distribution/TPiecewiseConstantDistribution2D.h>
 
 #include <gtest/gtest.h>
 
@@ -9,19 +9,19 @@
 using namespace ph;
 using namespace ph::math;
 
-TEST(PiecewiseConstantDistribution1DTest, Construction)
+TEST(TPiecewiseConstantDistribution1DTest, Construction)
 {
-	TPwcDistribution1D<float>  distribution1({0.0f, 1.0f, 2.0f, 0.0f, 3.0f, 0.0f});
-	TPwcDistribution1D<double> distribution2({77.0});
-	TPwcDistribution1D<float>  distribution3(-999.0f, 999.0f, {123.0f});
-	TPwcDistribution1D<double> distribution4(1.0, 333.0, {123.0, 456.0, 789.0});
+	TPiecewiseConstantDistribution1D<float>  distribution1({0.0f, 1.0f, 2.0f, 0.0f, 3.0f, 0.0f});
+	TPiecewiseConstantDistribution1D<double> distribution2({77.0});
+	TPiecewiseConstantDistribution1D<float>  distribution3(-999.0f, 999.0f, {123.0f});
+	TPiecewiseConstantDistribution1D<double> distribution4(1.0, 333.0, {123.0, 456.0, 789.0});
 }
 
-TEST(PiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
+TEST(TPiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
 {
 	const float min = -5.0f;
 	const float max = 7.0f;
-	const TPwcDistribution1D<float> distribution(min, max, {0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 3.0f, 0.0f});
+	const TPiecewiseConstantDistribution1D<float> distribution(min, max, {0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 3.0f, 0.0f});
 
 	std::mt19937 generator(0);
 	std::uniform_real_distribution<float> seedDistribution(0.0f, 1.0f);
@@ -43,10 +43,10 @@ TEST(PiecewiseConstantDistribution1DTest, ContinuousSampleInRange)
 	}
 }
 
-TEST(PiecewiseConstantDistribution1DTest, PDF)
+TEST(TPiecewiseConstantDistribution1DTest, PDF)
 {
-	TPwcDistribution1D<float> distribution1({1.0f, 1.0f});
-	TPwcDistribution1D<float> distribution2({2.0f, 2.0f, 2.0f});
+	TPiecewiseConstantDistribution1D<float> distribution1({1.0f, 1.0f});
+	TPiecewiseConstantDistribution1D<float> distribution2({2.0f, 2.0f, 2.0f});
 
 	// constant distribution should have same continuous PDF everywhere
 	EXPECT_FLOAT_EQ(distribution1.pdfContinuous(0.0f),   1.0f);
@@ -70,21 +70,21 @@ TEST(PiecewiseConstantDistribution1DTest, PDF)
 	EXPECT_FLOAT_EQ(distribution2.pdfDiscrete(2), 1.0f / 3.0f);
 
 	// single weight constant distribution has same PDF everywhere
-	TPwcDistribution1D<float> distribution3({99999.0f});
+	TPiecewiseConstantDistribution1D<float> distribution3({99999.0f});
 	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(0.0f), 1.0f);
 	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(0.5f), 1.0f);
 	EXPECT_FLOAT_EQ(distribution3.pdfContinuous(1.0f), 1.0f);
 	EXPECT_FLOAT_EQ(distribution3.pdfDiscrete(0), 1.0f);
 }
 
-TEST(PiecewiseConstantDistribution1DTest, CornerCases)
+TEST(TPiecewiseConstantDistribution1DTest, CornerCases)
 {
-	TPwcDistribution1D<float> zeroWeightDistribution1({0.0f});
+	TPiecewiseConstantDistribution1D<float> zeroWeightDistribution1({0.0f});
 
 	// should result in uniform distribution
 	EXPECT_FLOAT_EQ(zeroWeightDistribution1.pdfDiscrete(0), 1.0f);
 
-	TPwcDistribution1D<float> zeroWeightDistribution2({0.0f, 0.0f, 0.0f});
+	TPiecewiseConstantDistribution1D<float> zeroWeightDistribution2({0.0f, 0.0f, 0.0f});
 
 	// should result in uniform distribution
 	EXPECT_FLOAT_EQ(zeroWeightDistribution2.pdfDiscrete(0), 1.0f / 3.0f);
@@ -92,13 +92,13 @@ TEST(PiecewiseConstantDistribution1DTest, CornerCases)
 	EXPECT_FLOAT_EQ(zeroWeightDistribution2.pdfDiscrete(2), 1.0f / 3.0f);
 }
 
-TEST(PiecewiseConstantDistribution2DTest, Construction)
+TEST(TPiecewiseConstantDistribution2DTest, Construction)
 {
 	std::vector<float> weights = {1, 2, 3, 4};
-	TPwcDistribution2D<float> distribution(weights.data(), {2, 2});
+	TPiecewiseConstantDistribution2D<float> distribution(weights.data(), {2, 2});
 }
 
-TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
+TEST(TPiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 {
 	std::vector<float> weights = 
 	{
@@ -106,7 +106,7 @@ TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 		1, 2, 1,
 		0, 0, 0
 	};
-	const TPwcDistribution2D<float> distribution(weights.data(), {3, 3});
+	const TPiecewiseConstantDistribution2D<float> distribution(weights.data(), {3, 3});
 
 	//std::vector<std::size_t> counts(weights.size(), 0);
 
@@ -141,7 +141,7 @@ TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 	}*/
 }
 
-TEST(PiecewiseConstantDistribution2DTest, PDF)
+TEST(TPiecewiseConstantDistribution2DTest, PDF)
 {
 	std::vector<float> weights1 = 
 	{
@@ -152,8 +152,8 @@ TEST(PiecewiseConstantDistribution2DTest, PDF)
 		3, 3,
 		3, 3
 	};
-	TPwcDistribution2D<float> distribution1(weights1.data(), {1, 1});
-	TPwcDistribution2D<float> distribution2(weights2.data(), {2, 2});
+	TPiecewiseConstantDistribution2D<float> distribution1(weights1.data(), {1, 1});
+	TPiecewiseConstantDistribution2D<float> distribution2(weights2.data(), {2, 2});
 
 	// constant distribution should have same PDF everywhere
 	EXPECT_FLOAT_EQ(distribution1.pdfContinuous({0.0f,  0.0f}),  1.0f);

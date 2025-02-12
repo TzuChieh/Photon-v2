@@ -3,7 +3,7 @@
 #include "Core/Emitter/SurfaceEmitter.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TTexture.h"
-#include "Math/Random/TPwcDistribution2D.h"
+#include "Math/Function/Distribution/TPiecewiseConstantDistribution2D.h"
 #include "Math/TVector2.h"
 
 #include <memory>
@@ -53,10 +53,10 @@ public:
 	void setBackFaceEmit() override;
 
 private:
-	const Primitive*               m_envSurface;
-	RadianceTexture                m_radiance;
-	math::TPwcDistribution2D<real> m_sampleDistribution;
-	real                           m_radiantFluxApprox;
+	const Primitive*                             m_envSurface;
+	RadianceTexture                              m_radiance;
+	math::TPiecewiseConstantDistribution2D<real> m_sampleDistribution;
+	real                                         m_radiantFluxApprox;
 };
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Random/TPwcDistribution2D.h"
+#include "Math/Function/Distribution/TPiecewiseConstantDistribution2D.h"
 
 #include <Common/assertion.h>
 
@@ -8,7 +8,7 @@ namespace ph::math
 {
 
 template<typename T>
-inline TPwcDistribution2D<T>::TPwcDistribution2D(
+inline TPiecewiseConstantDistribution2D<T>::TPiecewiseConstantDistribution2D(
 	const TAABB2D<T>&            range,
 	const T* const               weights,
 	const TVector2<std::size_t>& numWeights) : 
@@ -28,7 +28,7 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 			rowSums[y] += weights[baseIndex + x];
 		}
 
-		m_conditionalXs[y] = TPwcDistribution1D<T>(
+		m_conditionalXs[y] = TPiecewiseConstantDistribution1D<T>(
 			range.getMinVertex().x(),
 			range.getMaxVertex().x(),
 			&(weights[baseIndex]),
@@ -36,28 +36,28 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 	}
 
 	// initialize marginal distribution for each row
-	m_marginalYs = TPwcDistribution1D<T>(
+	m_marginalYs = TPiecewiseConstantDistribution1D<T>(
 		range.getMinVertex().y(),
 		range.getMaxVertex().y(),
 		rowSums);
 }
 
 template<typename T>
-inline TPwcDistribution2D<T>::TPwcDistribution2D(
+inline TPiecewiseConstantDistribution2D<T>::TPiecewiseConstantDistribution2D(
 	const T* const               weights,
 	const TVector2<std::size_t>& numWeights) : 
 
-	TPwcDistribution2D(
+	TPiecewiseConstantDistribution2D(
 		TAABB2D<T>(TVector2<T>(0), TVector2<T>(1)), 
 		weights, 
 		numWeights)
 {}
 
 template<typename T>
-inline TPwcDistribution2D<T>::TPwcDistribution2D() = default;
+inline TPiecewiseConstantDistribution2D<T>::TPiecewiseConstantDistribution2D() = default;
 
 template<typename T>
-inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
+inline TVector2<T> TPiecewiseConstantDistribution2D<T>::sampleContinuous(
 	const std::array<T, 2>& sample,
 	T* const out_pdf) const
 {
@@ -74,7 +74,7 @@ inline TVector2<T> TPwcDistribution2D<T>::sampleContinuous(
 }
 
 template<typename T>
-inline T TPwcDistribution2D<T>::pdfContinuous(const std::array<T, 2>& sample) const
+inline T TPiecewiseConstantDistribution2D<T>::pdfContinuous(const std::array<T, 2>& sample) const
 {
 	const std::size_t y = m_marginalYs.continuousToDiscrete(sample[1]);
 

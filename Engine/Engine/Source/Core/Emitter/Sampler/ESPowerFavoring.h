@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Emitter/Sampler/EmitterSampler.h"
-#include "Math/Random/TPwcDistribution1D.h"
+#include "Math/Function/Distribution/TPiecewiseConstantDistribution1D.h"
 
 #include <vector>
 #include <unordered_map>
@@ -23,8 +23,8 @@ public:
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const override;
 
 private:
-	std::vector<const Emitter*>    m_emitters;
-	math::TPwcDistribution1D<real> m_distribution;
+	std::vector<const Emitter*>                  m_emitters;
+	math::TPiecewiseConstantDistribution1D<real> m_distribution;
 
 	std::unordered_map<
 		const Emitter*, std::size_t

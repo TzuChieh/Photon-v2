@@ -79,7 +79,7 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 		}
 	}
 
-	m_sampleDistribution = math::TPwcDistribution2D<real>(sampleWeights.data(), resolution);
+	m_sampleDistribution = math::TPiecewiseConstantDistribution2D<real>(sampleWeights.data(), resolution);
 	m_radiantFluxApprox  = m_radiantFluxApprox * m_envSurface->calcExtendedArea();
 }
 
