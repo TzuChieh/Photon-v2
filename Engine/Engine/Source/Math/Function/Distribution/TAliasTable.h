@@ -1,18 +1,22 @@
 #pragma once
 
+#include "Utility/TSpan.h"
+
+#include <Common/primitive_type.h>
+
 #include <type_traits>
 #include <vector>
 
 namespace ph::math
 {
 
-/*! @brief A 1-D piecewise constant distribution of floating-point type `T`.
-The sample weights can be seen as a histogram, and samples are drawn according
-to each column's relative heights. Each generated sample is guaranteed to
-have a non-zero PDF.
+/*! @brief A piecewise constant distribution of floating-point type `T`.
+As `TPiecewiseConstantDistribution<X>D`, an alias table is useful for generating samples
+according to the specified distribution. Alias table can offer @f$ O(1) @f$ sample generation;
+however, more memory is used for achieving this kind of efficiency.
 */
-template<typename T>
-class TPiecewiseConstantDistribution1D final
+template<typename T, typename Index = std::size_t>
+class TAliasTable final
 {
 	static_assert(std::is_floating_point_v<T>);
 
@@ -23,16 +27,13 @@ public:
 	The range of the distribution is [`min`, `max`]; and corresponding sample
 	weight of each column is specified via `weights`.
 	*/
-	///@{
-	TPiecewiseConstantDistribution1D(T min, T max, const T* weights, std::size_t numWeights);
-	TPiecewiseConstantDistribution1D(T min, T max, const std::vector<T>& weights);
-	///@}
+	TAliasTable(T min, T max, TSpanView<T> weights);
 
 	/*! @brief Constructs a distribution with range [0, 1].
 	*/
-	explicit TPiecewiseConstantDistribution1D(const std::vector<T>& weights);
+	explicit TAliasTable(TSpanView<T> weights);
 
-	TPiecewiseConstantDistribution1D();
+	TAliasTable();
 
 	/*! @brief Generate a continuous sample.
 	Given a uniform unit random sample, generate a continuous sample according to
@@ -77,15 +78,21 @@ public:
 	std::size_t numColumns() const;
 
 private:
+	// An entry of the table. We store `aliasedPdf` for memory locality, though we could use
+	// `aliasedIdx` to reference the aliased PDF to reduce memory usage.
+	struct Entry final
+	{
+		T tau;
+		T pdf;
+		T aliasedPdf;
+		Index aliasedIdx;
+	};
+
 	// Range of the distribution
 	T m_min, m_max;
 
 	// Size of each interval
 	T m_delta;
-
-	// Recording first non-zero column index to avoid sampling column with
-	// zero PDF.
-	std::size_t m_firstNonZeroPdfColumn;
 
 	// Piecewise constant weights will result in piecewise linear CDF.
 	// CDF values are stored on all turning points of the function. 
@@ -96,4 +103,4 @@ private:
 
 }// end namespace ph::math
 
-#include "Math/Function/Distribution/TPiecewiseConstantDistribution1D.ipp"
+#include "Math/Function/Distribution/TAliasTable.ipp"

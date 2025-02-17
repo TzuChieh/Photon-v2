@@ -13,7 +13,7 @@ class ESPowerFavoring : public EmitterSampler
 {
 public:
 	void update(TSpanView<const Emitter*> emitters) override;
-	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_PDF) const override;
+	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const override;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query,

@@ -32,13 +32,13 @@ void ESUniformRandom::update(TSpanView<const Emitter*> emitters)
 	}
 }
 
-const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const
+const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const out_pdf) const
 {
 	// FIXME: use sampleFlow for index
 	const std::size_t picker = static_cast<std::size_t>(sampleFlow.flow1D() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 
-	*out_PDF = 1.0_r / static_cast<real>(m_emitters.size());
+	*out_pdf = 1.0_r / static_cast<real>(m_emitters.size());
 	return m_emitters[pickedIndex];
 }
 

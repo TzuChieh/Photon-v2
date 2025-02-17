@@ -24,7 +24,7 @@ public:
 	virtual ~EmitterSampler();
 
 	virtual void update(TSpanView<const Emitter*> emitters) = 0;
-	virtual const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_PDF) const = 0;
+	virtual const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const = 0;
 
 	/*! @brief Sample direct lighting for a target position.
 	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
