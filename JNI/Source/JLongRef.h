@@ -2,7 +2,7 @@
 
 #include "JObject.h"
 
-#include <ph_c_core.h>
+#include <CEngine/ph_c_core.h>
 
 #include <jni.h>
 

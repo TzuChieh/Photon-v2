@@ -56,7 +56,7 @@ To correctly use Photon-v2 API, please read the following notes:
 // FIXME: sort of hacked
 #define PH_API
 
-#include "ph_c_core_types.h"
+#include "CEngine/ph_c_core_types.h"
 
 // HACK
 enum PH_EATTRIBUTE
