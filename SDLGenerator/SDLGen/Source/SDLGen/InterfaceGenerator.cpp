@@ -1,6 +1,6 @@
-#include "InterfaceGen/InterfaceGenerator.h"
-#include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
-#include "InterfaceGen/Python/PythonGenerator.h"
+#include "SDLGen/InterfaceGenerator.h"
+#include "SDLGen/MarkdownDoc/MarkdownDocGenerator.h"
+#include "SDLGen/Python/PythonGenerator.h"
 
 #include <Common/assertion.h>
 #include <DataIO/FileSystem/Filesystem.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InterfaceGen/Python/PythonMethod.h"
+#include "SDLGen/Python/PythonMethod.h"
 
 #include <string>
 #include <vector>

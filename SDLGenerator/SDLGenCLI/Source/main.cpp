@@ -1,7 +1,7 @@
 #include "SdlGenArguments.h"
 
 #include <ph_core.h>
-#include <ph_sdlgen.h>
+#include <SDLGen/ph_sdlgen.h>
 #include <Common/logging.h>
 
 #include <iostream>
@@ -26,13 +26,13 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if(arguments.getExecutionMode() == ESdlGenMode::PRINT_HELP_MESSAGE)
+	if(arguments.getExecutionMode() == ESdlGenMode::PrintHelpMessage)
 	{
 		std::cout << SdlGenArguments::genHelpMessage() << std::endl;
 		return EXIT_SUCCESS;
 	}
 
-	if(arguments.getExecutionMode() == ESdlGenMode::INTERFACE_GENERATION)
+	if(arguments.getExecutionMode() == ESdlGenMode::InterfaceGeneration)
 	{
 		generate_sdl_interface(
 			arguments.getInterfaceGeneratorType(), 

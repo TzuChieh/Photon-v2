@@ -1,7 +1,7 @@
-#include "InterfaceGen/Python/PythonGenerator.h"
-#include "InterfaceGen/Python/PythonClass.h"
-#include "InterfaceGen/Python/PythonMethod.h"
-#include "ph_sdlgen.h"
+#include "SDLGen/Python/PythonGenerator.h"
+#include "SDLGen/Python/PythonClass.h"
+#include "SDLGen/Python/PythonMethod.h"
+#include "SDLGen/ph_sdlgen.h"
 
 #include <ph_core.h>
 #include <Common/Utility/Timestamp.h>

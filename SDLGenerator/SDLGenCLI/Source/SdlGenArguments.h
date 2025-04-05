@@ -3,7 +3,7 @@
 #include <Common/Utility/CommandLineArguments.h>
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
-#include <ph_sdlgen.h>
+#include <SDLGen/ph_sdlgen.h>
 
 #include <string>
 
@@ -13,8 +13,8 @@ namespace ph::sdlgen
 enum class ESdlGenMode
 {
 	Unspecified,
-	PRINT_HELP_MESSAGE,
-	INTERFACE_GENERATION
+	PrintHelpMessage,
+	InterfaceGeneration
 };
 
 class SdlGenArguments final

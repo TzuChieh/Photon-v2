@@ -1,5 +1,5 @@
-#include "ph_sdlgen.h"
-#include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
+#include "SDLGen/ph_sdlgen.h"
+#include "SDLGen/MarkdownDoc/MarkdownDocGenerator.h"
 
 #include <Common/logging.h>
 #include <Utility/utility.h>

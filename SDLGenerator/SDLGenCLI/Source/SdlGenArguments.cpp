@@ -24,7 +24,7 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 
 		if(argument == "--interface")
 		{
-			m_executionMode = ESdlGenMode::INTERFACE_GENERATION;
+			m_executionMode = ESdlGenMode::InterfaceGeneration;
 
 			const std::string interfaceType = arguments.retrieveString();
 			if(interfaceType == "markdown-doc")
@@ -49,7 +49,7 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 		}
 		else if(argument == "--help" || argument == "-h")
 		{
-			m_executionMode = ESdlGenMode::PRINT_HELP_MESSAGE;
+			m_executionMode = ESdlGenMode::PrintHelpMessage;
 		}
 		else
 		{

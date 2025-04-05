@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InterfaceGen/InterfaceGenerator.h"
+#include "SDLGen/InterfaceGenerator.h"
 
 #include <DataIO/Stream/FormattedTextOutputStream.h>
 

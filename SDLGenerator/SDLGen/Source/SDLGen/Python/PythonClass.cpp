@@ -1,4 +1,4 @@
-#include "InterfaceGen/Python/PythonClass.h"
+#include "SDLGen/Python/PythonClass.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>

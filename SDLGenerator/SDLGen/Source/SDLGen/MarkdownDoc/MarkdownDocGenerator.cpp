@@ -1,5 +1,5 @@
-#include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
-#include "ph_sdlgen.h"
+#include "SDLGen/MarkdownDoc/MarkdownDocGenerator.h"
+#include "SDLGen/ph_sdlgen.h"
 
 #include <SDL/Introspect/SdlClass.h>
 #include <SDL/Introspect/SdlFunction.h>
