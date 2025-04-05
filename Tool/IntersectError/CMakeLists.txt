@@ -2,6 +2,8 @@
 
 get_filename_component(INTERSECT_ERROR_DIR "./" ABSOLUTE)
 
+set(TARGET_NAME "IntersectError")
+
 file(GLOB_RECURSE INTERSECT_ERROR_HEADER_FILES 
 	"${INTERSECT_ERROR_DIR}/Source/*.h"
 	"${INTERSECT_ERROR_DIR}/Source/*.ipp"
@@ -11,27 +13,27 @@ file(GLOB_RECURSE INTERSECT_ERROR_SOURCE_FILES "${INTERSECT_ERROR_DIR}/Source/*.
 # Explicitly mark them as headers
 set_source_files_properties(${INTERSECT_ERROR_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
-add_executable(IntersectError
+add_executable(${TARGET_NAME}
 	${INTERSECT_ERROR_HEADER_FILES}
 	${INTERSECT_ERROR_SOURCE_FILES})
 
-add_dependencies(IntersectError
+add_dependencies(${TARGET_NAME}
 	Engine)
 
-target_include_directories(IntersectError
-	PRIVATE ${INTERSECT_ERROR_INCLUDE_DIR}
+target_include_directories(${TARGET_NAME}
+	PRIVATE "${INTERSECT_ERROR_DIR}/Source"
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
-target_link_libraries(IntersectError
+target_link_libraries(${TARGET_NAME}
 	PRIVATE Engine)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set_property(TARGET IntersectError 
+    set_property(TARGET ${TARGET_NAME} 
     	APPEND PROPERTY 
     	LINK_FLAGS /DEBUG:FULL)
 endif()
 
-set_target_properties(IntersectError PROPERTIES 
+set_target_properties(${TARGET_NAME} PROPERTIES 
 	VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 source_group(TREE ${INTERSECT_ERROR_DIR} FILES ${INTERSECT_ERROR_HEADER_FILES})

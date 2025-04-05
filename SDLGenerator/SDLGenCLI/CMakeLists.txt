@@ -22,8 +22,8 @@ add_dependencies(${TARGET_NAME}
 	SDLGen)
 
 target_include_directories(${TARGET_NAME}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
-	PRIVATE "${SDL_GEN_CLI_DIR}/Source")
+	PRIVATE "${SDL_GEN_CLI_DIR}/Source"
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(${TARGET_NAME}
 	PRIVATE Engine
