@@ -1,4 +1,4 @@
-#include "SdlGenArguments.h"
+#include "SDLGenCLI/SdlGenArguments.h"
 
 #include <ph_core.h>
 #include <SDLGen/ph_sdlgen.h>

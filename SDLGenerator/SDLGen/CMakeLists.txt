@@ -2,17 +2,17 @@
 
 get_filename_component(SDL_GEN_DIR "./" ABSOLUTE)
 
-set(TARGET_NAME                     SDLGen)
+set(TARGET_NAME                 "SDLGen")
 set(SDL_GEN_INCLUDE_DIR         "${SDL_GEN_DIR}/Include")
 set(SDL_GEN_PRIVATE_INCLUDE_DIR "${SDL_GEN_DIR}/Source")
 
 file(GLOB_RECURSE SDL_GEN_HEADER_FILES 
-	"${SDL_GEN_DIR}/Include/${TARGET_NAME}/*.h"
-	"${SDL_GEN_DIR}/Source/${TARGET_NAME}/*.h"
-	"${SDL_GEN_DIR}/Source/${TARGET_NAME}/*.ipp"
-	"${SDL_GEN_DIR}/Source/${TARGET_NAME}/*.tpp"
+	"${SDL_GEN_DIR}/Include/*.h"
+	"${SDL_GEN_DIR}/Source/*.h"
+	"${SDL_GEN_DIR}/Source/*.ipp"
+	"${SDL_GEN_DIR}/Source/*.tpp"
 )
-file(GLOB_RECURSE SDL_GEN_SOURCE_FILES "${SDL_GEN_DIR}/Source/${TARGET_NAME}/*.cpp")
+file(GLOB_RECURSE SDL_GEN_SOURCE_FILES "${SDL_GEN_DIR}/Source/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${SDL_GEN_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -29,5 +29,3 @@ target_link_libraries(${TARGET_NAME} PRIVATE Engine)
 
 source_group(TREE ${SDL_GEN_DIR} FILES ${SDL_GEN_HEADER_FILES})
 source_group(TREE ${SDL_GEN_DIR} FILES ${SDL_GEN_SOURCE_FILES})
-
-set(SDL_GEN_INCLUDE_DIR "${SDL_GEN_INCLUDE_DIR}" PARENT_SCOPE)

@@ -13,7 +13,7 @@ add_dependencies(CommonTest Common)
 
 target_include_directories(CommonTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
-	PRIVATE "${COMMON_LIB_TEST_DIR}/Source/")
+	PRIVATE "${COMMON_LIB_TEST_DIR}/Source")
 
 target_link_libraries(CommonTest PRIVATE Common)
 
