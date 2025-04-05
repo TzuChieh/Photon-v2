@@ -3,7 +3,7 @@
 #include "ThirdParty/glad2.h"
 
 #include <Common/utility.h>
-#include <Utility/IUninstantiable.h>
+#include <Engine/Utility/IUninstantiable.h>
 
 #include <concepts>
 

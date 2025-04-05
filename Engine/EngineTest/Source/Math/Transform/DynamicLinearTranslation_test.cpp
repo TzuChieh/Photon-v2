@@ -1,10 +1,10 @@
 #include "constants_for_test.h"
 
-#include <Math/Transform/DynamicLinearTranslation.h>
-#include <Math/TVector3.h>
-#include <Math/TMatrix4.h>
-#include <Math/TQuaternion.h>
-#include <Core/Quantity/Time.h>
+#include <Engine/Math/Transform/DynamicLinearTranslation.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Math/TMatrix4.h>
+#include <Engine/Math/TQuaternion.h>
+#include <Engine/Core/Quantity/Time.h>
 
 #include <gtest/gtest.h>
 

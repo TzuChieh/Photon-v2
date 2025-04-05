@@ -1,6 +1,6 @@
-#include <Core/Intersection/DataStructure/IndexedVertexBuffer.h>
-#include <Math/Geometry/TSphere.h>
-#include <Math/math.h>
+#include <Engine/Core/Intersection/DataStructure/IndexedVertexBuffer.h>
+#include <Engine/Math/Geometry/TSphere.h>
+#include <Engine/Math/math.h>
 
 #include <gtest/gtest.h>
 

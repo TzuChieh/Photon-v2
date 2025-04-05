@@ -1,5 +1,5 @@
-#include <Math/Function/Distribution/TPiecewiseConstantDistribution1D.h>
-#include <Math/Function/Distribution/TPiecewiseConstantDistribution2D.h>
+#include <Engine/Math/Function/Distribution/TPiecewiseConstantDistribution1D.h>
+#include <Engine/Math/Function/Distribution/TPiecewiseConstantDistribution2D.h>
 
 #include <gtest/gtest.h>
 

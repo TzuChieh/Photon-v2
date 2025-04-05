@@ -1,7 +1,7 @@
-#include <SDL/Introspect/TSdlBruteForceFieldSet.h>
-#include <SDL/Introspect/TSdlString.h>
-#include <SDL/Introspect/TSdlInteger.h>
-#include <SDL/Introspect/TSdlReal.h>
+#include <Engine/SDL/Introspect/TSdlBruteForceFieldSet.h>
+#include <Engine/SDL/Introspect/TSdlString.h>
+#include <Engine/SDL/Introspect/TSdlInteger.h>
+#include <Engine/SDL/Introspect/TSdlReal.h>
 
 #include <gtest/gtest.h>
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Math/TVector3.h>
-#include <Math/TQuaternion.h>
-#include <Math/Transform/TDecomposedTransform.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Math/TQuaternion.h>
+#include <Engine/Math/Transform/TDecomposedTransform.h>
 #include <Common/primitive_type.h>
-#include <SDL/sdl_interface.h>
+#include <Engine/SDL/sdl_interface.h>
 
 namespace ph::math { class StaticAffineTransform; }
 namespace ph::math { class StaticRigidTransform; }

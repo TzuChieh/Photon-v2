@@ -1,6 +1,6 @@
-#include <Math/Geometry/TWatertightTriangle.h>
-#include <Math/Geometry/TLineSegment.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/Geometry/TWatertightTriangle.h>
+#include <Engine/Math/Geometry/TLineSegment.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

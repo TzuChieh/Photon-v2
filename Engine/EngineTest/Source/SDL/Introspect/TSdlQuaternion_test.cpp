@@ -1,5 +1,5 @@
-#include <SDL/Introspect/TSdlQuaternion.h>
-#include <Math/TQuaternion.h>
+#include <Engine/SDL/Introspect/TSdlQuaternion.h>
+#include <Engine/Math/TQuaternion.h>
 
 #include <gtest/gtest.h>
 

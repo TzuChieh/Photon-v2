@@ -1,6 +1,6 @@
-#include <Math/TOrthonormalBasis3.h>
-#include <Math/TVector3.h>
-#include <Math/math.h>
+#include <Engine/Math/TOrthonormalBasis3.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Math/math.h>
 
 #include <gtest/gtest.h>
 

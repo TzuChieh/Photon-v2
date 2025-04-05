@@ -1,7 +1,7 @@
 #include "util.h"
 
-#include <Math/Geometry/TLineSegment.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/Geometry/TLineSegment.h>
+#include <Engine/Math/TVector3.h>
 #include <Common/primitive_type.h>
 
 #include <gtest/gtest.h>

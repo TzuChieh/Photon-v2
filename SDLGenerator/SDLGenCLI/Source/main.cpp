@@ -1,6 +1,6 @@
 #include "SDLGenCLI/SdlGenArguments.h"
 
-#include <ph_core.h>
+#include <Engine/ph_core.h>
 #include <SDLGen/ph_sdlgen.h>
 #include <Common/logging.h>
 

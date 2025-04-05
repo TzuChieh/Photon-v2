@@ -1,0 +1,242 @@
+#pragma once
+
+#include "Engine/Core/Renderer/PM/TPhotonPathTracingWork.h"
+#include "Engine/World/Scene.h"
+#include "Engine/Core/Receiver/Receiver.h"
+#include "Engine/Core/SampleGenerator/SampleGenerator.h"
+#include "Engine/Core/Ray.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Engine/Core/Intersection/Primitive.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
+#include "Engine/Core/SurfaceHit.h"
+#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitDetail.h"
+#include "Engine/Core/LTA/RussianRoulette.h"
+#include "Engine/Utility/Timer.h"
+#include "Engine/Core/Renderer/PM/PMAtomicStatistics.h"
+#include "Engine/Core/LTA/SurfaceTracer.h"
+#include "Engine/Core/LTA/lta.h"
+#include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
+
+#include <Common/assertion.h>
+#include <Common/profiling.h>
+
+namespace ph
+{
+
+template<CPhoton Photon>
+inline TPhotonPathTracingWork<Photon>::TPhotonPathTracingWork(
+
+	const Scene* const     scene,
+	const Receiver* const  receiver,
+	SampleGenerator* const sampleGenerator,
+	const TSpan<Photon>    photonBuffer,
+	const uint32           minPhotonPathLength,
+	const uint32           maxPhotonPathLength)
+
+	: m_scene              (scene)
+	, m_receiver           (receiver)
+	, m_sampleGenerator    (sampleGenerator)
+	, m_photonBuffer       (photonBuffer)
+	, m_minPhotonPathLength(minPhotonPathLength)
+	, m_maxPhotonPathLength(maxPhotonPathLength)
+	, m_numPhotonPaths     (0)
+	, m_statistics         (nullptr)
+{
+	PH_ASSERT_GE(minPhotonPathLength, 1);
+	PH_ASSERT_LE(minPhotonPathLength, maxPhotonPathLength);
+}
+
+template<CPhoton Photon>
+inline void TPhotonPathTracingWork<Photon>::doWork()
+{
+	PH_PROFILE_SCOPE();
+
+	// FIXME: currently we exit immediately when photon buffer is full; we should trace a full path instead
+
+	Timer timer;
+	timer.start();
+
+	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
+	const lta::RussianRoulette rr{};
+
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
+	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
+	auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
+
+	m_numPhotonPaths               = 0;
+	std::size_t numStoredPhotons   = 0;
+	std::size_t photonStatsCounter = 0;
+	while(numStoredPhotons < m_photonBuffer.size())
+	{
+		++m_numPhotonPaths;
+
+		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
+
+		// TODO: properly sample time
+		EnergyEmissionSampleQuery energyEmission;
+		energyEmission.inputs.set(Time{});
+
+		// Generate initial hit on the emitter and ray originated from the hit
+		SurfaceHit surfaceHit;
+		Ray tracingRay;
+		{
+			HitProbe probe;
+			m_scene->emitRay(energyEmission, sampleFlow, probe);
+			if(!energyEmission.outputs)
+			{
+				continue;
+			}
+
+			constexpr SurfaceHitReason reason(ESurfaceHitReason::SampledPosDir);
+			tracingRay = energyEmission.outputs.getEmittedRay();
+			surfaceHit = SurfaceHit(tracingRay, probe, reason);
+		}
+
+		PH_ASSERT_IN_RANGE(tracingRay.getDir().lengthSquared(), 0.9_r, 1.1_r);
+
+		// Here 0-bounce lighting is never accounted for
+		math::Spectrum throughputRadiance(energyEmission.outputs.getEmittedEnergy());
+		throughputRadiance.divLocal(energyEmission.outputs.getPdfA());
+		throughputRadiance.divLocal(energyEmission.outputs.getPdfW());
+		throughputRadiance.mulLocal(surfaceHit.getShadingNormal().absDot(tracingRay.getDir()));
+
+		// Start tracing single photon path with at least 1 bounce
+		uint32 photonPathLength = 0;
+		real rrScale = 1.0_r;
+		while(!throughputRadiance.isZero())
+		{
+			PH_ASSERT_LT(photonPathLength, m_maxPhotonPathLength);
+
+			if(!surfaceTracer.traceNextSurfaceFrom(
+				surfaceHit, tracingRay, bsdfContext.sidedness, &surfaceHit))
+			{
+				break;
+			}
+
+			++photonPathLength;
+
+			// TODO: we can also skip storing this photon if the BSDF has little contribution
+			// (e.g., by measuring its integrated value)
+
+			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+			const SurfaceOptics* optics = metadata->getSurface().getOptics();
+
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(throughputRadiance * rrScale, sampleFlow, &rrSurvivalProb))
+			{
+				throughputRadiance *= 1.0_r / rrSurvivalProb;
+
+				if(photonPathLength >= m_minPhotonPathLength)
+				{
+					m_photonBuffer[numStoredPhotons++] = makePhoton(
+						surfaceHit, throughputRadiance, tracingRay, photonPathLength);
+					++photonStatsCounter;
+				}
+
+				if(numStoredPhotons == m_photonBuffer.size() || 
+				   photonPathLength == m_maxPhotonPathLength)
+				{
+					break;
+				}
+			}// end if photon survived
+			else
+			{
+				break;
+			}
+
+			BsdfSampleQuery bsdfSample(bsdfContext);
+			Ray sampledRay;
+			bsdfSample.inputs.set(surfaceHit, tracingRay.getDir().mul(-1));
+			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
+			{
+				break;
+			}
+
+			math::Vector3R V = tracingRay.getDir().mul(-1);
+			math::Vector3R L = bsdfSample.outputs.getL();
+			math::Vector3R Ng = surfaceHit.getGeometryNormal();
+			math::Vector3R Ns = surfaceHit.getShadingNormal();
+			throughputRadiance *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+			throughputRadiance *= lta::tamed_importance_scatter_Ns_corrector(Ns, Ng, L, V);
+
+			// Prevent premature termination of the path due to solid angle compression/expansion
+			rrScale /= bsdfSample.outputs.getRelativeIor2();
+
+			tracingRay = sampledRay;
+		}// end single photon path
+
+		if(photonStatsCounter >= 16384)
+		{
+			timer.stop();
+			setElapsedMs(timer.getDeltaMs());
+
+			if(m_statistics)
+			{
+				m_statistics->addNumTracedPhotons(photonStatsCounter);
+			}
+
+			photonStatsCounter = 0;
+		}
+	}// end while photon buffer is not full
+
+	timer.stop();
+	setElapsedMs(timer.getDeltaMs());
+
+	if(m_statistics)
+	{
+		m_statistics->addNumTracedPhotons(photonStatsCounter);
+	}
+}
+
+template<CPhoton Photon>
+inline void TPhotonPathTracingWork<Photon>::setStatistics(PMAtomicStatistics* const statistics)
+{
+	m_statistics = statistics;
+}
+
+template<CPhoton Photon>
+inline std::size_t TPhotonPathTracingWork<Photon>::numPhotonPaths() const
+{
+	return m_numPhotonPaths;
+}
+
+template<CPhoton Photon>
+inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
+	const SurfaceHit&     surfaceHit, 
+	const math::Spectrum& throughputRadiance,
+	const Ray&            tracingRay,
+	const std::size_t     pathLength)
+{
+	Photon photon;
+	if constexpr(Photon::template has<EPhotonData::Pos>())
+	{
+		photon.template set<EPhotonData::Pos>(surfaceHit.getPos());
+	}
+	if constexpr(Photon::template has<EPhotonData::ThroughputRadiance>())
+	{
+		photon.template set<EPhotonData::ThroughputRadiance>(throughputRadiance);
+	}
+	if constexpr(Photon::template has<EPhotonData::FromDir>())
+	{
+		photon.template set<EPhotonData::FromDir>(tracingRay.getDir().mul(-1));
+	}
+	if constexpr(Photon::template has<EPhotonData::GeometryNormal>())
+	{
+		photon.template set<EPhotonData::GeometryNormal>(surfaceHit.getGeometryNormal());
+	}
+	if constexpr(Photon::template has<EPhotonData::PathLength>())
+	{
+		photon.template set<EPhotonData::PathLength>(pathLength);
+	}
+
+	return photon;
+}
+
+}// end namespace ph

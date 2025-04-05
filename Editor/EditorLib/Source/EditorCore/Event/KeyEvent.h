@@ -3,8 +3,8 @@
 #include "EditorCore/Event/Event.h"
 #include "EditorCore/EKeyCode.h"
 
-#include <Utility/TBitFlags.h>
-#include <Utility/utility.h>
+#include <Engine/Utility/TBitFlags.h>
+#include <Engine/Utility/utility.h>
 
 namespace ph::editor
 {

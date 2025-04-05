@@ -5,8 +5,8 @@
 #include <Common/utility.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <Math/TVector2.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/TVector2.h>
+#include <Engine/Math/TVector3.h>
 
 namespace ph::editor::ghi
 {

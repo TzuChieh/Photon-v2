@@ -1,10 +1,10 @@
 #include "constants_for_test.h"
 
-#include <Core/Filmic/HdrRgbFilm.h>
-#include <Core/Filmic/SampleFilter.h>
-#include <Frame/TFrame.h>
-#include <Math/Color/Spectrum.h>
-#include <Math/Function/THeavisideStep2D.h>
+#include <Engine/Core/Filmic/HdrRgbFilm.h>
+#include <Engine/Core/Filmic/SampleFilter.h>
+#include <Engine/Frame/TFrame.h>
+#include <Engine/Math/Color/Spectrum.h>
+#include <Engine/Math/Function/THeavisideStep2D.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

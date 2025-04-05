@@ -1,6 +1,6 @@
-#include <Core/Intersection/PLatLong01Sphere.h>
-#include <Core/Ray.h>
-#include <Core/Intersection/PrimitiveMetadata.h>
+#include <Engine/Core/Intersection/PLatLong01Sphere.h>
+#include <Engine/Core/Ray.h>
+#include <Engine/Core/Intersection/PrimitiveMetadata.h>
 
 #include <gtest/gtest.h>
 

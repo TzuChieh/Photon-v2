@@ -1,5 +1,5 @@
-#include <Core/Texture/TNearestPixelTex2D.h>
-#include <Core/Texture/TBilinearPixelTex2D.h>
+#include <Engine/Core/Texture/TNearestPixelTex2D.h>
+#include <Engine/Core/Texture/TBilinearPixelTex2D.h>
 
 #include <gtest/gtest.h>
 

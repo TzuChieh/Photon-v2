@@ -4,8 +4,8 @@
 
 #include <Common/assertion.h>
 #include <Common/memory.h>
-#include <Utility/ByteBuffer.h>
-#include <Core/Renderer/RenderRegionStatus.h>
+#include <Engine/Utility/ByteBuffer.h>
+#include <Engine/Core/Renderer/RenderRegionStatus.h>
 
 #include <type_traits>
 #include <memory>

@@ -1,5 +1,5 @@
-#include <Math/Solver/TAnalyticalIntegrator1D.h>
-#include <Math/Function/TPiecewiseLinear1D.h>
+#include <Engine/Math/Solver/TAnalyticalIntegrator1D.h>
+#include <Engine/Math/Function/TPiecewiseLinear1D.h>
 #include <Common/primitive_type.h>
 
 #include <gtest/gtest.h>

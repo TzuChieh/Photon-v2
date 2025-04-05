@@ -1,11 +1,11 @@
 #include "SDLGen/MarkdownDoc/MarkdownDocGenerator.h"
 #include "SDLGen/ph_sdlgen.h"
 
-#include <SDL/Introspect/SdlClass.h>
-#include <SDL/Introspect/SdlFunction.h>
-#include <SDL/Introspect/SdlField.h>
-#include <SDL/Introspect/SdlEnum.h>
-#include <SDL/sdl_helpers.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/Introspect/SdlFunction.h>
+#include <Engine/SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/SdlEnum.h>
+#include <Engine/SDL/sdl_helpers.h>
 #include <Common/assertion.h>
 
 namespace ph::sdlgen

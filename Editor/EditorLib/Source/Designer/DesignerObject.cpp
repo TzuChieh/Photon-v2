@@ -5,9 +5,9 @@
 
 #include <Common/assertion.h>
 #include <Common/exceptions.h>
-#include <Utility/utility.h>
-#include <Math/TVector3.h>
-#include <Math/TQuaternion.h>
+#include <Engine/Utility/utility.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Math/TQuaternion.h>
 
 #include <utility>
 

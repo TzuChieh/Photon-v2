@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL/SdlCommandGenerator.h>
-#include <SDL/SdlDependencyResolver.h>
+#include <Engine/SDL/SdlCommandGenerator.h>
+#include <Engine/SDL/SdlDependencyResolver.h>
 
 namespace ph { class FormattedTextOutputStream; }
 namespace ph { class Path; }

@@ -1,7 +1,7 @@
 #include "Designer/Basic/ObjectTransform.h"
 
-#include <Math/Transform/StaticAffineTransform.h>
-#include <Math/Transform/StaticRigidTransform.h>
+#include <Engine/Math/Transform/StaticAffineTransform.h>
+#include <Engine/Math/Transform/StaticRigidTransform.h>
 
 namespace ph::editor
 {

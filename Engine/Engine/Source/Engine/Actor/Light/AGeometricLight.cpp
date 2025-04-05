@@ -1,0 +1,246 @@
+#include "Engine/Actor/Light/AGeometricLight.h"
+#include "Engine/Math/math.h"
+#include "Engine/Actor/Material/MatteOpaque.h"
+#include "Engine/World/Foundation/TransientVisualElement.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
+#include "Engine/Core/Intersection/TransformedIntersectable.h"
+#include "Engine/Core/Intersection/TransformedPrimitive.h"
+#include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
+#include "Engine/Math/Transform/StaticAffineTransform.h"
+#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/World/Foundation/PreCookReport.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
+
+#include <Common/logging.h>
+
+#include <algorithm>
+
+namespace ph
+{
+
+PH_DEFINE_INTERNAL_LOG_GROUP(AGeometricLight, Actor);
+
+std::shared_ptr<Material> AGeometricLight::getMaterial(const CookingContext& ctx) const
+{
+	return TSdl<MatteOpaque>::makeResource();
+}
+
+PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
+{
+	PreCookReport report = PhysicalActor::preCook(ctx);
+
+	// TODO: test "isRigid()" may be more appropriate
+	if(m_localToWorld.getDecomposed().hasScaleEffect() || m_localToWorld.getDecomposed().isIdentity())
+	{
+		report.setBaseTransforms(nullptr, nullptr);
+	}
+	else
+	{
+		auto* localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+			m_localToWorld.getForwardStaticRigid());
+		auto* worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+			m_localToWorld.getInverseStaticRigid());
+
+		report.setBaseTransforms(localToWorld, worldToLocal);
+	}
+
+	return report;
+}
+
+TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const PreCookReport& report) const
+{
+	std::shared_ptr<Geometry> geometry = getGeometry(ctx);
+	std::shared_ptr<Material> material = getMaterial(ctx);
+
+	if(!geometry)
+	{
+		PH_LOG(AGeometricLight, Error,
+			"cannot build geometric light, please make sure the actor is geometric or supply a "
+			"valid geometry resource");
+		return TransientVisualElement();
+	}
+
+	if(!material)
+	{
+		PH_LOG(AGeometricLight, Note,
+			"material is not specified, using default diffusive material");
+		material = TSdl<MatteOpaque>::makeResource();
+	}
+
+	math::TDecomposedTransform<real> remainingLocalToWorld;
+	auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
+
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	material->genBehaviors(ctx, *metadata);
+
+	// FIXME
+	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx);
+
+	std::vector<const Primitive*> lightPrimitives;
+	lightPrimitives.reserve(cookedGeometry->primitives.size());
+	for(const Primitive* primitive : cookedGeometry->primitives)
+	{
+		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+			ReferencedPrimitiveMetaGetter(metadata),
+			TReferencedPrimitiveGetter<Primitive>(primitive)));
+
+		lightPrimitives.push_back(metaPrimitive);
+	}
+
+	if(m_localToWorld.getDecomposed().isIdentity())
+	{
+		// Just to make sure we are not pre-cooking identity transforms
+		PH_ASSERT(!report.getBaseLocalToWorld());
+		PH_ASSERT(!report.getBaseWorldToLocal());
+	}
+	else
+	{
+		const math::RigidTransform* localToWorld = nullptr;
+		const math::RigidTransform* worldToLocal = nullptr;
+		if(m_localToWorld.getDecomposed().hasScaleEffect())
+		{
+			// Should use transform from the sanification process (should not be pre-cooked)
+			PH_ASSERT(!report.getBaseLocalToWorld());
+			PH_ASSERT(!report.getBaseWorldToLocal());
+
+			if(!remainingLocalToWorld.isIdentity())
+			{
+				localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+					math::StaticRigidTransform::makeForward(remainingLocalToWorld));
+				worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+					math::StaticRigidTransform::makeInverse(remainingLocalToWorld));
+			}
+		}
+		else
+		{
+			// Can (and should) be pre-cooked
+			PH_ASSERT(report.getBaseLocalToWorld());
+			PH_ASSERT(report.getBaseWorldToLocal());
+
+			// Must match the type used in `preCook()`
+			localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());
+			worldToLocal = static_cast<const math::StaticRigidTransform*>(report.getBaseWorldToLocal());
+		}
+
+		if(localToWorld && worldToLocal)
+		{
+			for(auto& lightPrimitive : lightPrimitives)
+			{
+				auto* transformedPrimitive = ctx.getResources()->makeIntersectable<TransformedPrimitive>(
+					lightPrimitive, localToWorld, worldToLocal);
+
+				lightPrimitive = transformedPrimitive;
+			}
+		}
+	}
+
+	TransientVisualElement cookedLight;
+	for(const Primitive* primitive : lightPrimitives)
+	{
+		cookedLight.add(primitive);
+	}
+
+	const Emitter* emitter = buildEmitter(ctx, lightPrimitives);
+	if(!emitter)
+	{
+		PH_LOG(AGeometricLight, Error,
+			"no emitter generated");
+		return cookedLight;
+	}
+
+	cookedLight.emitters.push_back(emitter);
+	metadata->getSurface().setEmitter(emitter);
+	return cookedLight;
+}
+
+EmitterFeatureSet AGeometricLight::getEmitterFeatureSet() const
+{
+	EmitterFeatureSet featureSet = Emitter::defaultFeatureSet;
+
+	featureSet.turnOff({EEmitterFeatureSet::ZeroBounceSample});
+	if(m_isDirectlyVisible)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::ZeroBounceSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::BsdfSample});
+	if(m_useBsdfSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::BsdfSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::DirectSample});
+	if(m_useDirectSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::DirectSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::EmissionSample});
+	if(m_useEmissionSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::EmissionSample});
+	}
+
+	return featureSet;
+}
+
+std::shared_ptr<Geometry> AGeometricLight::getSanifiedGeometry(
+	const std::shared_ptr<Geometry>& srcGeometry,
+	const TransformInfo& srcLocalToWorld,
+	math::TDecomposedTransform<real>* const out_remainingLocalToWorld)
+{
+	if(!srcGeometry)
+	{
+		return nullptr;
+	}
+
+	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
+
+	// TODO: test "isRigid()" may be more appropriate
+	if(srcLocalToWorld.getDecomposed().hasScaleEffect())
+	{
+		PH_LOG(AGeometricLight, Note,
+			"scale detected (which is {}), this is undesirable since many light attributes will "
+			"be affected; can incur additional memory overhead as the original cooked geometry "
+			"may not be used (e.g., a transformed temporary is used instead and the original is "
+			"not referenced)",
+			srcLocalToWorld.getScale());
+
+		const auto baseLW = srcLocalToWorld.getForwardStaticAffine();
+
+		sanifiedGeometry = srcGeometry->genTransformed(baseLW);
+		if(!sanifiedGeometry)
+		{
+			PH_LOG(AGeometricLight, Warning,
+				"scale detected and has failed to apply it to the geometry; "
+				"scaling on light with attached geometry may have unexpected "
+				"behaviors such as miscalculated primitive surface area, which "
+				"can cause severe rendering artifacts");
+
+			sanifiedGeometry = srcGeometry;
+			
+			if(out_remainingLocalToWorld)
+			{
+				*out_remainingLocalToWorld = srcLocalToWorld.getDecomposed();
+			}
+		}
+		else
+		{
+			*out_remainingLocalToWorld = math::TDecomposedTransform<real>();
+		}
+	}
+	else
+	{
+		sanifiedGeometry = srcGeometry;
+
+		if(out_remainingLocalToWorld)
+		{
+			*out_remainingLocalToWorld = srcLocalToWorld.getDecomposed();
+		}
+	}
+
+	return sanifiedGeometry;
+}
+
+}// end namespace ph

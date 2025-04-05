@@ -2,8 +2,8 @@
 
 #include "Designer/DesignerObject.h"
 
-#include <SDL/sdl_interface.h>
-#include <Utility/utility.h>
+#include <Engine/SDL/sdl_interface.h>
+#include <Engine/Utility/utility.h>
 
 #include <vector>
 

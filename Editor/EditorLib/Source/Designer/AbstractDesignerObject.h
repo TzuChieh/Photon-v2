@@ -3,9 +3,9 @@
 #include "Designer/designer_fwd.h"
 
 #include <Common/primitive_type.h>
-#include <SDL/Object.h>
-#include <SDL/sdl_interface.h>
-#include <Utility/TBitFlags.h>
+#include <Engine/SDL/Object.h>
+#include <Engine/SDL/sdl_interface.h>
+#include <Engine/Utility/TBitFlags.h>
 
 namespace ph::editor
 {

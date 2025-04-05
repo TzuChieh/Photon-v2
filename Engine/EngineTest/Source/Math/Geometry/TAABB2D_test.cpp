@@ -1,7 +1,7 @@
 #include "constants_for_test.h"
 
-#include <Math/Geometry/TAABB2D.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/Geometry/TAABB2D.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

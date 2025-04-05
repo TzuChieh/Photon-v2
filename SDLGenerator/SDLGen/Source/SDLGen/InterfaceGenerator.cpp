@@ -3,7 +3,7 @@
 #include "SDLGen/Python/PythonGenerator.h"
 
 #include <Common/assertion.h>
-#include <DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
 
 #include <utility>
 

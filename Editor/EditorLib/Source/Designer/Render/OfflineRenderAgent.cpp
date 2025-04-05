@@ -8,7 +8,7 @@
 #include "EditorCore/Thread/Threads.h"
 #include "Render/RenderThread.h"
 
-#include <SDL/SceneDescription.h>
+#include <Engine/SDL/SceneDescription.h>
 #include <Common/logging.h>
 
 #include <utility>

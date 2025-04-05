@@ -3,15 +3,15 @@
 #include "SDLGen/Python/PythonMethod.h"
 #include "SDLGen/ph_sdlgen.h"
 
-#include <ph_core.h>
 #include <Common/Utility/Timestamp.h>
-#include <DataIO/io_utils.h>
-#include <SDL/Introspect/SdlClass.h>
-#include <SDL/Introspect/SdlFunction.h>
-#include <SDL/Introspect/SdlField.h>
-#include <SDL/Introspect/SdlEnum.h>
-#include <SDL/ESdlTypeCategory.h>
-#include <SDL/sdl_helpers.h>
+#include <Engine/ph_core.h>
+#include <Engine/DataIO/io_utils.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/Introspect/SdlFunction.h>
+#include <Engine/SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/SdlEnum.h>
+#include <Engine/SDL/ESdlTypeCategory.h>
+#include <Engine/SDL/sdl_helpers.h>
 #include <Common/logging.h>
 #include <Common/config.h>
 

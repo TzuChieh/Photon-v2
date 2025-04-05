@@ -5,7 +5,7 @@
 #include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include <Common/primitive_type.h>
-#include <SDL/SdlResourceId.h>
+#include <Engine/SDL/SdlResourceId.h>
 
 #include <vector>
 #include <string_view>

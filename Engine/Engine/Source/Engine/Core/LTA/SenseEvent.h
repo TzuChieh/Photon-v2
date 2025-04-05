@@ -1,0 +1,23 @@
+#pragma once
+
+#include "Engine/Math/TVector3.h"
+#include "Engine/Core/Quantity/Spectrum.h"
+
+#include <Common/primitive_type.h>
+
+namespace ph::lta
+{
+
+class SenseEvent final
+{
+public:
+	//real filmX;
+	//real filmY;
+	Spectrum radiance;
+
+	SenseEvent(/*const real filmX, const real filmY, */const Spectrum& radiance) :
+		/*filmX(filmX), filmY(filmY), */radiance(radiance)
+	{}
+};
+
+}// end namespace ph::lta

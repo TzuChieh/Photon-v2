@@ -1,0 +1,40 @@
+#pragma once
+
+#include "Engine/Math/TVector3.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Engine/Core/Emitter/Emitter.h"
+
+#include <Common/primitive_type.h>
+
+#include <memory>
+
+namespace ph
+{
+
+class SurfaceBehavior final
+{
+public:
+	SurfaceBehavior();
+
+	void setOptics(std::shared_ptr<SurfaceOptics> optics);
+	void setEmitter(const Emitter* emitter);
+	std::shared_ptr<SurfaceOptics> getOpticsResource() const;
+
+	inline const SurfaceOptics* getOptics() const
+	{
+		return m_optics.get();
+	}
+
+	inline const Emitter* getEmitter() const
+	{
+		return m_emitter;
+	}
+
+private:
+	std::shared_ptr<SurfaceOptics> m_optics;
+
+	// FIXME: store SurfaceEmitter only
+	const Emitter*                 m_emitter;
+};
+
+}// end namespace ph

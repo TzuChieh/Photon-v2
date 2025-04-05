@@ -1,12 +1,12 @@
 #include "util.h"
 
-#include <SDL/Introspect/TSdlOwnerClass.h>
-#include <SDL/ISdlResource.h>
+#include <Engine/SDL/Introspect/TSdlOwnerClass.h>
+#include <Engine/SDL/ISdlResource.h>
 #include <Common/primitive_type.h>
-#include <SDL/Introspect/TSdlReal.h>
-#include <SDL/Introspect/TSdlString.h>
-#include <SDL/Introspect/TSdlMethod.h>
-#include <SDL/sdl_interface.h>
+#include <Engine/SDL/Introspect/TSdlReal.h>
+#include <Engine/SDL/Introspect/TSdlString.h>
+#include <Engine/SDL/Introspect/TSdlMethod.h>
+#include <Engine/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 

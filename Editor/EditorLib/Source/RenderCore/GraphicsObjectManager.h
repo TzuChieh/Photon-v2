@@ -4,9 +4,9 @@
 #include "RenderCore/ghi_enums.h"
 
 #include <Common/primitive_type.h>
-#include <Math/TVector2.h>
-#include <Math/TVector3.h>
-#include <Utility/TSpan.h>
+#include <Engine/Math/TVector2.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <cstddef>
 #include <string>

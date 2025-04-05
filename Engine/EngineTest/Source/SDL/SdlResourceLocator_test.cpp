@@ -1,4 +1,4 @@
-#include <SDL/SdlResourceLocator.h>
+#include <Engine/SDL/SdlResourceLocator.h>
 
 #include <gtest/gtest.h>
 

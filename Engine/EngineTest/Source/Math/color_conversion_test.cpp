@@ -1,5 +1,5 @@
-#include <Math/Color/color_spaces.h>
-#include <Math/Color/spectral_samples.h>
+#include <Engine/Math/Color/color_spaces.h>
+#include <Engine/Math/Color/spectral_samples.h>
 
 #include <gtest/gtest.h>
 

@@ -1,5 +1,5 @@
-#include <SDL/Introspect/TSdlVector3.h>
-#include <Math/TVector3.h>
+#include <Engine/SDL/Introspect/TSdlVector3.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

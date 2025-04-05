@@ -10,9 +10,9 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <Frame/RegularPicture.h>
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/io_utils.h>
+#include <Engine/Frame/RegularPicture.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/io_utils.h>
 
 #include <algorithm>
 

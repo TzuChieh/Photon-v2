@@ -4,11 +4,11 @@
 #include "Designer/DesignerObject.h"
 #include "EditorCore/Thread/Threads.h"
 
-#include <Utility/traits.h>
+#include <Engine/Utility/traits.h>
 #include <Common/assertion.h>
 #include <Common/exceptions.h>
 #include <Common/logging.h>
-#include <SDL/sdl_helpers.h>
+#include <Engine/SDL/sdl_helpers.h>
 
 #include <utility>
 #include <type_traits>

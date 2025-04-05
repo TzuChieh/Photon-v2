@@ -13,7 +13,7 @@
 
 #include <Common/assertion.h>
 #include <Common/Utility/string_utils.h>
-#include <SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
 
 #include <algorithm>
 

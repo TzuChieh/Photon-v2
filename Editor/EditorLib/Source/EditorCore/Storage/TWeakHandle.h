@@ -3,9 +3,9 @@
 #include "EditorCore/Storage/fwd.h"
 
 #include <Common/Utility/string_utils.h>
-#include <Utility/traits.h>
-#include <Utility/utility.h>
-#include <Math/hash.h>
+#include <Engine/Utility/traits.h>
+#include <Engine/Utility/utility.h>
+#include <Engine/Math/hash.h>
 
 #include <cstddef>
 #include <limits>

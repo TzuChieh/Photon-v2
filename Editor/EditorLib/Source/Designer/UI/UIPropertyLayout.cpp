@@ -1,9 +1,9 @@
 #include "Designer/UI/UIPropertyLayout.h"
 #include "Designer/UI/UIProperty.h"
 
-#include <SDL/Introspect/ISdlInstantiable.h>
-#include <SDL/Introspect/SdlClass.h>
-#include <SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/ISdlInstantiable.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/Introspect/SdlField.h>
 
 #include <cstddef>
 #include <utility>

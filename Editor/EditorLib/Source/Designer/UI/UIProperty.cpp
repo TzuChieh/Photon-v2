@@ -1,9 +1,9 @@
 #include "Designer/UI/UIProperty.h"
 
-#include <SDL/sdl_helpers.h>
-#include <SDL/Introspect/ISdlInstantiable.h>
-#include <SDL/Introspect/SdlField.h>
-#include <SDL/Introspect/SdlNativeData.h>
+#include <Engine/SDL/sdl_helpers.h>
+#include <Engine/SDL/Introspect/ISdlInstantiable.h>
+#include <Engine/SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/SdlNativeData.h>
 
 #include <utility>
 

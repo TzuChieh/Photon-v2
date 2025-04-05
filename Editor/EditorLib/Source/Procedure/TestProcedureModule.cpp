@@ -4,8 +4,8 @@
 #include "App/Editor.h"
 
 #include <Common/logging.h>
-#include <Actor/Image/RasterFileImage.h>
-#include <Frame/RegularPicture.h>
+#include <Engine/Actor/Image/RasterFileImage.h>
+#include <Engine/Frame/RegularPicture.h>
 
 namespace ph::editor
 {

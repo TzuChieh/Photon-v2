@@ -9,7 +9,7 @@
 #include <Common/assertion.h>
 #include <Common/exceptions.h>
 #include <Common/profiling.h>
-#include <SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
 
 #include <utility>
 #include <ranges>

@@ -1,5 +1,5 @@
-#include <Core/Texture/Function/unary_texture_operators.h>
-#include <Core/Texture/TTexture.h>
+#include <Engine/Core/Texture/Function/unary_texture_operators.h>
+#include <Engine/Core/Texture/TTexture.h>
 
 #include <gtest/gtest.h>
 

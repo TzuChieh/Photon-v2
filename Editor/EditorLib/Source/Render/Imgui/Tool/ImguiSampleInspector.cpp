@@ -5,12 +5,12 @@
 
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
-#include <Math/Random/TMt19937.h>
-#include <Math/Random/Pcg32.h>
-#include <Math/Random/Pcg64DXSM.h>
-#include <Core/SampleGenerator/SGUniformRandom.h>
-#include <Core/SampleGenerator/SGStratified.h>
-#include <Core/SampleGenerator/SGHalton.h>
+#include <Engine/Math/Random/TMt19937.h>
+#include <Engine/Math/Random/Pcg32.h>
+#include <Engine/Math/Random/Pcg64DXSM.h>
+#include <Engine/Core/SampleGenerator/SGUniformRandom.h>
+#include <Engine/Core/SampleGenerator/SGStratified.h>
+#include <Engine/Core/SampleGenerator/SGHalton.h>
 
 #include <algorithm>
 #include <memory>

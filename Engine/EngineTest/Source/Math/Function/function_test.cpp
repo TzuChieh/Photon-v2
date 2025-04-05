@@ -1,12 +1,12 @@
 #include "constants_for_test.h"
 
 #include <Common/primitive_type.h>
-#include <Math/Function/TGaussian2D.h>
-#include <Math/Function/TConstant2D.h>
-#include <Math/Function/TMitchellNetravaliCubic2D.h>
-#include <Math/Function/TLinearGradient2D.h>
-#include <Math/Function/TPiecewiseLinear1D.h>
-#include <Math/Function/THeavisideStep2D.h>
+#include <Engine/Math/Function/TGaussian2D.h>
+#include <Engine/Math/Function/TConstant2D.h>
+#include <Engine/Math/Function/TMitchellNetravaliCubic2D.h>
+#include <Engine/Math/Function/TLinearGradient2D.h>
+#include <Engine/Math/Function/TPiecewiseLinear1D.h>
+#include <Engine/Math/Function/THeavisideStep2D.h>
 
 #include <gtest/gtest.h>
 

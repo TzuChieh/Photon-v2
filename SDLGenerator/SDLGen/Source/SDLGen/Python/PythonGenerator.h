@@ -2,7 +2,7 @@
 
 #include "SDLGen/InterfaceGenerator.h"
 
-#include <DataIO/Stream/FormattedTextOutputStream.h>
+#include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
 
 #include <string>
 #include <string_view>

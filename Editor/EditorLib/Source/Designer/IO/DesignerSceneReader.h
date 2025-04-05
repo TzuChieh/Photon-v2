@@ -3,7 +3,7 @@
 #include "Designer/IO/DesignerSceneMetaInfo.h"
 
 #include <Common/Container/TStdUnorderedStringMap.h>
-#include <SDL/SdlCommandParser.h>
+#include <Engine/SDL/SdlCommandParser.h>
 
 #include <string>
 #include <unordered_map>

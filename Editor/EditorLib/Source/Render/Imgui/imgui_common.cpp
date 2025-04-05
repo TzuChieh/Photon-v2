@@ -4,7 +4,7 @@
 #include "ThirdParty/DearImGui.h"
 #include "ThirdParty/ImPlot.h"
 
-#include <DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Path.h>
 
 namespace ph::editor
 {

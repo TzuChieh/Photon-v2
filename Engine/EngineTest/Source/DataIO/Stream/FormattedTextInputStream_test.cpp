@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include <DataIO/Stream/FormattedTextInputStream.h>
+#include <Engine/DataIO/Stream/FormattedTextInputStream.h>
 #include <Common/os.h>
 
 #include <gtest/gtest.h>

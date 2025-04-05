@@ -1,4 +1,4 @@
-#include <Core/SampleGenerator/SamplesNDStream.h>
+#include <Engine/Core/SampleGenerator/SamplesNDStream.h>
 
 #include <gtest/gtest.h>
 

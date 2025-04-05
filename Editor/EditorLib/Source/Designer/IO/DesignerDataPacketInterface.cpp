@@ -2,25 +2,25 @@
 
 #include "ThirdParty/NLohmannJSON.h"
 
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/FileSystem/Filesystem.h>
-#include <DataIO/Stream/BinaryFileInputStream.h>
-#include <DataIO/Stream/BinaryFileOutputStream.h>
-#include <DataIO/Stream/FormattedTextInputStream.h>
-#include <DataIO/Stream/FormattedTextOutputStream.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/Stream/BinaryFileInputStream.h>
+#include <Engine/DataIO/Stream/BinaryFileOutputStream.h>
+#include <Engine/DataIO/Stream/FormattedTextInputStream.h>
+#include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
 #include <Common/assertion.h>
 #include <Common/Utility/string_utils.h>
-#include <SDL/SdlResourceLocator.h>
-#include <SDL/sdl_exceptions.h>
-#include <SDL/SdlInputClauses.h>
-#include <SDL/SdlOutputClauses.h>
-#include <SDL/Introspect/SdlInputContext.h>
-#include <SDL/Introspect/SdlOutputContext.h>
-#include <SDL/Introspect/SdlClass.h>
-#include <SDL/sdl_helpers.h>
-#include <SDL/sdl_parser.h>
+#include <Engine/SDL/SdlResourceLocator.h>
+#include <Engine/SDL/sdl_exceptions.h>
+#include <Engine/SDL/SdlInputClauses.h>
+#include <Engine/SDL/SdlOutputClauses.h>
+#include <Engine/SDL/Introspect/SdlInputContext.h>
+#include <Engine/SDL/Introspect/SdlOutputContext.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
+#include <Engine/SDL/sdl_helpers.h>
+#include <Engine/SDL/sdl_parser.h>
 #include <Common/io_exceptions.h>
-#include <DataIO/FileSystem/ResourceIdentifier.h>
+#include <Engine/DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <utility>
 #include <format>

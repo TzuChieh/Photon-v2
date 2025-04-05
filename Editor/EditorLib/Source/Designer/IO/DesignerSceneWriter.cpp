@@ -7,13 +7,13 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/FileSystem/Filesystem.h>
-#include <DataIO/Stream/FormattedTextOutputStream.h>
-#include <SDL/sdl_helpers.h>
-#include <SDL/Introspect/SdlOutputContext.h>
-#include <SDL/Introspect/SdlClass.h>
-#include <Utility/SemanticVersion.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
+#include <Engine/SDL/sdl_helpers.h>
+#include <Engine/SDL/Introspect/SdlOutputContext.h>
+#include <Engine/SDL/Introspect/SdlClass.h>
+#include <Engine/Utility/SemanticVersion.h>
 #include <Common/config.h>
 
 #include <utility>

@@ -2,9 +2,9 @@
 
 #include "SDLGen/EInterfaceGenerator.h"
 
-#include <DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Path.h>
 #include <Common/assertion.h>
-#include <Utility/TSpan.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <string>
 #include <string_view>

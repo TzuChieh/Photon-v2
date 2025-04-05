@@ -1,5 +1,5 @@
-#include <Math/Algorithm/IndexedKdtree/TIndexedPointKdtree.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/Algorithm/IndexedKdtree/TIndexedPointKdtree.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

@@ -2,7 +2,7 @@
 
 #include "Render/IDynamicSceneResource.h"
 
-#include <Utility/INoCopyAndMove.h>
+#include <Engine/Utility/INoCopyAndMove.h>
 
 namespace ph::editor::render
 {

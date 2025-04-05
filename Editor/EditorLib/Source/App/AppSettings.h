@@ -2,11 +2,11 @@
 
 #include "RenderCore/SDL/sdl_graphics_api_type.h"
 
-#include <SDL/Option.h>
-#include <SDL/sdl_interface.h>
+#include <Engine/SDL/Option.h>
+#include <Engine/SDL/sdl_interface.h>
 #include <Common/primitive_type.h>
-#include <Math/TVector2.h>
-#include <Utility/TSpan.h>
+#include <Engine/Math/TVector2.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <string>
 

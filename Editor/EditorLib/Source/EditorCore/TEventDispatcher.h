@@ -6,7 +6,7 @@
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
 #include <Common/exceptions.h>
-#include <Utility/TUniquePtrVector.h>
+#include <Engine/Utility/TUniquePtrVector.h>
 
 #include <limits>
 #include <type_traits>

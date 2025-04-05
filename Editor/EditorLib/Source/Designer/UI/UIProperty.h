@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL/TSdlAnyInstance.h>
-#include <SDL/sdl_fwd.h>
+#include <Engine/SDL/TSdlAnyInstance.h>
+#include <Engine/SDL/sdl_fwd.h>
 
 #include <string>
 

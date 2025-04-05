@@ -4,11 +4,11 @@
 #include "Designer/DesignerObject.h"
 #include "Designer/IO/DesignerDataPacketInterface.h"
 
-#include <SDL/Introspect/SdlInputContext.h>
+#include <Engine/SDL/Introspect/SdlInputContext.h>
 #include <Common/logging.h>
-#include <SDL/sdl_helpers.h>
-#include <DataIO/Stream/FormattedTextInputStream.h>
-#include <Utility/Timer.h>
+#include <Engine/SDL/sdl_helpers.h>
+#include <Engine/DataIO/Stream/FormattedTextInputStream.h>
+#include <Engine/Utility/Timer.h>
 
 #include <utility>
 

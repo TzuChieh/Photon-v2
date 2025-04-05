@@ -12,16 +12,16 @@
 #include <Common/logging.h>
 #include <Common/profiling.h>
 #include <Common/io_exceptions.h>
-#include <Utility/Timer.h>
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/FileSystem/Filesystem.h>
-#include <SDL/TSdl.h>
-#include <SDL/SdlSceneFileWriter.h>
-#include <SDL/SdlSceneFileReader.h>
-#include <SDL/Introspect/SdlOutputContext.h>
-#include <SDL/SdlResourceLocator.h>
-#include <SDL/sdl_exceptions.h>
-#include <SDL/SceneDescription.h>
+#include <Engine/Utility/Timer.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/SDL/TSdl.h>
+#include <Engine/SDL/SdlSceneFileWriter.h>
+#include <Engine/SDL/SdlSceneFileReader.h>
+#include <Engine/SDL/Introspect/SdlOutputContext.h>
+#include <Engine/SDL/SdlResourceLocator.h>
+#include <Engine/SDL/sdl_exceptions.h>
+#include <Engine/SDL/SceneDescription.h>
 
 #include <utility>
 #include <memory>

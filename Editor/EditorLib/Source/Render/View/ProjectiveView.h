@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Math/TMatrix4.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/TMatrix4.h>
+#include <Engine/Math/TVector3.h>
 
 namespace ph::editor::render
 {

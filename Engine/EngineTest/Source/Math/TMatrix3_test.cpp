@@ -1,5 +1,5 @@
-#include <Math/TMatrix3.h>
-#include <Math/TVector3.h>
+#include <Engine/Math/TMatrix3.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

@@ -1,5 +1,5 @@
-#include <Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h>
-#include <Math/math.h>
+#include <Engine/Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h>
+#include <Engine/Math/math.h>
 
 #include <gtest/gtest.h>
 

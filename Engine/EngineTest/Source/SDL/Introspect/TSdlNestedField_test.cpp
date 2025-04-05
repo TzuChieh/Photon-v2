@@ -1,7 +1,7 @@
 #include "util.h"
 
-#include <SDL/Introspect/TSdlNestedField.h>
-#include <SDL/Introspect/TSdlString.h>
+#include <Engine/SDL/Introspect/TSdlNestedField.h>
+#include <Engine/SDL/Introspect/TSdlString.h>
 
 #include <gtest/gtest.h>
 

@@ -1,10 +1,10 @@
 #include "util.h"
 
-#include <SDL/Introspect/TSdlMethod.h>
-#include <SDL/TSdlResourceBase.h>
-#include <SDL/Introspect/TSdlString.h>
-#include <SDL/SdlInputClauses.h>
-#include <SDL/sdl_interface.h>
+#include <Engine/SDL/Introspect/TSdlMethod.h>
+#include <Engine/SDL/TSdlResourceBase.h>
+#include <Engine/SDL/Introspect/TSdlString.h>
+#include <Engine/SDL/SdlInputClauses.h>
+#include <Engine/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 

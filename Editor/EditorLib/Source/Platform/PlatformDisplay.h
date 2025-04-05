@@ -4,9 +4,9 @@
 
 #include "ThirdParty/GLFW3_fwd.h"
 
-#include <Utility/INoCopyAndMove.h>
+#include <Engine/Utility/INoCopyAndMove.h>
 #include <Common/primitive_type.h>
-#include <Math/TVector2.h>
+#include <Engine/Math/TVector2.h>
 
 #include <variant>
 

@@ -2,7 +2,7 @@
 
 #include "Designer/UI/UIPropertyGroup.h"
 
-#include <SDL/TSdlAnyInstance.h>
+#include <Engine/SDL/TSdlAnyInstance.h>
 
 #include <vector>
 #include <string>

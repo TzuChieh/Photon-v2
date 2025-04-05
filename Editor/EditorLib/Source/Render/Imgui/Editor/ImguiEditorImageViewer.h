@@ -8,9 +8,9 @@
 
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
-#include <Math/TVector2.h>
-#include <Math/Geometry/TAABB2D.h>
-#include <Utility/TSpan.h>
+#include <Engine/Math/TVector2.h>
+#include <Engine/Math/Geometry/TAABB2D.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <cstddef>
 #include <string>

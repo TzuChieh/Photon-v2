@@ -6,8 +6,8 @@
 #include "ThirdParty/glad2.h"
 
 #include <Common/primitive_type.h>
-#include <Math/math_fwd.h>
-#include <Utility/TSpan.h>
+#include <Engine/Math/math_fwd.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <cstddef>
 

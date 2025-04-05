@@ -9,12 +9,12 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/Container/TStdUnorderedStringMap.h>
-#include <SDL/SceneDescription.h>
-#include <ph_core.h>
+#include <Engine/SDL/SceneDescription.h>
+#include <Engine/ph_core.h>
+#include <Engine/SDL/sdl_helpers.h>
+#include <Engine/SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/SdlEnum.h>
 #include <ph_editor.h>
-#include <SDL/sdl_helpers.h>
-#include <SDL/Introspect/SdlField.h>
-#include <SDL/Introspect/SdlEnum.h>
 
 #include <cstddef>
 #include <utility>

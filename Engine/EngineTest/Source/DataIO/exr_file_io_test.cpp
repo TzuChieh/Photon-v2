@@ -1,8 +1,8 @@
 #include "config.h"
 
-#include <DataIO/EXR/ExrFileReader.h>
-#include <DataIO/EXR/ExrFileWriter.h>
-#include <Frame/TFrame.h>
+#include <Engine/DataIO/EXR/ExrFileReader.h>
+#include <Engine/DataIO/EXR/ExrFileWriter.h>
+#include <Engine/Frame/TFrame.h>
 
 #include <gtest/gtest.h>
 

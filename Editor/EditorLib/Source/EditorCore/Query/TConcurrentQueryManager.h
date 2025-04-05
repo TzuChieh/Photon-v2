@@ -2,7 +2,7 @@
 
 #include "EditorCore/Query/TQuery.h"
 
-#include <Utility/Concurrent/TAtomicQuasiQueue.h>
+#include <Engine/Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Common/assertion.h>
 
 #include <vector>

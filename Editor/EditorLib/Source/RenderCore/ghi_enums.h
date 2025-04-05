@@ -3,8 +3,8 @@
 #include "RenderCore/EGraphicsAPI.h"
 #include "RenderCore/EClearTarget.h"
 
-#include <Frame/picture_basics.h>
-#include <Utility/traits.h>
+#include <Engine/Frame/picture_basics.h>
+#include <Engine/Utility/traits.h>
 
 #include <cstddef>
 

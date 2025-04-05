@@ -1,10 +1,10 @@
 #include "constants_for_test.h"
 
-#include <Math/Transform/StaticAffineTransform.h>
-#include <Math/TVector3.h>
-#include <Math/TMatrix4.h>
-#include <Math/TQuaternion.h>
-#include <Math/Transform/TDecomposedTransform.h>
+#include <Engine/Math/Transform/StaticAffineTransform.h>
+#include <Engine/Math/TVector3.h>
+#include <Engine/Math/TMatrix4.h>
+#include <Engine/Math/TQuaternion.h>
+#include <Engine/Math/Transform/TDecomposedTransform.h>
 
 #include <gtest/gtest.h>
 

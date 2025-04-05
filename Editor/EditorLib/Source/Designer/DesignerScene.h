@@ -8,15 +8,15 @@
 
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
-#include <Utility/TUniquePtrVector.h>
-#include <Utility/TSpan.h>
-#include <SDL/Object.h>
-#include <SDL/sdl_interface.h>
-#include <SDL/SceneDescription.h>
-#include <Utility/IMoveOnly.h>
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/FileSystem/ResourceIdentifier.h>
-#include <Utility/TFunction.h>
+#include <Engine/Utility/TUniquePtrVector.h>
+#include <Engine/Utility/TSpan.h>
+#include <Engine/SDL/Object.h>
+#include <Engine/SDL/sdl_interface.h>
+#include <Engine/SDL/SceneDescription.h>
+#include <Engine/Utility/IMoveOnly.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/ResourceIdentifier.h>
+#include <Engine/Utility/TFunction.h>
 
 #include <vector>
 #include <memory>

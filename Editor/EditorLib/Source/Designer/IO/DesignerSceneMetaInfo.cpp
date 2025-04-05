@@ -6,11 +6,11 @@
 
 #include <Common/logging.h>
 #include <Common/Utility/Timestamp.h>
-#include <DataIO/FileSystem/Path.h>
-#include <DataIO/FileSystem/Filesystem.h>
-#include <DataIO/Stream/FormattedTextInputStream.h>
-#include <DataIO/Stream/FormattedTextOutputStream.h>
-#include <SDL/sdl_exceptions.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/Stream/FormattedTextInputStream.h>
+#include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
+#include <Engine/SDL/sdl_exceptions.h>
 
 #include <vector>
 #include <utility>

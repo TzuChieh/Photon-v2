@@ -3,7 +3,7 @@
 #include "Designer/DesignerObject.h"
 #include "Designer/DesignerScene.h"
 
-#include <Utility/traits.h>
+#include <Engine/Utility/traits.h>
 
 #include <utility>
 

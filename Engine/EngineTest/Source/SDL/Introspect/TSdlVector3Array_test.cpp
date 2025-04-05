@@ -1,7 +1,7 @@
 #include "util.h"
 
-#include <SDL/Introspect/TSdlVector3Array.h>
-#include <Math/TVector3.h>
+#include <Engine/SDL/Introspect/TSdlVector3Array.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 

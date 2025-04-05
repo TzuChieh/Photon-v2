@@ -4,9 +4,9 @@
 #include "Designer/DesignerObject.h"
 #include "Designer/Imposter/ImposterObject.h"
 
-#include <ph_core.h>
 #include <Common/assertion.h>
-#include <SDL/TSdl.h>
+#include <Engine/ph_core.h>
+#include <Engine/SDL/TSdl.h>
 
 #include <unordered_set>
 #include <unordered_map>

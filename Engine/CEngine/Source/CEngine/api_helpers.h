@@ -2,8 +2,8 @@
 
 #include "CEngine/ph_c_core_types.h"
 
-#include <Utility/TSpan.h>
-#include <Core/Renderer/ERegionStatus.h>
+#include <Engine/Utility/TSpan.h>
+#include <Engine/Core/Renderer/ERegionStatus.h>
 
 #include <cstddef>
 #include <bit>

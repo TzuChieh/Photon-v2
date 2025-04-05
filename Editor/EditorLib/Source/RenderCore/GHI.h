@@ -8,12 +8,12 @@
 #include "RenderCore/IndexStorage.h"
 #include "RenderCore/Mesh.h"
 
-#include <Utility/INoCopyAndMove.h>
+#include <Engine/Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
-#include <Math/math_fwd.h>
-#include <Utility/TSpan.h>
+#include <Engine/Math/math_fwd.h>
+#include <Engine/Utility/TSpan.h>
 
 #include <cstddef>
 #include <type_traits>

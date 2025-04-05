@@ -4,7 +4,7 @@
 #include "RenderCore/GraphicsObjectManager.h"
 #include "RenderCore/GHI.h"
 
-#include <Frame/PictureData.h>
+#include <Engine/Frame/PictureData.h>
 
 #include <utility>
 

@@ -2,7 +2,7 @@
 
 #include "Designer/FlatDesignerObject.h"
 
-#include <SDL/sdl_interface.h>
+#include <Engine/SDL/sdl_interface.h>
 #include <Common/logging.h>
 
 #include <string>

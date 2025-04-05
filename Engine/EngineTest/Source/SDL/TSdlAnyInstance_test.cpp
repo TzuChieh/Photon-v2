@@ -1,7 +1,7 @@
-#include <SDL/TSdlAnyInstance.h>
-#include <SDL/sdl_interface.h>
-#include <SDL/sdl_traits.h>
-#include <Actor/Actor.h>
+#include <Engine/SDL/TSdlAnyInstance.h>
+#include <Engine/SDL/sdl_interface.h>
+#include <Engine/SDL/sdl_traits.h>
+#include <Engine/Actor/Actor.h>
 
 #include <gtest/gtest.h>
 

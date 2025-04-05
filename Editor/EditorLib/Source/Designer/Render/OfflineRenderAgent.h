@@ -2,8 +2,8 @@
 
 #include "Designer/Render/RenderAgent.h"
 
-#include <SDL/sdl_interface.h>
-#include <DataIO/sdl_picture_file_type.h>
+#include <Engine/SDL/sdl_interface.h>
+#include <Engine/DataIO/sdl_picture_file_type.h>
 
 namespace ph::editor::render { class OfflineRenderer; }
 

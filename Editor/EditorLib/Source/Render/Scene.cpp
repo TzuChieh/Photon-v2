@@ -9,9 +9,9 @@
 
 #include <Common/logging.h>
 #include <Common/io_exceptions.h>
-#include <DataIO/io_utils.h>
-#include <DataIO/FileSystem/Path.h>
-#include <Frame/RegularPicture.h>
+#include <Engine/DataIO/io_utils.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/Frame/RegularPicture.h>
 
 #include <utility>
 #include <algorithm>

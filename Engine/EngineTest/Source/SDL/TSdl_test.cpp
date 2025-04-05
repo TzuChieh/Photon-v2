@@ -1,5 +1,5 @@
-#include <SDL/TSdl.h>
-#include <Actor/Actor.h>
+#include <Engine/SDL/TSdl.h>
+#include <Engine/Actor/Actor.h>
 
 #include <gtest/gtest.h>
 

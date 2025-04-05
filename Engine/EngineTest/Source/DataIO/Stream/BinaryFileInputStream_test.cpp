@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include <DataIO/Stream/BinaryFileInputStream.h>
+#include <Engine/DataIO/Stream/BinaryFileInputStream.h>
 
 #include <gtest/gtest.h>
 
