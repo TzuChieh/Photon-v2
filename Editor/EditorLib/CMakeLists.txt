@@ -2,12 +2,14 @@
 
 get_filename_component(EDITOR_LIB_DIR "./" ABSOLUTE)
 
-set(EDITOR_LIB_INCLUDE_DIR         "${EDITOR_LIB_DIR}/Include/")
-set(EDITOR_LIB_PRIVATE_INCLUDE_DIR "${EDITOR_LIB_DIR}/Source/")
+set(TARGET_NAME "EditorLib")
+
+set(EDITOR_LIB_INCLUDE_DIR         "${EDITOR_LIB_DIR}/Include")
+set(EDITOR_LIB_PRIVATE_INCLUDE_DIR "${EDITOR_LIB_DIR}/Source")
 
 set(EDITOR_LIB_CPP_API_INCLUDE_DIRS
-	"${ENGINE_PRIVATE_INCLUDE_DIR}"
-	"${EDITOR_LIB_PRIVATE_INCLUDE_DIR}")
+	"${EDITOR_LIB_PRIVATE_INCLUDE_DIR}"
+	"${ENGINE_PRIVATE_INCLUDE_DIR}")
 
 file(GLOB_RECURSE EDITOR_LIB_HEADER_FILES 
 	"${EDITOR_LIB_DIR}/Include/*.h"
@@ -21,7 +23,7 @@ file(GLOB_RECURSE EDITOR_LIB_SOURCE_FILES
 # Explicitly mark them as editor headers
 set_source_files_properties(${EDITOR_LIB_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
-add_library(EditorLib
+add_library(${TARGET_NAME}
 	${EDITOR_LIB_HEADER_FILES}
 	${EDITOR_LIB_SOURCE_FILES}
 	${IMGUI_LIB_SOURCE_FILES}
@@ -29,7 +31,7 @@ add_library(EditorLib
 	${IMGUI_LIB_OPENGL3_IMPL_FILES}
 	${IMPLOT_LIB_SOURCE_FILES})
 
-add_dependencies(EditorLib
+add_dependencies(${TARGET_NAME}
 	Engine
 	SDLGen)
 
@@ -39,31 +41,31 @@ if(NOT OPENGL_FOUND)
 		"OpenGL not found, the build for Editor will probably fail.")
 endif()
 
-target_include_directories(EditorLib
+target_include_directories(${TARGET_NAME}
 	PUBLIC  ${EDITOR_LIB_INCLUDE_DIR}
 	PRIVATE ${EDITOR_LIB_PRIVATE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
 	PRIVATE ${IMGUI_LIB_INCLUDE_DIRS}
 	PRIVATE ${IMPLOT_LIB_INCLUDE_DIRS})
 
-target_link_libraries(EditorLib
+target_link_libraries(${TARGET_NAME}
 	PUBLIC Engine
 	PRIVATE SDLGen
 	PRIVATE OpenGL::GL)
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
-link_thirdparty_lib(EditorLib ${GLFW_LIB_NAME}
+link_thirdparty_lib(${TARGET_NAME} ${GLFW_LIB_NAME}
 	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_GLFW)
-link_thirdparty_lib(EditorLib ${GLAD_LIB_NAME}
+link_thirdparty_lib(${TARGET_NAME} ${GLAD_LIB_NAME}
 	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_GLAD)
-link_thirdparty_lib(EditorLib ${JSON_LIB_NAME})
+link_thirdparty_lib(${TARGET_NAME} ${JSON_LIB_NAME})
 
 # Use 32-bit char type in Dear ImGui. Some font need wider range to encode properly, 
 # see https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#using-colorful-glyphsemojis
 # This may be defaulted (so can be removed) in a later version of Dear ImGui, 
 # see https://github.com/ocornut/imgui/issues/6504#issuecomment-1584661452
-target_compile_definitions(EditorLib
+target_compile_definitions(${TARGET_NAME}
 	PRIVATE IMGUI_USE_WCHAR32)
 
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_HEADER_FILES})

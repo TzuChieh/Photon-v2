@@ -1,0 +1,18 @@
+#pragma once
+
+#include "EditorLib/Designer/Imposter/ImposterObject.h"
+
+namespace ph::editor
+{
+
+inline const std::string& ImposterObject::getDescriptionName() const
+{
+	return m_descName;
+}
+
+inline ISdlResource* ImposterObject::getDescription() const
+{
+	return m_descResource.get();
+}
+
+}// end namespace ph::editor

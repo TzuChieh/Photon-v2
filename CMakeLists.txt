@@ -445,7 +445,7 @@ if(PH_BUILD_TESTS)
     add_subdirectory("./Engine/EngineTest/")
 
     if(PH_BUILD_EDITOR)
-        add_subdirectory("./Editor/EditorTest/")
+        add_subdirectory("./Editor/EditorLibTest/")
     endif()
 endif()
 
