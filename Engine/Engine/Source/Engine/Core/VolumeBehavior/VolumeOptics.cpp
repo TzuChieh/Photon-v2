@@ -1,14 +1,14 @@
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
-#include "Engine/Core/VolumeBehavior/VolumeDistanceSample.h"
+#include "Engine/Core/VolumeBehavior/MediumDistanceSample.h"
 
 namespace ph
 {
 
 VolumeOptics::~VolumeOptics() = default;
 
-void VolumeOptics::sample(VolumeDistanceSample& sample) const
+void VolumeOptics::genDistanceSample(MediumDistanceSample& sample) const
 {
-	sampleDistance(
+	genDistanceSample(
 		sample.inputs.X, sample.inputs.L, sample.inputs.maxDist, 
 		&(sample.outputs.dist), &(sample.outputs.pdfAppliedWeight));
 }

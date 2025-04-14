@@ -1,7 +1,7 @@
 #include "Engine/Actor/Material/Volume/VAbsorptionOnly.h"
 #include "Engine/Core/VolumeBehavior/VolumeBehavior.h"
-#include "Engine/Core/VolumeBehavior/VolumeOptics/VoHomoAbsorption.h"
-#include "Engine/Core/VolumeBehavior/BlockFunction/BfConstant.h"
+#include "Engine/Core/VolumeBehavior/VolumeOptics/HomogeneousAbsorption.h"
+#include "Engine/Core/VolumeBehavior/Property/BfConstant.h"
 
 namespace ph
 {
@@ -22,7 +22,7 @@ VAbsorptionOnly::VAbsorptionOnly(const math::Spectrum& absorptionCoeff) :
 void VAbsorptionOnly::genVolume(const CookingContext& ctx, VolumeBehavior& behavior) const
 {
 	auto blockFunc = std::make_shared<BfConstant>(m_absorptionCoeff);
-	behavior.setOptics(std::make_shared<VoHomoAbsorption>(blockFunc));
+	behavior.setOptics(std::make_shared<HomogeneousAbsorption>(blockFunc));
 }
 
 }// end namespace ph

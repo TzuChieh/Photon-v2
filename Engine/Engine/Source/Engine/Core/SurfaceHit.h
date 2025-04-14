@@ -92,7 +92,7 @@ public:
 	SurfaceHitReason getReason() const;
 
 	/*!
-	@return The ray of a hit event.
+	@return The ray that caused a hit event.
 	*/
 	const Ray& getRay() const;
 

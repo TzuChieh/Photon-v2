@@ -14,15 +14,10 @@ namespace ph::lta
 
 /*! @brief Transform area domain PDF to solid angle domain PDF w.r.t. a position.
 */
-inline real pdfA_to_pdfW(
+real pdfA_to_pdfW(
 	const real pdfA,
 	const math::Vector3R& dAPosToTargetPos,
-	const math::Vector3R& dANormal)
-{
-	const real distSquared = dAPosToTargetPos.lengthSquared();
-	const real signedPdfW = pdfA / dAPosToTargetPos.normalize().dot(dANormal) * distSquared;
-	return std::isfinite(signedPdfW) ? std::abs(signedPdfW) : 0.0_r;
-}
+	const math::Vector3R& dANormal);
 
 /*!
 Using shading normal for light transport algorithms is equivalent to using
@@ -124,3 +119,5 @@ inline real tamed_importance_BSDF_Ns_corrector(
 }
 
 }// end namespace ph::lta
+
+#include "Engine/Core/LTA/lta.ipp"

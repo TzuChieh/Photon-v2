@@ -12,19 +12,18 @@ namespace ph
 
 class SurfaceHit;
 class ScatterFunction;
-class BlockFunction;
 class EmitFunction;
-class VolumeDistanceSample;
+class MediumDistanceSample;
 
 class VolumeOptics
 {
 public:
 	virtual ~VolumeOptics() = 0;
 
-	void sample(VolumeDistanceSample& sample) const;
+	void genDistanceSample(MediumDistanceSample& sample) const;
 
 private:
-	virtual void sampleDistance(
+	virtual void genDistanceSample(
 		const SurfaceHit& X, 
 		const math::Vector3R& L,
 		real maxDist, 

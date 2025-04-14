@@ -1,19 +1,26 @@
-#include "Engine/Core/LTA/PtVolumetricEstimator.h"
+#include "Engine/Core/LTA/TVolumetricLightEstimator.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/World/Scene.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
-#include "Engine/Core/VolumeBehavior/VolumeDistanceSample.h"
+#include "Engine/Core/VolumeBehavior/MediumDistanceSample.h"
 
 #include <limits>
 
 namespace ph::lta
 {
 
-void PtVolumetricEstimator::sample(
-	const Scene& scene,
+template<ESidednessPolicy POLICY>
+inline TVolumetricLightEstimator<POLICY>::TVolumetricLightEstimator(const Scene* const scene)
+	: m_scene(scene)
+{
+	PH_ASSERT(scene);
+}
+
+template<ESidednessPolicy POLICY>
+inline bool TVolumetricLightEstimator<POLICY>::sample(
 	const SurfaceHit& Xs,
 	const math::Vector3R& L,
 	SurfaceHit* out_Xe,
@@ -42,7 +49,7 @@ void PtVolumetricEstimator::sample(
 			break;
 		}
 
-		VolumeDistanceSample distSample;
+		MediumDistanceSample distSample;
 		distSample.inputs.set(currXs, currL, currXe.getDetail().getRayT());
 		interior->sample(distSample);
 
@@ -62,6 +69,14 @@ void PtVolumetricEstimator::sample(
 			break;
 		}
 	}
+}
+
+template<ESidednessPolicy POLICY>
+inline const Scene& TVolumetricLightEstimator<POLICY>::getScene() const
+{
+	PH_ASSERT(m_scene);
+
+	return *m_scene;
 }
 
 }// end namespace ph::lta

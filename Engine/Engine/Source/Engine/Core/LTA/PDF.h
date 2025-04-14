@@ -8,12 +8,12 @@
 namespace ph::lta
 {
 
-/*! @brief A sample from a Probability Density Function (PDF).
+/*! @brief Value of a Probability Density Function (PDF).
 */
 class PDF final
 {
 public:
-	/*! Sample value of the PDF.
+	/*! Raw value of the PDF.
 	*/
 	real value = 0.0_r;
 
@@ -23,17 +23,17 @@ public:
 	EDomain domain = EDomain::Empty;
 
 	/*!
-	@return Solid angle  PDF with `value == pdfW`.
+	@return Shorthand for constructing solid angle PDF with `value == pdfW`.
 	*/
 	static PDF W(real pdfW);
 
 	/*!
-	@return Area domain PDF with `value == pdfA`.
+	@return Shorthand for constructing area domain PDF with `value == pdfA`.
 	*/
 	static PDF A(real pdfA);
 
 	/*!
-	@return Discrete domain PDF with `value == pdfD`.
+	@return Shorthand for constructing discrete domain PDF with `value == pdfD`.
 	*/
 	static PDF D(real pdfD);
 
