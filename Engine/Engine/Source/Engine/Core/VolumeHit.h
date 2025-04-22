@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Engine/Core/HitProbe.h"
-#include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/math.h"
-#include "Engine/Utility/TBitFlags.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -13,53 +10,14 @@ namespace ph
 {
 
 class Primitive;
-class SurfaceOptics;
 class VolumeOptics;
-class Emitter;
 
-namespace detail
-{
-
-using SurfaceHitReasonIntType = uint8;
-
-inline constexpr auto shr_unknown_bits      = math::flag_bit<uint8, 0>();
-inline constexpr auto shr_incident_ray_bits = math::flag_bit<uint8, 1>();
-inline constexpr auto shr_sampled_pos_bits  = math::flag_bit<uint8, 2>();
-inline constexpr auto shr_sampled_dir_bits  = math::flag_bit<uint8, 3>();
-
-}// end namespace detail
-
-enum class ESurfaceHitReason : detail::SurfaceHitReasonIntType
-{
-	/*! Invalid state. Most likely the reason has not been set. */
-	Invalid = 0,
-
-	/*! An uncategorized, unknown reason. */
-	Unknown = detail::shr_unknown_bits,
-
-	/*! A ray has hit the surface. */
-	IncidentRay = detail::shr_incident_ray_bits,
-
-	/*! A position from the surface has been picked. */
-	SampledPos = detail::shr_sampled_pos_bits,
-
-	/*! A direction from the surface has been picked. */
-	SampledDir = detail::shr_sampled_dir_bits,
-
-	/*! Both a position and a direction from the surface are picked. */
-	SampledPosDir = detail::shr_sampled_pos_bits | detail::shr_sampled_dir_bits,
-};
-
-PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);
-
-using SurfaceHitReason = TEnumFlags<ESurfaceHitReason>;
-
-/*! @brief General information about a ray-surface intersection event.
+/*! @brief General information about a ray-volume intersection event.
 */
-class SurfaceHit final
+class VolumeHit final
 {
 public:
-	SurfaceHit();
+	VolumeHit();
 
 	/*! @brief Construct from the ray and probe involved in a hit event.
 	A full hit detail will be computed. If this is undesirable (e.g., full hit detail is not required),
@@ -85,12 +43,9 @@ public:
 	*/
 	bool reintersect(const Ray& ray, HitProbe& probe) const;
 
-	bool hasSurfaceOptics() const;
-	bool hasInteriorOptics() const;
-	bool hasExteriorOptics() const;
+	bool hasOptics() const;
 
 	const HitDetail& getDetail() const;
-	SurfaceHitReason getReason() const;
 
 	/*!
 	@return The ray that caused a hit event.
@@ -112,10 +67,10 @@ public:
 	const VolumeOptics* getExteriorOptics() const;
 
 private:
+	const Primitive* m_primitive;
+	math::Vector3R   m_pos;
 	Ray              m_ray;
-	HitProbe         m_recordedProbe;
-	HitDetail        m_detail;
-	SurfaceHitReason m_reason;
+	bool             m_isInterior;
 };
 
 // In-header Implementations:

@@ -12,14 +12,14 @@
 namespace ph
 {
 
-class ConstantAbsorptionCoefficient : public MediumCoefficient
+class ConstantMediumCoefficient : public MediumCoefficient
 {
 public:
-	inline ConstantAbsorptionCoefficient()
-		: ConstantAbsorptionCoefficient(math::Spectrum(0))
+	inline ConstantMediumCoefficient()
+		: ConstantMediumCoefficient(math::Spectrum(0))
 	{}
 	
-	inline explicit ConstantAbsorptionCoefficient(const math::Spectrum& sigmaA)
+	inline explicit ConstantMediumCoefficient(const math::Spectrum& sigmaA)
 		: MediumCoefficient()
 		, m_sigmaA(sigmaA)
 	{}
