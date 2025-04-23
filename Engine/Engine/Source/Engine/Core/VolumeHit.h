@@ -11,6 +11,7 @@ namespace ph
 
 class Primitive;
 class VolumeOptics;
+class SurfaceHit;
 
 /*! @brief General information about a ray-volume intersection event.
 */
@@ -19,37 +20,18 @@ class VolumeHit final
 public:
 	VolumeHit();
 
-	/*! @brief Construct from the ray and probe involved in a hit event.
-	A full hit detail will be computed. If this is undesirable (e.g., full hit detail is not required),
-	use the overload which let you set the hit detail directly.
-	*/
-	SurfaceHit(
-		const Ray&       ray,
-		const HitProbe&  probe,
-		SurfaceHitReason reason);
+	VolumeHit(
+		const SurfaceHit& X,
+		bool              isInterior);
 
-	SurfaceHit(
-		const Ray&       ray,
-		const HitProbe&  probe,
-		const HitDetail& detail,
-		SurfaceHitReason reason);
+	VolumeHit(
+		const Primitive*      primitive,
+		const Ray&            ray,
+		const math::Vector3R& pos,
+		bool                  isInterior,
+		reason);
 
-	SurfaceHit switchChannel(uint32 newChannel) const;
-
-	/*! @brief Intersect the intersected object again with a different ray.
-	@param ray The different ray to use for intersection test.
-	@param probe The probe to record the intersection.
-	@note Generates hit event (with `ray` and `probe`).
-	*/
-	bool reintersect(const Ray& ray, HitProbe& probe) const;
-
-	bool hasOptics() const;
-
-	const HitDetail& getDetail() const;
-
-	/*!
-	@return The ray that caused a hit event.
-	*/
+	bool hasVolumeOptics() const;
 	const Ray& getRay() const;
 
 	/*! @brief Convenient method for `getRay()` where `getReason()` contains `ESurfaceHitReason::IncidentRay`. 
@@ -58,11 +40,8 @@ public:
 
 	const Time& getTime() const;
 	math::Vector3R getPos() const;
-	math::Vector3R getShadingNormal() const;
-	math::Vector3R getGeometryNormal() const;
 
-	const Emitter* getSurfaceEmitter() const;
-	const SurfaceOptics* getSurfaceOptics() const;
+	const VolumeOptics* getVolumeOptics() const;
 	const VolumeOptics* getInteriorOptics() const;
 	const VolumeOptics* getExteriorOptics() const;
 
