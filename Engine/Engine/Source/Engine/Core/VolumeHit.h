@@ -1,7 +1,9 @@
 #pragma once
 
+#include "Engine/Core/hit_fwd.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/math.h"
+#include "Engine/Utility/TBitFlags.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -12,6 +14,22 @@ namespace ph
 class Primitive;
 class VolumeOptics;
 class SurfaceHit;
+
+enum class EVolumeHitReason : detail::HitReasonIntType
+{
+	/*! Invalid state. Most likely the reason has not been set. */
+	Invalid = 0,
+
+	/*! An uncategorized, unknown reason. */
+	Unknown = detail::hr_unknown_bits,
+
+	/*! A ray has hit the volume. */
+	IncidentRay = detail::hr_incident_ray_bits,
+};
+
+PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(EVolumeHitReason);
+
+using VolumeHitReason = TEnumFlags<EVolumeHitReason>;
 
 /*! @brief General information about a ray-volume intersection event.
 */
@@ -29,9 +47,10 @@ public:
 		const Ray&            ray,
 		const math::Vector3R& pos,
 		bool                  isInterior,
-		reason);
+		EVolumeHitReason      reason);
 
 	bool hasVolumeOptics() const;
+	VolumeHitReason getReason() const;
 	const Ray& getRay() const;
 
 	/*! @brief Convenient method for `getRay()` where `getReason()` contains `ESurfaceHitReason::IncidentRay`. 
@@ -50,6 +69,7 @@ private:
 	math::Vector3R   m_pos;
 	Ray              m_ray;
 	bool             m_isInterior;
+	VolumeHitReason  m_reason;
 };
 
 // In-header Implementations:

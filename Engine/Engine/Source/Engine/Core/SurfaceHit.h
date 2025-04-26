@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/hit_fwd.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Ray.h"
@@ -17,37 +18,25 @@ class SurfaceOptics;
 class VolumeOptics;
 class Emitter;
 
-namespace detail
-{
-
-using SurfaceHitReasonIntType = uint8;
-
-inline constexpr auto shr_unknown_bits      = math::flag_bit<uint8, 0>();
-inline constexpr auto shr_incident_ray_bits = math::flag_bit<uint8, 1>();
-inline constexpr auto shr_sampled_pos_bits  = math::flag_bit<uint8, 2>();
-inline constexpr auto shr_sampled_dir_bits  = math::flag_bit<uint8, 3>();
-
-}// end namespace detail
-
-enum class ESurfaceHitReason : detail::SurfaceHitReasonIntType
+enum class ESurfaceHitReason : detail::HitReasonIntType
 {
 	/*! Invalid state. Most likely the reason has not been set. */
 	Invalid = 0,
 
 	/*! An uncategorized, unknown reason. */
-	Unknown = detail::shr_unknown_bits,
+	Unknown = detail::hr_unknown_bits,
 
 	/*! A ray has hit the surface. */
-	IncidentRay = detail::shr_incident_ray_bits,
+	IncidentRay = detail::hr_incident_ray_bits,
 
 	/*! A position from the surface has been picked. */
-	SampledPos = detail::shr_sampled_pos_bits,
+	SampledPos = detail::hr_sampled_pos_bits,
 
 	/*! A direction from the surface has been picked. */
-	SampledDir = detail::shr_sampled_dir_bits,
+	SampledDir = detail::hr_sampled_dir_bits,
 
 	/*! Both a position and a direction from the surface are picked. */
-	SampledPosDir = detail::shr_sampled_pos_bits | detail::shr_sampled_dir_bits,
+	SampledPosDir = detail::hr_sampled_pos_bits | detail::hr_sampled_dir_bits,
 };
 
 PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);
