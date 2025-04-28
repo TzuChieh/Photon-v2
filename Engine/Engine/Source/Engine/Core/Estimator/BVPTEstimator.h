@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Estimator/FullRayEnergyEstimator.h"
+#include "Engine/Core/Estimator/PathEnergyEstimator.h"
 
 namespace ph
 {
@@ -16,7 +16,7 @@ implemented this GI algorithm. Since this estimator is relatively
 simple but still unbiased, it is good for ground truth rendering if
 the correctness of another estimator is in doubt.
 */
-class BVPTEstimator : public FullRayEnergyEstimator
+class BVPTEstimator : public PathEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override;
@@ -27,17 +27,9 @@ public:
 		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) const override;
 
+	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override = 0;
+
 	std::string toString() const override;
 };
-
-// In-header Implementations:
-
-inline void BVPTEstimator::update(const Integrand& integrand)
-{}
-
-inline std::string BVPTEstimator::toString() const
-{
-	return "Backward Vanilla Path Tracing Estimator";
-}
 
 }// end namespace ph

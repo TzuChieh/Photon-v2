@@ -25,16 +25,13 @@ public:
 
 	EScheduler getScheduler() const;
 	ERayEnergyEstimator getEstimator() const;
-	ESampleFilter getSampleFilter() const;
 
 protected:
-	SampleFilter makeSampleFilter() const;
 	std::unique_ptr<IRayEnergyEstimator> makeEstimator() const;
 
 private:
 	EScheduler          m_scheduler;
 	ERayEnergyEstimator m_estimator;
-	ESampleFilter       m_sampleFilter;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PathTracingVisualizer>)
@@ -56,12 +53,6 @@ public:
 		estimator.optional();
 		clazz.addField(estimator);
 
-		TSdlEnumField<OwnerType, ESampleFilter> sampleFilter("sample-filter", &OwnerType::m_sampleFilter);
-		sampleFilter.description("Sample filter for the film sampling process.");
-		sampleFilter.defaultTo(ESampleFilter::BlackmanHarris);
-		sampleFilter.optional();
-		clazz.addField(sampleFilter);
-
 		return clazz;
 	}
 };
@@ -76,11 +67,6 @@ inline EScheduler PathTracingVisualizer::getScheduler() const
 inline ERayEnergyEstimator PathTracingVisualizer::getEstimator() const
 {
 	return m_estimator;
-}
-
-inline ESampleFilter PathTracingVisualizer::getSampleFilter() const
-{
-	return m_sampleFilter;
 }
 
 }// end namespace ph

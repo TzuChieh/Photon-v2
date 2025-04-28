@@ -15,8 +15,8 @@ class ProgressivePMRenderer : public PMRendererBase
 public:
 	/*!
 	@param commonParams Common parameters for the renderer. This renderer does not support
-	constructing view path stochastically, so `PMCommonParams::stochasticViewSampleBeginLength` will
-	act as the maximum path length of collected viewpoints.
+	constructing view path stochastically, so `PMCommonParams::stochasticViewSampleBeginLengthHint`
+	will act as the maximum path length of collected viewpoints.
 	*/
 	ProgressivePMRenderer(
 		PMCommonParams commonParams,

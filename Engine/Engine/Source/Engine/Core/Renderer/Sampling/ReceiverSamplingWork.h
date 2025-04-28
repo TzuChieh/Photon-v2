@@ -4,7 +4,7 @@
 #include "Engine/Utility/IMoveOnly.h"
 #include "Engine/Core/Renderer/Sampling/SamplingStatistics.h"
 #include "Engine/Core/SampleGenerator/SampleGenerator.h"
-#include "Engine/Core/Renderer/Sampling/IReceivedRayProcessor.h"
+#include "Engine/Core/Renderer/Sampling/IReceiverRayProcessor.h"
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Geometry/TAABB2D.h"
 #include "Engine/Core/Filmic/SamplingFilmDimensions.h"
@@ -33,7 +33,7 @@ public:
 		const math::TAABB2D<float64>& rasterSampleWindowPx,
 		const math::TVector2<int64>&  sampleRes);
 
-	void addProcessor(IReceivedRayProcessor* processor);
+	void addProcessor(IReceiverRayProcessor* processor);
 
 	void onWorkStart(std::function<void()> func);
 	void onWorkReport(std::function<void()> func);
@@ -45,7 +45,7 @@ private:
 	void doWork() override;
 
 	const Receiver*                     m_receiver;
-	std::vector<IReceivedRayProcessor*> m_processors;
+	std::vector<IReceiverRayProcessor*> m_processors;
 	std::unique_ptr<SampleGenerator>    m_sampleGenerator;
 	math::Vector2D                      m_rasterActualResPx;
 	math::TAABB2D<float64>              m_rasterSampleWindowPx;

@@ -66,7 +66,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 		using ViewpointCollector = TPPMViewpointCollector<Viewpoint, Photon>;
 		ViewpointCollector viewpointCollector(
-			getCommonParams().stochasticViewSampleBeginLength,
+			getCommonParams().stochasticViewSampleBeginLengthHint,
 			getCommonParams().kernelRadius,
 			TPhotonMap<Photon>{}.getInfo(),// using default parameters
 			getScene());

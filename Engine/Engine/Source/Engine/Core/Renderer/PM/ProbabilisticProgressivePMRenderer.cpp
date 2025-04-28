@@ -227,8 +227,8 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 					&pppmIteration.film);
 				evaluator.setStatistics(&getStatistics());
 				evaluator.setKernelRadius(pppmIteration.kernelRadius);
-				evaluator.setStochasticSampleBeginLength(getCommonParams().stochasticViewSampleBeginLength);
-				evaluator.setGlossyMergeBeginLength(getCommonParams().glossyMergeBeginLength);
+				evaluator.setStochasticSampleBeginLength(getCommonParams().stochasticViewSampleBeginLengthHint);
+				evaluator.setGlossyMergeBeginLength(getCommonParams().glossyMergeBeginLengthHint);
 
 				TViewPathTracingWork<RadianceEvaluator> radianceEvaluator(
 					&evaluator,

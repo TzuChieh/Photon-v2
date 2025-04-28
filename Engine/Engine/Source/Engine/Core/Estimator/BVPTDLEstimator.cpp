@@ -18,6 +18,19 @@
 namespace ph
 {
 
+void BVPTDLEstimator::update(const Integrand& integrand)
+{}
+
+std::string BVPTDLEstimator::toString() const
+{
+	return "Backward Vanilla Path Tracing Direct Lighting Estimator";
+}
+
+std::unique_ptr<TIRayEstimator<math::Spectrum>> BVPTDLEstimator::makeCopy() const
+{
+	return std::make_unique<BVPTDLEstimator>(*this);
+}
+
 void BVPTDLEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,

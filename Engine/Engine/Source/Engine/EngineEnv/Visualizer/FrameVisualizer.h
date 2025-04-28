@@ -4,10 +4,13 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Geometry/TAABB2D.h"
 #include "Engine/SDL/sdl_interface.h"
+#include "Engine/EngineEnv/Visualizer/sdl_sample_filter_type.h"
 
 #include <Common/primitive_type.h>
 
 #include <optional>
+
+namespace ph { class SampleFilter; }
 
 namespace ph
 {
@@ -17,13 +20,18 @@ class FrameVisualizer : public Visualizer
 public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
+	ESampleFilter getSampleFilter() const;
 	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;
 
+protected:
+	SampleFilter makeSampleFilter() const;
+
 private:
-	int64 m_cropWindowXPx;
-	int64 m_cropWindowYPx;
-	int64 m_cropWindowWPx;
-	int64 m_cropWindowHPx;
+	ESampleFilter m_sampleFilter;
+	int64         m_cropWindowXPx;
+	int64         m_cropWindowYPx;
+	int64         m_cropWindowWPx;
+	int64         m_cropWindowHPx;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FrameVisualizer>)
@@ -32,6 +40,13 @@ public:
 		clazz.docName("Frame Visualizer");
 		clazz.description("A visualizer that produces frames, a typical example is an image.");
 		clazz.baseOn<Visualizer>();
+
+		TSdlEnumField<OwnerType, ESampleFilter> sampleFilter("sample-filter", &OwnerType::m_sampleFilter);
+		sampleFilter.description(
+			"Sample filter for the film sampling process.");
+		sampleFilter.defaultTo(ESampleFilter::BlackmanHarris);
+		sampleFilter.optional();
+		clazz.addField(sampleFilter);
 
 		TSdlInt64<OwnerType> cropWindowXPx("rect-x", &OwnerType::m_cropWindowXPx);
 		cropWindowXPx.description("X coordinate of the lower-left corner of the film cropping window.");
@@ -62,6 +77,11 @@ public:
 };
 
 // In-header Implementations:
+
+inline ESampleFilter FrameVisualizer::getSampleFilter() const
+{
+	return m_sampleFilter;
+}
 
 inline std::optional<math::TAABB2D<int64>> FrameVisualizer::getCropWindowPx() const
 {

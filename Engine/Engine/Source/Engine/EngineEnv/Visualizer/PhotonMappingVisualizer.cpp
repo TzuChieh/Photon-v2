@@ -99,31 +99,6 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 	cooked.addRenderer(std::move(renderer));
 }
 
-SampleFilter PhotonMappingVisualizer::makeSampleFilter() const
-{
-	switch(getSampleFilter())
-	{
-	case ESampleFilter::Box:
-		return SampleFilter::makeBox();
-
-	case ESampleFilter::Gaussian:
-		return SampleFilter::makeGaussian();
-
-	case ESampleFilter::MitchellNetravali:
-		return SampleFilter::makeMitchellNetravali();
-
-	case ESampleFilter::BlackmanHarris:
-		return SampleFilter::makeBlackmanHarris();
-
-	default:
-		PH_LOG(PhotonMappingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
-		return SampleFilter::makeBlackmanHarris();
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return {};
-}
-
 PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
 {
 	return PMCommonParams{
@@ -131,8 +106,8 @@ PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
 		.numPasses = m_numPasses,
 		.numSamplesPerPixel = m_numSamplesPerPixel,
 		.kernelRadius = m_photonRadius,
-		.glossyMergeBeginLength = m_glossyMergeBeginLength,
-		.stochasticViewSampleBeginLength = m_stochasticViewSampleBeginLength};
+		.glossyMergeBeginLengthHint = m_glossyMergeBeginLengthHint,
+		.stochasticViewSampleBeginLengthHint = m_stochasticViewSampleBeginLengthHint};
 }
 
 }// end namespace ph

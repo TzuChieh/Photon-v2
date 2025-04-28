@@ -60,12 +60,12 @@ process(
 		estimator->estimate(sensedRay, m_integrand, sampleFlow, m_estimations);
 	}
 
-	for(const auto& estimationToFilm : m_estimationToFilm)
+	for(const auto& [estimationIdx, filmIdx] : m_estimationToFilm)
 	{
-		const std::size_t estimationIndex = estimationToFilm.first;
-		const std::size_t filmIndex       = estimationToFilm.second;
-
-		m_films[filmIndex].addSample(rasterCoord.x(), rasterCoord.y(), m_estimations[estimationIndex] * quantityWeight);
+		m_films[filmIdx].addSample(
+			rasterCoord.x(),
+			rasterCoord.y(),
+			m_estimations[estimationIdx] * quantityWeight);
 	}
 }
 
@@ -184,7 +184,7 @@ inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 operator = (TReceiverMeasurementEstimator&& other)
 	-> TReceiverMeasurementEstimator&
 {
-	IReceivedRayProcessor::operator = (std::move(other));
+	IReceiverRayProcessor::operator = (std::move(other));
 
 	m_filter           = std::move(other.m_filter);
 	m_estimations      = std::move(other.m_estimations);

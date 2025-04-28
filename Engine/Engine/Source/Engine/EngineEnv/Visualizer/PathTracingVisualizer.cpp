@@ -35,30 +35,6 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 	cooked.addRenderer(std::move(renderer));
 }
 
-SampleFilter PathTracingVisualizer::makeSampleFilter() const
-{
-	switch(getSampleFilter())
-	{
-	case ESampleFilter::Box:
-		return SampleFilter::makeBox();
-
-	case ESampleFilter::Gaussian:
-		return SampleFilter::makeGaussian();
-
-	case ESampleFilter::MitchellNetravali:
-		return SampleFilter::makeMitchellNetravali();
-
-	case ESampleFilter::BlackmanHarris:
-		return SampleFilter::makeBlackmanHarris();
-
-	default:
-		PH_LOG(PathTracingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
-		return SampleFilter::makeBlackmanHarris();
-	}
-
-	return {};
-}
-
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const
 {
 	switch(getEstimator())

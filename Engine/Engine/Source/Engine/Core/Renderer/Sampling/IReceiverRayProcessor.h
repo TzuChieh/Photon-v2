@@ -11,10 +11,10 @@ namespace ph
 class Ray;
 class SampleFlow;
 
-class IReceivedRayProcessor
+class IReceiverRayProcessor
 {
 public:
-	virtual ~IReceivedRayProcessor() = default;
+	virtual ~IReceiverRayProcessor() = default;
 
 	virtual void process(
 		const math::Vector2D& rasterCoord,
@@ -28,10 +28,10 @@ public:
 
 // In-header Implementations:
 
-inline void IReceivedRayProcessor::onBatchStart(const uint64 batchNumber)
+inline void IReceiverRayProcessor::onBatchStart(const uint64 batchNumber)
 {}
 
-inline void IReceivedRayProcessor::onBatchFinish(const uint64 batchNumber)
+inline void IReceiverRayProcessor::onBatchFinish(const uint64 batchNumber)
 {}
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Estimator/PartialRayEnergyEstimator.h"
+#include "Engine/Core/Estimator/PathEnergyEstimator.h"
 
 namespace ph
 {
@@ -12,7 +12,7 @@ BVPTDL: Backward Vanilla Path Tracing Direct Lighting.
 This estimator has properties similar to BVPT, excpet that it computes only
 direct lighting effects.
 */
-class BVPTDLEstimator : public PartialRayEnergyEstimator
+class BVPTDLEstimator : public PathEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override;
@@ -23,17 +23,9 @@ public:
 		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) const override;
 
+	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override;
+
 	std::string toString() const override;
 };
-
-// In-header Implementations:
-
-inline void BVPTDLEstimator::update(const Integrand& integrand)
-{}
-
-inline std::string BVPTDLEstimator::toString() const
-{
-	return "Backward Vanilla Path Tracing Direct Lighting Estimator";
-}
 
 }// end namespace ph

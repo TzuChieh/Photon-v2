@@ -24,9 +24,9 @@ class TIndirectLightEstimator final
 public:
 	explicit TIndirectLightEstimator(const Scene* scene);
 
-	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
+	/*! @brief Constructing surface path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
 	The estimated lighting is for the specific `pathLength`. This method is effectively the same as
-	`TDirectLightEstimator::bsdfSamplePathWithNee()` if input path length is 1.
+	`TDirectLightEstimator::bsdfSampleSurfacePathWithNee()` if input path length is 1.
 	@param pathLength The length of the path to construct.
 	@param out_Lo Sampled outgoing energy from `X`. The energy is for the specified path length only.
 	@param rrBeginPathLength When to start using russian roulette. If 0, russian roulette will be
@@ -35,7 +35,7 @@ public:
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	[[nodiscard]]
-	bool bsdfSamplePathWithNee(
+	bool bsdfSampleSurfacePathWithNee(
 		const SurfaceHit&      X,
 		SampleFlow&            sampleFlow,
 		std::size_t            pathLength,
@@ -46,7 +46,7 @@ public:
 
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
 	The estimated lighting is for the specific path length range [minPathLength, maxPathLength].
-	This method is effectively the same as `TDirectLightEstimator::bsdfSamplePathWithNee()` if
+	This method is effectively the same as `TDirectLightEstimator::bsdfSampleSurfacePathWithNee()` if
 	input path length is in range [1, 1].
 	@param minPathLength The minimum length of the path to construct.
 	@param maxPathLength The maximum length of the path to construct (inclusive).
@@ -57,7 +57,7 @@ public:
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	[[nodiscard]]
-	bool bsdfSamplePathWithNee(
+	bool bsdfSampleSurfacePathWithNee(
 		const SurfaceHit&      X,
 		SampleFlow&            sampleFlow,
 		std::size_t            minPathLength,

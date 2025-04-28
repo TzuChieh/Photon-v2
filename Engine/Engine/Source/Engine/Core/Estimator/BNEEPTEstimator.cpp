@@ -35,6 +35,19 @@ PH_DEFINE_INTERNAL_TIMER_STAT(ZeroBounceDirect, Render_BNEEPTEstimator);
 PH_DEFINE_INTERNAL_TIMER_STAT(DirectLightSampling, Render_BNEEPTEstimator);
 PH_DEFINE_INTERNAL_TIMER_STAT(BSDFAndIndirectLightSampling, Render_BNEEPTEstimator);
 
+void BNEEPTEstimator::update(const Integrand& integrand)
+{}
+
+std::string BNEEPTEstimator::toString() const
+{
+	return "Backward NEE Path Tracing Estimator";
+}
+
+std::unique_ptr<TIRayEstimator<math::Spectrum>> BNEEPTEstimator::makeCopy() const
+{
+	return std::make_unique<BNEEPTEstimator>(*this);
+}
+
 void BNEEPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
@@ -107,7 +120,7 @@ void BNEEPTEstimator::estimate(
 			DirectEnergySampleQuery directSample;
 			directSample.inputs.set(X);
 			SurfaceHit Xe;
-			if(directLight.neeSampleEmission(directSample, sampleFlow, &Xe) &&
+			if(directLight.neeSampleSurfaceEmission(directSample, sampleFlow, &Xe) &&
 			   directSample.outputs)
 			{
 				const auto L = directSample.getTargetToEmit().normalize();

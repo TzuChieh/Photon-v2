@@ -22,6 +22,19 @@
 namespace ph
 {
 
+void BVPTEstimator::update(const Integrand& integrand)
+{}
+
+std::string BVPTEstimator::toString() const
+{
+	return "Backward Vanilla Path Tracing Estimator";
+}
+
+std::unique_ptr<TIRayEstimator<math::Spectrum>> BVPTEstimator::makeCopy() const
+{
+	return std::make_unique<BVPTEstimator>(*this);
+}
+
 void BVPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,

@@ -120,7 +120,7 @@ inline math::Spectrum estimate_certainly_lost_energy(
 
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
-		if(DirectLight{scene}.bsdfSamplePathWithNee(
+		if(DirectLight{scene}.bsdfSampleSurfacePathWithNee(
 			bsdfSample,
 			randomFlow,
 			&viewRadiance))
@@ -184,7 +184,7 @@ inline math::Spectrum estimate_lost_energy_for_extending(
 	{
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
-		if(IndirectLight{scene}.bsdfSamplePathWithNee(
+		if(IndirectLight{scene}.bsdfSampleSurfacePathWithNee(
 			X, 
 			randomFlow,
 			photonMapInfo.minPathLength,// we are already on view path of length N
@@ -259,7 +259,7 @@ inline math::Spectrum estimate_lost_energy_for_merging(
 
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
-		if(IndirectLight{scene}.bsdfSamplePathWithNee(
+		if(IndirectLight{scene}.bsdfSampleSurfacePathWithNee(
 			X, 
 			randomFlow,
 			minLostFullPathLengthClipped - viewPathLength,// we are already on view path of length N

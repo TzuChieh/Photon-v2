@@ -179,7 +179,7 @@ void SampleGenerator::rebirth()
 	onRebirth();
 }
 
-void SampleGenerator::genSplitted(const std::size_t numSplits,
+void SampleGenerator::makeSplitted(const std::size_t numSplits,
                                   std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
 {
 	PH_ASSERT_GT(numSplits, 0);

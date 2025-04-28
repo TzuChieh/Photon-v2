@@ -51,14 +51,6 @@ public:
 private:
 	void doWork() override;
 
-	Handler*               m_handler;
-
-	const Scene*           m_scene;
-	const Receiver*        m_receiver;
-	SampleGenerator*       m_sampleGenerator;
-	math::TAABB2D<float64> m_rasterSampleWindowPx;
-	math::Vector2S         m_sampleRes;
-
 	void traceViewPath(
 		SurfaceHit                   prevHit,
 		Ray                          tracingRay, 
@@ -75,6 +67,14 @@ private:
 		std::size_t                  pathLength,
 		SampleFlow&                  sampleFlow,
 		real                         rrScale = 1.0_r);
+
+	Handler*               m_handler;
+
+	const Scene*           m_scene;
+	const Receiver*        m_receiver;
+	SampleGenerator*       m_sampleGenerator;
+	math::TAABB2D<float64> m_rasterSampleWindowPx;
+	math::Vector2S         m_sampleRes;
 };
 
 }// end namespace ph

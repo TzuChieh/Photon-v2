@@ -32,8 +32,8 @@ class TDirectLightEstimator final
 public:
 	explicit TDirectLightEstimator(const Scene* scene);
 
-	/*! @brief Sample lighting using BSDF's suggestion.
-	A light sampling technique that is always valid.
+	/*! @brief Sample surface lighting using BSDF's suggestion.
+	A light sampling technique that is always usable.
 	@param bsdfSample BSDF sample result. Validity of its output should be explicitly tested before use.
 	@param out_Le The sampled emitted energy of another surface. Does not contain any weighting.
 	@param out_X Returns the surface that is sampled. It is not necessary an energy-emitting
@@ -42,14 +42,14 @@ public:
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	[[nodiscard]]
-	bool bsdfSampleEmission(
+	bool bsdfSampleSurfaceEmission(
 		BsdfSampleQuery&           bsdfSample,
 		SampleFlow&                sampleFlow,
 		math::Spectrum*            out_Le = nullptr,
 		std::optional<SurfaceHit>* out_X = nullptr) const;
 
-	/*! @brief Sample lighting using next-event estimation.
-	This light sampling technique may not always be valid. Calling this method when `isNeeSamplable()`
+	/*! @brief Sample surface lighting using next-event estimation.
+	This light sampling technique may not always be usable. Calling this method when `isNeeSamplable()`
 	returns `false` is an error.
 	@param directSample Direct energy sample result. Validity of its output should be explicitly tested
 	before use.
@@ -58,13 +58,13 @@ public:
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	[[nodiscard]]
-	bool neeSampleEmission(
+	bool neeSampleSurfaceEmission(
 		DirectEnergySampleQuery&   directSample,
 		SampleFlow&                sampleFlow,
 		SurfaceHit*                out_Xe = nullptr) const;
 
-	/*! @brief Sample lighting by combining the techniques used by `bsdfSample()` and `neeSample()`.
-	A light sampling technique that is always valid.
+	/*! @brief Sample surface lighting by combining the techniques used by `bsdfSampleSurfaceEmission()` and `neeSampleSurfaceEmission()`.
+	A light sampling technique that is always usable.
 	@param bsdfSample BSDF sample result. Validity of its output should be explicitly tested before use.
 	@param out_Lo The sampled outgoing energy from `X`. The sample is properly weighted with any
 	required BSDFs and PDFs.
@@ -74,7 +74,7 @@ public:
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	[[nodiscard]]
-	bool bsdfSamplePathWithNee(
+	bool bsdfSampleSurfacePathWithNee(
 		BsdfSampleQuery&           bsdfSample,
 		SampleFlow&                sampleFlow,
 		math::Spectrum*            out_Lo = nullptr,

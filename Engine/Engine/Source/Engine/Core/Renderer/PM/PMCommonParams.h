@@ -9,9 +9,8 @@ namespace ph
 
 /*! @brief Common parameters of photon mapping.
 */
-class PMCommonParams final
+struct PMCommonParams
 {
-public:
 	inline static constexpr uint32 DEFAULT_MAX_PATH_LENGTH = 16384;
 
 	/*! Number of photons used. For progressive techniques, this value is for a single pass.
@@ -56,14 +55,14 @@ public:
 	If the scene contains diffuse surface and is easily reachable by photons, it is recommended
 	to set this to a lower value.
 	*/
-	uint32 glossyMergeBeginLength = 1;
+	uint32 glossyMergeBeginLengthHint = 1;
 
 	/*! Hint for the view path length to start random path sampling. If this value differ too much
 	from the mean specular path length from the scene, the energy estimation result may contain higher
 	variance or bias. Beware when using higher values as non-stochastic path may be branched,
 	which can result in exponential growth of number of rays.
 	*/
-	uint32 stochasticViewSampleBeginLength = 3;
+	uint32 stochasticViewSampleBeginLengthHint = 3;
 };
 
 }// end namespace ph

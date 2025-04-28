@@ -24,21 +24,18 @@ public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 	EPhotonMappingMode getMode() const;
-	ESampleFilter getSampleFilter() const;
 
 protected:
-	SampleFilter makeSampleFilter() const;
 	PMCommonParams makeCommonParams() const;
 
 private:
 	EPhotonMappingMode m_mode;
-	ESampleFilter m_sampleFilter;
 	uint64 m_numPhotons;
 	uint64 m_numPasses;
 	uint64 m_numSamplesPerPixel;
 	real m_photonRadius;
-	uint32 m_glossyMergeBeginLength;
-	uint32 m_stochasticViewSampleBeginLength;
+	uint32 m_glossyMergeBeginLengthHint;
+	uint32 m_stochasticViewSampleBeginLengthHint;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhotonMappingVisualizer>)
@@ -54,13 +51,6 @@ public:
 		mode.defaultTo(EPhotonMappingMode::Vanilla);
 		mode.optional();
 		clazz.addField(mode);
-
-		TSdlEnumField<OwnerType, ESampleFilter> sampleFilter("sample-filter", &OwnerType::m_sampleFilter);
-		sampleFilter.description(
-			"Sample filter for the film sampling process.");
-		sampleFilter.defaultTo(ESampleFilter::BlackmanHarris);
-		sampleFilter.optional();
-		clazz.addField(sampleFilter);
 
 		// Borrow the default values there
 		const PMCommonParams commonParams{};
@@ -97,24 +87,24 @@ public:
 		photonRadius.optional();
 		clazz.addField(photonRadius);
 
-		TSdlUInt32<OwnerType> glossyMergeBeginLength("glossy-merge-begin-length", &OwnerType::m_glossyMergeBeginLength);
-		glossyMergeBeginLength.description(
+		TSdlUInt32<OwnerType> glossyMergeBeginLengthHint("glossy-merge-begin-length-hint", &OwnerType::m_glossyMergeBeginLengthHint);
+		glossyMergeBeginLengthHint.description(
 			"Hint for the minimum path length to start estimating energy using photons on glossy surface."
 			"If the scene contains diffuse surface and is easily reachable by photons, it is recommended "
 			"to set this to a lower value.");
-		glossyMergeBeginLength.defaultTo(commonParams.glossyMergeBeginLength);
-		glossyMergeBeginLength.optional();
-		clazz.addField(glossyMergeBeginLength);
+		glossyMergeBeginLengthHint.defaultTo(commonParams.glossyMergeBeginLengthHint);
+		glossyMergeBeginLengthHint.optional();
+		clazz.addField(glossyMergeBeginLengthHint);
 
-		TSdlUInt32<OwnerType> stochasticViewSampleBeginLength("stochastic-view-sample-begin-length", &OwnerType::m_stochasticViewSampleBeginLength);
-		stochasticViewSampleBeginLength.description(
+		TSdlUInt32<OwnerType> stochasticViewSampleBeginLengthHint("stochastic-view-sample-begin-length-hint", &OwnerType::m_stochasticViewSampleBeginLengthHint);
+		stochasticViewSampleBeginLengthHint.description(
 			"Hint for the view path length to start random path sampling. If this value differ too much "
 			"from the mean specular path length from the scene, the energy estimation result may contain "
 			"higher variance or bias. Beware when using higher values as non-stochastic path may be "
 			"branched, which can result in exponential growth of number of rays.");
-		stochasticViewSampleBeginLength.defaultTo(commonParams.stochasticViewSampleBeginLength);
-		stochasticViewSampleBeginLength.optional();
-		clazz.addField(stochasticViewSampleBeginLength);
+		stochasticViewSampleBeginLengthHint.defaultTo(commonParams.stochasticViewSampleBeginLength);
+		stochasticViewSampleBeginLengthHint.optional();
+		clazz.addField(stochasticViewSampleBeginLengthHint);
 
 		return clazz;
 	}
@@ -125,11 +115,6 @@ public:
 inline EPhotonMappingMode PhotonMappingVisualizer::getMode() const
 {
 	return m_mode;
-}
-
-inline ESampleFilter PhotonMappingVisualizer::getSampleFilter() const
-{
-	return m_sampleFilter;
 }
 
 }// end namespace ph

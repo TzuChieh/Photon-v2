@@ -8,8 +8,12 @@
 namespace ph
 {
 
+/*! @brief An array of estimations, each of which is an estimated value of a particular property.
+Stores the result of an estimation process. For example, it can be used to store a single iteration
+of a Monte-Carlo simulation.
+*/
 template<typename EstimationType>
-class TEstimationArray
+class TEstimationArray final
 {
 public:
 	TEstimationArray();
@@ -27,13 +31,13 @@ private:
 // In-header Implementations:
 
 template<typename EstimationType>
-inline TEstimationArray<EstimationType>::TEstimationArray() :
-	TEstimationArray(0)
+inline TEstimationArray<EstimationType>::TEstimationArray()
+	: TEstimationArray(0)
 {}
 
 template<typename EstimationType>
-inline TEstimationArray<EstimationType>::TEstimationArray(const std::size_t numEstimations) :
-	m_estimations(numEstimations, EstimationType(0))
+inline TEstimationArray<EstimationType>::TEstimationArray(const std::size_t numEstimations)
+	: m_estimations(numEstimations, EstimationType(0))
 {}
 
 template<typename EstimationType>

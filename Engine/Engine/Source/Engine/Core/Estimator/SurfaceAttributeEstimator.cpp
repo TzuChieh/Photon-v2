@@ -17,6 +17,16 @@ namespace ph
 void SurfaceAttributeEstimator::update(const Integrand& integrand)
 {}
 
+std::string SurfaceAttributeEstimator::toString() const
+{
+	return "Surface Attribute Estimator";
+}
+
+std::unique_ptr<TIRayEstimator<math::Vector3R>> SurfaceAttributeEstimator::makeCopy() const
+{
+	return std::make_unique<SurfaceAttributeEstimator>(*this);
+}
+
 void SurfaceAttributeEstimator::estimate(
 	const Ray&                        ray,
 	const Integrand&                  integrand,

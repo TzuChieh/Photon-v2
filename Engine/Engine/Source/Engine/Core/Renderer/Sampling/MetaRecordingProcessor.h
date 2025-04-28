@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Renderer/Sampling/IReceivedRayProcessor.h"
+#include "Engine/Core/Renderer/Sampling/IReceiverRayProcessor.h"
 #include "Engine/Frame/TFrame.h"
 #include "Engine/Math/TVector2.h"
 #include "Engine/Utility/Timer.h"
@@ -19,11 +19,11 @@ namespace ph
 	provides additional information regarding the performed work; such as
 	sample count and time spent per pixel.
 */
-class MetaRecordingProcessor : public IReceivedRayProcessor
+class MetaRecordingProcessor : public IReceiverRayProcessor
 {
 public:
 	MetaRecordingProcessor();
-	explicit MetaRecordingProcessor(IReceivedRayProcessor* processor);
+	explicit MetaRecordingProcessor(IReceiverRayProcessor* processor);
 
 	void process(
 		const math::Vector2D& rasterCoord,
@@ -47,7 +47,7 @@ public:
 private:
 	using CounterFrame = TFrame<uint64, 1>;
 
-	IReceivedRayProcessor* m_processor;
+	IReceiverRayProcessor* m_processor;
 	CounterFrame           m_processCountFrame;
 	CounterFrame           m_msSpentFrame;
 	Timer                  m_timer;
@@ -62,7 +62,7 @@ inline MetaRecordingProcessor::MetaRecordingProcessor() :
 {}
 
 inline MetaRecordingProcessor::MetaRecordingProcessor(
-	IReceivedRayProcessor* const processor) :
+	IReceiverRayProcessor* const processor) :
 
 	m_processor        (processor),
 	m_processCountFrame(),

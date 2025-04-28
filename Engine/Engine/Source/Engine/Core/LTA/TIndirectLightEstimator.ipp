@@ -23,7 +23,7 @@ inline TIndirectLightEstimator<POLICY>::TIndirectLightEstimator(const Scene* con
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
+inline bool TIndirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 	const SurfaceHit&      X,
 	SampleFlow&            sampleFlow,
 	const std::size_t      pathLength,
@@ -67,7 +67,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		if(currentPathLength + 1 == pathLength)
 		{
 			math::Spectrum Lo;
-			if(directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo))
+			if(directLight.bsdfSampleSurfacePathWithNee(bsdfSample, sampleFlow, &Lo))
 			{
 				if(out_Lo) { *out_Lo = pathThroughput * Lo; }
 				return true;
@@ -97,7 +97,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
+inline bool TIndirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 	const SurfaceHit&      X,
 	SampleFlow&            sampleFlow,
 	const std::size_t      minPathLength,
@@ -146,7 +146,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		{
 			math::Spectrum Lo;
 			std::optional<SurfaceHit> nextHit;
-			if(!directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) ||
+			if(!directLight.bsdfSampleSurfacePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) ||
 			   !bsdfSample.outputs.isMeasurable() ||
 			   !nextHit)
 			{

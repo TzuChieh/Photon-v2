@@ -19,14 +19,9 @@ public:
 		SampleFlow&                       sampleFlow,
 		TEstimationArray<math::Vector3R>& out_estimation) const override;
 
+	std::unique_ptr<TIRayEstimator<math::Vector3R>> makeCopy() const;
+
 	std::string toString() const override;
 };
-
-// In-header Implementations:
-
-inline std::string SurfaceAttributeEstimator::toString() const
-{
-	return "Surface Attribute Estimator";
-}
 
 }// end namespace ph

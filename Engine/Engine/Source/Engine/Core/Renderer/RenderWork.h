@@ -12,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief Represent a unit of work that can be executed by a worker thread.
+*/
 class RenderWork
 {
 public:
@@ -24,14 +26,23 @@ public:
 	RenderProgress asyncGetProgress() const;
 
 protected:
+	/*!
+	Set stats for the running work. These methods are intended to be called when the work is running,
+	i.e., from `work()` and `doWork()`.
+	*/
+	///@{
 	void setTotalWork(std::size_t totalWork);
 	void setWorkDone(std::size_t workDone);
 	void incrementWorkDone();
 	void setElapsedMs(std::size_t elapsedMs);
+	///@}
 
 	RenderWork& operator = (const RenderWork& rhs);
 
 private:
+	/*!
+	Override this method to run actual work.
+	*/
 	virtual void doWork() = 0;
 
 	std::atomic_uint32_t m_totalWork;

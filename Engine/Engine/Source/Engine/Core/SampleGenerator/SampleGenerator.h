@@ -47,12 +47,12 @@ public:
 	Calling this method starts a new life cycle--all existing sample stages and values are lost,
 	and references to them are invalidated. New declarations can be made after, and new sample
 	values can be generated.
-	@note The initial state of a generator may be different each time `rebirth()` is called. This
-	depends on the actual settings used for the generator.
+	@note The initial state of a generator may or may not be different each time `rebirth()` is called.
+	This depends on the actual settings used for the generator.
 	*/
 	virtual void rebirth();
 
-	void genSplitted(
+	void makeSplitted(
 		std::size_t numSplits,
 		std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
 

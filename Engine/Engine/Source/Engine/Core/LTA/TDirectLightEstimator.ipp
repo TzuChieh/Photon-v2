@@ -36,7 +36,7 @@ inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const s
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
+inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfaceEmission(
 	BsdfSampleQuery&                 bsdfSample,
 	SampleFlow&                      sampleFlow,
 	math::Spectrum* const            out_Le,
@@ -68,7 +68,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
+inline bool TDirectLightEstimator<POLICY>::neeSampleSurfaceEmission(
 	DirectEnergySampleQuery&  directSample,
 	SampleFlow&               sampleFlow,
 	SurfaceHit* const         out_Xe) const
@@ -102,7 +102,7 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
+inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 	BsdfSampleQuery&                 bsdfSample,
 	SampleFlow&                      sampleFlow,
 	math::Spectrum* const            out_Lo,
@@ -119,7 +119,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	{
 		math::Spectrum bsdfLe;
 		std::optional<SurfaceHit> nextX;
-		if(bsdfSampleEmission(bsdfSample, sampleFlow, &bsdfLe, &nextX) &&
+		if(bsdfSampleSurfaceEmission(bsdfSample, sampleFlow, &bsdfLe, &nextX) &&
 		   bsdfSample.outputs.isMeasurable() &&
 		   nextX)
 		{
@@ -135,7 +135,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			// MIS
 			if(isNeeSamplable(X) && nextX->getSurfaceEmitter())
 			{
-				// No need to test occlusion again as `bsdfSampleEmission()` already done that
+				// No need to test occlusion again as `bsdfSampleSurfaceEmission()` already done that
 				const real neePdfW = neeSamplePdfWUnoccluded(X, *nextX);
 
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
@@ -174,7 +174,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	{
 		DirectEnergySampleQuery directSample;
 		directSample.inputs.set(bsdfSample.inputs.getX());
-		if(neeSampleEmission(directSample, sampleFlow) && 
+		if(neeSampleSurfaceEmission(directSample, sampleFlow) &&
 		   directSample.outputs)
 		{
 			// Always do MIS. If NEE can sample a light from `X`, then BSDF light sample should have

@@ -82,7 +82,7 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 
 	const Integrand integrand(m_scene, m_receiver);
 	
-	m_estimator->mapAttributeToEstimation(0, 0);
+	m_estimator->setEstimationIndex(EEstimatorAttribute::Energy, 0);
 	m_estimator->update(integrand);
 
 	m_mainFilm = HdrRgbFilm(
