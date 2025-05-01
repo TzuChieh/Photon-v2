@@ -78,7 +78,7 @@ void BNEEPTEstimator::estimate(
 
 	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
 	{
-		out_estimation[m_estimationIndex] = pathEnergy;
+		out_estimation[m_estimationIdx] = pathEnergy;
 		return;
 	}
 
@@ -271,7 +271,7 @@ void BNEEPTEstimator::estimate(
 	PH_ASSERT_MSG(pathThroughput.isFinite() && pathEnergy.isFinite(),
 		"pathThroughput = " + pathThroughput.toString() + ", pathEnergy = " + pathEnergy.toString());
 
-	out_estimation[m_estimationIndex] = pathEnergy;
+	out_estimation[m_estimationIdx] = pathEnergy;
 }
 
 void BNEEPTEstimator::rationalClamp(math::Spectrum& value)

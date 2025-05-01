@@ -10,7 +10,6 @@
 #include "Engine/Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/LTA/PtVolumetricEstimator.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Math/TVector3.h"
@@ -123,53 +122,53 @@ void BVPTEstimator::estimate(
 		}
 
 		// volume test
-		{
-			const math::Vector3R L = bsdfSample.outputs.getL();
+		//{
+		//	const math::Vector3R L = bsdfSample.outputs.getL();
 
-			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-			if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
-			{
-				SurfaceHit Xe;
-				math::Vector3R endV;
-				math::Spectrum weight;
-				math::Spectrum radiance;
-				lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
+		//	const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		//	if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
+		//	{
+		//		SurfaceHit Xe;
+		//		math::Vector3R endV;
+		//		math::Spectrum weight;
+		//		math::Spectrum radiance;
+		//		lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
-				pathThroughput.mulLocal(weight);
-				if(pathThroughput.isZero())
-				{
-					break;
-				}
+		//		pathThroughput.mulLocal(weight);
+		//		if(pathThroughput.isZero())
+		//		{
+		//			break;
+		//		}
 
-				BsdfSampleQuery bsdfSample;
-				bsdfSample.inputs.set(Xe, endV);
-				metadata->getSurface().getOptics()->genBsdfSample(bsdfSample, sampleFlow);
-				if(!bsdfSample.outputs.isMeasurable())
-				{
-					break;
-				}
+		//		BsdfSampleQuery bsdfSample;
+		//		bsdfSample.inputs.set(Xe, endV);
+		//		metadata->getSurface().getOptics()->genBsdfSample(bsdfSample, sampleFlow);
+		//		if(!bsdfSample.outputs.isMeasurable())
+		//		{
+		//			break;
+		//		}
 
-				// XXX: cosine term?
-				pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
-				if(pathThroughput.isZero())
-				{
-					break;
-				}
+		//		// XXX: cosine term?
+		//		pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
+		//		if(pathThroughput.isZero())
+		//		{
+		//			break;
+		//		}
 
-				const math::Vector3R nextRayOrigin(Xe.getPos());
-				const math::Vector3R nextRayDir(bsdfSample.outputs.getL());
-				tracingRay.setOrigin(nextRayOrigin);
-				tracingRay.setDir(nextRayDir);
-			}
-			else
-			{
-				tracingRay = nextRay;
-			}
-		}
+		//		const math::Vector3R nextRayOrigin(Xe.getPos());
+		//		const math::Vector3R nextRayDir(bsdfSample.outputs.getL());
+		//		tracingRay.setOrigin(nextRayOrigin);
+		//		tracingRay.setDir(nextRayDir);
+		//	}
+		//	else
+		//	{
+		//		tracingRay = nextRay;
+		//	}
+		//}
 		numBounces++;
 	}// end while
 
-	out_estimation[m_estimationIndex] = pathEnergy;
+	out_estimation[m_estimationIdx] = pathEnergy;
 }
 
 }// end namespace ph

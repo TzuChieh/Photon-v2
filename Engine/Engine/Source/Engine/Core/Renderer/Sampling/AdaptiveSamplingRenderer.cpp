@@ -44,17 +44,23 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const Visu
 		m_filter);
 
 	m_metaRecorders.resize(numWorkers());
-	m_filmEstimators.resize(numWorkers());
+	m_rayProcessors.resize(numWorkers());
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		m_filmEstimators[workerId] = FilmEstimator(2, 1, integrand, m_filter);
-		m_filmEstimators[workerId].addEstimator(m_estimator.get());
-		m_filmEstimators[workerId].addFilmEstimation(0, 0);
-		m_filmEstimators[workerId].addFilmEstimation(1, 0);
-		m_filmEstimators[workerId].setFilmStepSize(1, 2);
+		// One ray processor for each worker
+		m_rayProcessors[workerId] = RayProcessor(
+			1,
+			integrand,
+			{std::make_shared<HdrRgbFilm>(0, 0, m_filter), std::make_shared<HdrRgbFilm>(0, 0, m_filter)});
+		m_rayProcessors[workerId].addEstimator(m_estimator->makeCopy());
+		m_rayProcessors[workerId].addFilmEstimation(0, 0);
+		m_rayProcessors[workerId].addFilmEstimation(1, 0);
 
-		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_filmEstimators[workerId]);
+		// The second film is estimating with a lower frequency
+		m_rayProcessors[workerId].setFilmStepSize(1, 2);
+
+		m_metaRecorders[workerId] = MetaRecordingProcessor(&m_rayProcessors[workerId]);
 
 		m_renderWorks[workerId] = ReceiverSamplingWork(
 			m_receiver);
@@ -102,9 +108,9 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 {
 	return [this, workerId, &workers]()
 	{
-		auto& renderWork          = m_renderWorks[workerId];
-		auto& workerFilmEstimator = m_filmEstimators[workerId];
-		auto  workerAnalyzer      = m_dispatcher.createAnalyzer<REFINE_MODE>();
+		auto& renderWork         = m_renderWorks[workerId];
+		auto& workerRayProcessor = m_rayProcessors[workerId];
+		auto  workerAnalyzer     = m_dispatcher.createAnalyzer<REFINE_MODE>();
 
 		// DEBUG
 		auto& metaRecorder = m_metaRecorders[workerId];
@@ -142,11 +148,11 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				bitwise_cast<std::uint32_t>(suppliedFraction),
 				std::memory_order_relaxed);
 
-			workerFilmEstimator.setFilmDimensions(
+			workerRayProcessor.setFilmDimensions(
 				math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 				workUnit.getRegion());
 
-			const auto filmDimensions = workerFilmEstimator.getFilmDimensions();
+			const auto filmDimensions = workerRayProcessor.getFilmDimensions();
 			renderWork.setSampleDimensions(
 				filmDimensions.actualResPx,
 				filmDimensions.sampleWindowPx,
@@ -159,22 +165,22 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				workUnit.getRegion());
 			metaRecorder.clearRecords();
 
-			renderWork.onWorkReport([this, &workerFilmEstimator]()
+			renderWork.onWorkReport([this, &workerRayProcessor]()
 			{
 				// No synchronization needed, since no other worker can have an 
 				// overlapping region with the current one.
-				workerFilmEstimator.mergeFilmTo(0, m_allEffortFilm);
-				workerFilmEstimator.clearFilm(0);
+				workerRayProcessor.mergeFilmTo(0, m_allEffortFilm);
+				workerRayProcessor.clearFilm(0);
 
-				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), true);
+				asyncAddUpdatedRegion(workerRayProcessor.getFilmEffectiveWindowPx(), true);
 			});
 
 			renderWork.work();
 
 			// No synchronization needed, since no other worker can have an 
 			// overlapping region with the current one.
-			workerFilmEstimator.mergeFilmTo(1, m_halfEffortFilm);
-			workerFilmEstimator.clearFilm(1);
+			workerRayProcessor.mergeFilmTo(1, m_halfEffortFilm);
+			workerRayProcessor.clearFilm(1);
 			m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
 			m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
 			workerAnalyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);

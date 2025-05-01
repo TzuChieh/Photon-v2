@@ -21,6 +21,8 @@ template<typename Sample>
 class TSamplingFilm : public Film
 {
 public:
+	/*! @brief Creates an empty film.
+	*/
 	TSamplingFilm() = default;
 
 	TSamplingFilm(

@@ -3,7 +3,7 @@
 #include "Engine/Core/Renderer/Renderer.h"
 #include "Engine/Core/Filmic/Vector3Film.h"
 #include "Engine/Core/Renderer/Sampling/ReceiverSamplingWork.h"
-#include "Engine/Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
+#include "Engine/Core/Renderer/Sampling/TReceiverMeasurementProcessor.h"
 #include "Engine/Core/Scheduler/WorkScheduler.h"
 #include "Engine/Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Engine/Math/TVector2.h"

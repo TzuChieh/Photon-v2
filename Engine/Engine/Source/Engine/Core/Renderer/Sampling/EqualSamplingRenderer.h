@@ -3,7 +3,7 @@
 #include "Engine/Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Engine/Core/Filmic/HdrRgbFilm.h"
 #include "Engine/Core/Renderer/Sampling/ReceiverSamplingWork.h"
-#include "Engine/Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
+#include "Engine/Core/Renderer/Sampling/TReceiverMeasurementProcessor.h"
 #include "Engine/Core/Scheduler/WorkScheduler.h"
 #include "Engine/Core/Scheduler/EScheduler.h"
 #include "Engine/Core/Renderer/Sampling/MetaRecordingProcessor.h"
@@ -49,7 +49,7 @@ public:
 	RenderObservationInfo getObservationInfo() const override;
 
 private:
-	using FilmEstimator = TReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;
+	using RayProcessor = TReceiverMeasurementProcessor<math::Spectrum>;
 
 	void asyncAddUpdatedRegion(const Region& region, bool isUpdating);
 	void initScheduler(std::size_t numSamplesPerPixel);
@@ -65,7 +65,7 @@ private:
 	TAtomicQuasiQueue<RenderRegionStatus>   m_updatedRegionQueue;
 	
 	std::vector<ReceiverSamplingWork>       m_renderWorks;
-	std::vector<FilmEstimator>              m_filmEstimators;
+	std::vector<RayProcessor>               m_rayProcessors;
 	std::vector<MetaRecordingProcessor>     m_metaRecorders;
 	
 	std::mutex           m_rendererMutex;

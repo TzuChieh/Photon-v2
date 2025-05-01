@@ -90,7 +90,7 @@ void ReceiverSamplingWork::doWork()
 	{
 		sampleTimer.start();
 
-		for(IReceiverRayProcessor* processor : m_processors)
+		for(IRasterRayProcessor* processor : m_processors)
 		{
 			processor->onBatchStart(batchNumber);
 		}
@@ -107,7 +107,7 @@ void ReceiverSamplingWork::doWork()
 			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
-			for(IReceiverRayProcessor* processor : m_processors)
+			for(IRasterRayProcessor* processor : m_processors)
 			{
 				processor->process(rasterCoord, ray, quantityWeight, sampleFlow);
 			}
@@ -119,7 +119,7 @@ void ReceiverSamplingWork::doWork()
 			m_onWorkReport();
 		}
 
-		for(IReceiverRayProcessor* processor : m_processors)
+		for(IRasterRayProcessor* processor : m_processors)
 		{
 			processor->onBatchFinish(batchNumber);
 		}
@@ -155,7 +155,7 @@ void ReceiverSamplingWork::setSampleDimensions(
 	m_sampleRes            = math::Vector2S(sampleRes);
 }
 
-void ReceiverSamplingWork::addProcessor(IReceiverRayProcessor* const processor)
+void ReceiverSamplingWork::addProcessor(IRasterRayProcessor* const processor)
 {
 	PH_ASSERT(processor);
 

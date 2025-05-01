@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Renderer/Renderer.h"
 #include "Engine/Core/Filmic/SampleFilter.h"
-#include "Engine/Core/Estimator/FullRayEnergyEstimator.h"
+#include "Engine/Core/Estimator/IRayEnergyEstimator.h"
 
 #include <memory>
 

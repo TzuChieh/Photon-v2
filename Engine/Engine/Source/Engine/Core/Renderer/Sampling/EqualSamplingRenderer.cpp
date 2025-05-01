@@ -62,7 +62,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	, m_updatedRegionQueue()
 
 	, m_renderWorks()
-	, m_filmEstimators()
+	, m_rayProcessors()
 	, m_metaRecorders()
 
 	, m_rendererMutex()
@@ -91,17 +91,20 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 		getRenderRegionPx(),
 		m_filter);
 
-	m_filmEstimators.resize(numWorkers());
+	m_rayProcessors.resize(numWorkers());
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
-		m_filmEstimators[workerId] = FilmEstimator(1, 1, integrand, m_filter);
-		m_filmEstimators[workerId].addEstimator(m_estimator.get());
-		m_filmEstimators[workerId].addFilmEstimation(0, 0);
+		// One ray processor for each worker
+		m_rayProcessors[workerId] = RayProcessor(
+			1, 
+			integrand, 
+			{std::make_shared<HdrRgbFilm>(0, 0, m_filter)});
+		m_rayProcessors[workerId].addEstimator(m_estimator->makeCopy());
+		m_rayProcessors[workerId].addFilmEstimation(0, 0);
 
-		m_renderWorks[workerId] = ReceiverSamplingWork(
-			m_receiver);
-		m_renderWorks[workerId].addProcessor(&m_filmEstimators[workerId]);
+		m_renderWorks[workerId] = ReceiverSamplingWork(m_receiver);
+		m_renderWorks[workerId].addProcessor(&m_rayProcessors[workerId]);
 	}
 
 	initScheduler(m_sampleGenerator->numSampleBatches());
@@ -126,19 +129,19 @@ void EqualSamplingRenderer::doRender()
 	{
 		workers.queueWork([this, workerId]()
 		{
-			auto& renderWork          = m_renderWorks[workerId];
-			auto& workerFilmEstimator = m_filmEstimators[workerId];
+			auto& renderWork         = m_renderWorks[workerId];
+			auto& workerRayProcessor = m_rayProcessors[workerId];
 
-			renderWork.onWorkReport([this, &workerFilmEstimator]()
+			renderWork.onWorkReport([this, &workerRayProcessor]()
 			{
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					workerFilmEstimator.mergeFilmTo(0, m_mainFilm);
+					workerRayProcessor.mergeFilmTo(0, m_mainFilm);
 				}
 
-				workerFilmEstimator.clearFilm(0);
-				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), true);
+				workerRayProcessor.clearFilm(0);
+				asyncAddUpdatedRegion(workerRayProcessor.getFilmEffectiveWindowPx(), true);
 			});
 
 			float32 suppliedFraction = 0.0f;
@@ -167,11 +170,11 @@ void EqualSamplingRenderer::doRender()
 					bitwise_cast<std::uint32_t>(suppliedFraction),
 					std::memory_order_relaxed);
 
-				workerFilmEstimator.setFilmDimensions(
+				workerRayProcessor.setFilmDimensions(
 					math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 					workUnit.getRegion());
 
-				const auto filmDimensions = workerFilmEstimator.getFilmDimensions();
+				const auto filmDimensions = workerRayProcessor.getFilmDimensions();
 				renderWork.setSampleDimensions(
 					filmDimensions.actualResPx, 
 					filmDimensions.sampleWindowPx, 
@@ -187,7 +190,7 @@ void EqualSamplingRenderer::doRender()
 					submittedFraction = m_scheduler->getSubmittedFraction();
 				}
 
-				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), false);
+				asyncAddUpdatedRegion(workerRayProcessor.getFilmEffectiveWindowPx(), false);
 
 				m_submittedFractionBits.store(
 					bitwise_cast<std::uint32_t>(submittedFraction),

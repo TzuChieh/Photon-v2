@@ -20,6 +20,8 @@ values for storage.
 class HdrRgbFilm : public TSamplingFilm<math::Spectrum>
 {
 public:
+	/*! @brief Creates an empty film.
+	*/
 	HdrRgbFilm() = default;
 
 	HdrRgbFilm(

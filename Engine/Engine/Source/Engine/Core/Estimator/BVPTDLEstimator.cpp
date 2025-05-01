@@ -39,7 +39,7 @@ void BVPTDLEstimator::estimate(
 {
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
-	math::Spectrum& accuRadiance = out_estimation[m_estimationIndex].setColorValues(0);
+	math::Spectrum& accuRadiance = out_estimation[m_estimationIdx].setColorValues(0);
 	math::Spectrum  accuPathWeight(1);
 	
 	// 0-bounce

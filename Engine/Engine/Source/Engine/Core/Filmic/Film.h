@@ -16,6 +16,8 @@ namespace ph
 class Film : private IMoveOnly
 {
 public:
+	/*! @brief Creates an empty film.
+	*/
 	Film();
 
 	Film(

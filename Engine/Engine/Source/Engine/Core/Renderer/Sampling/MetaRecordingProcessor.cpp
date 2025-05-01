@@ -1,10 +1,50 @@
 #include "Engine/Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Engine/Math/math.h"
 
+#include <Common/assertion.h>
+
 #include <cmath>
 
 namespace ph
 {
+
+MetaRecordingProcessor::MetaRecordingProcessor()
+	: MetaRecordingProcessor(nullptr)
+{}
+
+MetaRecordingProcessor::MetaRecordingProcessor(
+	IRasterRayProcessor* const processor)
+
+	: IRasterRayProcessor()
+
+	, m_processor        (processor)
+	, m_processCountFrame()
+	, m_msSpentFrame     ()
+	, m_timer            ()
+	, m_recordWindowPx   ({0, 0}, {0, 0})
+{}
+
+void MetaRecordingProcessor::clearRecords()
+{
+	m_processCountFrame.fill(0);
+	m_msSpentFrame.fill(0);
+}
+
+void MetaRecordingProcessor::setDimensions(
+	const math::TVector2<int64>& filmResPx,
+	const math::TAABB2D<int64>&  recordWindowPx)
+{
+	PH_ASSERT_MSG(filmResPx.x() > 0 && filmResPx.y() > 0,
+		filmResPx.toString());
+	PH_ASSERT_MSG(recordWindowPx.getExtents().x() > 0 && recordWindowPx.getExtents().y() > 0,
+		recordWindowPx.toString());
+
+	m_recordWindowPx = recordWindowPx;
+
+	const auto recordResPx = math::TVector2<uint32>(recordWindowPx.getExtents());
+	m_processCountFrame.setSize(recordResPx.x(), recordResPx.y());
+	m_msSpentFrame.setSize(recordResPx.x(), recordResPx.y());
+}
 
 void MetaRecordingProcessor::process(
 	const math::Vector2D& rasterCoord,

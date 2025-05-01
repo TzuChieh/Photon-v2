@@ -102,7 +102,7 @@ public:
 			"from the mean specular path length from the scene, the energy estimation result may contain "
 			"higher variance or bias. Beware when using higher values as non-stochastic path may be "
 			"branched, which can result in exponential growth of number of rays.");
-		stochasticViewSampleBeginLengthHint.defaultTo(commonParams.stochasticViewSampleBeginLength);
+		stochasticViewSampleBeginLengthHint.defaultTo(commonParams.stochasticViewSampleBeginLengthHint);
 		stochasticViewSampleBeginLengthHint.optional();
 		clazz.addField(stochasticViewSampleBeginLengthHint);
 

@@ -5,7 +5,7 @@
 #include "Engine/Core/Scheduler/DammertzDispatcher.h"
 #include "Engine/Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Engine/Frame/TFrame.h"
-#include "Engine/Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
+#include "Engine/Core/Renderer/Sampling/TStepperReceiverMeasurementProcessor.h"
 #include "Engine/Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Utility/Concurrent/TAtomicQuasiQueue.h"
@@ -43,7 +43,7 @@ public:
 	RenderObservationInfo getObservationInfo() const override;
 
 private:
-	using FilmEstimator = TStepperReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;
+	using RayProcessor = TStepperReceiverMeasurementProcessor<math::Spectrum>;
 
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
 	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
@@ -57,8 +57,8 @@ private:
 	HdrRgbFilm                 m_allEffortFilm;
 	HdrRgbFilm                 m_halfEffortFilm;
 
-	std::vector<ReceiverSamplingWork>       m_renderWorks;
-	std::vector<FilmEstimator>              m_filmEstimators;
+	std::vector<ReceiverSamplingWork>      m_renderWorks;
+	std::vector<RayProcessor>              m_rayProcessors;
 
 	std::vector<MetaRecordingProcessor> m_metaRecorders;
 	HdrRgbFrame m_metaFrame;
