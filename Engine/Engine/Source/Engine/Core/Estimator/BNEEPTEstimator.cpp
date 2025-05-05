@@ -40,7 +40,7 @@ void BNEEPTEstimator::update(const Integrand& integrand)
 
 std::string BNEEPTEstimator::toString() const
 {
-	return "Backward NEE Path Tracing Estimator";
+	return "BNEEPT (Backward NEE Path Tracing Estimator)";
 }
 
 std::unique_ptr<TIRayEstimator<math::Spectrum>> BNEEPTEstimator::makeCopy() const
@@ -52,7 +52,7 @@ void BNEEPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
 	SampleFlow&       sampleFlow,
-	EnergyEstimation& out_estimation) const
+	EnergyEstimation& out_estimation)
 {
 	PH_SCOPED_TIMER(FullEstimation);
 
@@ -78,7 +78,7 @@ void BNEEPTEstimator::estimate(
 
 	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
 	{
-		out_estimation[m_estimationIdx] = pathEnergy;
+		out_estimation[getPathEnergyIndex()] = pathEnergy;
 		return;
 	}
 
@@ -271,7 +271,7 @@ void BNEEPTEstimator::estimate(
 	PH_ASSERT_MSG(pathThroughput.isFinite() && pathEnergy.isFinite(),
 		"pathThroughput = " + pathThroughput.toString() + ", pathEnergy = " + pathEnergy.toString());
 
-	out_estimation[m_estimationIdx] = pathEnergy;
+	out_estimation[getPathEnergyIndex()] = pathEnergy;
 }
 
 void BNEEPTEstimator::rationalClamp(math::Spectrum& value)

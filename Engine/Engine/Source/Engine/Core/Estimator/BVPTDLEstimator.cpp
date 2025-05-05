@@ -23,7 +23,7 @@ void BVPTDLEstimator::update(const Integrand& integrand)
 
 std::string BVPTDLEstimator::toString() const
 {
-	return "Backward Vanilla Path Tracing Direct Lighting Estimator";
+	return "BVPTDL (Backward Vanilla Path Tracing Direct Lighting Estimator)";
 }
 
 std::unique_ptr<TIRayEstimator<math::Spectrum>> BVPTDLEstimator::makeCopy() const
@@ -35,11 +35,11 @@ void BVPTDLEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
 	SampleFlow&       sampleFlow,
-	EnergyEstimation& out_estimation) const
+	EnergyEstimation& out_estimation)
 {
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
-	math::Spectrum& accuRadiance = out_estimation[m_estimationIdx].setColorValues(0);
+	math::Spectrum& accuRadiance = out_estimation[getPathEnergyIndex()].setColorValues(0);
 	math::Spectrum  accuPathWeight(1);
 	
 	// 0-bounce

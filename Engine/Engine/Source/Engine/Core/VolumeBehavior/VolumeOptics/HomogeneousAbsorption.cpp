@@ -9,15 +9,13 @@ namespace ph
 {
 
 HomogeneousAbsorption::HomogeneousAbsorption()
-	: HomogeneousAbsorption(std::make_unique<ConstantAbsorptionCoefficient>())
+	: HomogeneousAbsorption(math::Spectrum(0))
 {}
 
-HomogeneousAbsorption::HomogeneousAbsorption(const std::shared_ptr<MediumCoefficient>& sigmaA)
+HomogeneousAbsorption::HomogeneousAbsorption(const math::Spectrum& sigmaA)
 	: VolumeOptics()
 	, m_sigmaA(sigmaA)
-{
-	PH_ASSERT(sigmaA);
-}
+{}
 
 void HomogeneousAbsorption::genDistanceSample(
 	const SurfaceHit& X,

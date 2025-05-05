@@ -72,7 +72,7 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	BsdfPdfQuery() = default;
+	inline BsdfPdfQuery() = default;
 	explicit BsdfPdfQuery(BsdfQueryContext context);
 };
 

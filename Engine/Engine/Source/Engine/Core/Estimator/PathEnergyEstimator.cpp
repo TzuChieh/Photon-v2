@@ -1,14 +1,20 @@
 #include "Engine/Core/Estimator/PathEnergyEstimator.h"
 
-#include <Common/logging.h>
-
 namespace ph
 {
 
 PathEnergyEstimator::PathEnergyEstimator()
+
 	: IRayEnergyEstimator()
+
+	, m_params()
 	, m_estimationIdx(0)
 {}
+
+void PathEnergyEstimator::setPTParams(PTEstimatorParams params)
+{
+	m_params = params;
+}
 
 void PathEnergyEstimator::setEstimationIndex(
 	const EEstimatorAttribute attribute,
@@ -20,10 +26,7 @@ void PathEnergyEstimator::setEstimationIndex(
 	}
 	else
 	{
-		PH_DEFAULT_LOG(Warning,
-			"at PathEnergyEstimator::setEstimationIndex(), "
-			"attempting to set estimation index for unsupported attribute; this estimator supports "
-			"energy estimation only.");
+		setEstimationIndex(attribute, estimationIdx);
 	}
 }
 

@@ -147,7 +147,7 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	BsdfSampleQuery() = default;
+	inline BsdfSampleQuery() = default;
 	explicit BsdfSampleQuery(BsdfQueryContext context);
 };
 

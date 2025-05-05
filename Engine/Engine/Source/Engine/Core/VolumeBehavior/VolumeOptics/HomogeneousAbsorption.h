@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
+#include "Engine/Math/Color/spectrum_fwd.h"
 
 #include <memory>
 
@@ -13,7 +14,7 @@ class HomogeneousAbsorption : public VolumeOptics
 {
 public:
 	HomogeneousAbsorption();
-	explicit HomogeneousAbsorption(const std::shared_ptr<MediumCoefficient>& sigmaA);
+	explicit HomogeneousAbsorption(const math::Spectrum& sigmaA);
 
 private:
 	void genDistanceSample(
@@ -23,7 +24,7 @@ private:
 		real* out_dist,
 		math::Spectrum* out_pdfAppliedWeight) const override;
 
-	std::shared_ptr<MediumCoefficient> m_sigmaA;
+	math::Spectrum m_sigmaA;
 };
 
 }// end namespace ph

@@ -5,14 +5,13 @@
 namespace ph
 {
 
-/*! @brief A direct lighting only estimator using path tracing.
+/*! @brief A GI estimator using pure path tracing.
 
-BVPTDL: Backward Vanilla Path Tracing Direct Lighting.
+BVVPT: Backward Vanilla Volumetric Path Tracing.
 
-This estimator has properties similar to BVPT, excpet that it computes only
-direct lighting effects.
+In addition to `BVPTEstimator`, this estimator also handles volumetric light transport.
 */
-class BVPTDLEstimator : public PathEnergyEstimator
+class BVVPTEstimator : public PathEnergyEstimator
 {
 public:
 	void update(const Integrand& integrand) override;
@@ -23,7 +22,7 @@ public:
 		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) override;
 
-	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override;
+	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override = 0;
 
 	std::string toString() const override;
 };

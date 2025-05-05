@@ -14,6 +14,7 @@ namespace ph
 {
 
 /*! @brief A sample with arbitrary dimensions with fine-grained sampling control.
+In cases where the consistency of sample dimension consumption matters, unflowed methods can be used.
 */
 class SampleFlow final
 {

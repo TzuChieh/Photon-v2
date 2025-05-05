@@ -2,6 +2,7 @@
 #include "Engine/EngineEnv/CoreCookingContext.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
 #include "Engine/Core/Estimator/BVPTEstimator.h"
+#include "Engine/Core/Estimator/BVVPTEstimator.h"
 #include "Engine/Core/Estimator/BNEEPTEstimator.h"
 #include "Engine/Core/Estimator/BVPTDLEstimator.h"
 #include "Engine/Core/Filmic/SampleFilter.h"
@@ -37,23 +38,44 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const
 {
+	PTEstimatorParams params = makePTEstimatorParams();
+
 	switch(getEstimator())
 	{
 	case ERayEnergyEstimator::BVPT:
-		return std::make_unique<BVPTEstimator>();
+		return std::make_unique<BVPTEstimator>(params);
+
+	case ERayEnergyEstimator::BVVPT:
+		return std::make_unique<BVVPTEstimator>(params);
 
 	case ERayEnergyEstimator::BNEEPT:
-		return std::make_unique<BNEEPTEstimator>();
+		return std::make_unique<BNEEPTEstimator>(params);
 
 	case ERayEnergyEstimator::BVPTDL:
-		return std::make_unique<BVPTDLEstimator>();
+		return std::make_unique<BVPTDLEstimator>(params);
 
 	default:
 		PH_LOG(PathTracingVisualizer, Note, "no ray energy estimator unspecified, using BNEEPT");
-		return std::make_unique<BNEEPTEstimator>();
+		return std::make_unique<BNEEPTEstimator>(params);
 	}
 
 	return {};
+}
+
+PTEstimatorParams PathTracingVisualizer::makePTEstimatorParams() const
+{
+	PTEstimatorParams params{};
+
+	if(getEstimator() == ERayEnergyEstimator::BVVPT)
+	{
+		params.includeVolumetricEffects = false;
+	}
+	else
+	{
+		params.includeVolumetricEffects = true;
+	}
+
+	return params;
 }
 
 }// end namespace ph

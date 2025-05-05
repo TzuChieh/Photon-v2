@@ -48,6 +48,8 @@ using SurfaceHitReason = TEnumFlags<ESurfaceHitReason>;
 class SurfaceHit final
 {
 public:
+	/*! @brief Empty event. Nothing is hit.
+	*/
 	SurfaceHit();
 
 	/*! @brief Construct from the ray and probe involved in a hit event.

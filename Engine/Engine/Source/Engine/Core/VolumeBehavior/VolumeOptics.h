@@ -11,8 +11,8 @@ namespace ph
 {
 
 class SurfaceHit;
-class ScatterFunction;
-class EmitFunction;
+class PhaseFunction;
+class EmissionFunction;
 class MediumDistanceSample;
 
 class VolumeOptics

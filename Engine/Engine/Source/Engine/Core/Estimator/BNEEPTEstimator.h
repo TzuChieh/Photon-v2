@@ -32,7 +32,7 @@ public:
 		const Ray&        ray,
 		const Integrand&  integrand,
 		SampleFlow&       sampleFlow,
-		EnergyEstimation& out_estimation) const override;
+		EnergyEstimation& out_estimation) override;
 
 	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const;
 

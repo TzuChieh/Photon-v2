@@ -31,7 +31,7 @@ void SurfaceAttributeEstimator::estimate(
 	const Ray&                        ray,
 	const Integrand&                  integrand,
 	SampleFlow&                       /* sampleFlow */,
-	TEstimationArray<math::Vector3R>& out_estimation) const
+	TEstimationArray<math::Vector3R>& out_estimation)
 {
 	Ray probingRay = Ray(ray).reverse();
 	probingRay.setMaxT(std::numeric_limits<real>::max());

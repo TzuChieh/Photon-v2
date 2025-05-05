@@ -36,6 +36,8 @@ using VolumeHitReason = TEnumFlags<EVolumeHitReason>;
 class VolumeHit final
 {
 public:
+	/*! @brief Empty event. Nothing is hit.
+	*/
 	VolumeHit();
 
 	VolumeHit(

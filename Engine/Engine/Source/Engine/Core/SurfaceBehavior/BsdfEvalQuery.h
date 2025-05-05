@@ -96,7 +96,7 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	BsdfEvalQuery() = default;
+	inline BsdfEvalQuery() = default;
 	explicit BsdfEvalQuery(BsdfQueryContext context);
 };
 

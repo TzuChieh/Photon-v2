@@ -19,13 +19,15 @@ the correctness of another estimator is in doubt.
 class BVPTEstimator : public PathEnergyEstimator
 {
 public:
+	void setPTParams(PTEstimatorParams params) override;
+
 	void update(const Integrand& integrand) override;
 
 	void estimate(
 		const Ray&        ray,
 		const Integrand&  integrand,
 		SampleFlow&       sampleFlow,
-		EnergyEstimation& out_estimation) const override;
+		EnergyEstimation& out_estimation) override;
 
 	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override = 0;
 

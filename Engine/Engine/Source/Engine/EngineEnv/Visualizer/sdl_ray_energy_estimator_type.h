@@ -10,6 +10,7 @@ enum class ERayEnergyEstimator
 	Unspecified = 0,
 
 	BVPT,
+	BVVPT,
 	BNEEPT,
 	BVPTDL
 };
@@ -23,6 +24,9 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ERayEnergyEstimator>)
 
 	sdlEnum.addEntry(EnumType::BVPT, "bvpt",
 		"Backward path tracing.");
+
+	sdlEnum.addEntry(EnumType::BVVPT, "bvvpt",
+		"Backward path tracing, with volumetric light transport.");
 
 	sdlEnum.addEntry(EnumType::BNEEPT, "bneept",
 		"Backward path tracing with next event estimation.");

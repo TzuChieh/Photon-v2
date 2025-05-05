@@ -7,7 +7,7 @@ namespace ph
 
 /*! @brief Common parameters of path tracing.
 */
-struct PTCommonParams
+struct PTEstimatorParams
 {
 	inline static constexpr uint32 DEFAULT_MAX_PATH_LENGTH = 16384;
 

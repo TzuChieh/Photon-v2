@@ -17,7 +17,7 @@ public:
 		const Ray&                        ray,
 		const Integrand&                  integrand,
 		SampleFlow&                       sampleFlow,
-		TEstimationArray<math::Vector3R>& out_estimation) const override;
+		TEstimationArray<math::Vector3R>& out_estimation) override;
 
 	std::unique_ptr<TIRayEstimator<math::Vector3R>> makeCopy() const;
 

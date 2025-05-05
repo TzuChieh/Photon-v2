@@ -1,4 +1,4 @@
-#include "Engine/Core/Estimator/BVPTEstimator.h"
+#include "Engine/Core/Estimator/BVVPTEstimator.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/SurfaceHit.h"
@@ -15,39 +15,26 @@
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Estimator/Integrand.h"
 
-#include <Common/logging.h>
+#define MAX_RAY_BOUNCES 10000
+//#define MAX_RAY_BOUNCES 1
 
 namespace ph
 {
 
-void BVPTEstimator::setPTParams(PTEstimatorParams params)
-{
-	if(params.includeVolumetricEffects)
-	{
-		PH_DEFAULT_LOG(Warning,
-			"{} cannot handle volumetric effects, will set "
-			"`PTEstimatorParams::includeVolumetricEffects` to `false`", toString());
-
-		params.includeVolumetricEffects = false;
-	}
-
-	PathEnergyEstimator::setPTParams(params);
-}
-
-void BVPTEstimator::update(const Integrand& integrand)
+void BVVPTEstimator::update(const Integrand& integrand)
 {}
 
-std::string BVPTEstimator::toString() const
+std::string BVVPTEstimator::toString() const
 {
-	return "BVPT (Backward Vanilla Path Tracing Estimator)";
+	return "BVVPT (Backward Vanilla Volumetric Path Tracing Estimator)";
 }
 
-std::unique_ptr<TIRayEstimator<math::Spectrum>> BVPTEstimator::makeCopy() const
+std::unique_ptr<TIRayEstimator<math::Spectrum>> BVVPTEstimator::makeCopy() const
 {
-	return std::make_unique<BVPTEstimator>(*this);
+	return std::make_unique<BVVPTEstimator>(*this);
 }
 
-void BVPTEstimator::estimate(
+void BVVPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
 	SampleFlow&       sampleFlow,
@@ -135,6 +122,51 @@ void BVPTEstimator::estimate(
 		{
 			break;
 		}
+
+		// volume test
+		//{
+		//	const math::Vector3R L = bsdfSample.outputs.getL();
+
+		//	const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		//	if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
+		//	{
+		//		SurfaceHit Xe;
+		//		math::Vector3R endV;
+		//		math::Spectrum weight;
+		//		math::Spectrum radiance;
+		//		lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
+
+		//		pathThroughput.mulLocal(weight);
+		//		if(pathThroughput.isZero())
+		//		{
+		//			break;
+		//		}
+
+		//		BsdfSampleQuery bsdfSample;
+		//		bsdfSample.inputs.set(Xe, endV);
+		//		metadata->getSurface().getOptics()->genBsdfSample(bsdfSample, sampleFlow);
+		//		if(!bsdfSample.outputs.isMeasurable())
+		//		{
+		//			break;
+		//		}
+
+		//		// XXX: cosine term?
+		//		pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
+		//		if(pathThroughput.isZero())
+		//		{
+		//			break;
+		//		}
+
+		//		const math::Vector3R nextRayOrigin(Xe.getPos());
+		//		const math::Vector3R nextRayDir(bsdfSample.outputs.getL());
+		//		tracingRay.setOrigin(nextRayOrigin);
+		//		tracingRay.setDir(nextRayDir);
+		//	}
+		//	else
+		//	{
+		//		tracingRay = nextRay;
+		//	}
+		//}
 	}// end while
 
 	out_estimation[getPathEnergyIndex()] = pathEnergy;

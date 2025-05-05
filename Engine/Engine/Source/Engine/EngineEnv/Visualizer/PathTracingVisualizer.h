@@ -7,6 +7,7 @@
 #include "Engine/EngineEnv/Visualizer/sdl_scheduler_type.h"
 #include "Engine/EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "Engine/EngineEnv/Visualizer/sdl_sample_filter_type.h"
+#include "Engine/Core/Estimator/PTEstimatorParams.h"
 
 #include <Common/primitive_type.h>
 
@@ -28,6 +29,7 @@ public:
 
 protected:
 	std::unique_ptr<IRayEnergyEstimator> makeEstimator() const;
+	PTEstimatorParams makePTEstimatorParams() const;
 
 private:
 	EScheduler          m_scheduler;
