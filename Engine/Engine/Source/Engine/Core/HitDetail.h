@@ -61,7 +61,8 @@ public:
 
 	/*! @brief Get the parametric distance from the incident ray's origin.
 	Notice that parametric distance is not ordinary distance but defined in terms of a ray
-	direction vector's length.
+	direction vector's length. This means if the ray direction vector is normalized, the parametric
+	distance is equal to the ordinary distance.
 	*/
 	real getRayT() const;
 

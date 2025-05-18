@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/VolumeBehavior/ScatterFunction.h"
+#include "Engine/Core/VolumeBehavior/Property/PhaseFunction.h"
 #include "Engine/Core/Texture/texture_fwd.h"
 
 #include <memory>
@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class HenyeyGreenstein : public ScatterFunction
+class HenyeyGreenstein : public PhaseFunction
 {
 public:
 	HenyeyGreenstein(real g);

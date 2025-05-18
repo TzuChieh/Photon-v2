@@ -103,7 +103,7 @@ inline T TLineSegment<T>::getMaxT() const
 }
 
 template<typename T>
-inline std::pair<T, T> TLineSegment<T>::getRange() const
+inline std::pair<T, T> TLineSegment<T>::getTRange() const
 {
 	return {m_minT, m_maxT};
 }

@@ -55,6 +55,12 @@ public:
 	*/
 	virtual void setPixel(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
+	/*! @brief Merges the samples in this film with samples from another film.
+	Depending on the implementation, merging may not be supported for certain combination of films.
+	@exception IllegalOperationException If merging is not supported.
+	*/
+	virtual void mergeWith(const TSamplingFilm& other);
+
 	void clear() override = 0;
 
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;

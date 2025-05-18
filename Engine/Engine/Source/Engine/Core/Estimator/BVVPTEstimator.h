@@ -22,7 +22,7 @@ public:
 		SampleFlow&       sampleFlow,
 		EnergyEstimation& out_estimation) override;
 
-	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override = 0;
+	std::unique_ptr<TIRayEstimator<math::Spectrum>> makeCopy() const override;
 
 	std::string toString() const override;
 };

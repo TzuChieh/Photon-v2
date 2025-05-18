@@ -87,7 +87,7 @@ public:
 	const TVector3<T>& getDir() const;
 	T getMinT() const;
 	T getMaxT() const;
-	std::pair<T, T> getRange() const;
+	std::pair<T, T> getTRange() const;
 
 	/*! @brief Get the coordinates on minimum parametric distance.
 	*/

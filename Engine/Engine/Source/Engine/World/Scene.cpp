@@ -5,6 +5,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Intersection/Intersector.h"
 #include "Engine/Core/Intersection/Primitive.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Emitter/Emitter.h"
 #include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
@@ -15,19 +16,19 @@
 namespace ph
 {
 
-Scene::Scene() : 
-	m_intersector        (nullptr), 
-	m_emitterSampler     (nullptr),
-	m_backgroundPrimitive(nullptr)
+Scene::Scene()
+	: m_intersector        (nullptr)
+	, m_emitterSampler     (nullptr)
+	, m_backgroundPrimitive(nullptr)
 {}
 
 Scene::Scene(
 	const Intersector* const    intersector,
-	const EmitterSampler* const emitterSampler) :
+	const EmitterSampler* const emitterSampler)
 
-	m_intersector        (intersector), 
-	m_emitterSampler     (emitterSampler),
-	m_backgroundPrimitive(nullptr)
+	: m_intersector        (intersector)
+	, m_emitterSampler     (emitterSampler)
+	, m_backgroundPrimitive(nullptr)
 {
 	PH_ASSERT(intersector);
 	PH_ASSERT(emitterSampler);
@@ -42,10 +43,10 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 	{
 		return true;
 	}
-	else if(m_backgroundPrimitive)
+	else if(getBackgroundPrimitive())
 	{
 		*out_probe = HitProbe{};
-		return m_backgroundPrimitive->isIntersecting(ray, *out_probe);
+		return getBackgroundPrimitive()->isIntersecting(ray, *out_probe);
 	}
 
 	return false;
@@ -59,9 +60,9 @@ bool Scene::isOccluding(const Ray& ray) const
 	{
 		return true;
 	}
-	else if(m_backgroundPrimitive)
+	else if(getBackgroundPrimitive())
 	{
-		return m_backgroundPrimitive->isOccluding(ray);
+		return getBackgroundPrimitive()->isOccluding(ray);
 	}
 
 	return false;
@@ -103,6 +104,17 @@ void Scene::emitRay(
 	}
 
 	query.outputs.setPdf(query.outputs.getPdfPos() * pickPdf, query.outputs.getPdfDir());
+}
+
+const VolumeBehavior* Scene::getBackgroundVolumeBehavior() const
+{
+	if(!getBackgroundPrimitive())
+	{
+		return nullptr;
+	}
+
+	const PrimitiveMetadata* metadata = getBackgroundPrimitive()->getMetadata();
+	return metadata ? &metadata->getInterior() : nullptr;
 }
 
 }// end namespace ph

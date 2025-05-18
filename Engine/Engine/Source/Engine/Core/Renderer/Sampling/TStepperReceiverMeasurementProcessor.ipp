@@ -16,7 +16,7 @@ TStepperReceiverMeasurementProcessor(
 	: TReceiverMeasurementProcessor<Estimation>(
 		numEstimations,
 		std::move(integrand),
-		std::move(films)),
+		std::move(films))
 
 	, m_filmStepSizes(films.size(), 1)
 	, m_currentBatchNumber(0)
@@ -37,7 +37,7 @@ process(
 	const math::Spectrum& quantityWeight,
 	SampleFlow&           sampleFlow)
 {
-	for(const auto* estimator : Parent::m_estimators)
+	for(const auto& estimator : Parent::m_estimators)
 	{
 		estimator->estimate(ray, Parent::m_integrand, sampleFlow, Parent::m_estimations);
 	}
@@ -46,7 +46,7 @@ process(
 	{
 		if(m_currentBatchNumber % m_filmStepSizes[filmIdx] == 0)
 		{
-			Parent::m_films[filmIdx].addSample(rasterCoord.x(), rasterCoord.y(), Parent::m_estimations[estimationIdx] * quantityWeight);
+			Parent::m_films[filmIdx]->addSample(rasterCoord.x(), rasterCoord.y(), Parent::m_estimations[estimationIdx] * quantityWeight);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "Engine/Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Engine/Core/Scheduler/Region.h"
 #include "Engine/Core/Scheduler/DammertzDispatcher.h"
+#include "Engine/Core/Filmic/HdrRgbFilm.h"
 #include "Engine/Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Engine/Frame/TFrame.h"
 #include "Engine/Core/Renderer/Sampling/TStepperReceiverMeasurementProcessor.h"

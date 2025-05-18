@@ -211,29 +211,37 @@ void HdrRgbFilm::clear()
 	clearRadianceSensors();
 }
 
-void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
+void HdrRgbFilm::mergeWith(const TSamplingFilm<math::Spectrum>& other)
 {
+	auto const otherPtr = dynamic_cast<const HdrRgbFilm*>(&other);
+	PH_ASSERT(otherPtr != this);
+	if(!otherPtr)
+	{
+		TSamplingFilm<math::Spectrum>::mergeWith(other);
+		return;
+	}
+
 	math::TAABB2D<int64> validRegion(this->getEffectiveWindowPx());
-	validRegion.intersectWith(other.getEffectiveWindowPx());
+	validRegion.intersectWith(otherPtr->getEffectiveWindowPx());
 
 	for(int64 y = validRegion.getMinVertex().y(); y < validRegion.getMaxVertex().y(); ++y)
 	{
 		const std::size_t thisY = y - this->getEffectiveWindowPx().getMinVertex().y();
-		const std::size_t otherY = y - other.getEffectiveWindowPx().getMinVertex().y();
+		const std::size_t otherY = y - otherPtr->getEffectiveWindowPx().getMinVertex().y();
 		const std::size_t thisBaseIndex = thisY * static_cast<std::size_t>(this->getEffectiveResPx().x());
-		const std::size_t otherBaseIndex = otherY * static_cast<std::size_t>(other.getEffectiveResPx().x());
+		const std::size_t otherBaseIndex = otherY * static_cast<std::size_t>(otherPtr->getEffectiveResPx().x());
 
 		for(int64 x = validRegion.getMinVertex().x(); x < validRegion.getMaxVertex().x(); ++x)
 		{
 			const std::size_t thisX = x - this->getEffectiveWindowPx().getMinVertex().x();
-			const std::size_t otherX = x - other.getEffectiveWindowPx().getMinVertex().x();
+			const std::size_t otherX = x - otherPtr->getEffectiveWindowPx().getMinVertex().x();
 			const std::size_t thisI = thisBaseIndex + thisX;
 			const std::size_t otherI = otherBaseIndex + otherX;
 
-			m_pixelRadianceSensors[thisI].accuR      += other.m_pixelRadianceSensors[otherI].accuR;
-			m_pixelRadianceSensors[thisI].accuG      += other.m_pixelRadianceSensors[otherI].accuG;
-			m_pixelRadianceSensors[thisI].accuB      += other.m_pixelRadianceSensors[otherI].accuB;
-			m_pixelRadianceSensors[thisI].accuWeight += other.m_pixelRadianceSensors[otherI].accuWeight;
+			m_pixelRadianceSensors[thisI].accuR      += otherPtr->m_pixelRadianceSensors[otherI].accuR;
+			m_pixelRadianceSensors[thisI].accuG      += otherPtr->m_pixelRadianceSensors[otherI].accuG;
+			m_pixelRadianceSensors[thisI].accuB      += otherPtr->m_pixelRadianceSensors[otherI].accuB;
+			m_pixelRadianceSensors[thisI].accuWeight += otherPtr->m_pixelRadianceSensors[otherI].accuWeight;
 		}
 	}
 }

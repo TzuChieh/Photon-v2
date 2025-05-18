@@ -11,10 +11,10 @@ namespace ph
 
 class SurfaceHit;
 
-class ScatterFunction
+class PhaseFunction
 {
 public:
-	virtual ~ScatterFunction() = 0;
+	virtual ~PhaseFunction();
 
 	// FIXME: use volume hit
 	virtual void evalPhaseFunc(

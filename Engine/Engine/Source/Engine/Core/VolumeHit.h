@@ -37,19 +37,23 @@ class VolumeHit final
 {
 public:
 	/*! @brief Empty event. Nothing is hit.
+	Calling methods from an empty event is an error.
 	*/
 	VolumeHit();
 
+	/*! @brief 
+	*/
 	VolumeHit(
 		const SurfaceHit& X,
-		bool              isInterior);
+		const Ray& incidentRay,
+		bool isInterior);
 
 	VolumeHit(
-		const Primitive*      primitive,
-		const Ray&            ray,
+		const Primitive* primitive,
+		const Ray& ray,
 		const math::Vector3R& pos,
-		bool                  isInterior,
-		EVolumeHitReason      reason);
+		bool isInterior,
+		VolumeHitReason reason);
 
 	bool hasVolumeOptics() const;
 	VolumeHitReason getReason() const;
@@ -60,6 +64,12 @@ public:
 	const Ray& getIncidentRay() const;
 
 	const Time& getTime() const;
+
+	const Primitive& getPrimitive() const;
+
+	/*!
+	@return The position that is hit.
+	*/
 	math::Vector3R getPos() const;
 
 	const VolumeOptics* getVolumeOptics() const;
@@ -68,91 +78,77 @@ public:
 
 private:
 	const Primitive* m_primitive;
-	math::Vector3R   m_pos;
-	Ray              m_ray;
-	bool             m_isInterior;
+	math::Vector3R m_pos;
+	Ray m_ray;
+	bool m_isInterior;
 	VolumeHitReason  m_reason;
 };
 
 // In-header Implementations:
 
-inline SurfaceHit::SurfaceHit()
-	: m_ray          {}
-	, m_recordedProbe{}
-	, m_detail       {}
-	, m_reason       {}
+inline VolumeHit::VolumeHit()
+#if PH_DEBUG
+	: m_primitive{}
+	, m_pos{}
+	, m_ray{}
+	, m_isInterior{}
+	, m_reason{}
+#endif
 {}
 
-inline SurfaceHit::SurfaceHit(
-	const Ray&       ray,
-	const HitProbe&  probe,
-	SurfaceHitReason reason)
+inline VolumeHit::VolumeHit(
+	const Primitive* primitive,
+	const Ray& ray,
+	const math::Vector3R& pos,
+	bool isInterior,
+	VolumeHitReason reason)
 
-	: m_ray          {ray}
-	, m_recordedProbe{probe}
-	, m_detail       {}
-	, m_reason       {reason}
-{
-	probe.calcFullHitDetail(ray, &m_detail);
-}
-
-inline SurfaceHit::SurfaceHit(
-	const Ray&             ray, 
-	const HitProbe&        probe, 
-	const HitDetail&       detail,
-	const SurfaceHitReason reason)
-
-	: m_ray          {ray}
-	, m_recordedProbe{probe}
-	, m_detail       {detail}
-	, m_reason       {reason}
+	: m_primitive{primitive}
+	, m_pos{pos}
+	, m_ray{ray}
+	, m_isInterior{isInterior}
+	, m_reason{reason}
 {}
 
-inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
-{
-	return m_recordedProbe.reintersect(ray, probe, getRay());
-}
-
-inline const HitDetail& SurfaceHit::getDetail() const
-{
-	return m_detail;
-}
-
-inline SurfaceHitReason SurfaceHit::getReason() const
+inline VolumeHitReason VolumeHit::getReason() const
 {
 	return m_reason;
 }
 
-inline const Ray& SurfaceHit::getRay() const
+inline const Ray& VolumeHit::getRay() const
 {
-	PH_ASSERT(!m_reason.hasExactly(ESurfaceHitReason::Invalid));
+	PH_ASSERT(!m_reason.hasExactly(EVolumeHitReason::Invalid));
 	return m_ray;
 }
 
-inline const Ray& SurfaceHit::getIncidentRay() const
+inline const Ray& VolumeHit::getIncidentRay() const
 {
-	PH_ASSERT(m_reason.has(ESurfaceHitReason::IncidentRay));
+	PH_ASSERT(m_reason.has(EVolumeHitReason::IncidentRay));
 	return getRay();
 }
 
-inline const Time& SurfaceHit::getTime() const
+inline const Time& VolumeHit::getTime() const
 {
 	return m_ray.getTime();
 }
 
-inline math::Vector3R SurfaceHit::getPos() const
+inline const Primitive& VolumeHit::getPrimitive() const
 {
-	return m_detail.getPos();
+	PH_ASSERT_MSG(m_primitive,
+		"Does not make sense to call this method if `VolumeHit` hits nothing; "
+		"this should be handled by previous logics.");
+
+	return *m_primitive;
 }
 
-inline math::Vector3R SurfaceHit::getShadingNormal() const
+inline math::Vector3R VolumeHit::getPos() const
 {
-	return m_detail.getShadingNormal();
+	return m_pos;
 }
 
-inline math::Vector3R SurfaceHit::getGeometryNormal() const
+inline const VolumeOptics* VolumeHit::getVolumeOptics() const
 {
-	return m_detail.getGeometryNormal();
+	return m_isInterior ? getInteriorOptics() : getExteriorOptics();
 }
 
 }// end namespace ph

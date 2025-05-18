@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/VolumeBehavior/medium_query_fwd.h"
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/Color/Spectrum.h"
 
@@ -10,29 +11,21 @@
 namespace ph
 {
 
-class SurfaceHit;
-class PhaseFunction;
-class EmissionFunction;
-class MediumDistanceSample;
+class SampleFlow;
+class MediumDistanceSampleQuery;
 
 class VolumeOptics
 {
 public:
 	virtual ~VolumeOptics() = 0;
 
-	void genDistanceSample(MediumDistanceSample& sample) const;
+	void genDistanceSample(MediumDistanceSampleQuery& sample, SampleFlow& sampleFlow) const;
 
 private:
 	virtual void genDistanceSample(
-		const SurfaceHit& X, 
-		const math::Vector3R& L,
-		real maxDist, 
-		real* out_dist, 
-		math::Spectrum* out_pdfAppliedWeight) const = 0;
-
-	//std::shared_ptr<ScatterFunction> m_scatterFunc;
-	//std::shared_ptr<BlockFunction> m_blockFunc;
-	//std::shared_ptr<EmitFunction> m_emitFunc;
+		const MediumDistanceSampleInput& in,
+		SampleFlow& sampleFlow,
+		MediumDistanceSampleOutput& out) const = 0;
 };
 
 }// end namespace ph

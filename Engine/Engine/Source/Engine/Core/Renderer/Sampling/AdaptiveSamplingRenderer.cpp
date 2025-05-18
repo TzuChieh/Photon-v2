@@ -3,7 +3,6 @@
 #include "Engine/Core/SampleGenerator/SampleGenerator.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
 #include "Engine/World/VisualWorld.h"
-#include "Engine/Core/Filmic/HdrRgbFilm.h"
 #include "Engine/Core/Renderer/RenderWork.h"
 #include "Engine/Core/Renderer/RenderWorker.h"
 #include "Engine/Core/Renderer/RendererProxy.h"

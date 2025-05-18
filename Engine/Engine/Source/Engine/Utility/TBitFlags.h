@@ -18,6 +18,8 @@ class TBitFlags final
 	static_assert(std::is_integral_v<Value>);
 	static_assert(std::is_integral_v<Input> || std::is_enum_v<Input>);
 
+	// We store the flags in an explicitly specified integral type,
+	// so enums without fixed underlying type can be used.
 	static_assert(sizeof(Value) >= sizeof(Input),
 		"Input type may overflow Value type.");
 

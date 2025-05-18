@@ -18,8 +18,8 @@ class EnergyEmissionSampleQuery;
 class Ray;
 class Emitter;
 class Primitive;
-class SurfaceHit;
 class SampleFlow;
+class VolumeBehavior;
 
 /*! @brief A unified interface for accessing cooked content in a visual world.
 */
@@ -54,7 +54,13 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const;
 
+	/*! @brief Set the primitive to use when no other intersection is found.
+	*/
 	void setBackgroundPrimitive(const Primitive* const primitive);
+
+	const Primitive* getBackgroundPrimitive() const;
+
+	const VolumeBehavior* getBackgroundVolumeBehavior() const;
 
 private:
 	const Intersector*    m_intersector;
@@ -67,6 +73,11 @@ private:
 inline void Scene::setBackgroundPrimitive(const Primitive* const primitive)
 {
 	m_backgroundPrimitive = primitive;
+}
+
+inline const Primitive* Scene::getBackgroundPrimitive() const
+{
+	return m_backgroundPrimitive;
 }
 
 }// end namespace ph

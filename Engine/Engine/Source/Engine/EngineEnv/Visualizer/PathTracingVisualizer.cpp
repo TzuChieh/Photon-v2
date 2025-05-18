@@ -38,28 +38,34 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const
 {
-	PTEstimatorParams params = makePTEstimatorParams();
-
+	std::unique_ptr<PathEnergyEstimator> estimator;
 	switch(getEstimator())
 	{
 	case ERayEnergyEstimator::BVPT:
-		return std::make_unique<BVPTEstimator>(params);
+		estimator = std::make_unique<BVPTEstimator>();
+		break;
 
 	case ERayEnergyEstimator::BVVPT:
-		return std::make_unique<BVVPTEstimator>(params);
+		estimator = std::make_unique<BVVPTEstimator>();
+		break;
 
 	case ERayEnergyEstimator::BNEEPT:
-		return std::make_unique<BNEEPTEstimator>(params);
+		estimator = std::make_unique<BNEEPTEstimator>();
+		break;
 
 	case ERayEnergyEstimator::BVPTDL:
-		return std::make_unique<BVPTDLEstimator>(params);
+		estimator = std::make_unique<BVPTDLEstimator>();
+		break;
 
 	default:
 		PH_LOG(PathTracingVisualizer, Note, "no ray energy estimator unspecified, using BNEEPT");
-		return std::make_unique<BNEEPTEstimator>(params);
+		estimator = std::make_unique<BNEEPTEstimator>();
+		break;
 	}
 
-	return {};
+	PTEstimatorParams params = makePTEstimatorParams();
+	estimator->setPTParams(params);
+	return estimator;
 }
 
 PTEstimatorParams PathTracingVisualizer::makePTEstimatorParams() const

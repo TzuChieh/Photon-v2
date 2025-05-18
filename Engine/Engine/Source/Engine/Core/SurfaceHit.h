@@ -10,6 +10,8 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
+namespace ph::lta { class SidednessAgreement; }
+
 namespace ph
 {
 

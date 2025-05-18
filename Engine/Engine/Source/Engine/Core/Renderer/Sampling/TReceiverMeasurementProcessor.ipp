@@ -42,14 +42,14 @@ process(
 	SampleFlow&           sampleFlow)
 -> void
 {
-	for(const auto* estimator : m_estimators)
+	for(const auto& estimator : m_estimators)
 	{
 		estimator->estimate(sensedRay, m_integrand, sampleFlow, m_estimations);
 	}
 
 	for(const auto& [estimationIdx, filmIdx] : m_estimationToFilm)
 	{
-		m_films[filmIdx].addSample(
+		m_films[filmIdx]->addSample(
 			rasterCoord.x(),
 			rasterCoord.y(),
 			m_estimations[estimationIdx] * quantityWeight);
@@ -97,7 +97,7 @@ clearFilm(const std::size_t index)
 {
 	PH_ASSERT_LT(index, m_films.size());
 
-	m_films[index].clear();
+	m_films[index]->clear();
 }
 
 template<typename Estimation>
@@ -107,7 +107,7 @@ mergeFilmTo(const std::size_t fromIndex, FilmType& toFilm)
 {
 	PH_ASSERT_LT(fromIndex, m_films.size());
 
-	toFilm.mergeWith(m_films[fromIndex]);
+	toFilm.mergeWith(*(m_films[fromIndex]));
 }
 
 template<typename Estimation>

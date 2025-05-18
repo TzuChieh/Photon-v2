@@ -14,9 +14,8 @@
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Estimator/Integrand.h"
-
-#define MAX_RAY_BOUNCES 10000
-//#define MAX_RAY_BOUNCES 1
+#include "Engine/Core/VolumeBehavior/VolumeOptics.h"
+#include "Engine/Core/VolumeBehavior/MediumDistanceSampleQuery.h"
 
 namespace ph
 {
@@ -66,11 +65,36 @@ void BVVPTEstimator::estimate(
 		}
 		else
 		{
+			SurfaceHit nextSurfaceHit;
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				surfaceHit, tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+				surfaceHit, tracingRay, BsdfQueryContext{}.sidedness, &nextSurfaceHit))
 			{
 				break;
 			}
+
+			const bool isFrontHemisphere = surfaceHit.getShadingNormal().dot(tracingRay.getDir()) > 0;
+			const VolumeHit volumeHit(surfaceHit, tracingRay, !isFrontHemisphere);
+			const VolumeOptics* volumeOptics = volumeHit.getVolumeOptics();
+
+			// Volumetric transport
+			if(volumeOptics)
+			{
+				MediumDistanceSampleQuery distanceSample;
+				distanceSample.inputs.set(volumeHit, tracingRay.getDir(), tracingRay.getSegment().getDeltaT());
+				volumeOptics->genDistanceSample(distanceSample, sampleFlow);
+				if(!distanceSample.outputs)
+				{
+					break;
+				}
+
+				pathThroughput *= distanceSample.outputs.getPdfAppliedWeight();
+				if(pathThroughput.isZero())
+				{
+					break;
+				}
+			}
+
+			surfaceHit = nextSurfaceHit;
 		}
 
 		++pathLength;
@@ -123,50 +147,7 @@ void BVVPTEstimator::estimate(
 			break;
 		}
 
-		// volume test
-		//{
-		//	const math::Vector3R L = bsdfSample.outputs.getL();
-
-		//	const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		//	if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
-		//	{
-		//		SurfaceHit Xe;
-		//		math::Vector3R endV;
-		//		math::Spectrum weight;
-		//		math::Spectrum radiance;
-		//		lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
-
-		//		pathThroughput.mulLocal(weight);
-		//		if(pathThroughput.isZero())
-		//		{
-		//			break;
-		//		}
-
-		//		BsdfSampleQuery bsdfSample;
-		//		bsdfSample.inputs.set(Xe, endV);
-		//		metadata->getSurface().getOptics()->genBsdfSample(bsdfSample, sampleFlow);
-		//		if(!bsdfSample.outputs.isMeasurable())
-		//		{
-		//			break;
-		//		}
-
-		//		// XXX: cosine term?
-		//		pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
-		//		if(pathThroughput.isZero())
-		//		{
-		//			break;
-		//		}
-
-		//		const math::Vector3R nextRayOrigin(Xe.getPos());
-		//		const math::Vector3R nextRayDir(bsdfSample.outputs.getL());
-		//		tracingRay.setOrigin(nextRayOrigin);
-		//		tracingRay.setDir(nextRayDir);
-		//	}
-		//	else
-		//	{
-		//		tracingRay = nextRay;
-		//	}
-		//}
+		tracingRay = nextRay;
 	}// end while
 
 	out_estimation[getPathEnergyIndex()] = pathEnergy;

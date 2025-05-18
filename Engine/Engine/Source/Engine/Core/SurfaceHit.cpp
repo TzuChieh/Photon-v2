@@ -2,8 +2,6 @@
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 
-#include <Common/assertion.h>
-
 #include <type_traits>
 
 namespace ph

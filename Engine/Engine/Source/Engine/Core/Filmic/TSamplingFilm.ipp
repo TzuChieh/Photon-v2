@@ -7,6 +7,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/exceptions.h>
 
 #include <cstddef>
 #include <iostream>
@@ -49,6 +50,14 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 	setSoftEdge(true);
 
 	PH_ASSERT(!getSampleWindowPx().isEmpty());
+}
+
+template<typename Sample>
+inline void TSamplingFilm<Sample>::mergeWith(const TSamplingFilm& other)
+{
+	// By default this operation is not supported. Please override this method to implement or
+	// update existing implementation.
+	throw IllegalOperationException("merging is not supported for these films");
 }
 
 template<typename Sample>

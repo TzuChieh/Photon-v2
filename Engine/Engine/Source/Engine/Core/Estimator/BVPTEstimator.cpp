@@ -135,6 +135,8 @@ void BVPTEstimator::estimate(
 		{
 			break;
 		}
+
+		tracingRay = nextRay;
 	}// end while
 
 	out_estimation[getPathEnergyIndex()] = pathEnergy;

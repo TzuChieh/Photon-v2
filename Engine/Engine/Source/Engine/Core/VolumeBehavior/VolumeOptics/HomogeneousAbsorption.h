@@ -1,30 +1,30 @@
 #pragma once
 
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
-#include "Engine/Math/Color/spectrum_fwd.h"
+#include "Engine/Math/Color/Spectrum.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class MediumCoefficient;
+class TransmittanceFunction;
 
 class HomogeneousAbsorption : public VolumeOptics
 {
 public:
-	HomogeneousAbsorption();
-	explicit HomogeneousAbsorption(const math::Spectrum& sigmaA);
+	HomogeneousAbsorption(
+		const math::Spectrum& sigmaA,
+		const TransmittanceFunction* transmittance);
 
 private:
 	void genDistanceSample(
-		const SurfaceHit& X,
-		const math::Vector3R& L,
-		real maxDist,
-		real* out_dist,
-		math::Spectrum* out_pdfAppliedWeight) const override;
+		const MediumDistanceSampleInput& in,
+		SampleFlow& sampleFlow,
+		MediumDistanceSampleOutput& out) const override;
 
 	math::Spectrum m_sigmaA;
+	const TransmittanceFunction* m_transmittance;
 };
 
 }// end namespace ph

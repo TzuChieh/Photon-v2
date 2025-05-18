@@ -1,35 +1,33 @@
 #include "Engine/Core/VolumeBehavior/VolumeOptics/HomogeneousAbsorption.h"
-#include "Engine/Core/VolumeBehavior/Property/ConstantAbsorptionCoefficient.h"
+#include "Engine/Core/VolumeBehavior/MediumDistanceSampleQuery.h"
+#include "Engine/Core/VolumeBehavior/Property/TransmittanceFunction.h"
 
 #include <Common/assertion.h>
-
-#include <cmath>
 
 namespace ph
 {
 
-HomogeneousAbsorption::HomogeneousAbsorption()
-	: HomogeneousAbsorption(math::Spectrum(0))
-{}
+HomogeneousAbsorption::HomogeneousAbsorption(
+	const math::Spectrum& sigmaA,
+	const TransmittanceFunction* transmittance)
 
-HomogeneousAbsorption::HomogeneousAbsorption(const math::Spectrum& sigmaA)
 	: VolumeOptics()
+
 	, m_sigmaA(sigmaA)
-{}
+	, m_transmittance(transmittance)
+{
+	PH_ASSERT(transmittance);
+}
 
 void HomogeneousAbsorption::genDistanceSample(
-	const SurfaceHit& X,
-	const math::Vector3R& L,
-	const real maxDist,
-	real* const out_dist,
-	math::Spectrum* const out_pdfAppliedWeight) const
+	const MediumDistanceSampleInput& in,
+	SampleFlow& sampleFlow,
+	MediumDistanceSampleOutput& out) const
 {
-	PH_ASSERT(m_sigmaA && out_dist && out_pdfAppliedWeight);
-
-	*out_dist = maxDist;
+	out.setDist(in.getMaxDist());
 
 	// PDF = 1
-	*out_pdfAppliedWeight = m_blockFunc->calcTransmittance(maxDist);
+	out.setPdfAppliedWeight(m_transmittance->eval(m_sigmaA * in.getMaxDist()));
 }
 
 }// end namespace ph

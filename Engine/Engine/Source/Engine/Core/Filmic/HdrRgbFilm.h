@@ -37,6 +37,7 @@ public:
 
 	void addSample(float64 xPx, float64 yPx, const math::Spectrum& sample) override;
 	void setPixel(float64 xPx, float64 yPx, const math::Spectrum& sample) override;
+	void mergeWith(const TSamplingFilm<math::Spectrum>& other) override;
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
@@ -63,8 +64,6 @@ public:
 	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3R& rgb, float64 weight = 1);
 	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3D& rgb, float64 weight = 1);
 	///@}
-
-	void mergeWith(const HdrRgbFilm& other);
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const override;

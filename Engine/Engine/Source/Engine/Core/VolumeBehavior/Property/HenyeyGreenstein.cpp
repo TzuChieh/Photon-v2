@@ -1,4 +1,4 @@
-#include "Engine/Core/VolumeBehavior/ScatterFunction/HenyeyGreenstein.h"
+#include "Engine/Core/VolumeBehavior/Property/HenyeyGreenstein.h"
 #include "Engine/Core/Texture/constant_textures.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
@@ -12,13 +12,13 @@
 namespace ph
 {
 	
-HenyeyGreenstein::HenyeyGreenstein(const real g) : 
-	HenyeyGreenstein(std::make_shared<TConstantTexture<real>>(g))
+HenyeyGreenstein::HenyeyGreenstein(const real g)
+	: HenyeyGreenstein(std::make_shared<TConstantTexture<real>>(g))
 {}
 
-HenyeyGreenstein::HenyeyGreenstein(const std::shared_ptr<TTexture<real>>& g) :
-	ScatterFunction(),
-	m_g(g)
+HenyeyGreenstein::HenyeyGreenstein(const std::shared_ptr<TTexture<real>>& g)
+	: PhaseFunction()
+	, m_g(g)
 {
 	PH_ASSERT(g);
 }

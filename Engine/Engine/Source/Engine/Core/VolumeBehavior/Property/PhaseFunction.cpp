@@ -1,8 +1,8 @@
-#include "Engine/Core/VolumeBehavior/ScatterFunction.h"
+#include "Engine/Core/VolumeBehavior/Property/PhaseFunction.h"
 
 namespace ph
 {
 
-ScatterFunction::~ScatterFunction() = default;
+PhaseFunction::~PhaseFunction() = default;
 
 }// end namespace ph
