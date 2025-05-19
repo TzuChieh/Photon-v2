@@ -1,18 +1,17 @@
 #include "Engine/Actor/Material/LayeredSurface.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 
 namespace ph
 {
 
-LayeredSurface::LayeredSurface() : 
-	SurfaceMaterial(),
-	m_layers()
-{}
-
-void LayeredSurface::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void LayeredSurface::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
 	std::vector<real>           alphas;
 	std::vector<math::Spectrum> iorNs;
@@ -32,7 +31,8 @@ void LayeredSurface::genSurface(const CookingContext& ctx, SurfaceBehavior& beha
 		sigmaSs.push_back(layer.getSigmaS());
 	}
 
-	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas, depths, gs, sigmaAs, sigmaSs));
+	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LbLayeredSurface>(
+		iorNs, iorKs, alphas, depths, gs, sigmaAs, sigmaSs);
 }
 
 void LayeredSurface::addLayer()

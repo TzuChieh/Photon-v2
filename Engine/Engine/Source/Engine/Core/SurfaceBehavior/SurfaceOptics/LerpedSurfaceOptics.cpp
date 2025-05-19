@@ -19,8 +19,8 @@ namespace ph
 {
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
-	const std::shared_ptr<SurfaceOptics>& optics0,
-	const std::shared_ptr<SurfaceOptics>& optics1)
+	const SurfaceOptics* optics0,
+	const SurfaceOptics* optics1)
 
 	: LerpedSurfaceOptics(
 		optics0,
@@ -29,8 +29,8 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 {}
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
-	const std::shared_ptr<SurfaceOptics>& optics0,
-	const std::shared_ptr<SurfaceOptics>& optics1,
+	const SurfaceOptics* optics0,
+	const SurfaceOptics* optics1,
 	const real ratio)
 
 	: LerpedSurfaceOptics(
@@ -40,8 +40,8 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 {}
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
-	const std::shared_ptr<SurfaceOptics>& optics0,
-	const std::shared_ptr<SurfaceOptics>& optics1,
+	const SurfaceOptics* optics0,
+	const SurfaceOptics* optics1,
 	const std::shared_ptr<TTexture<math::Spectrum>>& ratio)
 
 	: m_optics0      (optics0)
@@ -143,8 +143,8 @@ void LerpedSurfaceOptics::genBsdfSample(
 	// When both optics are non-delta, sample the lerped distribution
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
-		SurfaceOptics* sampledOptics = m_optics0.get();
-		SurfaceOptics* anotherOptics = m_optics1.get();
+		const SurfaceOptics* sampledOptics = m_optics0;
+		const SurfaceOptics* anotherOptics = m_optics1;
 		math::Spectrum sampledRatio = ratio;
 		real sampledProb = probabilityOfPickingOptics0(ratio);
 		if(!sampleFlow.unflowedPick(sampledProb))
@@ -191,12 +191,12 @@ void LerpedSurfaceOptics::genBsdfSample(
 	// When one or both of the optics are deltas, pick one to sample
 	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
 	{
-		SurfaceOptics* sampledOptics = m_optics0.get();
+		const SurfaceOptics* sampledOptics = m_optics0;
 		math::Spectrum sampledRatio = ratio;
 		real sampledProb = probabilityOfPickingOptics0(ratio);
 		if(!sampleFlow.unflowedPick(sampledProb))
 		{
-			sampledOptics = m_optics1.get();
+			sampledOptics = m_optics1;
 			sampledRatio = 1.0_r - sampledRatio;
 			sampledProb = 1.0_r - sampledProb;
 		}

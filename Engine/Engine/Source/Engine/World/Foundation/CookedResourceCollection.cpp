@@ -15,6 +15,11 @@ const CookedGeometry* CookedResourceCollection::getGeometry(const SdlResourceId 
 	return getCookedResourceByID(m_idToGeometry, id);
 }
 
+const CookedMaterial* CookedResourceCollection::getMaterial(const SdlResourceId id) const
+{
+	return getCookedResourceByID(m_idToMaterial, id);
+}
+
 const CookedMotion* CookedResourceCollection::getMotion(const SdlResourceId id) const
 {
 	return getCookedResourceByID(m_idToMotion, id);

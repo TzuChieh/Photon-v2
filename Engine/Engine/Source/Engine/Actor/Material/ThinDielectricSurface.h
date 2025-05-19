@@ -13,7 +13,9 @@ namespace ph
 class ThinDielectricSurface : public SurfaceMaterial
 {
 public:
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 private:
 	DielectricInterfaceInfo m_interfaceInfo;

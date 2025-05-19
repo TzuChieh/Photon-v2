@@ -11,15 +11,12 @@ namespace ph
 class SurfaceMaterial;
 class VolumeMaterial;
 
-// TODO: volume material
-
 class FullMaterial final : public Material
 {
 public:
-	FullMaterial();
-	explicit FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMaterial);
-
-	void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 private:
 	std::shared_ptr<SurfaceMaterial> m_surfaceMaterial;

@@ -19,21 +19,21 @@ class LerpedSurfaceOptics : public SurfaceOptics
 {
 public:
 	LerpedSurfaceOptics(
-		const std::shared_ptr<SurfaceOptics>& optics0, 
-		const std::shared_ptr<SurfaceOptics>& optics1);
+		const SurfaceOptics* optics0,
+		const SurfaceOptics* optics1);
 
 	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
 	*/
 	LerpedSurfaceOptics(
-		const std::shared_ptr<SurfaceOptics>& optics0,
-		const std::shared_ptr<SurfaceOptics>& optics1,
+		const SurfaceOptics* optics0,
+		const SurfaceOptics* optics1,
 		real ratio);
 
 	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
 	*/
 	LerpedSurfaceOptics(
-		const std::shared_ptr<SurfaceOptics>& optics0, 
-		const std::shared_ptr<SurfaceOptics>& optics1,
+		const SurfaceOptics* optics0,
+		const SurfaceOptics* optics1,
 		const std::shared_ptr<TTexture<math::Spectrum>>& ratio);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
@@ -59,8 +59,8 @@ private:
 
 	static real probabilityOfPickingOptics0(const math::Spectrum& ratio);
 
-	std::shared_ptr<SurfaceOptics>            m_optics0;
-	std::shared_ptr<SurfaceOptics>            m_optics1;
+	const SurfaceOptics*                      m_optics0;
+	const SurfaceOptics*                      m_optics1;
 	std::shared_ptr<TTexture<math::Spectrum>> m_ratio;
 	TSampler<math::Spectrum>                  m_sampler;
 	bool                                      m_containsDelta;

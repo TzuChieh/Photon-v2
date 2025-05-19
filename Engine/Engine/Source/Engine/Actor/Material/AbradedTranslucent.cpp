@@ -1,25 +1,19 @@
 #include "Engine/Actor/Material/AbradedTranslucent.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
-
-#include <memory>
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 namespace ph
 {
 
-AbradedTranslucent::AbradedTranslucent() :
-	SurfaceMaterial(),
-
-	m_interfaceInfo   (),
-	m_microsurfaceInfo()
-{}
-
-void AbradedTranslucent::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void AbradedTranslucent::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
-	behavior.setOptics(
-		std::make_unique<TranslucentMicrofacet>(
-			m_interfaceInfo.genFresnelEffect(),
-			m_microsurfaceInfo.genMicrofacet()));
+	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<TranslucentMicrofacet>(
+		m_interfaceInfo.genFresnelEffect(),
+		m_microsurfaceInfo.genMicrofacet());
 
 	// TODO: generate ideal dielectric if roughness == 0
 }

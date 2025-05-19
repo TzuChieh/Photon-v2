@@ -1,8 +1,10 @@
 #include "Engine/Actor/Material/FullMaterial.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Engine/Actor/Material/SurfaceMaterial.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
+#include "Engine/Actor/Material/SurfaceMaterial.h"
 #include "Engine/Actor/Material/VolumeMaterial.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -12,22 +14,9 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(FullMaterial, Material);
 
-FullMaterial::FullMaterial() : 
-	FullMaterial(nullptr)
-{}
-
-FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMaterial) : 
-
-	Material(),
-
-	m_surfaceMaterial (surfaceMaterial),
-	m_interiorMaterial(nullptr),
-	m_exteriorMaterial(nullptr)
-{}
-
-void FullMaterial::genBehaviors(
-	const CookingContext& ctx,
-	PrimitiveMetadata& metadata) const
+void FullMaterial::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
 	if(!m_surfaceMaterial && !m_interiorMaterial && !m_exteriorMaterial)
 	{
@@ -37,19 +26,24 @@ void FullMaterial::genBehaviors(
 
 	if(m_surfaceMaterial)
 	{
-		m_surfaceMaterial->genBehaviors(ctx, metadata);
+		const CookedMaterial* cooked = m_surfaceMaterial->createCooked(ctx);
+		out_material.surfaceOptics = cooked && cooked->surfaceOptics ? cooked->surfaceOptics : nullptr;
 	}
 
 	if(m_interiorMaterial)
 	{
-		m_interiorMaterial->setSidedness(VolumeMaterial::ESidedness::INTERIOR);
-		m_interiorMaterial->genBehaviors(ctx, metadata);
+		const CookedMaterial* cooked = m_interiorMaterial->createCooked(ctx);
+		out_material.volumeCompositions.push_back({
+			.optics = cooked ? cooked->getInteriorOptics() : nullptr,
+			.isExterior = false});
 	}
 
 	if(m_exteriorMaterial)
 	{
-		m_exteriorMaterial->setSidedness(VolumeMaterial::ESidedness::EXTERIOR);
-		m_exteriorMaterial->genBehaviors(ctx, metadata);
+		const CookedMaterial* cooked = m_exteriorMaterial->createCooked(ctx);
+		out_material.volumeCompositions.push_back({
+			.optics = cooked ? cooked->getExteriorOptics() : nullptr,
+			.isExterior = true});
 	}
 }
 

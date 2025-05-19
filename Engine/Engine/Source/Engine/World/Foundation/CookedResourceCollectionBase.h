@@ -29,6 +29,10 @@ public:
 	virtual std::string getStats() const = 0;
 
 protected:
+	/*!
+	Maps SDL resource to its corresponding cooked resource. This information is not needed during
+	rendering and can be cleaned up in theory. It is kept for now for debugging purposes.
+	*/
 	template<typename CookedType>
 	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
 

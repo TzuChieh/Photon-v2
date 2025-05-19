@@ -11,9 +11,9 @@ namespace ph
 class AbradedOpaque : public SurfaceMaterial
 {
 public:
-	AbradedOpaque();
-
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 private:
 	ConductiveInterfaceInfo m_interfaceInfo;

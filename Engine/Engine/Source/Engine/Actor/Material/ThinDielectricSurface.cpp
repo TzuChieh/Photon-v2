@@ -1,27 +1,29 @@
 #include "Engine/Actor/Material/ThinDielectricSurface.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/ThinDielectricShell.h"
 #include "Engine/Actor/Image/SwizzledImage.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
-#include <utility>
-
 namespace ph
 {
 
-void ThinDielectricSurface::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void ThinDielectricSurface::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
 	std::shared_ptr<TTexture<math::Spectrum>> reflectionScale = m_reflectionScale
 		? m_reflectionScale->genColorTexture(ctx) : nullptr;
 	std::shared_ptr<TTexture<math::Spectrum>> transmissionScale = m_transmissionScale
 		? m_transmissionScale->genColorTexture(ctx) : nullptr;
 
-	std::unique_ptr<ThinDielectricShell> surfaceOptics;
+	ThinDielectricShell* surfaceOptics = nullptr;
 	if(!m_thickness && !m_sigmaT)
 	{
-		surfaceOptics = std::make_unique<ThinDielectricShell>(
+		surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
 			m_interfaceInfo.genFresnelEffect(),
 			reflectionScale,
 			transmissionScale);
@@ -35,7 +37,7 @@ void ThinDielectricSurface::genSurface(const CookingContext& ctx, SurfaceBehavio
 				"thickness ({}) and sigma_t ({}) are provided.",
 				m_thickness ? "available" : "missing", m_sigmaT ? "available" : "missing");
 
-			surfaceOptics = std::make_unique<ThinDielectricShell>(
+			surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
 				m_interfaceInfo.genFresnelEffect(),
 				reflectionScale,
 				transmissionScale);
@@ -49,7 +51,7 @@ void ThinDielectricSurface::genSurface(const CookingContext& ctx, SurfaceBehavio
 			thickness->setInput(m_thickness);
 			thickness->setSwizzleSubscripts("x");
 
-			surfaceOptics = std::make_unique<ThinDielectricShell>(
+			surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
 				m_interfaceInfo.genFresnelEffect(),
 				thickness->genRealTexture(ctx),
 				m_sigmaT->genColorTexture(ctx),
@@ -59,7 +61,7 @@ void ThinDielectricSurface::genSurface(const CookingContext& ctx, SurfaceBehavio
 	}
 
 	PH_ASSERT(surfaceOptics);
-	behavior.setOptics(std::move(surfaceOptics));
+	out_material.surfaceOptics = surfaceOptics;
 }
 
 }// end namespace ph

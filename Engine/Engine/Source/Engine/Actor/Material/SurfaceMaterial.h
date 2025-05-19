@@ -3,8 +3,6 @@
 #include "Engine/Actor/Material/Material.h"
 #include "Engine/SDL/sdl_interface.h"
 
-#include <memory>
-
 namespace ph
 {
 
@@ -14,9 +12,9 @@ class SurfaceBehavior;
 class SurfaceMaterial : public Material
 {
 public:
-	virtual void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const = 0;
-
-	void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SurfaceMaterial>)

@@ -12,9 +12,9 @@ namespace ph
 class LayeredSurface : public SurfaceMaterial
 {
 public:
-	LayeredSurface();
-
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 	
 	void addLayer();
 	void setLayer(std::size_t layerIndex, const SurfaceLayerInfo& layer);

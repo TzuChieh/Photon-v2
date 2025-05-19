@@ -1,10 +1,12 @@
 #include "Engine/Actor/Material/MatteOpaque.h"
 #include "Engine/Actor/Image/ConstantImage.h"
 #include "Engine/Math/TVector3.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
 #include "Engine/Actor/Image/SwizzledImage.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -14,7 +16,9 @@
 namespace ph
 {
 
-void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void MatteOpaque::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
 	auto albedo = m_albedo;
 	if(!albedo)
@@ -24,24 +28,24 @@ void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavio
 		albedo = makeConstantAlbedo(math::Vector3R(0.5_r));
 	}
 
-	std::shared_ptr<SurfaceOptics> optics;
+	const SurfaceOptics* optics = nullptr;
 	if(m_sigmaDegrees)
 	{
 		auto sigmaDegrees = TSdl<SwizzledImage>::makeResource();
 		sigmaDegrees->setInput(m_sigmaDegrees);
 		sigmaDegrees->setSwizzleSubscripts("x");
 
-		optics = std::make_shared<OrenNayar>(
+		optics = ctx.getResources()->makeSurfaceOptics<OrenNayar>(
 			albedo->genColorTexture(ctx),
 			sigmaDegrees->genRealTexture(ctx));
 	}
 	else
 	{
-		optics = std::make_shared<LambertianReflector>(
+		optics = ctx.getResources()->makeSurfaceOptics<LambertianReflector>(
 			albedo->genColorTexture(ctx));
 	}
 
-	behavior.setOptics(optics);
+	out_material.surfaceOptics = optics;
 }
 
 void MatteOpaque::setAlbedo(const math::Vector3R& albedo)

@@ -40,9 +40,9 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EIdealSubstance>)
 class IdealSubstance : public SurfaceMaterial
 {
 public:
-	IdealSubstance();
-
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 	void setSubstance(EIdealSubstance substance);
 

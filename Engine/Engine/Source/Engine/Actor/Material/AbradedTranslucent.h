@@ -11,9 +11,9 @@ namespace ph
 class AbradedTranslucent : public SurfaceMaterial
 {
 public:
-	AbradedTranslucent();
-
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 private:
 	DielectricInterfaceInfo m_interfaceInfo;

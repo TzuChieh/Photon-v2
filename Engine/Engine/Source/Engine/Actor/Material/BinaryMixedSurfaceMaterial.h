@@ -27,7 +27,9 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ESurfaceMaterialMixMode>)
 class BinaryMixedSurfaceMaterial : public SurfaceMaterial
 {
 public:
-	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void storeCooked(
+		CookedMaterial& out_material,
+		const CookingContext& ctx) const override;
 
 	void setMode(ESurfaceMaterialMixMode mode);
 

@@ -1,8 +1,10 @@
 #include "Engine/Actor/Material/BinaryMixedSurfaceMaterial.h"
 #include "Engine/Actor/Image/ConstantImage.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
 #include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -14,19 +16,20 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedSurfaceMaterial, Material);
 
-void BinaryMixedSurfaceMaterial::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void BinaryMixedSurfaceMaterial::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
 	if(!m_material0 || !m_material1)
 	{
 		throw CookException("One or more materials are empty. Cannot perform binary mix operation.");
 	}
 
-	SurfaceBehavior behavior0, behavior1;
-	m_material0->genSurface(ctx, behavior0);
-	m_material1->genSurface(ctx, behavior1);
-	auto optics0 = behavior0.getOpticsResource();
-	auto optics1 = behavior1.getOpticsResource();
-	if(!optics0 || !optics1)
+	const CookedMaterial* cookedMaterial0 = m_material0->createCooked(ctx);
+	const CookedMaterial* cookedMaterial1 = m_material1->createCooked(ctx);
+
+	if(!(cookedMaterial0 && cookedMaterial0->surfaceOptics) || 
+	   !(cookedMaterial1 && cookedMaterial1->surfaceOptics))
 	{
 		throw CookException("Surface optics generation failed. Cannot perform binary mix operation.");
 	}
@@ -37,13 +40,18 @@ void BinaryMixedSurfaceMaterial::genSurface(const CookingContext& ctx, SurfaceBe
 		if(m_factor)
 		{
 			auto factor = m_factor->genColorTexture(ctx);
-			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor));
+			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LerpedSurfaceOptics>(
+				cookedMaterial0->surfaceOptics,
+				cookedMaterial1->surfaceOptics,
+				factor);
 		}
 		else
 		{
 			PH_LOG(BinaryMixedSurfaceMaterial, Warning,
 				"No lerp factor specified. The result might not be what you want.");
-			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1));
+			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LerpedSurfaceOptics>(
+				cookedMaterial0->surfaceOptics,
+				cookedMaterial1->surfaceOptics);
 		}
 		break;
 

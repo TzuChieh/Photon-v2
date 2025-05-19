@@ -1,26 +1,20 @@
 #include "Engine/Actor/Material/AbradedOpaque.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h"
-
-#include <memory>
+#include "Engine/World/Foundation/CookedMaterial.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 namespace ph
 {
 
-AbradedOpaque::AbradedOpaque() : 
-
-	SurfaceMaterial(),
-
-	m_interfaceInfo(),
-	m_microsurfaceInfo()
-{}
-
-void AbradedOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
+void AbradedOpaque::storeCooked(
+	CookedMaterial& out_material,
+	const CookingContext& ctx) const
 {
-	behavior.setOptics(
-		std::make_unique<OpaqueMicrofacet>(
-			m_interfaceInfo.genFresnelEffect(),
-			m_microsurfaceInfo.genMicrofacet()));
+	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<OpaqueMicrofacet>(
+		out_material,
+		m_interfaceInfo.genFresnelEffect(),
+		m_microsurfaceInfo.genMicrofacet());
 
 	// TODO: generate ideal reflector if roughness == 0
 }
