@@ -35,7 +35,7 @@ void FullMaterial::storeCooked(
 		const CookedMaterial* cooked = m_interiorMaterial->createCooked(ctx);
 		out_material.volumeCompositions.push_back({
 			.optics = cooked ? cooked->getInteriorOptics() : nullptr,
-			.isExterior = false});
+			.type = EVolumeComposition::Interior});
 	}
 
 	if(m_exteriorMaterial)
@@ -43,7 +43,7 @@ void FullMaterial::storeCooked(
 		const CookedMaterial* cooked = m_exteriorMaterial->createCooked(ctx);
 		out_material.volumeCompositions.push_back({
 			.optics = cooked ? cooked->getExteriorOptics() : nullptr,
-			.isExterior = true});
+			.type = EVolumeComposition::Exterior});
 	}
 }
 

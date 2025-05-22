@@ -36,9 +36,9 @@ public:
 	const PrimitiveChannel& getDefaultChannel() const;
 	bool isChannelIdValid(uint8 channelId) const;
 
-	SurfaceBehavior& getSurface();
-	VolumeBehavior& getInterior();
-	VolumeBehavior& getExterior();
+	SurfaceBehavior& surface();
+	VolumeBehavior& interior();
+	VolumeBehavior& exterior();
 
 	const SurfaceBehavior& getSurface() const;
 	const VolumeBehavior& getInterior() const;
@@ -73,17 +73,17 @@ inline bool PrimitiveMetadata::isChannelIdValid(const uint8 channelId) const
 	return channelId < m_channels.size();
 }
 
-inline SurfaceBehavior& PrimitiveMetadata::getSurface()
+inline SurfaceBehavior& PrimitiveMetadata::surface()
 {
 	return m_surface;
 }
 
-inline VolumeBehavior& PrimitiveMetadata::getInterior()
+inline VolumeBehavior& PrimitiveMetadata::interior()
 {
 	return m_interior;
 }
 
-inline VolumeBehavior& PrimitiveMetadata::getExterior()
+inline VolumeBehavior& PrimitiveMetadata::exterior()
 {
 	return m_exterior;
 }

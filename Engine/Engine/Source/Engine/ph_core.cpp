@@ -22,7 +22,7 @@
 #include "Engine/Actor/Material/IdealSubstance.h"
 #include "Engine/Actor/Material/BinaryMixedSurfaceMaterial.h"
 #include "Engine/Actor/Material/FullMaterial.h"
-#include "Engine/Actor/Material/Volume/VAbsorptionOnly.h"
+#include "Engine/Actor/Material/Volume/IdealMedium.h"
 #include "Engine/Actor/Material/LayeredSurface.h"
 #include "Engine/Actor/Material/ThinFilm.h"
 #include "Engine/Actor/Material/ThinDielectricSurface.h"
@@ -159,6 +159,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<LayeredSurface>(),
 		get_sdl_class<BinaryMixedSurfaceMaterial>(),
 		get_sdl_class<ThinDielectricSurface>(),
+		get_sdl_class<IdealMedium>(),
 
 		// Images
 		get_sdl_class<Image>(),

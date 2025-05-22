@@ -6,8 +6,6 @@
 
 #include <Common/primitive_type.h>
 
-#include <memory>
-
 namespace ph
 {
 
@@ -16,25 +14,27 @@ class SurfaceBehavior final
 public:
 	SurfaceBehavior();
 
-	void setOptics(std::shared_ptr<SurfaceOptics> optics);
+	void setOptics(const SurfaceOptics* optics);
 	void setEmitter(const Emitter* emitter);
-	std::shared_ptr<SurfaceOptics> getOpticsResource() const;
 
-	inline const SurfaceOptics* getOptics() const
-	{
-		return m_optics.get();
-	}
-
-	inline const Emitter* getEmitter() const
-	{
-		return m_emitter;
-	}
+	const SurfaceOptics* getOptics() const;
+	const Emitter* getEmitter() const;
 
 private:
-	std::shared_ptr<SurfaceOptics> m_optics;
+	const SurfaceOptics* m_optics;
 
 	// FIXME: store SurfaceEmitter only
-	const Emitter*                 m_emitter;
+	const Emitter* m_emitter;
 };
+
+inline const SurfaceOptics* SurfaceBehavior::getOptics() const
+{
+	return m_optics;
+}
+
+inline const Emitter* SurfaceBehavior::getEmitter() const
+{
+	return m_emitter;
+}
 
 }// end namespace ph

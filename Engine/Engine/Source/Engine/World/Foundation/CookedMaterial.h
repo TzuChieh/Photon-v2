@@ -30,6 +30,7 @@ public:
 	/*!
 	@return Pointer to the first interior volume optics, or `nullptr` if none exist.
 	*/
+	// TODO: something like findFirstCompatibleOptics(**interior, **exterior)
 	const VolumeOptics* getInteriorOptics() const;
 
 	/*!
@@ -42,7 +43,8 @@ inline const VolumeOptics* CookedMaterial::getInteriorOptics() const
 {
 	for(const VolumeComposition& comp : volumeCompositions)
 	{
-		if(!comp.isExterior && comp.optics)
+		if((comp.type == EVolumeComposition::Interior || comp.type == EVolumeComposition::General) && 
+		   comp.optics)
 		{
 			return comp.optics;
 		}
@@ -54,7 +56,8 @@ inline const VolumeOptics* CookedMaterial::getExteriorOptics() const
 {
 	for(const VolumeComposition& comp : volumeCompositions)
 	{
-		if(comp.isExterior && comp.optics)
+		if((comp.type == EVolumeComposition::Exterior || comp.type == EVolumeComposition::General) && 
+		   comp.optics)
 		{
 			return comp.optics;
 		}

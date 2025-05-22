@@ -1,6 +1,7 @@
 #include "Engine/Actor/Material/Material.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
 

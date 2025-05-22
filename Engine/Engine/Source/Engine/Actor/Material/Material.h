@@ -24,8 +24,6 @@ public:
 		CookedMaterial& out_material,
 		const CookingContext& ctx) const = 0;
 
-	virtual void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
-
 	/*! @brief Create a `CookedMaterial` that contains data suitable for rendering.
 	*/
 	CookedMaterial* createCooked(const CookingContext& ctx) const;

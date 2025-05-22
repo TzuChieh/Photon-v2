@@ -77,7 +77,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
 	material->setSubstance(EIdealSubstance::Absorber);
-	material->genBehaviors(ctx, *metadata);
+	metadata->surface().setOptics(material->createCooked(ctx)->surfaceOptics);
 
 	auto* domePrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
 		ReferencedPrimitiveMetaGetter(metadata), 
@@ -110,7 +110,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 			math::Vector2S(512, 256));
 	}
 
-	metadata->getSurface().setEmitter(domeEmitter);
+	metadata->surface().setEmitter(domeEmitter);
 	
 	// Store cooked data
 
