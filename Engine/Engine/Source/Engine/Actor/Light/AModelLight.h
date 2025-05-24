@@ -17,6 +17,8 @@ public:
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const override;
 
+	bool isVolumetricEmissionSupported() const override;
+
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
 	void setBackFaceEmit(bool isBackFaceEmit);
@@ -33,7 +35,8 @@ public:
 		ClassType clazz("model-light");
 		clazz.docName("Model Light Actor");
 		clazz.description(
-			"A light source that emits energy from the surface of a geometry. A surface material model "
+			"A light source that emits energy from the surface of an arbitrary geometry. This type "
+			"of light has much more flexibility than other types of light. A surface material model "
 			"can also be given to describe its surface appearance.");
 		clazz.baseOn<AGeometricLight>();
 

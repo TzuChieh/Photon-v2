@@ -105,7 +105,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		if(result.emitters.size() == 1)
 		{
 			auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
-			iesMetadata->getSurface().setEmitter(result.emitters[0]);
+			iesMetadata->surface().setEmitter(result.emitters[0]);
 			for(auto* sourcePrimitive : sourceElement.primitivesView)
 			{
 				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
@@ -123,7 +123,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 			for(std::size_t i = 0; i < result.emitters.size(); ++i)
 			{
 				auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
-				iesMetadata->getSurface().setEmitter(result.emitters[i]);
+				iesMetadata->surface().setEmitter(result.emitters[i]);
 
 				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
 					TMetaInjectionPrimitive(

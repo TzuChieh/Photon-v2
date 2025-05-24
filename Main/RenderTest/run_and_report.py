@@ -5,12 +5,13 @@ import pytest
 import sys
 
 
-# TODO: clean previous test
-# TODO: collect run time
-# TODO: collect system information
-retcode = pytest.main(sys.argv[1:])
+if __name__ == '__main__':
+    # TODO: clean previous test
+    # TODO: collect run time
+    # TODO: collect system information
+    retcode = pytest.main(sys.argv[1:])
 
-# TODO: clean previous report
-make_report.write()
+    # TODO: clean previous report
+    make_report.write()
 
-sys.exit(retcode)
+    sys.exit(retcode)

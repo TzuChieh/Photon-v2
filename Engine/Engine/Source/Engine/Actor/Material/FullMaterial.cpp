@@ -30,20 +30,30 @@ void FullMaterial::storeCooked(
 		out_material.surfaceOptics = cooked && cooked->surfaceOptics ? cooked->surfaceOptics : nullptr;
 	}
 
-	if(m_interiorMaterial)
+	const CookedMaterial* cookedInterior = m_interiorMaterial ? m_interiorMaterial->createCooked(ctx) : nullptr;
+	if(cookedInterior)
 	{
-		const CookedMaterial* cooked = m_interiorMaterial->createCooked(ctx);
-		out_material.volumeCompositions.push_back({
-			.optics = cooked ? cooked->getInteriorOptics() : nullptr,
-			.type = EVolumeComposition::Interior});
+		const VolumeOptics* optics = nullptr;
+		cookedInterior->findFirstCompatibleOptics(&optics, nullptr);
+		if(optics)
+		{
+			out_material.volumeCompositions.push_back({
+				.optics = optics,
+				.type = EVolumeComposition::Interior});
+		}
 	}
-
-	if(m_exteriorMaterial)
+	
+	const CookedMaterial* cookedExterior = m_exteriorMaterial ? m_exteriorMaterial->createCooked(ctx) : nullptr;
+	if(cookedExterior)
 	{
-		const CookedMaterial* cooked = m_exteriorMaterial->createCooked(ctx);
-		out_material.volumeCompositions.push_back({
-			.optics = cooked ? cooked->getExteriorOptics() : nullptr,
-			.type = EVolumeComposition::Exterior});
+		const VolumeOptics* optics = nullptr;
+		cookedExterior->findFirstCompatibleOptics(nullptr, &optics);
+		if(optics)
+		{
+			out_material.volumeCompositions.push_back({
+				.optics = optics,
+				.type = EVolumeComposition::Exterior});
+		}
 	}
 }
 

@@ -72,7 +72,21 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
 
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
-	material->genBehaviors(ctx, *metadata);
+	
+	CookedMaterial* cookedMaterial = material->createCooked(ctx);
+	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
+
+	if(isVolumetricEmissionSupported())
+	{
+		// Assuming the geometry has a closed shape, so its interior and exterior are well defined.
+		// It is user's responsibility to not set the interior and exterior for open shapes.
+		const VolumeOptics* interiorOptics = nullptr;
+		const VolumeOptics* exteriorOptics = nullptr;
+		cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
+
+		metadata->interior().setOptics(interiorOptics);
+		metadata->exterior().setOptics(exteriorOptics);
+	}
 
 	// FIXME
 	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx);
@@ -150,7 +164,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	}
 
 	cookedLight.emitters.push_back(emitter);
-	metadata->getSurface().setEmitter(emitter);
+	metadata->surface().setEmitter(emitter);
 	return cookedLight;
 }
 

@@ -30,6 +30,8 @@ public:
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const = 0;
 
+	virtual bool isVolumetricEmissionSupported() const = 0;
+
 	/*!
 	Generate a suitable material for the light source if physical entity will be present in the scene.
 	The default implementation generates a pure diffuse material with moderate albedo.
@@ -68,8 +70,8 @@ public:
 		clazz.description(
 			"Energy emitters that come with a physical geometry. Please be aware that changing "
 			"sampling techniques to non-default values may cause the rendered image to lose energy. "
-			"For example, disabling BSDF sampling may cause some/all caustics to disappear on "
-			"specular surfaces.");
+			"For example, disabling BSDF sampling may cause some/all caustics to disappear "
+			"on specular surfaces.");
 		clazz.baseOn<ALight>();
 
 		TSdlBool<OwnerType> directlyVisible("directly-visible", &OwnerType::m_isDirectlyVisible);

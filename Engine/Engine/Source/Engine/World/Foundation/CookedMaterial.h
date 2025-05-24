@@ -28,41 +28,14 @@ public:
 	std::vector<VolumeComposition> volumeCompositions;
 
 	/*!
-	@return Pointer to the first interior volume optics, or `nullptr` if none exist.
+	Find compatible optics from the volume compositions. If an optics matches both interior
+	and exterior, it will be returned as interior.
+	@param out_interior[out] Pointer to the first interior volume optics, or `nullptr` if none exist.
+	@param out_exterior[out] Pointer to the first exterior volume optics, or `nullptr` if none exist.
 	*/
-	// TODO: something like findFirstCompatibleOptics(**interior, **exterior)
-	const VolumeOptics* getInteriorOptics() const;
-
-	/*!
-	@return Pointer to the first exterior volume optics, or `nullptr` if none exist.
-	*/
-	const VolumeOptics* getExteriorOptics() const;
+	void findFirstCompatibleOptics(
+		const VolumeOptics** out_interior = nullptr,
+		const VolumeOptics** out_exterior = nullptr) const;
 };
-
-inline const VolumeOptics* CookedMaterial::getInteriorOptics() const
-{
-	for(const VolumeComposition& comp : volumeCompositions)
-	{
-		if((comp.type == EVolumeComposition::Interior || comp.type == EVolumeComposition::General) && 
-		   comp.optics)
-		{
-			return comp.optics;
-		}
-	}
-	return nullptr;
-}
-
-inline const VolumeOptics* CookedMaterial::getExteriorOptics() const
-{
-	for(const VolumeComposition& comp : volumeCompositions)
-	{
-		if((comp.type == EVolumeComposition::Exterior || comp.type == EVolumeComposition::General) && 
-		   comp.optics)
-		{
-			return comp.optics;
-		}
-	}
-	return nullptr;
-}
 
 }// end namespace ph

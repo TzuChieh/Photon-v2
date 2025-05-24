@@ -24,6 +24,11 @@ std::shared_ptr<Material> AModelLight::getMaterial(const CookingContext& ctx) co
 	return m_material;
 }
 
+bool AModelLight::isVolumetricEmissionSupported() const
+{
+	return true;
+}
+
 const Emitter* AModelLight::buildEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const

@@ -105,9 +105,13 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 	CookedMaterial* cookedMaterial = m_material->createCooked(ctx);
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
-	metadata->interior().setOptics(cookedMaterial->getInteriorOptics());
-	metadata->exterior().setOptics();
-	m_material->genBehaviors(ctx, *metadata);
+
+	const VolumeOptics* interiorOptics = nullptr;
+	const VolumeOptics* exteriorOptics = nullptr;
+	cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
+
+	metadata->interior().setOptics(interiorOptics);
+	metadata->exterior().setOptics(exteriorOptics);
 
 	return result;
 }

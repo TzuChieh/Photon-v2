@@ -61,7 +61,7 @@ void IdealSubstance::storeCooked(
 		if(m_reflectionScale == math::Spectrum(1) && m_transmissionScale == math::Spectrum(1))
 		{
 			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectric>(
-				std::make_shared<IdealDielectric>(std::move(fresnel)));
+				std::move(fresnel));
 		}
 		else
 		{
@@ -117,6 +117,7 @@ void IdealSubstance::storeCooked(
 		else
 		{
 			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectricTransmitter>(
+				std::move(fresnel),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale));
 		}
 	}

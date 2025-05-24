@@ -18,6 +18,8 @@ public:
 	*/
 	virtual std::shared_ptr<Geometry> getArea(const CookingContext& ctx) const = 0;
 
+	bool isVolumetricEmissionSupported() const override;
+
 	std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const override;
 	std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const override;
 
