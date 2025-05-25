@@ -155,16 +155,16 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		cookedLight.add(primitive);
 	}
 
-	const Emitter* emitter = buildEmitter(ctx, lightPrimitives);
-	if(!emitter)
+	const SurfaceEmitter* surfaceEmitter = buildSurfaceEmitter(ctx, lightPrimitives);
+	if(!surfaceEmitter)
 	{
 		PH_LOG(AGeometricLight, Error,
 			"no emitter generated");
 		return cookedLight;
 	}
 
-	cookedLight.emitters.push_back(emitter);
-	metadata->surface().setEmitter(emitter);
+	cookedLight.surfaceEmitters.push_back(surfaceEmitter);
+	metadata->surface().setEmitter(surfaceEmitter);
 	return cookedLight;
 }
 

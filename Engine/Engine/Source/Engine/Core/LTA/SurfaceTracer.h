@@ -16,7 +16,7 @@
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 
 #include <Common/assertion.h>
 

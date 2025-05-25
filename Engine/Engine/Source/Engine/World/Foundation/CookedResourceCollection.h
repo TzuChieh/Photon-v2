@@ -33,6 +33,8 @@ stated explicitly.
 class CookedResourceCollection : public CookedResourceCollectionBase
 {
 public:
+	~CookedResourceCollection() override;
+
 	std::string getStats() const override;
 
 	template<typename... DeducedArgs>

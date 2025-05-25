@@ -6,7 +6,7 @@
 #include "Engine/World/Foundation/TransientResourceCache.h"
 #include "Engine/Math/constant.h"
 #include "Engine/Frame/TFrame.h"
-#include "Engine/Core/Emitter/OmniModulatedEmitter.h"
+#include "Engine/Core/Emitter/TOmniModulatedEmitter.h"
 #include "Engine/Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "Engine/Core/Texture/Pixel/TScalarPixelTexture2D.h"
 #include "Engine/Core/Texture/Function/unary_texture_operators.h"
@@ -49,7 +49,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	const CookingContext& ctx, const PreCookReport& report) const
 {
 	TransientVisualElement sourceElement = getSourceVisualElement(ctx);
-	if(sourceElement.emitters.empty())
+	if(sourceElement.surfaceEmitters.empty())
 	{
 		PH_LOG(ActorCooking, Warning,
 			"ignoring this IES light: no emitters were found");
@@ -57,13 +57,13 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	}
 
 	if(!sourceElement.primitivesView.empty() &&
-	   sourceElement.emitters.size() != 1 && 
-	   sourceElement.emitters.size() != sourceElement.primitivesView.size())
+	   sourceElement.surfaceEmitters.size() != 1 &&
+	   sourceElement.surfaceEmitters.size() != sourceElement.primitivesView.size())
 	{
 		PH_LOG(ActorCooking, Warning,
 			"ignoring this IES light: no match between emitters and primitives "
 			"(# emitters: {}, # primitives: {})",
-			sourceElement.emitters.size(), sourceElement.primitivesView.size());
+			sourceElement.surfaceEmitters.size(), sourceElement.primitivesView.size());
 		return {};
 	}
 
@@ -71,11 +71,11 @@ TransientVisualElement AIesAttenuatedLight::cook(
 
 	// Modulate source emitters with IES profile
 	std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture = loadAttenuationTexture();
-	for(auto* sourceEmitter : sourceElement.emitters)
+	for(auto* sourceEmitter : sourceElement.surfaceEmitters)
 	{
-		auto* attenuatedEmitter = ctx.getResources()->makeEmitter<OmniModulatedEmitter>(sourceEmitter);
+		auto* attenuatedEmitter = ctx.getResources()->makeEmitter<TOmniModulatedEmitter<SurfaceEmitter>>(sourceEmitter);
 		attenuatedEmitter->setFilter(attenuationTexture);
-		result.emitters.push_back(attenuatedEmitter);
+		result.surfaceEmitters.push_back(attenuatedEmitter);
 	}
 
 	// Update source primitives with the modulated emitters
@@ -102,10 +102,10 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		}
 
 		// 1 emitter to many primitives
-		if(result.emitters.size() == 1)
+		if(result.surfaceEmitters.size() == 1)
 		{
 			auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
-			iesMetadata->surface().setEmitter(result.emitters[0]);
+			iesMetadata->surface().setEmitter(result.surfaceEmitters[0]);
 			for(auto* sourcePrimitive : sourceElement.primitivesView)
 			{
 				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
@@ -119,11 +119,11 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		// 1 emitter to 1 primitive, with N pairs (N > 1)
 		else
 		{
-			PH_ASSERT_EQ(result.emitters.size(), sourceElement.primitivesView.size());
-			for(std::size_t i = 0; i < result.emitters.size(); ++i)
+			PH_ASSERT_EQ(result.surfaceEmitters.size(), sourceElement.primitivesView.size());
+			for(std::size_t i = 0; i < result.surfaceEmitters.size(); ++i)
 			{
 				auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
-				iesMetadata->surface().setEmitter(result.emitters[i]);
+				iesMetadata->surface().setEmitter(result.surfaceEmitters[i]);
 
 				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
 					TMetaInjectionPrimitive(

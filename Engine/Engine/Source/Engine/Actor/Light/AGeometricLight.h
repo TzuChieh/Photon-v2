@@ -3,7 +3,7 @@
 #include "Engine/Actor/Light/ALight.h"
 #include "Engine/Actor/Material/Material.h"
 #include "Engine/Actor/Geometry/Geometry.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 #include "Engine/Utility/TSpan.h"
 #include "Engine/SDL/sdl_interface.h"
 
@@ -24,9 +24,9 @@ public:
 	virtual std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const = 0;
 
 	/*!
-	Generates the core emission part of the light source.
+	Generates the surface emission part of the light source.
 	*/
-	virtual const Emitter* buildEmitter(
+	virtual const SurfaceEmitter* buildSurfaceEmitter(
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const = 0;
 

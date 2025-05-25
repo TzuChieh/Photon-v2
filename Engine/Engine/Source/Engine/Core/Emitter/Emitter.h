@@ -122,8 +122,8 @@ private:
 
 inline real Emitter::calcRadiantFluxApprox() const
 {
-	// Non-zero to avoid not being sampled
-	return 1.0_r;
+	// A small, non-zero value to avoid not being sampled
+	return 0.000001_r;
 }
 
 inline EmitterFeatureSet Emitter::getFeatureSet() const

@@ -15,7 +15,7 @@ class HomogeneousAbsorption : public VolumeOptics
 public:
 	HomogeneousAbsorption(
 		const math::Spectrum& sigmaA,
-		const TransmittanceFunction* transmittance);
+		std::shared_ptr<TransmittanceFunction> transmittance);
 
 private:
 	void genDistanceSample(
@@ -24,7 +24,7 @@ private:
 		MediumDistanceSampleOutput& out) const override;
 
 	math::Spectrum m_sigmaA;
-	const TransmittanceFunction* m_transmittance;
+	std::shared_ptr<TransmittanceFunction> m_transmittance;
 };
 
 }// end namespace ph

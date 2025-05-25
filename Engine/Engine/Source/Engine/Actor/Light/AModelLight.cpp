@@ -29,7 +29,7 @@ bool AModelLight::isVolumetricEmissionSupported() const
 	return true;
 }
 
-const Emitter* AModelLight::buildEmitter(
+const SurfaceEmitter* AModelLight::buildSurfaceEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const
 {

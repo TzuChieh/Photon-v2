@@ -1,28 +1,32 @@
-#include "Engine/Core/Emitter/OmniModulatedEmitter.h"
+#include "Engine/Core/Emitter/TOmniModulatedEmitter.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
 #include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
+#include <Common/assertion.h>
+
 // TODO: importance sampling based on filter values
 
 namespace ph
 {
 
-OmniModulatedEmitter::OmniModulatedEmitter(
-	const Emitter* const source)
+template<typename SourceEmitter>
+inline TOmniModulatedEmitter<SourceEmitter>::TOmniModulatedEmitter(
+	const SourceEmitter* const source)
 
-	: OmniModulatedEmitter(
+	: TOmniModulatedEmitter(
 		source,
-		source ? source->getFeatureSet() : defaultFeatureSet)
+		source ? source->getFeatureSet() : Emitter::defaultFeatureSet)
 {}
 
-OmniModulatedEmitter::OmniModulatedEmitter(
-	const Emitter* const    source,
+template<typename SourceEmitter>
+inline TOmniModulatedEmitter<SourceEmitter>::TOmniModulatedEmitter(
+	const SourceEmitter* const source,
 	const EmitterFeatureSet featureSet)
 
-	: Emitter(featureSet)
+	: SourceEmitter(featureSet)
 
 	, m_source(source)
 	, m_filter(nullptr)
@@ -30,7 +34,15 @@ OmniModulatedEmitter::OmniModulatedEmitter(
 	PH_ASSERT(source);
 }
 
-void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* const out_energy) const
+template<typename SourceEmitter>
+inline const SourceEmitter& TOmniModulatedEmitter<SourceEmitter>::getSource() const
+{
+	PH_ASSERT(m_source);
+	return *m_source;
+}
+
+template<typename SourceEmitter>
+inline void TOmniModulatedEmitter<SourceEmitter>::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* const out_energy) const
 {
 	getSource().evalEmittedEnergy(Xe, out_energy);
 	if(out_energy->isZero())
@@ -51,12 +63,13 @@ void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectru
 	out_energy->mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genDirectSample(
+template<typename SourceEmitter>
+inline void TOmniModulatedEmitter<SourceEmitter>::genDirectSample(
 	DirectEnergySampleQuery& query,
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
-	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
 		return;
 	}
@@ -79,9 +92,10 @@ void OmniModulatedEmitter::genDirectSample(
 	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
-void OmniModulatedEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
+template<typename SourceEmitter>
+inline void TOmniModulatedEmitter<SourceEmitter>::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
 		return;
 	}
@@ -91,12 +105,13 @@ void OmniModulatedEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 	// TODO: if importance sampling is used, pdfW should be changed here
 }
 
-void OmniModulatedEmitter::emitRay(
+template<typename SourceEmitter>
+inline void TOmniModulatedEmitter<SourceEmitter>::emitRay(
 	EnergyEmissionSampleQuery& query,
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
-	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
+	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
 	{
 		return;
 	}
@@ -117,13 +132,15 @@ void OmniModulatedEmitter::emitRay(
 	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
-void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter)
+template<typename SourceEmitter>
+inline void TOmniModulatedEmitter<SourceEmitter>::setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter)
 {
 	PH_ASSERT(filter);
 	m_filter = filter;
 }
 
-real OmniModulatedEmitter::calcRadiantFluxApprox() const
+template<typename SourceEmitter>
+inline real TOmniModulatedEmitter<SourceEmitter>::calcRadiantFluxApprox() const
 {
 	return getSource().calcRadiantFluxApprox();
 }

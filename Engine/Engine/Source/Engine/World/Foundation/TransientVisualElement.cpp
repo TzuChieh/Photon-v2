@@ -23,10 +23,10 @@ TransientVisualElement& TransientVisualElement::add(const TransientVisualElement
 		other.intersectables.begin(), 
 		other.intersectables.end());
 
-	emitters.insert(
-		emitters.end(),
-		other.emitters.begin(),
-		other.emitters.end());
+	surfaceEmitters.insert(
+		surfaceEmitters.end(),
+		other.surfaceEmitters.begin(),
+		other.surfaceEmitters.end());
 
 	return *this;
 }

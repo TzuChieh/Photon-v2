@@ -6,7 +6,7 @@
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 #include "Engine/Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
@@ -102,10 +102,10 @@ void BVVPTEstimator::estimate(
 		const auto* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 
-		if(hitSurfaceBehavior.getEmitter())
+		if(hitSurfaceBehavior.isEmissive())
 		{
 			math::Spectrum radianceLe;
-			hitSurfaceBehavior.getEmitter()->evalEmittedEnergy(surfaceHit, &radianceLe);
+			hitSurfaceBehavior.getEmitter().evalEmittedEnergy(surfaceHit, &radianceLe);
 
 			// Avoid excessive, negative weight and possible NaNs
 			pathThroughput.safeClampLocal(0.0_r, 1e9_r);

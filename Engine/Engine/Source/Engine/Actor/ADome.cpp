@@ -93,7 +93,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 		radianceFunction = scaledRadianceFunction;
 	}
 
-	const Emitter* domeEmitter = nullptr;
+	const SurfaceEmitter* domeEmitter = nullptr;
 	if(!radianceFunctionInfo.isAnalytical)
 	{
 		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
@@ -117,7 +117,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	ctx.getResources()->getNamed()->setBackgroundPrimitive(domePrimitive);
 
 	TransientVisualElement result;
-	result.emitters.push_back(domeEmitter);
+	result.surfaceEmitters.push_back(domeEmitter);
 	return result;
 }
 

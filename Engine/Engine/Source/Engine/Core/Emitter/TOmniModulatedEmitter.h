@@ -1,28 +1,32 @@
 #pragma once
 
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
+#include "Engine/Core/Emitter/VolumeEmitter.h"
 #include "Engine/Core/Texture/TTexture.h"
 #include "Engine/Core/Intersection/UvwMapper/SphericalMapper.h"
 
-#include <Common/assertion.h>
-#include <Common/primitive_type.h>
-
 #include <memory>
+#include <type_traits>
 
 namespace ph
 {
 
-class OmniModulatedEmitter : public Emitter
+template<typename SourceEmitter>
+class TOmniModulatedEmitter : public SourceEmitter
 {
+	static_assert(
+		std::is_base_of_v<SurfaceEmitter, SourceEmitter> ||
+		std::is_base_of_v<VolumeEmitter, SourceEmitter>);
+
 public:
 	/*! @brief Given a source, construct its modulated version.
 	Feature set is inherited from `source`. If you want to specify a specific feature set, use
-	`OmniModulatedEmitter(const Emitter*, EmitterFeatureSet)`.
+	`OmniModulatedEmitter(const SourceEmitter*, EmitterFeatureSet)`.
 	*/
-	explicit OmniModulatedEmitter(const Emitter* source);
+	explicit TOmniModulatedEmitter(const SourceEmitter* source);
 
-	OmniModulatedEmitter(
-		const Emitter*    source,
+	TOmniModulatedEmitter(
+		const SourceEmitter* source,
 		EmitterFeatureSet featureSet);
 
 	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override;
@@ -46,18 +50,14 @@ public:
 	/*!
 	@return The emitter that is being modulated.
 	*/
-	const Emitter& getSource() const;
+	const SourceEmitter& getSource() const;
 
 private:
-	const Emitter*                            m_source;
+	const SourceEmitter*                      m_source;
 	std::shared_ptr<TTexture<math::Spectrum>> m_filter;
 	SphericalMapper                           m_dirToUv;
 };
 
-inline const Emitter& OmniModulatedEmitter::getSource() const
-{
-	PH_ASSERT(m_source);
-	return *m_source;
-}
-
 }// end namespace ph
+
+#include "Engine/Core/Emitter/TOmniModulatedEmitter.ipp"

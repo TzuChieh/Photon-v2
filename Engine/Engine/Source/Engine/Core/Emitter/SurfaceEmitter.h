@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Common/primitive_type.h"
+#include "Engine/Core/Emitter/Emitter.h"
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/Transform/Transform.h"
 #include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/Emitter/Emitter.h"
 #include "Engine/Core/Texture/TTexture.h"
 #include "Engine/Core/LTA/PDF.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 

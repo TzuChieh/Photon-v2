@@ -24,7 +24,7 @@ stated explicitly.
 class CookedResourceCollectionBase : private INoCopyAndMove
 {
 public:
-	virtual ~CookedResourceCollectionBase() = default;
+	virtual ~CookedResourceCollectionBase();
 
 	virtual std::string getStats() const = 0;
 

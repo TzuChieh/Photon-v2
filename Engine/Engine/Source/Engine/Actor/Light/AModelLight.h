@@ -13,7 +13,7 @@ public:
 	std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const override;
 	std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const override;
 
-	const Emitter* buildEmitter(
+	const SurfaceEmitter* buildSurfaceEmitter(
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const override;
 

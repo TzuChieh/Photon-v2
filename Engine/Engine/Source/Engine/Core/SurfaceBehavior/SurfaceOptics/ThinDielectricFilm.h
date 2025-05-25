@@ -15,9 +15,9 @@ class ThinDielectricFilm : public SurfaceOptics
 {
 public:
 	ThinDielectricFilm(
-		const std::shared_ptr<DielectricFresnel>& fresnel,
-		const std::vector<math::SampledSpectrum>& reflectanceTable,
-		const std::vector<math::SampledSpectrum>& transmittanceTable);
+		std::shared_ptr<DielectricFresnel> fresnel,
+		std::vector<math::SampledSpectrum> reflectanceTable,
+		std::vector<math::SampledSpectrum> transmittanceTable);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 

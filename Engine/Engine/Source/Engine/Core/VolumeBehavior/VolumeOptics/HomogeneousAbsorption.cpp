@@ -4,19 +4,21 @@
 
 #include <Common/assertion.h>
 
+#include <utility>
+
 namespace ph
 {
 
 HomogeneousAbsorption::HomogeneousAbsorption(
 	const math::Spectrum& sigmaA,
-	const TransmittanceFunction* transmittance)
+	std::shared_ptr<TransmittanceFunction> transmittance)
 
 	: VolumeOptics()
 
 	, m_sigmaA(sigmaA)
-	, m_transmittance(transmittance)
+	, m_transmittance(std::move(transmittance))
 {
-	PH_ASSERT(transmittance);
+	PH_ASSERT(m_transmittance);
 }
 
 void HomogeneousAbsorption::genDistanceSample(

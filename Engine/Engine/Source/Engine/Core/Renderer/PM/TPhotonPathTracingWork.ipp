@@ -126,7 +126,6 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			// (e.g., by measuring its integrated value)
 
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
 			real rrSurvivalProb;
 			if(rr.surviveOnLuminance(throughputRadiance * rrScale, sampleFlow, &rrSurvivalProb))

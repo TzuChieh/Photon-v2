@@ -5,7 +5,7 @@
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/Primitive.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
 
 #include <Common/assertion.h>
@@ -65,14 +65,9 @@ void ESUniformRandom::genDirectSample(
 void ESUniformRandom::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const Primitive& hitPrim = query.inputs.getSrcPrimitive();
-	const Emitter* const hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
-	if(!hitEmitter)
-	{
-		query.outputs.setPdf({});
-		return;
-	}
+	const Emitter& hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
 
-	hitEmitter->calcDirectPdf(query);
+	hitEmitter.calcDirectPdf(query);
 	if(!query.outputs)
 	{
 		return;

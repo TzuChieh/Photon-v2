@@ -11,6 +11,7 @@
 #include "Engine/Core/Intersection/BVH/TWideBvhIntersector.h"
 #include "Engine/Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Engine/Core/Intersection/Kdtree/KdtreeIntersector.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 #include "Engine/Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Engine/Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Engine/Actor/APhantomModel.h"
@@ -156,7 +157,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 			visibleIntersectables.push_back(intersectable);
 		}
 
-		for(const Emitter* emitter : element.emitters)
+		for(const Emitter* emitter : element.surfaceEmitters)
 		{
 			emitters.push_back(emitter);
 		}

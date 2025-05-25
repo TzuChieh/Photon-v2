@@ -39,7 +39,7 @@ bool AAreaLight::isVolumetricEmissionSupported() const
 	return false;
 }
 
-const Emitter* AAreaLight::buildEmitter(
+const SurfaceEmitter* AAreaLight::buildSurfaceEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const
 {
@@ -74,7 +74,7 @@ const Emitter* AAreaLight::buildEmitter(
 		emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(defaultRadiance);
 	}
 
-	const Emitter* lightEmitter = nullptr;
+	const SurfaceEmitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
 		lightEmitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(

@@ -38,34 +38,16 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 	return SurfaceHit(m_ray, newProbe, m_reason);
 }
 
-bool SurfaceHit::hasSurfaceOptics() const
+const SurfaceEmitter* SurfaceHit::getSurfaceEmitter() const
 {
 	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getSurface().getOptics() != nullptr : false;
-}
-
-bool SurfaceHit::hasInteriorOptics() const
-{
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getInterior().getOptics() != nullptr : false;
-}
-
-bool SurfaceHit::hasExteriorOptics() const
-{
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getExterior().getOptics() != nullptr : false;
-}
-
-const Emitter* SurfaceHit::getSurfaceEmitter() const
-{
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getSurface().getEmitter() : nullptr;
+	return meta ? &(meta->getSurface().getEmitter()) : nullptr;
 }
 
 const SurfaceOptics* SurfaceHit::getSurfaceOptics() const
 {
 	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getSurface().getOptics() : nullptr;
+	return meta ? &(meta->getSurface().getOptics()) : nullptr;
 }
 
 const VolumeOptics* SurfaceHit::getInteriorOptics() const

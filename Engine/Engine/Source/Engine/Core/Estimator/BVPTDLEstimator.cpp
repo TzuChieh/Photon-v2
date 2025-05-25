@@ -6,7 +6,7 @@
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
@@ -58,10 +58,10 @@ void BVPTDLEstimator::estimate(
 		const auto* const      metadata        = firstHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& surfaceBehavior = metadata->getSurface();
 
-		if(surfaceBehavior.getEmitter())
+		if(surfaceBehavior.isEmissive())
 		{
 			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter()->evalEmittedEnergy(firstHit, &emittedRadiance);
+			surfaceBehavior.getEmitter().evalEmittedEnergy(firstHit, &emittedRadiance);
 
 			// Avoid excessive, negative weight and possible NaNs
 			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
@@ -95,10 +95,10 @@ void BVPTDLEstimator::estimate(
 		const auto* const      metadata        = secondHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& surfaceBehavior = metadata->getSurface();
 
-		if(surfaceBehavior.getEmitter())
+		if(surfaceBehavior.isEmissive())
 		{
 			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter()->evalEmittedEnergy(secondHit, &emittedRadiance);
+			surfaceBehavior.getEmitter().evalEmittedEnergy(secondHit, &emittedRadiance);
 
 			// avoid excessive, negative weight and possible NaNs
 			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/World/Foundation/CookedDataStorage.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Actor.h"
 #include "Engine/World/Scene.h"

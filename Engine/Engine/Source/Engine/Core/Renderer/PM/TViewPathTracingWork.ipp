@@ -225,12 +225,12 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const lta::RussianRoulette rr{};
 
 	const PrimitiveMetadata* metadata      = X.getDetail().getPrimitive()->getMetadata();
-	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
+	const SurfaceOptics&     surfaceOptics = metadata->getSurface().getOptics();
 
 	const SurfacePhenomena targetPhenomena = policy.getTargetPhenomena();
-	for(SurfaceElemental i = 0; i < surfaceOptics->numElementals(); ++i)
+	for(SurfaceElemental i = 0; i < surfaceOptics.numElementals(); ++i)
 	{
-		if(targetPhenomena.hasNone({surfaceOptics->getPhenomenonOf(i)}))
+		if(targetPhenomena.hasNone({surfaceOptics.getPhenomenonOf(i)}))
 		{
 			continue;
 		}

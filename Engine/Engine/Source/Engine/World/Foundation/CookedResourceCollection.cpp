@@ -1,9 +1,12 @@
 #include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
 
 #include <format>
 
 namespace ph
 {
+
+CookedResourceCollection::~CookedResourceCollection() = default;
 
 TSynchronized<CookedNamedResource>& CookedResourceCollection::getNamed()
 {

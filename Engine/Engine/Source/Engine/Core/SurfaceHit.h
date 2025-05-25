@@ -18,7 +18,7 @@ namespace ph
 class Primitive;
 class SurfaceOptics;
 class VolumeOptics;
-class Emitter;
+class SurfaceEmitter;
 
 enum class ESurfaceHitReason : detail::HitReasonIntType
 {
@@ -78,10 +78,6 @@ public:
 	*/
 	bool reintersect(const Ray& ray, HitProbe& probe) const;
 
-	bool hasSurfaceOptics() const;
-	bool hasInteriorOptics() const;
-	bool hasExteriorOptics() const;
-
 	const HitDetail& getDetail() const;
 	SurfaceHitReason getReason() const;
 
@@ -99,7 +95,7 @@ public:
 	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
 
-	const Emitter* getSurfaceEmitter() const;
+	const SurfaceEmitter* getSurfaceEmitter() const;
 	const SurfaceOptics* getSurfaceOptics() const;
 	const VolumeOptics* getInteriorOptics() const;
 	const VolumeOptics* getExteriorOptics() const;

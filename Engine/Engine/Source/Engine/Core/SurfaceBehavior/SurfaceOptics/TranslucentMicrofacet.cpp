@@ -15,6 +15,7 @@
 #include <memory>
 #include <iostream>
 #include <cmath>
+#include <utility>
 
 namespace ph
 {
@@ -36,16 +37,16 @@ strategy typically follow this pattern, with a better distributed H.
 */
 
 TranslucentMicrofacet::TranslucentMicrofacet(
-	const std::shared_ptr<DielectricFresnel>& fresnel,
-	const std::shared_ptr<Microfacet>&        microfacet) :
+	std::shared_ptr<DielectricFresnel> fresnel,
+	std::shared_ptr<Microfacet>        microfacet) :
 
 	SurfaceOptics(),
 
-	m_fresnel   (fresnel),
-	m_microfacet(microfacet)
+	m_fresnel   (std::move(fresnel)),
+	m_microfacet(std::move(microfacet))
 {
-	PH_ASSERT(fresnel);
-	PH_ASSERT(microfacet);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT(m_microfacet);
 
 	m_phenomena.set({ESurfacePhenomenon::GlossyReflection, ESurfacePhenomenon::GlossyTransmission});
 	m_numElementals = 2;

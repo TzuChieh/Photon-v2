@@ -10,23 +10,25 @@
 
 #include <Common/assertion.h>
 
+#include <utility>
+
 namespace ph
 {
 
 ThinDielectricFilm::ThinDielectricFilm(
-	const std::shared_ptr<DielectricFresnel>& fresnel,
-	const std::vector<math::SampledSpectrum>& reflectanceTable,
-	const std::vector<math::SampledSpectrum>& transmittanceTable) :
+	std::shared_ptr<DielectricFresnel> fresnel,
+	std::vector<math::SampledSpectrum> reflectanceTable,
+	std::vector<math::SampledSpectrum> transmittanceTable) :
 
 	SurfaceOptics(),
 
-	m_fresnel           (fresnel),
-	m_reflectanceTable  (reflectanceTable),
-	m_transmittanceTable(transmittanceTable)
+	m_fresnel           (std::move(fresnel)),
+	m_reflectanceTable  (std::move(reflectanceTable)),
+	m_transmittanceTable(std::move(transmittanceTable))
 {
-	PH_ASSERT(fresnel);
-	PH_ASSERT_EQ(reflectanceTable.size(), 91);
-	PH_ASSERT_EQ(transmittanceTable.size(), 91);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT_EQ(m_reflectanceTable.size(), 91);
+	PH_ASSERT_EQ(m_transmittanceTable.size(), 91);
 
 	m_phenomena.set({ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission});
 	m_numElementals = 2;

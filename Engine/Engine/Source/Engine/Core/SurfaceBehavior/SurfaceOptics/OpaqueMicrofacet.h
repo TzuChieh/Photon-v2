@@ -19,8 +19,8 @@ class OpaqueMicrofacet : public SurfaceOptics
 {
 public:
 	OpaqueMicrofacet(
-		const std::shared_ptr<ConductorFresnel>& fresnel,
-		const std::shared_ptr<Microfacet>&       microfacet);
+		std::shared_ptr<ConductorFresnel> fresnel,
+		std::shared_ptr<Microfacet>       microfacet);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 

@@ -14,6 +14,7 @@
 #include <Common/assertion.h>
 
 #include <cmath>
+#include <utility>
 
 namespace ph
 {
@@ -36,15 +37,16 @@ The implementation is double-sided.
 */
 
 OpaqueMicrofacet::OpaqueMicrofacet(
-	const std::shared_ptr<ConductorFresnel>& fresnel,
-	const std::shared_ptr<Microfacet>&       microfacet) :
+	std::shared_ptr<ConductorFresnel> fresnel,
+	std::shared_ptr<Microfacet>       microfacet) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
-	m_microfacet(microfacet)
+	m_fresnel   (std::move(fresnel)),
+	m_microfacet(std::move(microfacet))
 {
-	PH_ASSERT(fresnel && microfacet);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT(m_microfacet);
 
 	m_phenomena.set(ESurfacePhenomenon::GlossyReflection);
 }

@@ -1,5 +1,4 @@
 #include "Engine/Core/Intersection/Kdtree/KdtreeIntersector.h"
-#include "Engine/World/Foundation/CookedDataStorage.h"
 #include "Engine/Core/HitProbe.h"
 
 #include <Common/assertion.h>

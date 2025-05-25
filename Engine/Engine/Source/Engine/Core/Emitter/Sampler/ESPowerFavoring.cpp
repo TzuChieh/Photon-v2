@@ -5,7 +5,8 @@
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/Primitive.h"
-#include "Engine/Core/Emitter/Emitter.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
+#include "Engine/Core/Emitter/VolumeEmitter.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
 
 #include <Common/assertion.h>
@@ -77,20 +78,15 @@ void ESPowerFavoring::genDirectSample(
 void ESPowerFavoring::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const Primitive& hitPrim = query.inputs.getSrcPrimitive();
-	const Emitter* hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
-	if(!hitEmitter)
-	{
-		query.outputs.setPdf({});
-		return;
-	}
+	const Emitter& hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
 
-	hitEmitter->calcDirectPdf(query);
+	hitEmitter.calcDirectPdf(query);
 	if(!query.outputs)
 	{
 		return;
 	}
 
-	const auto& result = m_emitterToIndexMap.find(hitEmitter);
+	const auto& result = m_emitterToIndexMap.find(&hitEmitter);
 	PH_ASSERT(result != m_emitterToIndexMap.end());
 	const real pickPdf = m_distribution.pdfDiscrete(result->second);
 	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
