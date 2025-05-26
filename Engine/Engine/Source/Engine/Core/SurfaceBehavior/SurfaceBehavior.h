@@ -30,13 +30,13 @@ public:
 
 	/*!
 	The returned optics may have no effect during rendering. Use `isObstructive()` to check if
-	the optics has any effect.
+	the optics has any effect before a more involved computation starts.
 	*/
 	const SurfaceOptics& getOptics() const;
 
 	/*
 	The returned emitter may have no effect during rendering. Use `isEmissive()` to check if
-	the emitter has any effect.
+	the emitter has any effect before a more involved computation starts.
 	*/
 	const SurfaceEmitter& getEmitter() const;
 

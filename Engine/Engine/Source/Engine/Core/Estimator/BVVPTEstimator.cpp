@@ -80,7 +80,10 @@ void BVVPTEstimator::estimate(
 			if(volumeOptics)
 			{
 				MediumDistanceSampleQuery distanceSample;
-				distanceSample.inputs.set(volumeHit, tracingRay.getDir(), tracingRay.getSegment().getDeltaT());
+				distanceSample.inputs.set(
+					volumeHit,
+					tracingRay.getDir(),
+					nextSurfaceHit.getDetail().getRayT() - tracingRay.getMinT());
 				volumeOptics->genDistanceSample(distanceSample, sampleFlow);
 				if(!distanceSample.outputs)
 				{
