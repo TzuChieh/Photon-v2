@@ -96,12 +96,7 @@ void BNEEPTEstimator::estimate(
 	// Ray bouncing around the scene (1 ~ N bounces)
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
-		// Optics must present
-		const SurfaceOptics* surfaceOptics = X.getSurfaceOptics();
-		if(!surfaceOptics)
-		{
-			break;
-		}
+		const SurfaceOptics& surfaceOptics = X.getSurfaceOptics();
 
 		const math::Vector3R V = tracingRay.getDir().mul(-1.0_r);
 		PH_ASSERT_MSG(V.isFinite(), V.toString());
@@ -124,23 +119,23 @@ void BNEEPTEstimator::estimate(
 			   directSample.outputs)
 			{
 				const auto L = directSample.getTargetToEmit().normalize();
-				const Emitter* directEmitter = Xe.getSurfaceEmitter();
+				const SurfaceEmitter& directEmitter = Xe.getSurfaceEmitter();
 
 				BsdfEvalQuery bsdfEval(bsdfContext);
 				bsdfEval.inputs.set(X, L, V);
-				surfaceOptics->calcBsdf(bsdfEval);
+				surfaceOptics.calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isMeasurable())
 				{
 					// MIS: NEE + BSDF sample
 
 					real bsdfSamplePdfW = 0.0_r;
 					if(useBsdfLightSampling &&
-					   directEmitter &&
-					   directEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
+					   Xe.getMetadata().getSurface().isEmissive() &&
+					   directEmitter.getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 					{
 						BsdfPdfQuery bsdfPdfQuery(bsdfContext);
 						bsdfPdfQuery.inputs.set(bsdfEval.inputs);
-						surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
+						surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
 
 						bsdfSamplePdfW = bsdfPdfQuery.outputs
 							? bsdfPdfQuery.outputs.getSampleDirPdfW() : 0.0_r;
@@ -167,7 +162,7 @@ void BNEEPTEstimator::estimate(
 
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			bsdfSample.inputs.set(X, V);
-			surfaceOptics->genBsdfSample(bsdfSample, sampleFlow);
+			surfaceOptics.genBsdfSample(bsdfSample, sampleFlow);
 			if(!bsdfSample.outputs.isMeasurable())
 			{
 				break;
@@ -177,7 +172,9 @@ void BNEEPTEstimator::estimate(
 			const math::Vector3R L = bsdfSample.outputs.getL();
 
 			PH_ASSERT_MSG(L.isFinite(),
-				"L = " + L.toString() + ", from " + surfaceOptics->toString());
+				"L = " + L.toString() + ", from " + surfaceOptics.toString());
+
+			// TODO: skip non-obstructive surface
 
 			// Trace a ray using BSDF's suggestion
 			tracingRay.setOrigin(X.getPos());
@@ -188,13 +185,13 @@ void BNEEPTEstimator::estimate(
 				break;
 			}
 
-			const Emitter* nextEmitter = nextX.getSurfaceEmitter();
+			const SurfaceEmitter& nextEmitter = nextX.getSurfaceEmitter();
 			if(useBsdfLightSampling &&
-			   nextEmitter &&
-			   nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
+			   nextX.getMetadata().getSurface().isEmissive() &&
+			   nextEmitter.getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 			{
 				math::Spectrum radianceLe;
-				nextEmitter->evalEmittedEnergy(nextX, &radianceLe);
+				nextEmitter.evalEmittedEnergy(nextX, &radianceLe);
 
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
 				// deltas and MIS for non-deltas
@@ -209,7 +206,7 @@ void BNEEPTEstimator::estimate(
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
-					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
+					surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
 
 					// `isNeeSamplable()` is already `true`, but BSDF PDF can still be empty or 0
 					// (e.g., sidedness policy or by the distribution itself)

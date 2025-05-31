@@ -83,10 +83,6 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	using DirectLight = lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict>;
 
 	math::Spectrum lostEnergy(0);
-	if(!X.getSurfaceOptics())
-	{
-		return lostEnergy;
-	}
 
 	PH_ASSERT_GE(viewPathLength, 1);
 	PH_ASSERT_GE(minFullPathLength, 1);
@@ -99,12 +95,12 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	PH_ASSERT_GE(photonMapInfo.minPathLength, 1);
 
 	// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
-	if(viewPathLength == 1 && X.getSurfaceEmitter() && minFullPathLength == 1)
+	if(viewPathLength == 1 && X.getMetadata().getSurface().isEmissive() && minFullPathLength == 1)
 	{
 		PH_ASSERT_IN_RANGE_INCLUSIVE(viewPathLength, minFullPathLength, maxFullPathLength);
 
 		math::Spectrum viewRadiance;
-		X.getSurfaceEmitter()->evalEmittedEnergy(X, &viewRadiance);
+		X.getSurfaceEmitter().evalEmittedEnergy(X, &viewRadiance);
 		lostEnergy += viewPathThroughput * viewRadiance;
 	}
 
@@ -160,10 +156,6 @@ inline math::Spectrum estimate_lost_energy_for_extending(
 	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
 
 	math::Spectrum lostEnergy(0);
-	if(!X.getSurfaceOptics())
-	{
-		return lostEnergy;
-	}
 
 	PH_ASSERT_GE(viewPathLength, 1);
 	PH_ASSERT_GE(minFullPathLength, 1);
@@ -227,10 +219,6 @@ inline math::Spectrum estimate_lost_energy_for_merging(
 	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
 
 	math::Spectrum lostEnergy(0);
-	if(!X.getSurfaceOptics())
-	{
-		return lostEnergy;
-	}
 
 	PH_ASSERT_GE(viewPathLength, 1);
 	PH_ASSERT_GE(minFullPathLength, 1);

@@ -5,6 +5,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
 #include "Engine/Core/VolumeBehavior/Property/ExponentialTransmittance.h"
 #include "Engine/Core/Emitter/ZeroSurfaceEmitter.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
 
 namespace ph
 {
@@ -38,6 +39,20 @@ const SurfaceEmitter* SceneGlobals::getZeroSurfaceEmitter()
 {
 	static ZeroSurfaceEmitter emitter{};
 	return &emitter;
+}
+
+const PrimitiveMetadata* SceneGlobals::getDefaultPrimitiveMetadata()
+{
+	static PrimitiveMetadata metadata = 
+		[]()
+		{
+			PrimitiveMetadata metadata;
+			metadata.surface().setOptics(nullptr);
+			metadata.surface().setEmitter(nullptr);
+			return metadata;
+		}();
+
+	return &metadata;
 }
 
 }// end namespace ph

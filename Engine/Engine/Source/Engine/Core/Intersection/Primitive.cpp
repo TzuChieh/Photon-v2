@@ -1,6 +1,7 @@
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosPdfQuery.h"
+#include "Engine/World/SceneGlobals.h"
 
 #include <Common/assertion.h>
 
@@ -20,6 +21,11 @@ void Primitive::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
 	query.outputs = {};
 	PH_ASSERT(!query.outputs);
+}
+
+const PrimitiveMetadata& Primitive::getMetadata() const
+{
+	return *SceneGlobals::getDefaultPrimitiveMetadata();
 }
 
 }// end namespace ph

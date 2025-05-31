@@ -31,8 +31,8 @@ inline bool TVolumetricLightEstimator<POLICY>::sample(
 	out_weight->setColorValues(1);
 	out_radiance->setColorValues(0);
 
-	const PrimitiveMetadata* metadata = Xs.getDetail().getPrimitive()->getMetadata();
-	const VolumeOptics* interior = metadata->getInterior().getOptics();
+	const PrimitiveMetadata& metadata = Xs.getDetail().getPrimitive()->getMetadata();
+	const VolumeOptics* interior = metadata.getInterior().getOptics();
 	SurfaceHit currXs = Xs;
 	SurfaceHit currXe;
 	math::Vector3R currL = L;

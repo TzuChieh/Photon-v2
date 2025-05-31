@@ -16,6 +16,7 @@ namespace ph
 {
 
 class Primitive;
+class PrimitiveMetadata;
 class SurfaceOptics;
 class VolumeOptics;
 class SurfaceEmitter;
@@ -95,8 +96,10 @@ public:
 	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
 
-	const SurfaceEmitter* getSurfaceEmitter() const;
-	const SurfaceOptics* getSurfaceOptics() const;
+	const Primitive& getPrimitive() const;
+	const PrimitiveMetadata& getMetadata() const;
+	const SurfaceEmitter& getSurfaceEmitter() const;
+	const SurfaceOptics& getSurfaceOptics() const;
 	const VolumeOptics* getInteriorOptics() const;
 	const VolumeOptics* getExteriorOptics() const;
 
@@ -186,6 +189,14 @@ inline math::Vector3R SurfaceHit::getShadingNormal() const
 inline math::Vector3R SurfaceHit::getGeometryNormal() const
 {
 	return m_detail.getGeometryNormal();
+}
+
+inline const Primitive& SurfaceHit::getPrimitive() const
+{
+	PH_ASSERT_MSG(getDetail().getPrimitive(),
+		"Does not make sense to call the method if `surfaceHit` hits nothing.");
+
+	return *getDetail().getPrimitive();
 }
 
 }// end namespace ph

@@ -9,9 +9,10 @@ namespace ph
 {
 
 class DielectricFresnel;
+class TransmittanceFunction;
 class SurfaceOptics;
 class SurfaceEmitter;
-class TransmittanceFunction;
+class PrimitiveMetadata;
 
 class SceneGlobals final
 {
@@ -22,6 +23,7 @@ public:
 
 	static const SurfaceOptics* getFullyTransmissiveSurfaceOptics();
 	static const SurfaceEmitter* getZeroSurfaceEmitter();
+	static const PrimitiveMetadata* getDefaultPrimitiveMetadata();
 };
 
 }// end namespace ph

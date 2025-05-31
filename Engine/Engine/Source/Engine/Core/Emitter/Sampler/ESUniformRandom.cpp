@@ -65,7 +65,7 @@ void ESUniformRandom::genDirectSample(
 void ESUniformRandom::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const Primitive& hitPrim = query.inputs.getSrcPrimitive();
-	const Emitter& hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
+	const Emitter& hitEmitter = hitPrim.getMetadata().getSurface().getEmitter();
 
 	hitEmitter.calcDirectPdf(query);
 	if(!query.outputs)

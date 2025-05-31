@@ -125,8 +125,6 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			// TODO: we can also skip storing this photon if the BSDF has little contribution
 			// (e.g., by measuring its integrated value)
 
-			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-
 			real rrSurvivalProb;
 			if(rr.surviveOnLuminance(throughputRadiance * rrScale, sampleFlow, &rrSurvivalProb))
 			{

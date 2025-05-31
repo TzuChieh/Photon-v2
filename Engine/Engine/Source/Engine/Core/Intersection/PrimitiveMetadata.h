@@ -7,6 +7,7 @@
 #include "Engine/Core/VolumeBehavior/VolumeBehavior.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <vector>
@@ -32,6 +33,7 @@ public:
 	uint8 addChannel(const PrimitiveChannel& channel);
 
 	void setChannel(uint8 channelId, PrimitiveChannel channel);
+	void setInteriorPriority(uint16 priority);
 	const PrimitiveChannel& getChannel(uint8 channelId) const;
 	const PrimitiveChannel& getDefaultChannel() const;
 	bool isChannelIdValid(uint8 channelId) const;
@@ -43,12 +45,14 @@ public:
 	const SurfaceBehavior& getSurface() const;
 	const VolumeBehavior& getInterior() const;
 	const VolumeBehavior& getExterior() const;
+	uint16 getInteriorPriority() const;
 
 private:
 	SurfaceBehavior               m_surface;
 	VolumeBehavior                m_interior;
 	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
+	uint16                        m_interiorPriority;
 };
 
 inline const PrimitiveChannel& PrimitiveMetadata::getChannel(const uint8 channelId) const
@@ -101,6 +105,11 @@ inline const VolumeBehavior& PrimitiveMetadata::getInterior() const
 inline const VolumeBehavior& PrimitiveMetadata::getExterior() const
 {
 	return m_exterior;
+}
+
+inline uint16 PrimitiveMetadata::getInteriorPriority() const
+{
+	return m_interiorPriority;
 }
 
 }// end namespace ph

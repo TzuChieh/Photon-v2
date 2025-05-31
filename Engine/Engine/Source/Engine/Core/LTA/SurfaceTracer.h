@@ -41,7 +41,7 @@ public:
 	see `traceNextSurfaceFrom()`.
 	@param ray The ray that is used for finding the next surface.
 	@param sidedness Sidedness policy.
-	@return out_X The next surface.
+	@param out_X The next surface.
 	@return Is the next surface found. Output parameters are not usable if `false` is returned.
 	@note If you are tracing from a surface (not a point from the mid-air),
 	`traceNextSurfaceFrom(const SurfaceHit&, const Ray&, const SidednessAgreement&, SurfaceHit*)`
@@ -57,7 +57,7 @@ public:
 	@param X The location to start the find from. Can also use the object as `out_X`.
 	@param ray The ray that is used for finding the next surface.
 	@param sidedness Sidedness policy.
-	@return out_X The next surface.
+	@param out_X The next surface.
 	@return Is the next surface found. Output parameters are not usable if `false` is returned.
 	*/
 	bool traceNextSurfaceFrom(
@@ -176,13 +176,9 @@ inline bool SurfaceTracer::bsdfSampleNextSurface(
 inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const
 {
 	const SurfaceHit& X = bsdfSample.inputs.getX();
-	const SurfaceOptics* const optics = X.getSurfaceOptics();
-	if(!optics)
-	{
-		return false;
-	}
+	const SurfaceOptics& optics = X.getSurfaceOptics();
 
-	optics->genBsdfSample(bsdfSample, sampleFlow);
+	optics.genBsdfSample(bsdfSample, sampleFlow);
 
 	return bsdfSample.outputs.isMeasurable();
 }
@@ -211,13 +207,9 @@ inline bool SurfaceTracer::doBsdfSample(
 inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 {
 	const SurfaceHit& X = bsdfEval.inputs.getX();
-	const SurfaceOptics* const optics = X.getSurfaceOptics();
-	if(!optics)
-	{
-		return false;
-	}
+	const SurfaceOptics& optics = X.getSurfaceOptics();
 
-	optics->calcBsdf(bsdfEval);
+	optics.calcBsdf(bsdfEval);
 
 	return bsdfEval.outputs.isMeasurable();
 }
@@ -225,13 +217,9 @@ inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 {
 	const SurfaceHit& X = bsdfPdfQuery.inputs.getX();
-	const SurfaceOptics* const optics = X.getSurfaceOptics();
-	if(!optics)
-	{
-		return false;
-	}
+	const SurfaceOptics& optics = X.getSurfaceOptics();
 
-	optics->calcBsdfPdf(bsdfPdfQuery);
+	optics.calcBsdfPdf(bsdfPdfQuery);
 
 	return bsdfPdfQuery.outputs;
 }
@@ -243,18 +231,18 @@ inline bool SurfaceTracer::sampleZeroBounceEmission(
 {
 	PH_ASSERT(out_Le);
 
-	const auto* const emitter = Xe.getSurfaceEmitter();
+	const SurfaceEmitter& emitter = Xe.getSurfaceEmitter();
 
 	// Sidedness agreement between real geometry and shading normal
-	// (do not check for hemisphere--emitter may be back-emitting and this is judged by the emitter)
-	if(!emitter ||
-	   emitter->getFeatureSet().hasNo(EEmitterFeatureSet::ZeroBounceSample) ||
+	// (do not check for hemisphere--emitter may be back-emitting and this is judged by the emitter itself)
+	if(!Xe.getMetadata().getSurface().isEmissive() ||
+	   emitter.getFeatureSet().hasNo(EEmitterFeatureSet::ZeroBounceSample) ||
 	   !sidedness.isSidednessAgreed(Xe, Xe.getIncidentRay().getDir()))
 	{
 		return false;
 	}
 
-	emitter->evalEmittedEnergy(Xe, out_Le);
+	emitter.evalEmittedEnergy(Xe, out_Le);
 	return true;
 }
 

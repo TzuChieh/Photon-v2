@@ -19,13 +19,13 @@ namespace detail
 template<typename GetterType>
 concept CPrimitiveMetaGetter = requires (const GetterType getter)
 {
-	{ getter() } -> std::same_as<const PrimitiveMetadata*>;
+	{ getter() } -> std::same_as<const PrimitiveMetadata&>;
 };
 
 template<typename GetterType>
 concept CPrimitiveGetter = requires (const GetterType getter)
 {
-	{ getter() } -> std::convertible_to<const Primitive*>;
+	{ getter() } -> std::convertible_to<const Primitive&>;
 };
 
 }// end namespace detail
@@ -38,9 +38,10 @@ struct ReferencedPrimitiveMetaGetter final
 		: metadata(metadata)
 	{}
 
-	const PrimitiveMetadata* operator () () const
+	const PrimitiveMetadata& operator () () const
 	{
-		return metadata;
+		PH_ASSERT(metadata);
+		return *metadata;
 	}
 };
 
@@ -53,9 +54,9 @@ struct EmbeddedPrimitiveMetaGetter final
 		: metadata(std::forward<DeducedArgs>(args)...)
 	{}
 
-	const PrimitiveMetadata* operator () () const
+	const PrimitiveMetadata& operator () () const
 	{
-		return &metadata;
+		return metadata;
 	}
 };
 
@@ -68,9 +69,10 @@ struct TReferencedPrimitiveGetter final
 		: primitive(primitive)
 	{}
 
-	const PrimitiveType* operator () () const
+	const PrimitiveType& operator () () const
 	{
-		return primitive;
+		PH_ASSERT(primitive);
+		return *primitive;
 	}
 };
 
@@ -84,17 +86,22 @@ struct TEmbeddedPrimitiveGetter final
 		: primitive(std::forward<DeducedArgs>(args)...)
 	{}
 
-	const PrimitiveType* operator () () const
+	const PrimitiveType& operator () () const
 	{
-		return &primitive;
+		return primitive;
 	}
 };
 
 // TODO: could use EBO on some cases
 
-template<detail::CPrimitiveMetaGetter PrimitiveMetaGetter, detail::CPrimitiveGetter PrimitiveGetter>
+template<typename PrimitiveMetaGetter, typename PrimitiveGetter>
 class TMetaInjectionPrimitive : public Primitive
 {
+	static_assert(detail::CPrimitiveMetaGetter<PrimitiveMetaGetter>,
+		"Input type does not fulfill the requirements of a PrimitiveMetaGetter.");
+	static_assert(detail::CPrimitiveGetter<PrimitiveGetter>,
+		"Input type does not fulfill the requirements of a PrimitiveGetter.");
+
 public:
 	TMetaInjectionPrimitive(PrimitiveMetaGetter metaGetter, PrimitiveGetter primitiveGetter)
 		: Primitive()
@@ -104,7 +111,7 @@ public:
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
-		if(m_primitiveGetter()->isIntersecting(ray, probe))
+		if(m_primitiveGetter().isIntersecting(ray, probe))
 		{
 			// Hit detail will be modified by this primitive
 			probe.pushIntermediateHit(this);
@@ -162,17 +169,17 @@ public:
 
 	math::AABB3D calcAABB() const override
 	{
-		return m_primitiveGetter()->calcAABB();
+		return m_primitiveGetter().calcAABB();
 	}
 
 	bool isOccluding(const Ray& ray) const override
 	{
-		return m_primitiveGetter()->isOccluding(ray);
+		return m_primitiveGetter().isOccluding(ray);
 	}
 
 	bool mayOverlapVolume(const math::AABB3D& volume) const override
 	{
-		return m_primitiveGetter()->mayOverlapVolume(volume);
+		return m_primitiveGetter().mayOverlapVolume(volume);
 	}
 
 	void genPosSample(
@@ -180,7 +187,7 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const override
 	{
-		m_primitiveGetter()->genPosSample(query, sampleFlow, probe);
+		m_primitiveGetter().genPosSample(query, sampleFlow, probe);
 
 		// Hit detail will be modified by this primitive
 		probe.pushIntermediateHit(this);
@@ -188,15 +195,15 @@ public:
 
 	void calcPosPdf(PrimitivePosPdfQuery& query) const override
 	{
-		m_primitiveGetter()->calcPosPdf(query);
+		m_primitiveGetter().calcPosPdf(query);
 	}
 
 	real calcExtendedArea() const override
 	{
-		return m_primitiveGetter()->calcExtendedArea();
+		return m_primitiveGetter().calcExtendedArea();
 	}
 
-	const PrimitiveMetadata* getMetadata() const override
+	const PrimitiveMetadata& getMetadata() const override
 	{
 		// Metadata from `m_primitiveGetter()->getMetadata()` (if any) is intentionally overridden
 		// by the injected one
@@ -206,7 +213,7 @@ public:
 	/*! @brief Gets the primitive that has got metadata injected.
 	@return Pointer to the primitive carried by `PrimitiveGetter`.
 	*/
-	const auto* getInjectee() const
+	const auto& getInjectee() const
 	{
 		return m_primitiveGetter();
 	}

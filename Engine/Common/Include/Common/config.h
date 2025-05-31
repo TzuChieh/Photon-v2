@@ -161,6 +161,9 @@ Note that a byte is not necessarily 8-bit.
 
 #define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
 
+#define PH_VOLUME_TRACKER_MAX_SIZE 32
+#define PH_VOLUME_TRACKER_COLLECT_STATS 1
+
 ///////////////////////////////////////////////////////////////////////////////
 // Hardware Dependent Instruction Sets                                       //
 ///////////////////////////////////////////////////////////////////////////////

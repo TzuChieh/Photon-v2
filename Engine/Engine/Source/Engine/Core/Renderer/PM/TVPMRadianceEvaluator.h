@@ -151,11 +151,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 	const math::Spectrum& pathThroughput)
 -> ViewPathTracingPolicy
 {
-	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
-	if(!optics)
-	{
-		return ViewPathTracingPolicy().kill();
-	}
+	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 
 	const auto unaccountedEnergy = estimate_certainly_lost_energy(
 		pathLength,
@@ -172,7 +168,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		ESurfacePhenomenon::NearDiffuseReflection,
 		ESurfacePhenomenon::NearDiffuseTransmission};
 
-	const auto phenomena = optics->getAllPhenomena();
+	const auto phenomena = optics.getAllPhenomena();
 	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
 		? phenomena.hasAny(smoothEnoughPhenomena)
 		: phenomena.hasExactly(DIFFUSE_SURFACE_PHENOMENA);

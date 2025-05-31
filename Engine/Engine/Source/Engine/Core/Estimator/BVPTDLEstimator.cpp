@@ -55,8 +55,8 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		const auto* const      metadata        = firstHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceBehavior& surfaceBehavior = metadata->getSurface();
+		const auto&            metadata        = firstHit.getDetail().getPrimitive()->getMetadata();
+		const SurfaceBehavior& surfaceBehavior = metadata.getSurface();
 
 		if(surfaceBehavior.isEmissive())
 		{
@@ -92,8 +92,8 @@ void BVPTDLEstimator::estimate(
 
 		accuPathWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
-		const auto* const      metadata        = secondHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceBehavior& surfaceBehavior = metadata->getSurface();
+		const auto&            metadata        = secondHit.getDetail().getPrimitive()->getMetadata();
+		const SurfaceBehavior& surfaceBehavior = metadata.getSurface();
 
 		if(surfaceBehavior.isEmissive())
 		{

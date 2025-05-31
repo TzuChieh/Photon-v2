@@ -59,9 +59,9 @@ public:
 	virtual real calcExtendedArea() const;
 
 	/*!
-	@return The metadata associated to this primitive. `nullptr` if not available.
+	@return The metadata associated to this primitive.
 	*/
-	virtual const PrimitiveMetadata* getMetadata() const;
+	virtual const PrimitiveMetadata& getMetadata() const;
 };
 
 // In-header Implementation:
@@ -69,11 +69,6 @@ public:
 inline real Primitive::calcExtendedArea() const
 {
 	return 0.0_r;
-}
-
-inline const PrimitiveMetadata* Primitive::getMetadata() const
-{
-	return nullptr;
 }
 
 }// end namespace ph

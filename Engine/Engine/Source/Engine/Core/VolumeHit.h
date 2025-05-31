@@ -12,6 +12,7 @@ namespace ph
 {
 
 class Primitive;
+class PrimitiveMetadata;
 class VolumeOptics;
 class SurfaceHit;
 
@@ -66,6 +67,7 @@ public:
 	const Time& getTime() const;
 
 	const Primitive& getPrimitive() const;
+	const PrimitiveMetadata& getMetadata() const;
 
 	/*!
 	@return The position that is hit.

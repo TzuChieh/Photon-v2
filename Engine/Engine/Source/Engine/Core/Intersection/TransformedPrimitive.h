@@ -123,7 +123,7 @@ public:
 		return m_primitive->calcExtendedArea();
 	}
 
-	const PrimitiveMetadata* getMetadata() const override
+	const PrimitiveMetadata& getMetadata() const override
 	{
 		return m_primitive->getMetadata();
 	}

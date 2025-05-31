@@ -137,11 +137,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
-	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
-	if(!optics)
-	{
-		return ViewPathTracingPolicy().kill();
-	}
+	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 
 	PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
 
@@ -164,7 +160,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	// NOTE: Also merges on glossy! This is just a reference implementation and this can simplify
 	// the logic. Can also merge on delta elemental when max viewpoint depth reached (in this case
 	// some energy is lost due to the view point depth limit).
-	if(pathLength == m_maxViewpointDepth || optics->getAllPhenomena().hasNone({
+	if(pathLength == m_maxViewpointDepth || optics.getAllPhenomena().hasNone({
 		ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}))
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
@@ -189,7 +185,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 	else
 	{
-		PH_ASSERT(optics->getAllPhenomena().hasAny({
+		PH_ASSERT(optics.getAllPhenomena().hasAny({
 			ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}));
 
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())

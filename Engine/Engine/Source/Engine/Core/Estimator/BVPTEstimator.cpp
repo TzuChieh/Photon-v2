@@ -88,8 +88,8 @@ void BVPTEstimator::estimate(
 
 		++pathLength;
 
-		const auto* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
+		const auto& metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		const SurfaceBehavior& hitSurfaceBehavior = metadata.getSurface();
 
 		if(hitSurfaceBehavior.isEmissive())
 		{

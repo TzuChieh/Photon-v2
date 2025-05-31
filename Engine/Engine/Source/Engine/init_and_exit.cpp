@@ -3,6 +3,7 @@
 #include "Engine/DataIO/io_utils.h"
 #include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Core/LTA/SurfaceHitRefinery.h"
+#include "Engine/Core/LTA/VolumeTracker.h"
 #include "Engine/Math/Random/DeterministicSeeder.h"
 
 #include <Common/config.h>
@@ -17,6 +18,10 @@ bool init_engine_core(const EngineInitSettings& settings)
 {
 	math::DeterministicSeeder::init(settings);
 	lta::SurfaceHitRefinery::init(settings);
+
+#if PH_VOLUME_TRACKER_COLLECT_STATS
+	lta::VolumeTracker::inconsistentRecordCount = 0;
+#endif
 
 	return true;
 }
@@ -40,6 +45,11 @@ void before_engine_exit()
 {
 #if PH_ENABLE_HIT_EVENT_STATS
 	lta::SurfaceHitRefinery::reportStats();
+#endif
+
+#if PH_VOLUME_TRACKER_COLLECT_STATS
+	PH_DEFAULT_LOG(Note,
+		"volume tracker inconsistent record count = {}", lta::VolumeTracker::inconsistentRecordCount.load());
 #endif
 }
 

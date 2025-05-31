@@ -46,6 +46,15 @@ inline void TArrayVector<T, N>::popBack()
 }
 
 template<typename T, std::size_t N>
+inline void TArrayVector<T, N>::removeBySwapPop(std::size_t index)
+{
+	PH_ASSERT_LT(index, size());
+
+	std::swap(m_data[index], back());
+	popBack();
+}
+
+template<typename T, std::size_t N>
 inline std::size_t TArrayVector<T, N>::size() const
 {
 	PH_ASSERT_LE(m_size, N);

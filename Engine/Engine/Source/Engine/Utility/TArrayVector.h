@@ -15,6 +15,9 @@ template<typename T, std::size_t N>
 class TArrayVector final
 {
 public:
+	using IteratorType      = typename std::array<T, N>::iterator;
+	using ConstIteratorType = typename std::array<T, N>::const_iterator;
+
 	TArrayVector();
 
 	/*! @brief Add an item to the back of the vector.
@@ -27,6 +30,8 @@ public:
 	The item originally at the target index is still alive after this call.
 	*/
 	void popBack();
+
+	void removeBySwapPop(std::size_t index);
 
 	T& front();
 	const T& front() const;

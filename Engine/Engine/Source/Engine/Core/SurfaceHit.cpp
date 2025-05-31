@@ -10,19 +10,6 @@ namespace ph
 // A simple value type should be trivially copyable
 static_assert(std::is_trivially_copyable_v<SurfaceHit>);
 
-namespace
-{
-
-inline const PrimitiveMetadata* get_primitive_metadata(const SurfaceHit& surfaceHit)
-{
-	PH_ASSERT_MSG(surfaceHit.getDetail().getPrimitive(),
-		"Does not make sense to call the method if `surfaceHit` hits nothing.");
-
-	return surfaceHit.getDetail().getPrimitive()->getMetadata();
-}
-
-}// end anonymous namespace
-
 SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 {
 	// Since channel switching is fairly expensive, do not perform a redundant
@@ -38,28 +25,29 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 	return SurfaceHit(m_ray, newProbe, m_reason);
 }
 
-const SurfaceEmitter* SurfaceHit::getSurfaceEmitter() const
+const PrimitiveMetadata& SurfaceHit::getMetadata() const
 {
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? &(meta->getSurface().getEmitter()) : nullptr;
+	return getPrimitive().getMetadata();
 }
 
-const SurfaceOptics* SurfaceHit::getSurfaceOptics() const
+const SurfaceEmitter& SurfaceHit::getSurfaceEmitter() const
 {
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? &(meta->getSurface().getOptics()) : nullptr;
+	return getMetadata().getSurface().getEmitter();
+}
+
+const SurfaceOptics& SurfaceHit::getSurfaceOptics() const
+{
+	return getMetadata().getSurface().getOptics();
 }
 
 const VolumeOptics* SurfaceHit::getInteriorOptics() const
 {
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getInterior().getOptics() : nullptr;
+	return getMetadata().getInterior().getOptics();
 }
 
 const VolumeOptics* SurfaceHit::getExteriorOptics() const
 {
-	auto const meta = get_primitive_metadata(*this);
-	return meta ? meta->getExterior().getOptics() : nullptr;
+	return getMetadata().getExterior().getOptics();
 }
 
 }// end namespace ph

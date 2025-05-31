@@ -52,10 +52,11 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfaceEmission(
 	math::Spectrum Le(0);
 	if(foundNextX)
 	{
-		const Emitter* nextEmitter = nextX.getSurfaceEmitter();
-		if(nextEmitter && nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
+		const SurfaceEmitter& nextEmitter = nextX.getSurfaceEmitter();
+		if(nextX.getMetadata().getSurface().isEmissive() &&
+		   nextEmitter.getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 		{
-			nextX.getSurfaceEmitter()->evalEmittedEnergy(nextX, &Le);
+			nextEmitter.evalEmittedEnergy(nextX, &Le);
 		}
 	}
 
@@ -94,7 +95,7 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleSurfaceEmission(
 	}
 
 	PH_ASSERT_IN_RANGE(optVisibilityRay->getDir().lengthSquared(), 0.9_r, 1.1_r);
-	PH_ASSERT(Xe.getSurfaceEmitter());
+	PH_ASSERT(Xe.getMetadata().getSurface().isEmissive());
 
 	if(out_Xe) { *out_Xe = Xe; }
 
@@ -123,8 +124,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 		   bsdfSample.outputs.isMeasurable() &&
 		   nextX)
 		{
-			const SurfaceOptics* optics = X.getSurfaceOptics();
-			PH_ASSERT(optics);
+			const SurfaceOptics& optics = X.getSurfaceOptics();
 
 			const auto pdfAppliedBsdfCos = bsdfSample.outputs.getPdfAppliedBsdfCos();
 
@@ -133,14 +133,14 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 			// always have an explicit PDF term.
 			
 			// MIS
-			if(isNeeSamplable(X) && nextX->getSurfaceEmitter())
+			if(isNeeSamplable(X) && nextX->getMetadata().getSurface().isEmissive())
 			{
 				// No need to test occlusion again as `bsdfSampleSurfaceEmission()` already done that
 				const real neePdfW = neeSamplePdfWUnoccluded(X, *nextX);
 
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfSample);
-				optics->calcBsdfPdf(bsdfPdfQuery);
+				optics.calcBsdfPdf(bsdfPdfQuery);
 
 				// `isNeeSamplable()` is already checked, but BSDF PDF can still be empty or 0
 				// (e.g., sidedness policy or by the distribution itself)
@@ -181,17 +181,16 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 			// no problem doing the same. No need to consider delta light sources as Photon do not
 			// have them.
 
-			const SurfaceOptics* optics = X.getSurfaceOptics();
-			PH_ASSERT(optics);
+			const SurfaceOptics& optics = X.getSurfaceOptics();
 
 			BsdfEvalQuery bsdfEval{bsdfSample.context};
 			bsdfEval.inputs.set(X, directSample.getTargetToEmit().normalize(), V);
-			optics->calcBsdf(bsdfEval);
+			optics.calcBsdf(bsdfEval);
 			if(bsdfEval.outputs.isMeasurable())
 			{
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
-				optics->calcBsdfPdf(bsdfPdfQuery);
+				optics.calcBsdfPdf(bsdfPdfQuery);
 				if(bsdfPdfQuery.outputs)
 				{
 					const auto L              = bsdfEval.inputs.getL();
@@ -221,7 +220,7 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 	const SurfaceHit&     Xe) const
 {
 	PH_ASSERT(isNeeSamplable(X));
-	PH_ASSERT(Xe.getSurfaceEmitter());
+	PH_ASSERT(Xe.getMetadata().getSurface().isEmissive());
 
 	DirectEnergyPdfQuery pdfQuery;
 	pdfQuery.inputs.set(X, Xe);
@@ -232,8 +231,8 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::isNeeSamplable(const SurfaceHit& X) const
 {
-	const SurfaceOptics* optics = X.getSurfaceOptics();
-	return optics && optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA);
+	const SurfaceOptics& optics = X.getSurfaceOptics();
+	return optics.getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA);
 }
 
 template<ESidednessPolicy POLICY>

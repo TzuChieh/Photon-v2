@@ -26,12 +26,12 @@ VolumeHit::VolumeHit(
 
 const VolumeOptics* VolumeHit::getInteriorOptics() const
 {
-	return getPrimitive().getMetadata()->getInterior().getOptics();
+	return getPrimitive().getMetadata().getInterior().getOptics();
 }
 
 const VolumeOptics* VolumeHit::getExteriorOptics() const
 {
-	return getPrimitive().getMetadata()->getExterior().getOptics();
+	return getPrimitive().getMetadata().getExterior().getOptics();
 }
 
 }// end namespace ph

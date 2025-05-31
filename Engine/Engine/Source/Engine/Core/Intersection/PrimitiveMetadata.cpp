@@ -12,11 +12,12 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PrimitiveMetadata, Primitive);
 
-PrimitiveMetadata::PrimitiveMetadata() :
-	m_surface(),
-	m_interior(),
-	m_exterior(),
-	m_channels()
+PrimitiveMetadata::PrimitiveMetadata()
+	: m_surface()
+	, m_interior()
+	, m_exterior()
+	, m_channels()
+	, m_interiorPriority(0)
 {
 	// Adds a default channel.
 	addChannel(PrimitiveChannel());
@@ -33,7 +34,7 @@ uint8 PrimitiveMetadata::addChannel(const PrimitiveChannel& channel)
 	return static_cast<uint8>(m_channels.size() - 1);
 }
 
-void PrimitiveMetadata::setChannel(const uint8 channelId, PrimitiveChannel channel)
+void PrimitiveMetadata::setChannel(uint8 channelId, PrimitiveChannel channel)
 {
 	if(isChannelIdValid(channelId))
 	{
@@ -43,6 +44,11 @@ void PrimitiveMetadata::setChannel(const uint8 channelId, PrimitiveChannel chann
 	{
 		PH_LOG(PrimitiveMetadata, Warning, "channel ID ({}) is invalid", channelId);
 	}
+}
+
+void PrimitiveMetadata::setInteriorPriority(uint16 priority)
+{
+	m_interiorPriority = priority;
 }
 
 static_assert(std::is_copy_constructible_v<PrimitiveMetadata>,

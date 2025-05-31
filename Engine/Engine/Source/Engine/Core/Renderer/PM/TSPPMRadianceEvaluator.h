@@ -148,11 +148,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
-	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
-	if(!optics)
-	{
-		return ViewPathTracingPolicy().kill();
-	}
+	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 
 	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
@@ -170,8 +166,8 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		ESurfacePhenomenon::NearDiffuseReflection,
 		ESurfacePhenomenon::NearDiffuseTransmission};
 
-	if(optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) && 
-	   optics->getAllPhenomena().hasAny(smoothEnoughPhenomena))
+	if(optics.getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) && 
+	   optics.getAllPhenomena().hasAny(smoothEnoughPhenomena))
 	{
 		// For path length = N, we can construct light transport path lengths with photon map,
 		// all at once, for the range [N_min, N_max] = 
