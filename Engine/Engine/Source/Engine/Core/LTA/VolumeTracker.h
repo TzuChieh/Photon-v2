@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <algorithm>
+#include <limits>
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 #include <atomic>
@@ -34,34 +35,44 @@ public:
 	void exitSurface(const SurfaceHit& X);
 
 private:
-	using ListType = TArrayVector<VolumeInteriorRecord, PH_VOLUME_TRACKER_MAX_SIZE>;
+	using List = TArrayVector<VolumeInteriorRecord, PH_VOLUME_TRACKER_MAX_SIZE>;
+	using PriorityIndex = uint8;
 
-	auto findPreviousRecord(const SurfaceHit& X) -> ListType::IteratorType;
+	auto findPriority(uint16 priority) -> List::IteratorType;
+	auto findMaxPriority() const -> List::ConstIteratorType;
 
-	ListType m_interiorList;
-	uint16 m_maxPriority = 0;
+	List m_interiorList;
+	PriorityIndex m_maxPriorityIdx = 0;
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 public:
 	static inline std::atomic_uint64_t inconsistentRecordCount;
 #endif
+
+	static_assert(std::numeric_limits<PriorityIndex>::max() >= PH_VOLUME_TRACKER_MAX_SIZE - 1,
+		"Priority index type must be able to hold largest index.");
 };
 
 inline bool VolumeTracker::isTrueHit(const SurfaceHit& X) const
 {
 	const auto encounteredPriority = X.getMetadata().getInteriorPriority();
 
-	return 
+	return
+		// Always true hit if nothing is encountered
+		m_interiorList.isEmpty() ||
+
 		// Always true hit with default priority
-		(m_maxPriority == 0 && encounteredPriority == 0) ||
+		(m_interiorList[m_maxPriorityIdx].priority == 0 && encounteredPriority == 0) ||
 
 		// Equal priority indicates false hit
-		(encounteredPriority > m_maxPriority);
+		(encounteredPriority > m_interiorList[m_maxPriorityIdx].priority);
 }
 
 inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 {
-	const auto prevRecord = findPreviousRecord(X);
+	const auto newPriority = X.getMetadata().getInteriorPriority();
+
+	const auto prevRecord = findPriority(newPriority);
 	if(prevRecord != m_interiorList.end())
 	{
 		prevRecord->count++;
@@ -71,16 +82,28 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 		const auto& metadata = X.getMetadata();
 		m_interiorList.pushBack(VolumeInteriorRecord{
 			.metadata = &metadata,
-			.priority = metadata.getInteriorPriority(),
+			.priority = newPriority,
 			.count = 1});
 
-		m_maxPriority = std::max(metadata.getInteriorPriority(), m_maxPriority);
+		// Update max priority after adding a record
+		if(m_interiorList.size() >= 2)
+		{
+			m_maxPriorityIdx = newPriority > m_interiorList[m_maxPriorityIdx].priority
+				? static_cast<PriorityIndex>(m_interiorList.size() - 1)
+				: m_maxPriorityIdx;
+		}
+		else
+		{
+			m_maxPriorityIdx = static_cast<PriorityIndex>(m_interiorList.size() - 1);
+		}
 	}
 }
 
 inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 {
-	const auto prevRecord = findPreviousRecord(X);
+	const auto newPriority = X.getMetadata().getInteriorPriority();
+
+	const auto prevRecord = findPriority(newPriority);
 	if(prevRecord != m_interiorList.end())
 	{
 		prevRecord->count--;
@@ -89,11 +112,7 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 			m_interiorList.removeBySwapPop(prevRecord - m_interiorList.begin());
 
 			// Update max priority after removing a record
-			m_maxPriority = 0;
-			for(const VolumeInteriorRecord& record : m_interiorList)
-			{
-				m_maxPriority = std::max(static_cast<uint16>(record.priority), m_maxPriority);
-			}
+			m_maxPriorityIdx = static_cast<PriorityIndex>(findMaxPriority() - m_interiorList.begin());
 		}
 	}
 	// This can happen due to numerical error, or tracker not initialied with proper interior list.
@@ -106,14 +125,25 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 	}
 }
 
-inline auto VolumeTracker::findPreviousRecord(const SurfaceHit& X) -> ListType::IteratorType
+inline auto VolumeTracker::findPriority(uint16 priority) -> List::IteratorType
 {
 	return std::find_if(
 		m_interiorList.begin(),
 		m_interiorList.end(),
-		[&X](const VolumeInteriorRecord& record)
+		[priority](const VolumeInteriorRecord& record)
 		{
-			return record.metadata == &X.getMetadata();
+			return record.priority == priority;
+		});
+}
+
+inline auto VolumeTracker::findMaxPriority() const -> List::ConstIteratorType
+{
+	return std::max_element(
+		m_interiorList.begin(),
+		m_interiorList.end(),
+		[](const VolumeInteriorRecord& a, const VolumeInteriorRecord& b)
+		{
+			return a.priority > b.priority;
 		});
 }
 
