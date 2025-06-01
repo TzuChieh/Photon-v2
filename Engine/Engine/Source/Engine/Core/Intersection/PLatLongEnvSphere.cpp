@@ -8,6 +8,7 @@
 #include "Engine/Math/Geometry/TLineSegment.h"
 #include "Engine/Math/TOrthonormalBasis3.h"
 #include "Engine/Math/constant.h"
+#include "Engine/Math/hash.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
@@ -107,7 +108,11 @@ void PLatLongEnvSphere::calcHitDetail(
 		FaceTopology({EFaceTopology::Concave}));
 
 	constexpr auto meanFactor = 5e-8_r;
-	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);
+	out_detail->updateDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);
+
+	// For the case where multiple env spheres differ only by the applied transforms
+	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
+		out_detail->getGlobalPrimitiveID(), reinterpret_cast<uint64>(m_worldToLocal)));
 
 	// Derivatives are unset; any point on the sphere can potentially map to any UV for
 	// a hemisphere of directions.

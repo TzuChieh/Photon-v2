@@ -73,6 +73,14 @@ public:
 	*/
 	uint64 getFaceID() const;
 
+	/*! @brief Get the global face ID associated to the hit.
+	@return The ID for the face that was hit. Unlike `getFaceID()`, this ID is globally unique.
+	May be `NO_FACE_ID` if not available.
+	*/
+	uint64 getGlobalFaceID() const;
+
+	uint64 getGlobalPrimitiveID() const;
+
 	/*!
 	@return Surface topology locally around the hit point.
 	*/
@@ -86,7 +94,9 @@ public:
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
 	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
 	std::pair<real, real> getDistanceErrorFactors() const;
-	void setDistanceErrorFactors(real meanFactor, real maxFactor);
+	void updatePrimitive(const Primitive* primitive);
+	void updateDistanceErrorFactors(real meanFactor, real maxFactor);
+	void updateGlobalPrimitiveID(uint64 id);
 
 private:
 	const Primitive* m_primitive;
@@ -94,6 +104,7 @@ private:
 	real             m_rayT;
 	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
 	uint64           m_faceID;
+	uint64           m_globalPrimitiveID;
 	FaceTopology     m_faceTopology;
 	int8			 m_meanDistanceErrorFactorExp2;
 	int8			 m_maxDistanceErrorFactorExp2;
@@ -156,6 +167,11 @@ inline uint64 HitDetail::getFaceID() const
 	return m_faceID;
 }
 
+inline uint64 HitDetail::getGlobalPrimitiveID() const
+{
+	return m_globalPrimitiveID;
+}
+
 inline FaceTopology HitDetail::getFaceTopology() const
 {
 	return FaceTopology(m_faceTopology);
@@ -190,7 +206,12 @@ inline std::pair<real, real> HitDetail::getDistanceErrorFactors() const
 		static_cast<real>(std::exp2(m_maxDistanceErrorFactorExp2))};
 }
 
-inline void HitDetail::setDistanceErrorFactors(const real meanFactor, const real maxFactor)
+inline void HitDetail::updatePrimitive(const Primitive* primitive)
+{
+	m_primitive = primitive;
+}
+
+inline void HitDetail::updateDistanceErrorFactors(const real meanFactor, const real maxFactor)
 {
 	// These should be absolute values
 	PH_ASSERT_GE(meanFactor, 0.0_r);
@@ -198,6 +219,11 @@ inline void HitDetail::setDistanceErrorFactors(const real meanFactor, const real
 
 	m_meanDistanceErrorFactorExp2 = static_cast<int8>(std::round(std::log2(meanFactor)));
 	m_maxDistanceErrorFactorExp2 = static_cast<int8>(std::ceil(std::log2(maxFactor)));
+}
+
+inline void HitDetail::updateGlobalPrimitiveID(uint64 id)
+{
+	m_globalPrimitiveID = id;
 }
 
 }// end namespace ph

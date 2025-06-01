@@ -242,4 +242,17 @@ inline uint32 permuted_index(uint32 i, uint32 l, uint32 p)
 	return (i + p) % l; 
 }
 
+template<std::integral T>
+inline T combine_hashes(const T& hashA, const T& hashB)
+{
+	using UnsignedT = std::make_unsigned_t<T>;
+
+	const UnsignedT uHashA(hashA);
+	const UnsignedT uHashB(hashB);
+
+	auto newHash = uHashA;
+	newHash ^= uHashB + UnsignedT(0x9e3779b9) + (uHashA << 6) + (uHashA >> 2);
+	return T(newHash);
+}
+
 }// end namespace ph::math

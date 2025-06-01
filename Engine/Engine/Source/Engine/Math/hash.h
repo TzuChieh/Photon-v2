@@ -107,6 +107,13 @@ uint32 murmur3_32(
 */
 uint32 permuted_index(uint32 i, uint32 l, uint32 p);
 
+/*! @brief Combine two hashes into one new hash.
+The implementation uses the same algorithm as boost.
+@return The combined hash.
+*/
+template<std::integral T>
+T combine_hashes(const T& hashA, const T& hashB);
+
 }// end namespace ph::math
 
 #include "Engine/Math/hash.ipp"

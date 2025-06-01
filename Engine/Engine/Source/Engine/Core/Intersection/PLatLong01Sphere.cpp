@@ -66,7 +66,7 @@ void PLatLong01Sphere::calcHitDetail(
 		FaceTopology({EFaceTopology::Convex}));
 
 	constexpr auto meanFactor = 5e-8_r;
-	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);
+	out_detail->updateDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

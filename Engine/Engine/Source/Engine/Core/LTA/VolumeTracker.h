@@ -23,8 +23,8 @@ namespace ph::lta
 struct VolumeInteriorRecord final
 {
 	const PrimitiveMetadata* metadata = nullptr;
+	uint64 primitiveID = 0;
 	uint32 priority : 16 = 0;
-	uint32 count : 8 = 0;
 };
 
 class VolumeTracker final
@@ -38,8 +38,8 @@ private:
 	using List = TArrayVector<VolumeInteriorRecord, PH_VOLUME_TRACKER_MAX_SIZE>;
 	using PriorityIndex = uint8;
 
-	auto findPriority(uint16 priority) -> List::IteratorType;
-	auto findMaxPriority() const -> List::ConstIteratorType;
+	auto findRecord(const SurfaceHit& X) -> List::IteratorType;
+	auto findRecordWithMaxPriority() const -> List::ConstIteratorType;
 
 	List m_interiorList;
 	PriorityIndex m_maxPriorityIdx = 0;
@@ -70,53 +70,50 @@ inline bool VolumeTracker::isTrueHit(const SurfaceHit& X) const
 
 inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 {
-	const auto newPriority = X.getMetadata().getInteriorPriority();
+#if PH_VOLUME_TRACKER_COLLECT_STATS
+	const auto prevRecord = findRecord(X);
 
-	const auto prevRecord = findPriority(newPriority);
+	// This can happen due to numerical error, tracker not initialied with proper interior list,
+	// primitive ID collision, etc. E.g., missed due to ray offset to avoid self-intersection.
 	if(prevRecord != m_interiorList.end())
 	{
-		prevRecord->count++;
+		inconsistentRecordCount.fetch_add(1, std::memory_order_relaxed);
+	}
+#endif
+
+	const auto newPriority = X.getMetadata().getInteriorPriority();
+
+	const auto& metadata = X.getMetadata();
+	m_interiorList.pushBack(VolumeInteriorRecord{
+		.metadata = &metadata,
+		.primitiveID = X.getDetail().getGlobalPrimitiveID(),
+		.priority = newPriority});
+
+	// Update max priority after adding a record
+	if(m_interiorList.size() >= 2)
+	{
+		m_maxPriorityIdx = newPriority > m_interiorList[m_maxPriorityIdx].priority
+			? static_cast<PriorityIndex>(m_interiorList.size() - 1)
+			: m_maxPriorityIdx;
 	}
 	else
 	{
-		const auto& metadata = X.getMetadata();
-		m_interiorList.pushBack(VolumeInteriorRecord{
-			.metadata = &metadata,
-			.priority = newPriority,
-			.count = 1});
-
-		// Update max priority after adding a record
-		if(m_interiorList.size() >= 2)
-		{
-			m_maxPriorityIdx = newPriority > m_interiorList[m_maxPriorityIdx].priority
-				? static_cast<PriorityIndex>(m_interiorList.size() - 1)
-				: m_maxPriorityIdx;
-		}
-		else
-		{
-			m_maxPriorityIdx = static_cast<PriorityIndex>(m_interiorList.size() - 1);
-		}
+		m_maxPriorityIdx = static_cast<PriorityIndex>(m_interiorList.size() - 1);
 	}
 }
 
 inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 {
-	const auto newPriority = X.getMetadata().getInteriorPriority();
-
-	const auto prevRecord = findPriority(newPriority);
+	const auto prevRecord = findRecord(X);
 	if(prevRecord != m_interiorList.end())
 	{
-		prevRecord->count--;
-		if(prevRecord->count == 0)
-		{
-			m_interiorList.removeBySwapPop(prevRecord - m_interiorList.begin());
+		m_interiorList.removeBySwapPop(prevRecord - m_interiorList.begin());
 
-			// Update max priority after removing a record
-			m_maxPriorityIdx = static_cast<PriorityIndex>(findMaxPriority() - m_interiorList.begin());
-		}
+		// Update max priority after removing a record
+		m_maxPriorityIdx = static_cast<PriorityIndex>(findRecordWithMaxPriority() - m_interiorList.begin());
 	}
-	// This can happen due to numerical error, or tracker not initialied with proper interior list.
-	// E.g., missed due to ray offset to avoid self-intersection.
+	// This can happen due to numerical error, tracker not initialied with proper interior list,
+	// primitive ID collision, etc. E.g., missed due to ray offset to avoid self-intersection.
 	else
 	{
 #if PH_VOLUME_TRACKER_COLLECT_STATS
@@ -125,18 +122,19 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 	}
 }
 
-inline auto VolumeTracker::findPriority(uint16 priority) -> List::IteratorType
+inline auto VolumeTracker::findRecord(const SurfaceHit& X) -> List::IteratorType
 {
+	const auto targetID = X.getDetail().getGlobalPrimitiveID();
 	return std::find_if(
 		m_interiorList.begin(),
 		m_interiorList.end(),
-		[priority](const VolumeInteriorRecord& record)
+		[targetID](const VolumeInteriorRecord& record)
 		{
-			return record.priority == priority;
+			return record.primitiveID == targetID;
 		});
 }
 
-inline auto VolumeTracker::findMaxPriority() const -> List::ConstIteratorType
+inline auto VolumeTracker::findRecordWithMaxPriority() const -> List::ConstIteratorType
 {
 	return std::max_element(
 		m_interiorList.begin(),

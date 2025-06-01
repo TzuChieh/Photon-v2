@@ -126,7 +126,7 @@ void PTriangle::calcHitDetail(
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 
 	constexpr auto meanFactor = 5e-8_r;
-	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);
+	out_detail->updateDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

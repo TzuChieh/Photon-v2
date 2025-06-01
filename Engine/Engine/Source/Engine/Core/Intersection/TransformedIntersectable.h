@@ -24,77 +24,20 @@ public:
 		const math::Transform* localToWorld,
 		const math::Transform* worldToLocal);
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
-	{
-		Ray localRay;
-		m_worldToLocal->transform(ray, &localRay);
-		if(m_intersectable->isIntersecting(localRay, probe))
-		{
-			probe.pushIntermediateHit(this);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
 	bool reintersect(
 		const Ray& ray,
 		HitProbe& probe,
 		const Ray& srcRay,
-		HitProbe& srcProbe) const override
-	{
-		PH_ASSERT(srcProbe.getTopHit() == this);
-		srcProbe.popHit();
-
-		Ray localRay, localSrcRay;
-		m_worldToLocal->transform(ray, &localRay);
-		m_worldToLocal->transform(srcRay, &localSrcRay);
-		if(srcProbe.getTopHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
-		{
-			probe.pushIntermediateHit(this);
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+		HitProbe& srcProbe) const override;
 
 	void calcHitDetail(
 		const Ray&       ray, 
 		HitProbe&        probe,
-		HitDetail* const out_detail) const override
-	{
-		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
-		// the hit stack; 2. the hit event is invalid
-		PH_ASSERT(probe.getTopHit() == this);
-		probe.popHit();
+		HitDetail* const out_detail) const override;
 
-		Ray localRay;
-		m_worldToLocal->transform(ray, &localRay);
-
-		// Current hit is not necessary `m_intersectable`. For example, if `m_intersectable` contains
-		// multiple instances then it could simply skip over to one of them.
-		PH_ASSERT(probe.getTopHit());
-		HitDetail localDetail;
-		probe.getTopHit()->calcHitDetail(localRay, probe, &localDetail);
-
-		*out_detail = localDetail;
-		m_localToWorld->transform(
-			localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
-
-		const auto [meanFactor, maxFactor] = out_detail->getDistanceErrorFactors();
-		out_detail->setDistanceErrorFactors(meanFactor, maxFactor * 1.25_r);
-	}
-
-	bool isOccluding(const Ray& ray) const override
-	{
-		Ray localRay;
-		m_worldToLocal->transform(ray, &localRay);
-		return m_intersectable->isOccluding(localRay);
-	}
+	bool isOccluding(const Ray& ray) const override;
 
 	bool mayOverlapVolume(const math::AABB3D& aabb) const override;
 	math::AABB3D calcAABB() const override;
@@ -104,5 +47,50 @@ protected:
 	const math::Transform* m_localToWorld;
 	const math::Transform* m_worldToLocal;
 };
+
+inline bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
+{
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+	if(m_intersectable->isIntersecting(localRay, probe))
+	{
+		probe.pushIntermediateHit(this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+inline bool TransformedIntersectable::reintersect(
+	const Ray& ray,
+	HitProbe& probe,
+	const Ray& srcRay,
+	HitProbe& srcProbe) const
+{
+	PH_ASSERT(srcProbe.getTopHit() == this);
+	srcProbe.popHit();
+
+	Ray localRay, localSrcRay;
+	m_worldToLocal->transform(ray, &localRay);
+	m_worldToLocal->transform(srcRay, &localSrcRay);
+	if(srcProbe.getTopHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
+	{
+		probe.pushIntermediateHit(this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+inline bool TransformedIntersectable::isOccluding(const Ray& ray) const
+{
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+	return m_intersectable->isOccluding(localRay);
+}
 
 }// end namespace ph

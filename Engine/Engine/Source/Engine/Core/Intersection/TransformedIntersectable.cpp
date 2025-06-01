@@ -1,5 +1,6 @@
 #include "Engine/Core/Intersection/TransformedIntersectable.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
+#include "Engine/Math/hash.h"
 
 namespace ph
 {
@@ -25,6 +26,36 @@ TransformedIntersectable::TransformedIntersectable(
 	PH_ASSERT(intersectable);
 	PH_ASSERT(localToWorld);
 	PH_ASSERT(worldToLocal);
+}
+
+void TransformedIntersectable::calcHitDetail(
+	const Ray&       ray, 
+	HitProbe&        probe,
+	HitDetail* const out_detail) const
+{
+	// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+	// the hit stack; 2. the hit event is invalid
+	PH_ASSERT(probe.getTopHit() == this);
+	probe.popHit();
+
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+
+	// Current hit is not necessary `m_intersectable`. For example, if `m_intersectable` contains
+	// multiple instances then it could simply skip over to one of them.
+	PH_ASSERT(probe.getTopHit());
+	HitDetail localDetail;
+	probe.getTopHit()->calcHitDetail(localRay, probe, &localDetail);
+
+	*out_detail = localDetail;
+	m_localToWorld->transform(
+		localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
+
+	const auto [meanFactor, maxFactor] = out_detail->getDistanceErrorFactors();
+	out_detail->updateDistanceErrorFactors(meanFactor, maxFactor * 1.25_r);
+
+	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
+		out_detail->getGlobalPrimitiveID(), reinterpret_cast<uint64>(m_worldToLocal)));
 }
 
 bool TransformedIntersectable::mayOverlapVolume(const math::AABB3D& aabb) const

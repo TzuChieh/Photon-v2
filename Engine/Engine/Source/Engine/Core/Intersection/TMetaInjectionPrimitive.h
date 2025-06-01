@@ -159,12 +159,9 @@ public:
 		probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive
-		out_detail->setHitIntrinsics(
-			this,
-			out_detail->getUVW(),
-			out_detail->getRayT(),
-			out_detail->getFaceID(),
-			out_detail->getFaceTopology());
+		out_detail->updatePrimitive(this);
+
+		// Global primitive ID is not updated since no instancing is done here
 	}
 
 	math::AABB3D calcAABB() const override

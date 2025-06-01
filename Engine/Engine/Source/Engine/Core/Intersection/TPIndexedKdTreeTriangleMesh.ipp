@@ -191,7 +191,7 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 
 	constexpr auto meanFactor = 5e-8_r;
-	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);
+	out_detail->updateDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);
 }
 
 template<typename Index>
