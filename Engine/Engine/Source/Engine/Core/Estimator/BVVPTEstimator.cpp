@@ -16,6 +16,9 @@
 #include "Engine/Core/Estimator/Integrand.h"
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
 #include "Engine/Core/VolumeBehavior/MediumDistanceSampleQuery.h"
+#include "Engine/Core/LTA/VolumeTracker.h"
+
+#include <optional>
 
 namespace ph
 {
@@ -53,62 +56,43 @@ void BVVPTEstimator::estimate(
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
-	SurfaceHit surfaceHit;
+	lta::VolumeTracker volumeTracker{};
+
+	SurfaceHit X;
+	SurfaceHit nextX;
+	bool foundNextX = false;
 	while(pathLength <= getPTParams().maxPathLength)
 	{
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, volumeTracker, &X))
 			{
 				break;
 			}
 		}
-		else
+		else if(foundNextX)
 		{
-			SurfaceHit nextSurfaceHit;
+			X = nextX;
+			foundNextX = false;
+		}
+		else 
+		{
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				surfaceHit, tracingRay, BsdfQueryContext{}.sidedness, &nextSurfaceHit))
+				X, tracingRay, BsdfQueryContext{}.sidedness, volumeTracker, &X))
 			{
 				break;
 			}
-
-			const bool isFrontHemisphere = surfaceHit.getShadingNormal().dot(tracingRay.getDir()) > 0;
-			const VolumeHit volumeHit(surfaceHit, tracingRay, !isFrontHemisphere);
-			const VolumeOptics* volumeOptics = volumeHit.getVolumeOptics();
-
-			// Volumetric transport
-			if(volumeOptics)
-			{
-				MediumDistanceSampleQuery distanceSample;
-				distanceSample.inputs.set(
-					volumeHit,
-					tracingRay.getDir(),
-					nextSurfaceHit.getDetail().getRayT() - tracingRay.getMinT());
-				volumeOptics->genDistanceSample(distanceSample, sampleFlow);
-				if(!distanceSample.outputs)
-				{
-					break;
-				}
-
-				pathThroughput *= distanceSample.outputs.getPdfAppliedWeight();
-				if(pathThroughput.isZero())
-				{
-					break;
-				}
-			}
-
-			surfaceHit = nextSurfaceHit;
 		}
 
 		++pathLength;
 
-		const auto& metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
+		const auto& metadata = X.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata.getSurface();
 
 		if(hitSurfaceBehavior.isEmissive())
 		{
 			math::Spectrum radianceLe;
-			hitSurfaceBehavior.getEmitter().evalEmittedEnergy(surfaceHit, &radianceLe);
+			hitSurfaceBehavior.getEmitter().evalEmittedEnergy(X, &radianceLe);
 
 			// Avoid excessive, negative weight and possible NaNs
 			pathThroughput.safeClampLocal(0.0_r, 1e9_r);
@@ -117,15 +101,16 @@ void BVVPTEstimator::estimate(
 		}
 
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
-		const math::Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R N = X.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample;
-		bsdfSample.inputs.set(surfaceHit, V);
+		bsdfSample.inputs.set(X, V);
 		Ray nextRay;
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &nextRay))
 		{
 			break;
 		}
+		const math::Vector3R L = nextRay.getDir();
 
 		pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 
@@ -148,6 +133,51 @@ void BVVPTEstimator::estimate(
 		if(pathThroughput.isZero())
 		{
 			break;
+		}
+
+		if(X.getShadingNormal().dot(V) * X.getShadingNormal().dot(L) < 0)
+		{
+			if(X.getShadingNormal().dot(V) > 0)
+			{
+				volumeTracker.enterSurface(X);
+			}
+			else
+			{
+				volumeTracker.exitSurface(X);
+			}
+		}
+
+		const VolumeOptics* volumeOptics = volumeTracker.getCurrentVolumeOptics();
+
+		// Volumetric transport
+		if(volumeOptics)
+		{
+			if(!surfaceTracer.traceNextSurfaceFrom(
+				X, nextRay, BsdfQueryContext{}.sidedness, volumeTracker, &nextX))
+			{
+				break;
+			}
+			foundNextX = true;
+
+			const bool isFrontHemisphere = X.getShadingNormal().dot(L) > 0;
+			const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);
+
+			MediumDistanceSampleQuery distanceSample;
+			distanceSample.inputs.set(
+				volumeHit,
+				L,
+				nextX.getDetail().getRayT() - nextRay.getMinT());
+			volumeOptics->genDistanceSample(distanceSample, sampleFlow);
+			if(!distanceSample.outputs)
+			{
+				break;
+			}
+
+			pathThroughput *= distanceSample.outputs.getPdfAppliedWeight();
+			if(pathThroughput.isZero())
+			{
+				break;
+			}
 		}
 
 		tracingRay = nextRay;

@@ -17,6 +17,8 @@
 #include <atomic>
 #endif
 
+namespace ph { class VolumeOptics; }
+
 namespace ph::lta
 {
 
@@ -31,6 +33,8 @@ class VolumeTracker final
 {
 public:
 	bool isTrueHit(const SurfaceHit& X) const;
+	const PrimitiveMetadata* getCurrentVolumeMetadata(const PrimitiveMetadata* defaultMetadata = nullptr) const;
+	const VolumeOptics* getCurrentVolumeOptics(const VolumeOptics* defaultOptics = nullptr) const;
 	void enterSurface(const SurfaceHit& X);
 	void exitSurface(const SurfaceHit& X);
 
@@ -66,6 +70,23 @@ inline bool VolumeTracker::isTrueHit(const SurfaceHit& X) const
 
 		// Equal priority indicates false hit
 		(encounteredPriority > m_interiorList[m_maxPriorityIdx].priority);
+}
+
+inline const PrimitiveMetadata* VolumeTracker::getCurrentVolumeMetadata(const PrimitiveMetadata* defaultMetadata) const
+{
+	PH_ASSERT(m_interiorList.isEmpty() || m_maxPriorityIdx < m_interiorList.size());
+
+	return !m_interiorList.isEmpty()
+		? m_interiorList[m_maxPriorityIdx].metadata
+		: defaultMetadata;
+}
+
+inline const VolumeOptics* VolumeTracker::getCurrentVolumeOptics(const VolumeOptics* defaultOptics) const
+{
+	const PrimitiveMetadata* metadata = getCurrentVolumeMetadata();
+	return metadata
+		? metadata->getInterior().getOptics()
+		: defaultOptics;
 }
 
 inline void VolumeTracker::enterSurface(const SurfaceHit& X)

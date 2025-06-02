@@ -27,6 +27,8 @@ namespace ph { class SampleFlow; }
 namespace ph::lta
 {
 
+class VolumeTracker;
+
 /*! @brief Common operations for surface tracing.
 This class also handles many subtle cases for surface tracing. You may take the implementations here
 as reference if a more fine-grained control is needed for a custom operation.
@@ -54,7 +56,7 @@ public:
 
 	/*! @brief Find the next surface from a location.
 	This variant also refines the surface hit point before starting the trace.
-	@param X The location to start the find from. Can also use the object as `out_X`.
+	@param X The location to start the find from. Can also use the same object as `out_X`.
 	@param ray The ray that is used for finding the next surface.
 	@param sidedness Sidedness policy.
 	@param out_X The next surface.
@@ -64,6 +66,19 @@ public:
 		const SurfaceHit&         X,
 		const Ray&                ray, 
 		const SidednessAgreement& sidedness, 
+		SurfaceHit*               out_X) const;
+
+	bool traceNextSurface(
+		const Ray&                ray,
+		const SidednessAgreement& sidedness,
+		const VolumeTracker&      volumeTracker,
+		SurfaceHit*               out_X) const;
+
+	bool traceNextSurfaceFrom(
+		const SurfaceHit&         X,
+		const Ray&                ray,
+		const SidednessAgreement& sidedness,
+		const VolumeTracker&      volumeTracker,
 		SurfaceHit*               out_X) const;
 
 	/*! @brief Uses BSDF sample to trace the next surface.
@@ -153,6 +168,20 @@ inline bool SurfaceTracer::traceNextSurfaceFrom(
 
 	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
 	return traceNextSurface(refinedRay, sidedness, out_X);
+}
+
+inline bool SurfaceTracer::traceNextSurfaceFrom(
+	const SurfaceHit&         X,
+	const Ray&                ray,
+	const SidednessAgreement& sidedness,
+	const VolumeTracker&      volumeTracker,
+	SurfaceHit* const         out_X) const
+{
+	// Not tracing from uninitialized surface hit
+	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
+
+	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
+	return traceNextSurface(refinedRay, sidedness, volumeTracker, out_X);
 }
 
 inline bool SurfaceTracer::bsdfSampleNextSurface(

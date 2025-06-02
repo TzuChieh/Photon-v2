@@ -55,7 +55,8 @@ void TransformedIntersectable::calcHitDetail(
 	out_detail->updateDistanceErrorFactors(meanFactor, maxFactor * 1.25_r);
 
 	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
-		out_detail->getGlobalPrimitiveID(), reinterpret_cast<uint64>(m_worldToLocal)));
+		out_detail->getGlobalPrimitiveID(),
+		math::moremur_bit_mix_64(reinterpret_cast<uint64>(m_worldToLocal))));
 }
 
 bool TransformedIntersectable::mayOverlapVolume(const math::AABB3D& aabb) const

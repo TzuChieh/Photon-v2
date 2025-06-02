@@ -112,7 +112,8 @@ void PLatLongEnvSphere::calcHitDetail(
 
 	// For the case where multiple env spheres differ only by the applied transforms
 	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
-		out_detail->getGlobalPrimitiveID(), reinterpret_cast<uint64>(m_worldToLocal)));
+		out_detail->getGlobalPrimitiveID(),
+		math::moremur_bit_mix_64(reinterpret_cast<uint64>(m_worldToLocal))));
 
 	// Derivatives are unset; any point on the sphere can potentially map to any UV for
 	// a hemisphere of directions.

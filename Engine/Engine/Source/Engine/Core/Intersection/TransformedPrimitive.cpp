@@ -53,7 +53,8 @@ void TransformedPrimitive::calcHitDetail(
 	out_detail->updatePrimitive(this);
 
 	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
-		out_detail->getGlobalPrimitiveID(), reinterpret_cast<uint64>(m_worldToLocal)));
+		out_detail->getGlobalPrimitiveID(),
+		math::moremur_bit_mix_64(reinterpret_cast<uint64>(m_worldToLocal))));
 }
 
 bool TransformedPrimitive::mayOverlapVolume(const math::AABB3D& aabb) const
