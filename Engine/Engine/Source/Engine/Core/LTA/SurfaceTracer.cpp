@@ -4,32 +4,45 @@
 namespace ph::lta
 {
 
+namespace
+{
+
+inline Ray trim_ray_tail(const Ray& ray, const math::Vector3R& whereToTrim, const real lengthToTrim)
+{
+	// Assuming `ray` pass through `whereToTrim`
+	return Ray(
+		whereToTrim,
+		ray.getDir(),
+		0,
+		ray.getSegment().getDeltaT() - lengthToTrim,
+		ray.getTime());
+}
+
+}// end anonymous namespace
+
 bool SurfaceTracer::traceNextSurface(
 	const Ray&                ray,
 	const SidednessAgreement& sidedness,
 	const VolumeTracker&      volumeTracker,
 	SurfaceHit* const         out_X) const
 {
-	if(!traceNextSurface(ray, sidedness, out_X))
+	SurfaceHit& X = *out_X;
+	if(!traceNextSurface(ray, sidedness, &X))
 	{
 		return false;
 	}
 
-	if(volumeTracker.isTrueHit(*out_X))
-	{
-		return true;
-	}
-
 	// Trace next surface until true hit is found
-	while(traceNextSurfaceFrom(*out_X, ray, sidedness, out_X))
+	while(!volumeTracker.isTrueHit(X))
 	{
-		if(volumeTracker.isTrueHit(*out_X))
+		const Ray remainingRay = trim_ray_tail(X.getRay(), X.getPos(), X.getDetail().getRayT() - X.getRay().getMinT());
+		if(!traceNextSurfaceFrom(X, remainingRay, sidedness, &X))
 		{
-			return true;
+			return false;
 		}
 	}
 
-	return false;
+	return true;
 }
 
 }// end namespace ph::lta

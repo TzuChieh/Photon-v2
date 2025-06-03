@@ -135,9 +135,9 @@ void BVVPTEstimator::estimate(
 			break;
 		}
 
-		if(X.getShadingNormal().dot(V) * X.getShadingNormal().dot(L) < 0)
+		if(N.dot(V) * N.dot(L) < 0)
 		{
-			if(X.getShadingNormal().dot(V) > 0)
+			if(N.dot(V) > 0)
 			{
 				volumeTracker.enterSurface(X);
 			}
@@ -159,7 +159,7 @@ void BVVPTEstimator::estimate(
 			}
 			foundNextX = true;
 
-			const bool isFrontHemisphere = X.getShadingNormal().dot(L) > 0;
+			const bool isFrontHemisphere = N.dot(L) > 0;
 			const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);
 
 			MediumDistanceSampleQuery distanceSample;
