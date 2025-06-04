@@ -15,6 +15,8 @@
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 #include <atomic>
+#include <string>
+#include <format>
 #endif
 
 namespace ph { class VolumeOptics; }
@@ -49,8 +51,13 @@ private:
 	PriorityIndex m_maxPriorityIdx = 0;
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
-public:
+private:
+	static inline std::atomic_uint64_t recordCount;
 	static inline std::atomic_uint64_t inconsistentRecordCount;
+
+public:
+	static void initStats();
+	static std::string reportStats();
 #endif
 
 	static_assert(std::numeric_limits<PriorityIndex>::max() >= PH_VOLUME_TRACKER_MAX_SIZE - 1,
@@ -92,15 +99,20 @@ inline const VolumeOptics* VolumeTracker::getCurrentVolumeOptics(const VolumeOpt
 inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 {
 #if PH_VOLUME_TRACKER_COLLECT_STATS
-	const auto prevRecord = findRecord(X);
+	recordCount.fetch_add(1, std::memory_order_relaxed);
+#endif
 
 	// This can happen due to numerical error, tracker not initialied with proper interior list,
 	// primitive ID collision, etc. E.g., missed due to ray offset to avoid self-intersection.
+	const auto prevRecord = findRecord(X);
 	if(prevRecord != m_interiorList.end())
 	{
+#if PH_VOLUME_TRACKER_COLLECT_STATS
 		inconsistentRecordCount.fetch_add(1, std::memory_order_relaxed);
-	}
 #endif
+		exitSurface(X);
+		return;
+	}
 
 	const auto newPriority = X.getMetadata().getInteriorPriority();
 
@@ -125,6 +137,10 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 
 inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 {
+#if PH_VOLUME_TRACKER_COLLECT_STATS
+	recordCount.fetch_add(1, std::memory_order_relaxed);
+#endif
+
 	const auto prevRecord = findRecord(X);
 	if(prevRecord != m_interiorList.end())
 	{
@@ -140,6 +156,7 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 		inconsistentRecordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
+		return;
 	}
 }
 
@@ -165,5 +182,24 @@ inline auto VolumeTracker::findRecordWithMaxPriority() const -> List::ConstItera
 			return a.priority > b.priority;
 		});
 }
+
+#if PH_VOLUME_TRACKER_COLLECT_STATS
+
+inline void VolumeTracker::initStats()
+{
+	recordCount = 0;
+	inconsistentRecordCount = 0;
+}
+
+inline std::string VolumeTracker::reportStats()
+{
+	return std::format(
+		"volume tracker inconsistent record count: {}/{} ({}%)",
+		inconsistentRecordCount.load(),
+		recordCount.load(),
+		100.0 * inconsistentRecordCount.load() / recordCount.load());
+}
+
+#endif
 
 }// end namespace ph::lta

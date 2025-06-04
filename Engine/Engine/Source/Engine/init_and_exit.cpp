@@ -20,7 +20,7 @@ bool init_engine_core(const EngineInitSettings& settings)
 	lta::SurfaceHitRefinery::init(settings);
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
-	lta::VolumeTracker::inconsistentRecordCount = 0;
+	lta::VolumeTracker::initStats();
 #endif
 
 	return true;
@@ -48,8 +48,7 @@ void before_engine_exit()
 #endif
 
 #if PH_VOLUME_TRACKER_COLLECT_STATS
-	PH_DEFAULT_LOG(Note,
-		"volume tracker inconsistent record count = {}", lta::VolumeTracker::inconsistentRecordCount.load());
+	PH_DEFAULT_LOG_STRING(Note, lta::VolumeTracker::reportStats());
 #endif
 }
 
