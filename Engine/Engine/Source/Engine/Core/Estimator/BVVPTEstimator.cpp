@@ -135,7 +135,7 @@ void BVVPTEstimator::estimate(
 			break;
 		}
 
-		if(N.dot(V) * N.dot(L) < 0)
+		if(BsdfQueryContext{}.sidedness.isOppositeHemisphere(X, V, L))
 		{
 			if(N.dot(V) > 0)
 			{
