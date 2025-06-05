@@ -27,7 +27,6 @@ namespace ph::lta
 struct VolumeInteriorRecord final
 {
 	const PrimitiveMetadata* metadata = nullptr;
-	uint64 primitiveID = 0;
 	uint32 priority : 16 = 0;
 };
 
@@ -119,7 +118,6 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 	const auto& metadata = X.getMetadata();
 	m_interiorList.pushBack(VolumeInteriorRecord{
 		.metadata = &metadata,
-		.primitiveID = X.getDetail().getGlobalPrimitiveID(),
 		.priority = newPriority});
 
 	// Update max priority after adding a record
@@ -162,13 +160,13 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 
 inline auto VolumeTracker::findRecord(const SurfaceHit& X) -> List::IteratorType
 {
-	const auto targetID = X.getDetail().getGlobalPrimitiveID();
+	const PrimitiveMetadata* metadata = &X.getMetadata();
 	return std::find_if(
 		m_interiorList.begin(),
 		m_interiorList.end(),
-		[targetID](const VolumeInteriorRecord& record)
+		[metadata](const VolumeInteriorRecord& record)
 		{
-			return record.primitiveID == targetID;
+			return record.metadata == metadata;
 		});
 }
 
