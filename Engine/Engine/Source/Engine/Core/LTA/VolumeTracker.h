@@ -67,22 +67,27 @@ public:
 
 inline bool VolumeTracker::isTrueHit(const SurfaceHit& X) const
 {
-	const auto encounteredPriority = X.getMetadata().getInteriorPriority();
+	// Always true hit if nothing is recorded; default/disabled priority are handled here
+	if(m_interiorList.isEmpty())
+	{
+		return true;
+	}
+
+	const PrimitiveMetadata& encounteredMetadata = X.getMetadata();
 
 	return
-		// Always true hit if nothing is encountered
-		m_interiorList.isEmpty() ||
+		// Could be the exiting hit
+		&encounteredMetadata == m_interiorList[m_maxPriorityIdx].metadata ||
 
-		// Always true hit with default priority
-		(m_interiorList[m_maxPriorityIdx].priority == 0 && encounteredPriority == 0) ||
-
-		// Equal priority indicates false hit
-		(encounteredPriority > m_interiorList[m_maxPriorityIdx].priority);
+		// Equal and lower priorities indicate false hit; when equal, keep current volume properties
+		(encounteredMetadata.getInteriorPriority() > m_interiorList[m_maxPriorityIdx].priority);
 }
 
 inline const PrimitiveMetadata* VolumeTracker::getCurrentVolumeMetadata(const PrimitiveMetadata* defaultMetadata) const
 {
-	PH_ASSERT(m_interiorList.isEmpty() || m_maxPriorityIdx < m_interiorList.size());
+	PH_ASSERT(
+		m_interiorList.isEmpty() || 
+		(m_maxPriorityIdx < m_interiorList.size() && m_interiorList[m_maxPriorityIdx].priority > 0));
 
 	return !m_interiorList.isEmpty()
 		? m_interiorList[m_maxPriorityIdx].metadata
@@ -99,6 +104,13 @@ inline const VolumeOptics* VolumeTracker::getCurrentVolumeOptics(const VolumeOpt
 
 inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 {
+	// Default/disabled priority is not explicitly tracked
+	const auto newPriority = X.getMetadata().getInteriorPriority();
+	if(newPriority == 0)
+	{
+		return;
+	}
+
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 	recordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
@@ -114,8 +126,6 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 		exitSurface(X);
 		return;
 	}
-
-	const auto newPriority = X.getMetadata().getInteriorPriority();
 
 	const auto& metadata = X.getMetadata();
 	m_interiorList.pushBack(VolumeInteriorRecord{
@@ -137,6 +147,13 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 
 inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 {
+	// Default/disabled priority is not explicitly tracked
+	const auto oldPriority = X.getMetadata().getInteriorPriority();
+	if(oldPriority == 0)
+	{
+		return;
+	}
+
 #if PH_VOLUME_TRACKER_COLLECT_STATS
 	recordCount.fetch_add(1, std::memory_order_relaxed);
 #endif

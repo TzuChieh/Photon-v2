@@ -9,6 +9,8 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <algorithm>
+
 namespace ph
 {
 
@@ -55,6 +57,23 @@ void FullMaterial::storeCooked(
 				.type = EVolumeComposition::Exterior});
 		}
 	}
+}
+
+uint16 FullMaterial::getOverlapPriority() const
+{
+	uint16 priority = 0;
+
+	if(m_interiorMaterial)
+	{
+		priority = std::max(m_interiorMaterial->getOverlapPriority(), priority);
+	}
+
+	if(m_exteriorMaterial)
+	{
+		priority = std::max(m_exteriorMaterial->getOverlapPriority(), priority);
+	}
+
+	return priority;
 }
 
 }// end namespace ph

@@ -78,8 +78,11 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	auto material = std::make_shared<IdealSubstance>();
 	material->setSubstance(EIdealSubstance::Absorber);
 	metadata->surface().setOptics(material->createCooked(ctx)->surfaceOptics);
-	// TODO: volume optics
-	metadata->setInteriorPriority(material->getOverlapPriority());
+	
+	if(material->getOverlapPriority() > 0)
+	{
+		// TODO: volume optics
+	}
 
 	auto* domePrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
 		ReferencedPrimitiveMetaGetter(metadata), 

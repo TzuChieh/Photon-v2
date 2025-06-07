@@ -75,9 +75,8 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	
 	CookedMaterial* cookedMaterial = material->createCooked(ctx);
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
-	metadata->setInteriorPriority(material->getOverlapPriority());
 
-	if(isVolumetricEmissionSupported())
+	if(isVolumetricEmissionSupported() && material->getOverlapPriority() > 0)
 	{
 		// Assuming the geometry has a closed shape, so its interior and exterior are well defined.
 		// It is user's responsibility to not set the interior and exterior for open shapes.
@@ -87,6 +86,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 		metadata->interior().setOptics(interiorOptics);
 		metadata->exterior().setOptics(exteriorOptics);
+		metadata->setInteriorPriority(material->getOverlapPriority());
 	}
 
 	// FIXME

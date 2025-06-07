@@ -138,6 +138,20 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
     """
     bl_label = "Main Properties"
 
+    bpy.types.Material.ph_overlap_priority = bpy.props.EnumProperty(
+        items=[
+            ('BULK', "Bulk", "", 0),
+            ('STRIPE', "Stripe", "", 1),
+            ('GRID', "Grid", "", 2),
+            ('TILE', "Tile", "", 3),
+            ('SPIRAL', "Spiral", "", 4),
+            ('SPIRAL_GRID', "Spiral-grid", "", 5)
+        ],
+        name="Scheduler",
+        description="Order of rendering for pixels",
+        default='SPIRAL_GRID'
+    )
+
     def draw(self, b_context):
 
         b_material = b_context.material

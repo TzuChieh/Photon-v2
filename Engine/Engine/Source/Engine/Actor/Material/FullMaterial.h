@@ -18,6 +18,8 @@ public:
 		CookedMaterial& out_material,
 		const CookingContext& ctx) const override;
 
+	uint16 getOverlapPriority() const override;
+
 private:
 	std::shared_ptr<SurfaceMaterial> m_surfaceMaterial;
 	std::shared_ptr<VolumeMaterial>  m_interiorMaterial;
