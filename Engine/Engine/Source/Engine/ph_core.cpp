@@ -16,6 +16,8 @@
 
 // Materials
 #include "Engine/Actor/Material/Material.h"
+#include "Engine/Actor/Material/SurfaceMaterial.h"
+#include "Engine/Actor/Material/VolumeMaterial.h"
 #include "Engine/Actor/Material/MatteOpaque.h"
 #include "Engine/Actor/Material/AbradedOpaque.h"
 #include "Engine/Actor/Material/AbradedTranslucent.h"
@@ -151,6 +153,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		// Materials
 		get_sdl_class<Material>(),
 		get_sdl_class<SurfaceMaterial>(),
+		get_sdl_class<VolumeMaterial>(),
 		get_sdl_class<MatteOpaque>(),
 		get_sdl_class<AbradedOpaque>(),
 		get_sdl_class<AbradedTranslucent>(),

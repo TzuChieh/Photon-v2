@@ -63,13 +63,6 @@ void GPlyPolygonMesh::storeCooked(
 	}
 }
 
-void GPlyPolygonMesh::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	// TODO
-}
-
 std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {

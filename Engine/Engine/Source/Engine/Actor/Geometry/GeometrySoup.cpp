@@ -21,16 +21,6 @@ void GeometrySoup::storeCooked(
 	}
 }
 
-void GeometrySoup::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	for(const auto& geometry : m_geometries)
-	{
-		geometry->genPrimitive(data, out_primitives);
-	}
-}
-
 std::shared_ptr<Geometry> GeometrySoup::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {

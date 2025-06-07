@@ -12,7 +12,6 @@
 #include "Engine/World/Foundation/CookedGeometry.h"
 
 #include <cmath>
-#include <iostream>
 
 namespace ph
 {
@@ -42,22 +41,6 @@ void GSphere::storeCooked(
 		out_geometry.primitives.push_back(
 			ctx.getResources()->makeIntersectable<PLatLong01Sphere>(m_radius));
 	}
-}
-
-void GSphere::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	if(!data.metadata)
-	{
-		std::cerr << "warning: at GSphere::discretize(), " 
-		          << "no PrimitiveMetadata" << std::endl;
-		return;
-	}
-
-	//genTriangleMesh()->genPrimitive(data, out_primitives);
-
-	out_primitives.push_back(std::make_unique<PLatLong01Sphere>(m_radius));
 }
 
 std::shared_ptr<Geometry> GSphere::genTransformed(

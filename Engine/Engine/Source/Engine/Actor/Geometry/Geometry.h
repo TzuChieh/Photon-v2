@@ -26,11 +26,6 @@ public:
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx) const = 0;
 
-	// DEPRECATED
-	virtual void genPrimitive(
-		const PrimitiveBuildingMaterial&         data, 
-		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;
-
 	virtual std::shared_ptr<Geometry> genTransformed(
 		const math::StaticAffineTransform& transform) const;
 

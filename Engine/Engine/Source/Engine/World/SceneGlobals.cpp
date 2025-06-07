@@ -1,7 +1,7 @@
 #include "Engine/World/SceneGlobals.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Texture/constant_textures.h"
-#include "Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
+#include "Engine/Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
 #include "Engine/Core/VolumeBehavior/Property/ExponentialTransmittance.h"
 #include "Engine/Core/Emitter/ZeroSurfaceEmitter.h"
@@ -18,8 +18,8 @@ std::shared_ptr<TTexture<math::Spectrum>> SceneGlobals::getZeroTexture()
 
 std::shared_ptr<DielectricFresnel> SceneGlobals::getFullyTransmissiveFresnel()
 {
-	// Schlick's approximation is exact for the fully transmissive case and is cheaper
-	static auto fresnel = std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.0_r);
+	// Note that Schlick's approximation is NOT exact for the fully transmissive case
+	static auto fresnel = std::make_shared<ExactDielectricFresnel>(1.0_r, 1.0_r);
 	return fresnel;
 }
 

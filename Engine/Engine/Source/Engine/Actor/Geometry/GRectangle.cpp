@@ -25,18 +25,6 @@ void GRectangle::storeCooked(
 	genTriangleMesh()->storeCooked(out_geometry, ctx);
 }
 
-void GRectangle::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	if(!checkData(data, m_width, m_height))
-	{
-		return;
-	}
-
-	genTriangleMesh()->genPrimitive(data, out_primitives);
-}
-
 std::shared_ptr<Geometry> GRectangle::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {

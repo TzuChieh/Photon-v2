@@ -27,6 +27,8 @@ namespace ph::lta
 struct VolumeInteriorRecord final
 {
 	const PrimitiveMetadata* metadata = nullptr;
+
+	// Store here so we save an indirection
 	uint32 priority : 16 = 0;
 };
 

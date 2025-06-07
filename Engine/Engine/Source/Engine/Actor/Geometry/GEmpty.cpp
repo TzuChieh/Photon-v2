@@ -15,11 +15,4 @@ void GEmpty::storeCooked(
 		ctx.getResources()->makeIntersectable<PEmpty>());
 }
 
-void GEmpty::genPrimitive(
-	const PrimitiveBuildingMaterial&         data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	out_primitives.push_back(std::make_unique<PEmpty>());
-}
-
 }// end namespace ph

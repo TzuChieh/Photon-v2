@@ -7,9 +7,9 @@
 namespace ph
 {
 
-void GIndexedTriangleMesh::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
+void GIndexedTriangleMesh::storeCooked(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx) const
 {
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();

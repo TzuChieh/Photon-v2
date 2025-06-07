@@ -15,9 +15,9 @@
 namespace ph
 {
 
-/*! @brief Collection of attached components to a primitive.
-This type effectively "glues" various components that helps to describe additional properties related
-to a primitive.
+/*! @brief Collection of attached data and properties to a primitive.
+This type effectively "glues" various data components that helps to describe additional properties
+related to a primitive.
 */
 class PrimitiveMetadata final
 {

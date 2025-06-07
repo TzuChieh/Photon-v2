@@ -4,7 +4,6 @@
 
 #include <Common/assertion.h>
 
-#include <iostream>
 #include <vector>
 #include <cmath>
 
@@ -34,29 +33,6 @@ void GMengerSponge::storeCooked(
 	for(const auto& cube : cubes)
 	{
 		cube.storeCooked(out_geometry, ctx);
-	}
-}
-
-void GMengerSponge::genPrimitive(
-	const PrimitiveBuildingMaterial&         data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	if(data.metadata == nullptr)
-	{
-		std::cerr << "warning: at GMengerSponge::genPrimitive(), "
-		          << "requires metadata" << std::endl;
-		return;
-	}
-
-	std::vector<GCuboid> cubes;
-	genMengerSpongeRecursive(
-		math::Vector3R(-0.5_r, -0.5_r, -0.5_r),
-		math::Vector3R( 0.5_r,  0.5_r,  0.5_r),
-		0,
-		cubes);
-	for(const auto& cube : cubes)
-	{
-		cube.genPrimitive(data, out_primitives);
 	}
 }
 

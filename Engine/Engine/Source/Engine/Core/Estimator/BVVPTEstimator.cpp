@@ -173,10 +173,10 @@ void BVVPTEstimator::estimate(
 				break;
 			}
 
-			if(pathLength > 20)
+			/*if(pathLength > 20)
 			{
 				PH_DEFAULT_DEBUG_LOG_ONCE("ttt");
-			}
+			}*/
 
 			pathThroughput *= distanceSample.outputs.getPdfAppliedWeight();
 			if(pathThroughput.isZero())

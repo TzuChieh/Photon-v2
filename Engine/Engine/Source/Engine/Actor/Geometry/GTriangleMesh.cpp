@@ -36,17 +36,6 @@ void GTriangleMesh::storeCooked(
 	}
 }
 
-void GTriangleMesh::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	const auto gTriangles = genTriangles();
-	for(const auto& gTriangle : gTriangles)
-	{
-		gTriangle.genPrimitive(data, out_primitives);
-	}
-}
-
 std::vector<GTriangle> GTriangleMesh::genTriangles() const
 {
 	if(m_positions.empty() || m_positions.size() % 3 != 0)

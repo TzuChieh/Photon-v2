@@ -21,10 +21,6 @@ public:
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx) const override;
 
-	void genPrimitive(
-		const PrimitiveBuildingMaterial& data,
-		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
-
 	std::shared_ptr<Geometry> genTriangulated() const override;
 
 	GCuboid& setSize(real sideLength);

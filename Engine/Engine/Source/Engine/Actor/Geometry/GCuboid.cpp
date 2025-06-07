@@ -29,18 +29,6 @@ void GCuboid::storeCooked(
 	GCuboid::genTriangulated()->storeCooked(out_geometry, ctx);
 }
 
-void GCuboid::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	if(!checkData(data, m_size.x(), m_size.y(), m_size.z()))
-	{
-		return;
-	}
-
-	GCuboid::genTriangulated()->genPrimitive(data, out_primitives);
-}
-
 std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 {
 	auto triangleMesh = TSdl<GTriangleMesh>::makeResource();

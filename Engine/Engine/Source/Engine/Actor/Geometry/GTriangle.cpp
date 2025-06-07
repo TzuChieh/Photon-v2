@@ -42,37 +42,6 @@ void GTriangle::storeCooked(
 		ctx.getResources()->makeIntersectable<PTriangle>(triangle));
 }
 
-void GTriangle::genPrimitive(
-	const PrimitiveBuildingMaterial& data,
-	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
-{
-	//PH_ASSERT(data.metadata);
-
-	//// FIXME: we often have triangle that is a single point (one form of degenerate), should properly handle this
-	//if(/* isDegenerate() || */
-	//	(!m_vA.isFinite() || !m_vB.isFinite() || !m_vC.isFinite()))
-	//{
-	//	throw_formatted<CookException>(
-	//		"improper triangle vertex detected: v-A = {}, v-B = {}, v-C = {}",
-	//		m_vA, m_vB, m_vC);
-	//}
-
-	//PTriangle triangle(m_vA, m_vB, m_vC);
-	//triangle.setUVWa(m_uvwA);
-	//triangle.setUVWb(m_uvwB);
-	//triangle.setUVWc(m_uvwC);
-
-	//// Use face normal if vertex normal was not supplied
-	//const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).safeGetFaceNormal();
-	//triangle.setNa(!m_nA.isZero() ? m_nA.normalize() : faceNormal);
-	//triangle.setNb(!m_nB.isZero() ? m_nB.normalize() : faceNormal);
-	//triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);
-
-	//out_primitives.push_back(std::make_unique<PTriangle>(triangle));
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
-
 std::shared_ptr<Geometry> GTriangle::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {
