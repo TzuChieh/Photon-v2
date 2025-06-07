@@ -22,7 +22,7 @@ void GPlyPolygonMesh::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx) const
 {
-	IndexedTriangleBuffer* triangleBuffer = ctx.getResources()->makeTriangleBuffer();
+	IndexedTriangleBuffer* triangleBuffer = ctx.getResources().makeTriangleBuffer();
 
 	Timer loadTimer;
 	loadTimer.start();
@@ -36,7 +36,7 @@ void GPlyPolygonMesh::storeCooked(
 
 	// TODO: more index types
 	// TODO: count tree memory usage
-	auto* kdTreeMesh = ctx.getResources()->makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
+	auto* kdTreeMesh = ctx.getResources().makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
 		triangleBuffer);
 
 	buildTimer.stop();

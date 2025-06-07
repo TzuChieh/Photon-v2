@@ -30,9 +30,9 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 
 	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
-		auto localToWorld = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
+		auto localToWorld = ctx.getResources().makeTransform<math::StaticAffineTransform>(
 			m_localToWorld.getForwardStaticAffine());
-		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
+		auto worldToLocal = ctx.getResources().makeTransform<math::StaticAffineTransform>(
 			m_localToWorld.getInverseStaticAffine());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);
@@ -52,14 +52,14 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		return TransientVisualElement();
 	}
 	
-	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 	// FIXME
 	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx);
 
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+		auto* metaPrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
 			ReferencedPrimitiveMetaGetter(metadata),
 			TReferencedPrimitiveGetter<Primitive>(primitive)));
 
@@ -76,7 +76,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources()->makeIntersectable<TransformedIntersectable>(
+			auto* transformedIntersectable = ctx.getResources().makeIntersectable<TransformedIntersectable>(
 				intersectable, localToWorld, worldToLocal);
 
 			intersectable = transformedIntersectable;
@@ -96,7 +96,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources()->makeIntersectable<TransformedIntersectable>(
+			auto* transformedIntersectable = ctx.getResources().makeIntersectable<TransformedIntersectable>(
 				intersectable, localToWorld, worldToLocal);
 
 			intersectable = transformedIntersectable;
@@ -112,6 +112,8 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 	metadata->interior().setOptics(interiorOptics);
 	metadata->exterior().setOptics(exteriorOptics);
+
+	metadata->setInteriorPriority(m_material->getOverlapPriority());
 
 	return result;
 }

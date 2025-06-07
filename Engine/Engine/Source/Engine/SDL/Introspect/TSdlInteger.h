@@ -107,13 +107,13 @@ template<typename Owner>
 using TSdlInt8 = TSdlInteger<Owner, int8>;
 
 template<typename Owner>
-using TSdlUint8 = TSdlInteger<Owner, uint8>;
+using TSdlUInt8 = TSdlInteger<Owner, uint8>;
 
 template<typename Owner>
 using TSdlInt16 = TSdlInteger<Owner, int16>;
 
 template<typename Owner>
-using TSdlUint16 = TSdlInteger<Owner, uint16>;
+using TSdlUInt16 = TSdlInteger<Owner, uint16>;
 
 template<typename Owner>
 using TSdlInt32 = TSdlInteger<Owner, int32>;

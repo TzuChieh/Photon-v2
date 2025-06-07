@@ -66,7 +66,7 @@ TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCo
 
 	for(auto& isable : result.intersectables)
 	{
-		auto* maskedIsable = ctx.getResources()->makeIntersectable<MaskedIntersectable>(
+		auto* maskedIsable = ctx.getResources().makeIntersectable<MaskedIntersectable>(
 			isable, maskTexture);
 		isable = maskedIsable;
 	}

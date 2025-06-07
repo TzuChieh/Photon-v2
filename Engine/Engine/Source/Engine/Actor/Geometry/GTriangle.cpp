@@ -39,7 +39,7 @@ void GTriangle::storeCooked(
 	triangle.setNc(m_nC.safeNormalize(triangle.getNc()));
 
 	out_geometry.primitives.push_back(
-		ctx.getResources()->makeIntersectable<PTriangle>(triangle));
+		ctx.getResources().makeIntersectable<PTriangle>(triangle));
 }
 
 std::shared_ptr<Geometry> GTriangle::genTransformed(

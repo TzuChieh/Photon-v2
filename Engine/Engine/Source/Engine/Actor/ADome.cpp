@@ -39,9 +39,9 @@ PreCookReport ADome::preCook(const CookingContext& ctx) const
 		sanifiedLocalToWorld.setScale(1);
 	}
 
-	auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+	auto localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 		math::StaticRigidTransform::makeForward(sanifiedLocalToWorld));
-	auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+	auto worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 		math::StaticRigidTransform::makeInverse(sanifiedLocalToWorld));
 
 	report.setBaseTransforms(localToWorld, worldToLocal);
@@ -72,14 +72,16 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 		domeRadius = std::max(ri, domeRadius);
 	}
 
-	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
 	material->setSubstance(EIdealSubstance::Absorber);
 	metadata->surface().setOptics(material->createCooked(ctx)->surfaceOptics);
+	// TODO: volume optics
+	metadata->setInteriorPriority(material->getOverlapPriority());
 
-	auto* domePrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+	auto* domePrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
 		ReferencedPrimitiveMetaGetter(metadata), 
 		TEmbeddedPrimitiveGetter<PLatLongEnvSphere>(domeRadius, localToWorld, worldToLocal)));
 	
@@ -96,7 +98,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	const SurfaceEmitter* domeEmitter = nullptr;
 	if(!radianceFunctionInfo.isAnalytical)
 	{
-		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
+		domeEmitter = ctx.getResources().makeEmitter<LatLongEnvEmitter>(
 			domePrimitive,
 			radianceFunction,
 			radianceFunctionInfo.resolution);
@@ -104,7 +106,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	else
 	{
 		// FIXME: proper resolution for analytical emitter
-		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
+		domeEmitter = ctx.getResources().makeEmitter<LatLongEnvEmitter>(
 			domePrimitive,
 			radianceFunction,
 			math::Vector2S(512, 256));
@@ -114,7 +116,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	
 	// Store cooked data
 
-	ctx.getResources()->getNamed()->setBackgroundPrimitive(domePrimitive);
+	ctx.getResources().getNamed()->setBackgroundPrimitive(domePrimitive);
 
 	TransientVisualElement result;
 	result.surfaceEmitters.push_back(domeEmitter);

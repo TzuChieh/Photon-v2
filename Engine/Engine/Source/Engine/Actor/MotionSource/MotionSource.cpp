@@ -12,7 +12,7 @@ CookedMotion* MotionSource::createCooked(
 	const CookingContext& ctx,
 	const MotionCookConfig& config) const
 {
-	CookedMotion* cookedMotion = ctx.getResources()->makeMotion(getId());
+	CookedMotion* cookedMotion = ctx.getResources().makeMotion(getId());
 	PH_ASSERT(cookedMotion);
 
 	storeCooked(*cookedMotion, ctx, config);

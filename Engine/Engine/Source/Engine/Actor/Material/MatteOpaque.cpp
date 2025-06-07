@@ -35,13 +35,13 @@ void MatteOpaque::storeCooked(
 		sigmaDegrees->setInput(m_sigmaDegrees);
 		sigmaDegrees->setSwizzleSubscripts("x");
 
-		optics = ctx.getResources()->makeSurfaceOptics<OrenNayar>(
+		optics = ctx.getResources().makeSurfaceOptics<OrenNayar>(
 			albedo->genColorTexture(ctx),
 			sigmaDegrees->genRealTexture(ctx));
 	}
 	else
 	{
-		optics = ctx.getResources()->makeSurfaceOptics<LambertianReflector>(
+		optics = ctx.getResources().makeSurfaceOptics<LambertianReflector>(
 			albedo->genColorTexture(ctx));
 	}
 

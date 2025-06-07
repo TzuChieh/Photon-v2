@@ -37,9 +37,9 @@ PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 	}
 	else
 	{
-		auto* localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+		auto* localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 			m_localToWorld.getForwardStaticRigid());
-		auto* worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+		auto* worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 			m_localToWorld.getInverseStaticRigid());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);
@@ -71,10 +71,11 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	math::TDecomposedTransform<real> remainingLocalToWorld;
 	auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
 
-	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 	
 	CookedMaterial* cookedMaterial = material->createCooked(ctx);
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
+	metadata->setInteriorPriority(material->getOverlapPriority());
 
 	if(isVolumetricEmissionSupported())
 	{
@@ -95,7 +96,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	lightPrimitives.reserve(cookedGeometry->primitives.size());
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+		auto* metaPrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
 			ReferencedPrimitiveMetaGetter(metadata),
 			TReferencedPrimitiveGetter<Primitive>(primitive)));
 
@@ -120,9 +121,9 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 			if(!remainingLocalToWorld.isIdentity())
 			{
-				localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+				localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 					math::StaticRigidTransform::makeForward(remainingLocalToWorld));
-				worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+				worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
 					math::StaticRigidTransform::makeInverse(remainingLocalToWorld));
 			}
 		}
@@ -141,7 +142,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		{
 			for(auto& lightPrimitive : lightPrimitives)
 			{
-				auto* transformedPrimitive = ctx.getResources()->makeIntersectable<TransformedPrimitive>(
+				auto* transformedPrimitive = ctx.getResources().makeIntersectable<TransformedPrimitive>(
 					lightPrimitive, localToWorld, worldToLocal);
 
 				lightPrimitive = transformedPrimitive;

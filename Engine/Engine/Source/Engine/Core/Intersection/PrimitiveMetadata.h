@@ -45,6 +45,9 @@ public:
 	const SurfaceBehavior& getSurface() const;
 	const VolumeBehavior& getInterior() const;
 	const VolumeBehavior& getExterior() const;
+
+	/*! @brief Interior precedence. Higher value overrides lower value.
+	*/
 	uint16 getInteriorPriority() const;
 
 private:

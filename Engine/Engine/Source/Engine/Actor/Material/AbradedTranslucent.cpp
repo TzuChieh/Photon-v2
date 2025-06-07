@@ -11,7 +11,7 @@ void AbradedTranslucent::storeCooked(
 	CookedMaterial& out_material,
 	const CookingContext& ctx) const
 {
-	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<TranslucentMicrofacet>(
+	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<TranslucentMicrofacet>(
 		m_interfaceInfo.genFresnelEffect(),
 		m_microsurfaceInfo.genMicrofacet());
 

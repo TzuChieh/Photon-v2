@@ -39,7 +39,7 @@ void GSphere::storeCooked(
 	else
 	{
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PLatLong01Sphere>(m_radius));
+			ctx.getResources().makeIntersectable<PLatLong01Sphere>(m_radius));
 	}
 }
 

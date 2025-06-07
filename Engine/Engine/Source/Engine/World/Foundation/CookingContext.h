@@ -3,8 +3,6 @@
 #include "Engine/Math/Geometry/TAABB3D.h"
 #include "Engine/World/Foundation/CookingConfig.h"
 
-#include <Common/assertion.h>
-
 #include <memory>
 
 namespace ph
@@ -30,8 +28,8 @@ public:
 
 	const CookingConfig& getConfig() const;
 	void setConfig(CookingConfig config);
-	CookedResourceCollection* getResources() const;
-	TransientResourceCache* getCache() const;
+	CookedResourceCollection& getResources() const;
+	TransientResourceCache& getCache() const;
 
 	/*! @brief Bounds actors cooked in the first level.
 	The bound is only available after the first level has done cooking.

@@ -22,9 +22,9 @@ void ConstantVelocityMotion::storeCooked(
 	const math::Vector3R translationT1 = m_velocity.mul(config.end.absoluteS);
 	const math::DynamicLinearTranslation translation(translationT0, translationT1);
 
-	out_motion.localToWorld = ctx.getResources()->makeTransform<math::DynamicLinearTranslation>(
+	out_motion.localToWorld = ctx.getResources().makeTransform<math::DynamicLinearTranslation>(
 		translation);
-	out_motion.worldToLocal = ctx.getResources()->makeTransform<math::DynamicLinearTranslation>(
+	out_motion.worldToLocal = ctx.getResources().makeTransform<math::DynamicLinearTranslation>(
 		translation.makeInversed());
 }
 

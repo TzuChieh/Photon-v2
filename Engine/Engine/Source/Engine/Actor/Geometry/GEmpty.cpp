@@ -12,7 +12,7 @@ void GEmpty::storeCooked(
 	const CookingContext& ctx) const
 {
 	out_geometry.primitives.push_back(
-		ctx.getResources()->makeIntersectable<PEmpty>());
+		ctx.getResources().makeIntersectable<PEmpty>());
 }
 
 }// end namespace ph

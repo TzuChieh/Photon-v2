@@ -73,7 +73,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture = loadAttenuationTexture();
 	for(auto* sourceEmitter : sourceElement.surfaceEmitters)
 	{
-		auto* attenuatedEmitter = ctx.getResources()->makeEmitter<TOmniModulatedEmitter<SurfaceEmitter>>(sourceEmitter);
+		auto* attenuatedEmitter = ctx.getResources().makeEmitter<TOmniModulatedEmitter<SurfaceEmitter>>(sourceEmitter);
 		attenuatedEmitter->setFilter(attenuationTexture);
 		result.surfaceEmitters.push_back(attenuatedEmitter);
 	}
@@ -103,11 +103,11 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		// 1 emitter to many primitives
 		if(result.surfaceEmitters.size() == 1)
 		{
-			auto* iesMetadata = ctx.getResources()->makeMetadata(metadata);
+			auto* iesMetadata = ctx.getResources().makeMetadata(metadata);
 			iesMetadata->surface().setEmitter(result.surfaceEmitters[0]);
 			for(auto* sourcePrimitive : sourceElement.primitivesView)
 			{
-				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
+				auto* iesPrimitive = ctx.getResources().copyIntersectable(
 					TMetaInjectionPrimitive(
 						ReferencedPrimitiveMetaGetter(iesMetadata),
 						TReferencedPrimitiveGetter<Primitive>(sourcePrimitive)));
@@ -121,10 +121,10 @@ TransientVisualElement AIesAttenuatedLight::cook(
 			PH_ASSERT_EQ(result.surfaceEmitters.size(), sourceElement.primitivesView.size());
 			for(std::size_t i = 0; i < result.surfaceEmitters.size(); ++i)
 			{
-				auto* iesMetadata = ctx.getResources()->makeMetadata(metadata);
+				auto* iesMetadata = ctx.getResources().makeMetadata(metadata);
 				iesMetadata->surface().setEmitter(result.surfaceEmitters[i]);
 
-				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
+				auto* iesPrimitive = ctx.getResources().copyIntersectable(
 					TMetaInjectionPrimitive(
 						ReferencedPrimitiveMetaGetter(iesMetadata),
 						TReferencedPrimitiveGetter<Primitive>(sourceElement.primitivesView[i])));

@@ -32,7 +32,7 @@ void IdealSubstance::storeCooked(
 	switch(m_substance)
 	{
 	case EIdealSubstance::Absorber:
-		out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealAbsorber>();
+		out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealAbsorber>();
 		break;
 
 	case EIdealSubstance::DielectricReflector:
@@ -41,12 +41,12 @@ void IdealSubstance::storeCooked(
 
 		if(m_reflectionScale == math::Spectrum(1))
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealReflector>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
 				interfaceInfo.genFresnelEffect());
 		}
 		else
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealReflector>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
 				interfaceInfo.genFresnelEffect(),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale));
 		}
@@ -60,12 +60,12 @@ void IdealSubstance::storeCooked(
 
 		if(m_reflectionScale == math::Spectrum(1) && m_transmissionScale == math::Spectrum(1))
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectric>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealDielectric>(
 				std::move(fresnel));
 		}
 		else
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectric>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealDielectric>(
 				std::move(fresnel),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale));
@@ -92,12 +92,12 @@ void IdealSubstance::storeCooked(
 
 		if(m_reflectionScale == math::Spectrum(1))
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealReflector>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
 				interfaceInfo.genFresnelEffect());
 		}
 		else
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealReflector>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
 				interfaceInfo.genFresnelEffect(),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale));
 		}
@@ -111,12 +111,12 @@ void IdealSubstance::storeCooked(
 
 		if(m_transmissionScale == math::Spectrum(1))
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectricTransmitter>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealDielectricTransmitter>(
 				std::move(fresnel));
 		}
 		else
 		{
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<IdealDielectricTransmitter>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealDielectricTransmitter>(
 				std::move(fresnel),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale));
 		}

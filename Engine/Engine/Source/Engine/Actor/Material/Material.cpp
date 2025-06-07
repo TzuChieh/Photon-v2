@@ -10,7 +10,7 @@ namespace ph
 
 CookedMaterial* Material::createCooked(const CookingContext& ctx) const
 {
-	CookedMaterial* cookedMaterial = ctx.getResources()->makeMaterial(getId());
+	CookedMaterial* cookedMaterial = ctx.getResources().makeMaterial(getId());
 	PH_ASSERT(cookedMaterial);
 
 	storeCooked(*cookedMaterial, ctx);

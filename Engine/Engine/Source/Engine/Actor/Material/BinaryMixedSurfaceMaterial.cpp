@@ -40,7 +40,7 @@ void BinaryMixedSurfaceMaterial::storeCooked(
 		if(m_factor)
 		{
 			auto factor = m_factor->genColorTexture(ctx);
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LerpedSurfaceOptics>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
 				cookedMaterial0->surfaceOptics,
 				cookedMaterial1->surfaceOptics,
 				factor);
@@ -49,7 +49,7 @@ void BinaryMixedSurfaceMaterial::storeCooked(
 		{
 			PH_LOG(BinaryMixedSurfaceMaterial, Warning,
 				"No lerp factor specified. The result might not be what you want.");
-			out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LerpedSurfaceOptics>(
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
 				cookedMaterial0->surfaceOptics,
 				cookedMaterial1->surfaceOptics);
 		}

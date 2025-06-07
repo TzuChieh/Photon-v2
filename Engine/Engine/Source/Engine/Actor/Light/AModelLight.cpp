@@ -59,14 +59,14 @@ const SurfaceEmitter* AModelLight::buildSurfaceEmitter(
 	SurfaceEmitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		lightEmitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
+		lightEmitter = ctx.getResources().makeEmitter<DiffuseSurfaceEmitter>(
 			lightPrimitives[0], emittedEnergy, getEmitterFeatureSet());
 	}
 	else
 	{
 		PH_ASSERT_GE(lightPrimitives.size(), 2);
 
-		lightEmitter = ctx.getResources()->makeEmitter<GroupedDiffuseSurfaceEmitter>(
+		lightEmitter = ctx.getResources().makeEmitter<GroupedDiffuseSurfaceEmitter>(
 			lightPrimitives, emittedEnergy, getEmitterFeatureSet());
 	}
 

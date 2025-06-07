@@ -11,7 +11,7 @@ namespace ph
 class SurfaceMaterial;
 class VolumeMaterial;
 
-class FullMaterial final : public Material
+class FullMaterial : public Material
 {
 public:
 	void storeCooked(

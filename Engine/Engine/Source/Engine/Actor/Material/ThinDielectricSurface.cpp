@@ -23,7 +23,7 @@ void ThinDielectricSurface::storeCooked(
 	ThinDielectricShell* surfaceOptics = nullptr;
 	if(!m_thickness && !m_sigmaT)
 	{
-		surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
+		surfaceOptics = ctx.getResources().makeSurfaceOptics<ThinDielectricShell>(
 			m_interfaceInfo.genFresnelEffect(),
 			reflectionScale,
 			transmissionScale);
@@ -37,7 +37,7 @@ void ThinDielectricSurface::storeCooked(
 				"thickness ({}) and sigma_t ({}) are provided.",
 				m_thickness ? "available" : "missing", m_sigmaT ? "available" : "missing");
 
-			surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
+			surfaceOptics = ctx.getResources().makeSurfaceOptics<ThinDielectricShell>(
 				m_interfaceInfo.genFresnelEffect(),
 				reflectionScale,
 				transmissionScale);
@@ -51,7 +51,7 @@ void ThinDielectricSurface::storeCooked(
 			thickness->setInput(m_thickness);
 			thickness->setSwizzleSubscripts("x");
 
-			surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricShell>(
+			surfaceOptics = ctx.getResources().makeSurfaceOptics<ThinDielectricShell>(
 				m_interfaceInfo.genFresnelEffect(),
 				thickness->genRealTexture(ctx),
 				m_sigmaT->genColorTexture(ctx),

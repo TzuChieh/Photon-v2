@@ -28,14 +28,35 @@ public:
 	*/
 	CookedMaterial* createCooked(const CookingContext& ctx) const;
 
+	uint16 getOverlapPriority() const;
+
+private:
+	uint16 m_overlapPriority;
+
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Material>)
 	{
 		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Material");
 		clazz.description("Defines and models the appearance of scene elements.");
+
+		TSdlUInt16<OwnerType> priority("overlap-priority", &OwnerType::m_overlapPriority);
+		priority.description(
+			"Determines who takes precedence when multiple materials are overlapping. "
+			"Higher value has higher priority and 0 is the lowest priority. "
+			"The priority defaults to 0. When applied to mediums, overlapping materials with "
+			"equal priorities results in undefined behavior.");
+		priority.defaultTo(0);
+		priority.optional();
+		clazz.addField(priority);
+
 		return clazz;
 	}
 };
+
+inline uint16 Material::getOverlapPriority() const
+{
+	return m_overlapPriority;
+}
 
 }// end namespace ph

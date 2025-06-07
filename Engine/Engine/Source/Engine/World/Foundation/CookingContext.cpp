@@ -6,6 +6,7 @@
 #include "Engine/World/Foundation/TransientVisualElement.h"
 
 #include <Common/logging.h>
+#include <Common/assertion.h>
 
 #include <utility>
 #include <type_traits>
@@ -42,14 +43,16 @@ void CookingContext::setConfig(CookingConfig config)
 	m_config = std::move(config);
 }
 
-CookedResourceCollection* CookingContext::getResources() const
+CookedResourceCollection& CookingContext::getResources() const
 {
-	return m_resources;
+	PH_ASSERT(m_resources);
+	return *m_resources;
 }
 
-TransientResourceCache* CookingContext::getCache() const
+TransientResourceCache& CookingContext::getCache() const
 {
-	return m_cache;
+	PH_ASSERT(m_cache);
+	return *m_cache;
 }
 
 math::AABB3D CookingContext::getRootActorsBound() const
@@ -65,14 +68,14 @@ math::AABB3D CookingContext::getLeafActorsBound() const
 const CookedGeometry* CookingContext::getCooked(const std::shared_ptr<Geometry>& geometry) const
 {
 	return geometry != nullptr
-		? getResources()->getGeometry(geometry->getId())
+		? getResources().getGeometry(geometry->getId())
 		: nullptr;
 }
 
 const TransientVisualElement* CookingContext::getCached(const std::shared_ptr<Actor>& actor) const
 {
 	return actor != nullptr
-		? getCache()->getVisualElement(actor->getId())
+		? getCache().getVisualElement(actor->getId())
 		: nullptr;
 }
 

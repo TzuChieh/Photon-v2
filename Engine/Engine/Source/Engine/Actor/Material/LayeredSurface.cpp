@@ -31,7 +31,7 @@ void LayeredSurface::storeCooked(
 		sigmaSs.push_back(layer.getSigmaS());
 	}
 
-	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<LbLayeredSurface>(
+	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LbLayeredSurface>(
 		iorNs, iorKs, alphas, depths, gs, sigmaAs, sigmaSs);
 }
 

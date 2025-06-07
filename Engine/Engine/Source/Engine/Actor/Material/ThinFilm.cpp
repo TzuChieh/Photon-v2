@@ -30,7 +30,7 @@ void ThinFilm::storeCooked(
 				{m_wavelengthTable.data() + i * 31, 31}, {m_transmittanceTable.data() + i * 31, 31}));
 	}
 
-	out_material.surfaceOptics = ctx.getResources()->makeSurfaceOptics<ThinDielectricFilm>(
+	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<ThinDielectricFilm>(
 		std::make_shared<ExactDielectricFresnel>(1.0_r, 1.5_r),
 		reflectanceTable,
 		transmittanceTable);

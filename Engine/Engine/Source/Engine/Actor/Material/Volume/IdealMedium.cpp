@@ -14,7 +14,7 @@ void IdealMedium::storeCooked(
 	const CookingContext& ctx) const
 {
 	out_material.volumeCompositions.push_back({
-		.optics = ctx.getResources()->makeVolumeOptics<HomogeneousAbsorption>(
+		.optics = ctx.getResources().makeVolumeOptics<HomogeneousAbsorption>(
 			m_absorptionCoeff,
 			SceneGlobals::getExponentialTransmittance()),
 		.type = EVolumeComposition::General});
