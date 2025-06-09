@@ -123,7 +123,7 @@ inline void TSdlReferenceArray<T, Owner>::loadFromSdl(
 	catch(const SdlException& e)
 	{
 		throw_formatted<SdlLoadError>(
-			"on parsing reference array {} -> {}",
+			"on parsing reference array from {} -> {}",
 			valueToString(owner), e.whatStr());
 	}
 }

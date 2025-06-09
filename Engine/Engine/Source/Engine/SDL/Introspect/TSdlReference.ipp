@@ -105,7 +105,7 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	catch(const SdlException& e)
 	{
 		throw_formatted<SdlLoadError>(
-			"on parsing reference {} -> {}", valueToString(owner), e.whatStr());
+			"on parsing reference from {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 

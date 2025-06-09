@@ -71,14 +71,14 @@ public:
 	bool traceNextSurface(
 		const Ray&                ray,
 		const SidednessAgreement& sidedness,
-		const VolumeTracker&      volumeTracker,
+		VolumeTracker&            volumeTracker,
 		SurfaceHit*               out_X) const;
 
 	bool traceNextSurfaceFrom(
 		const SurfaceHit&         X,
 		const Ray&                ray,
 		const SidednessAgreement& sidedness,
-		const VolumeTracker&      volumeTracker,
+		VolumeTracker&            volumeTracker,
 		SurfaceHit*               out_X) const;
 
 	/*! @brief Uses BSDF sample to trace the next surface.
@@ -174,7 +174,7 @@ inline bool SurfaceTracer::traceNextSurfaceFrom(
 	const SurfaceHit&         X,
 	const Ray&                ray,
 	const SidednessAgreement& sidedness,
-	const VolumeTracker&      volumeTracker,
+	VolumeTracker&            volumeTracker,
 	SurfaceHit* const         out_X) const
 {
 	// Not tracing from uninitialized surface hit

@@ -84,9 +84,10 @@ void BVVPTEstimator::estimate(
 			}
 		}
 
+		// FIXME: also update in volume rendering part
 		++pathLength;
 
-		const auto& metadata = X.getDetail().getPrimitive()->getMetadata();
+		const PrimitiveMetadata& metadata = X.getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata.getSurface();
 
 		if(hitSurfaceBehavior.isEmissive())
@@ -152,12 +153,12 @@ void BVVPTEstimator::estimate(
 		// Volumetric transport
 		if(volumeOptics)
 		{
-			if(!surfaceTracer.traceNextSurfaceFrom(
-				X, nextRay, BsdfQueryContext{}.sidedness, volumeTracker, &nextX))
+			foundNextX = surfaceTracer.traceNextSurfaceFrom(
+				X, nextRay, BsdfQueryContext{}.sidedness, volumeTracker, &nextX);
+			if(!foundNextX)
 			{
 				break;
 			}
-			foundNextX = true;
 
 			const bool isFrontHemisphere = N.dot(L) > 0;
 			const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);

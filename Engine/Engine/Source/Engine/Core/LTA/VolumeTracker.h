@@ -115,8 +115,9 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 	recordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
 
-	// This can happen due to numerical error, tracker not initialied with proper interior list,
-	// primitive ID collision, etc. E.g., missed due to ray offset to avoid self-intersection.
+	// This can happen due to numerical error, tracker not initialized with proper interior list,
+	// primitive ID collision, bad geometry normal/face, missed due to ray offset to avoid
+	// self-intersection, etc.
 	const auto prevRecord = findRecord(X);
 	if(prevRecord != m_interiorList.end())
 	{
@@ -141,7 +142,7 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 	}
 	else
 	{
-		m_maxPriorityIdx = static_cast<PriorityIndex>(m_interiorList.size() - 1);
+		m_maxPriorityIdx = 0;
 	}
 }
 
@@ -196,7 +197,7 @@ inline auto VolumeTracker::findRecordWithMaxPriority() const -> List::ConstItera
 		m_interiorList.end(),
 		[](const VolumeInteriorRecord& a, const VolumeInteriorRecord& b)
 		{
-			return a.priority > b.priority;
+			return a.priority < b.priority;
 		});
 }
 

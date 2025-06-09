@@ -23,7 +23,7 @@ inline Ray trim_ray_tail(const Ray& ray, const math::Vector3R& whereToTrim, cons
 bool SurfaceTracer::traceNextSurface(
 	const Ray&                ray,
 	const SidednessAgreement& sidedness,
-	const VolumeTracker&      volumeTracker,
+	VolumeTracker&            volumeTracker,
 	SurfaceHit* const         out_X) const
 {
 	SurfaceHit& X = *out_X;
@@ -35,6 +35,10 @@ bool SurfaceTracer::traceNextSurface(
 	// Trace next surface until true hit is found
 	while(!volumeTracker.isTrueHit(X))
 	{
+		// False hit implies passing through a surface
+		// FIXME: can also enter
+		volumeTracker.exitSurface(X);
+
 		const Ray remainingRay = trim_ray_tail(X.getRay(), X.getPos(), X.getDetail().getRayT() - X.getRay().getMinT());
 		if(!traceNextSurfaceFrom(X, remainingRay, sidedness, &X))
 		{

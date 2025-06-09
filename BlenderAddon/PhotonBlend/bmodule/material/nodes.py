@@ -30,7 +30,7 @@ def to_sdl(b_material, sdlconsole):
     node_tree = material.find_node_tree_from_material(b_material)
     output_node = material.find_output_node_from_node_tree(node_tree)
     if output_node is None:
-        print("material <%s> has no output node, generating fallback material for it" % b_material.name)
+        print(f"material {b_material.name} has no output node, generating fallback material for it")
         fallback_creator = sdl.MatteOpaqueMaterialCreator()
         fallback_creator.set_data_name(naming.get_mangled_material_name(b_material))
         sdlconsole.queue_command(fallback_creator)

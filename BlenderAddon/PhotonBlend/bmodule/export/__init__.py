@@ -40,7 +40,7 @@ class Exporter:
         scene_folder_path = folder_path / filename_without_ext
 
         print("-------------------------------------------------------------")
-        print("exporting Photon scene to <%s>" % scene_folder_path)
+        print(f"exporting Photon scene to {scene_folder_path.resolve()}")
 
         self.__begin_time = time.time()
 

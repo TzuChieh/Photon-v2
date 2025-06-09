@@ -140,16 +140,16 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
 
     bpy.types.Material.ph_overlap_priority = bpy.props.EnumProperty(
         items=[
-            ('BULK', "Bulk", "", 0),
-            ('STRIPE', "Stripe", "", 1),
-            ('GRID', "Grid", "", 2),
-            ('TILE', "Tile", "", 3),
-            ('SPIRAL', "Spiral", "", 4),
-            ('SPIRAL_GRID', "Spiral-grid", "", 5)
+            ('DISABLED', "Disabled", "", 0),
+            ('VERY_LOW', "Very Low", "", 100),
+            ('LOWER', "Lower", "", 200),
+            ('MIDDLE', "Middle", "", 300),
+            ('HIGHER', "Higher", "", 400),
+            ('VERY_HIGH', "Very High", "", 500),
         ],
-        name="Scheduler",
-        description="Order of rendering for pixels",
-        default='SPIRAL_GRID'
+        name="Overlap Priority",
+        description="Priority when volume interiors are overlapping.",
+        default='DISABLED'
     )
 
     def draw(self, b_context):
@@ -172,6 +172,8 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
                     layout.label(text="No input node")
         else:
             layout.label(text="Material node not in use")
+
+        layout.prop(b_material, 'ph_overlap_priority')
 
 
 # class PhOptionPanel(PhMaterialPanel):
