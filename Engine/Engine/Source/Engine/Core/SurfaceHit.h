@@ -194,7 +194,8 @@ inline math::Vector3R SurfaceHit::getGeometryNormal() const
 inline const Primitive& SurfaceHit::getPrimitive() const
 {
 	PH_ASSERT_MSG(getDetail().getPrimitive(),
-		"Does not make sense to call the method if `surfaceHit` hits nothing.");
+		"Does not make sense to call the method if `surfaceHit` hits nothing. "
+		"You may miss a call to check for valid hit.");
 
 	return *getDetail().getPrimitive();
 }

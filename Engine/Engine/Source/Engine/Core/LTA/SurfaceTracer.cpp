@@ -29,26 +29,52 @@ bool SurfaceTracer::traceNextSurface(
 	PH_ASSERT(out_X);
 	SurfaceHit& X = *out_X;
 
-	if(!traceNextSurface(ray, sidedness, &X))
+	HitProbe probe;
+	if(!getScene().isIntersecting(ray, &probe))
 	{
 		return false;
 	}
 
+	X = SurfaceHit(ray, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
+
+	// For false hits, do not use strict policy as our intension is to cull geometry. Strict policy can result
+	// in premature hit termination while the geometry can be skipped.
+	const SidednessAgreement falseHitSidedness{ESidednessPolicy::TrustGeometry};
+
 	// Trace next surface until true hit is found
+	Ray remainingRay = ray;
 	while(!volumeTracker.isTrueHit(X))
 	{
-		// False hit implies passing through a surface
-		// FIXME: can also enter
-		volumeTracker.exitSurface(X);
-
-		const Ray remainingRay = trim_ray_tail(X.getRay(), X.getPos(), X.getDetail().getRayT() - X.getRay().getMinT());
-		if(!traceNextSurfaceFrom(X, remainingRay, sidedness, &X))
+		const real advancedT = X.getDetail().getRayT() - X.getRay().getMinT();
+		if(advancedT <= 0)
 		{
 			return false;
 		}
+
+		// False hit implies passing through a surface
+		if(falseHitSidedness.isBackHemisphere(X, remainingRay.getDir()))
+		{
+			volumeTracker.enterSurface(X);
+		}
+		else
+		{
+			volumeTracker.exitSurface(X);
+		}
+
+		remainingRay = trim_ray_tail(X.getRay(), X.getPos(), advancedT);
+		remainingRay = getRefinedRayOriginatedFrom(X, remainingRay);
+		if(!getScene().isIntersecting(remainingRay, &probe))
+		{
+			return false;
+		}
+		else
+		{
+			X = SurfaceHit(remainingRay, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
+		}
 	}
 
-	return true;
+	sidedness.adjustForSidednessAgreement(X);
+	return sidedness.isSidednessAgreed(X, remainingRay.getDir());
 }
 
 }// end namespace ph::lta
