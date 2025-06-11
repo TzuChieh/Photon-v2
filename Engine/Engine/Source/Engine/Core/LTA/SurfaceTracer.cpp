@@ -26,7 +26,9 @@ bool SurfaceTracer::traceNextSurface(
 	VolumeTracker&            volumeTracker,
 	SurfaceHit* const         out_X) const
 {
+	PH_ASSERT(out_X);
 	SurfaceHit& X = *out_X;
+
 	if(!traceNextSurface(ray, sidedness, &X))
 	{
 		return false;

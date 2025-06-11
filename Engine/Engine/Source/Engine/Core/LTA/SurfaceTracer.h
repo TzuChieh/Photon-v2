@@ -10,6 +10,7 @@
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Math/math.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Intersection/Primitive.h"
@@ -57,7 +58,7 @@ public:
 	/*! @brief Find the next surface from a location.
 	This variant also refines the surface hit point before starting the trace.
 	@param X The location to start the find from. Can also use the same object as `out_X`.
-	@param ray The ray that is used for finding the next surface.
+	@param ray The ray that is used for finding the next surface. Must be originated from `X`.
 	@param sidedness Sidedness policy.
 	@param out_X The next surface.
 	@return Is the next surface found. Output parameters are not usable if `false` is returned.
@@ -126,6 +127,7 @@ public:
 	
 private:
 	const Scene& getScene() const;
+	Ray getRefinedRayOriginatedFrom(const SurfaceHit& X, const Ray& ray) const;
 	
 	const Scene* m_scene;
 };
@@ -166,8 +168,7 @@ inline bool SurfaceTracer::traceNextSurfaceFrom(
 	// Not tracing from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
-	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
-	return traceNextSurface(refinedRay, sidedness, out_X);
+	return traceNextSurface(getRefinedRayOriginatedFrom(X, ray), sidedness, out_X);
 }
 
 inline bool SurfaceTracer::traceNextSurfaceFrom(
@@ -180,8 +181,11 @@ inline bool SurfaceTracer::traceNextSurfaceFrom(
 	// Not tracing from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
-	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
-	return traceNextSurface(refinedRay, sidedness, volumeTracker, out_X);
+	return traceNextSurface(
+		getRefinedRayOriginatedFrom(X, ray),
+		sidedness,
+		volumeTracker,
+		out_X);
 }
 
 inline bool SurfaceTracer::bsdfSampleNextSurface(
@@ -280,6 +284,19 @@ inline const Scene& SurfaceTracer::getScene() const
 	PH_ASSERT(m_scene);
 
 	return *m_scene;
+}
+
+inline Ray SurfaceTracer::getRefinedRayOriginatedFrom(const SurfaceHit& X, const Ray& ray) const
+{
+	// `ray` must be originated from `X`
+	PH_ASSERT_MSG(ray.getOrigin() == X.getPos(), ray.getOrigin().toString());
+
+	Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
+
+	// Limit the max T, as escaped ray has longest length by default
+	refinedRay.setMaxT(math::clamp(refinedRay.getMaxT(), ray.getMinT(), ray.getMaxT()));
+
+	return refinedRay;
 }
 
 }// end namespace ph::lta

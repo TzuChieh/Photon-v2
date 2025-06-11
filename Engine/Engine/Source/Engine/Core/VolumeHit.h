@@ -83,7 +83,7 @@ private:
 	math::Vector3R m_pos;
 	Ray m_ray;
 	bool m_isInterior;
-	VolumeHitReason  m_reason;
+	VolumeHitReason m_reason;
 };
 
 // In-header Implementations:

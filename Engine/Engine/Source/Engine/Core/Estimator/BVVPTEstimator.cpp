@@ -160,6 +160,7 @@ void BVVPTEstimator::estimate(
 				break;
 			}
 
+			const auto penetrationDepth = (nextX.getPos() - X.getPos()).length();
 			const bool isFrontHemisphere = N.dot(L) > 0;
 			const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);
 
@@ -167,7 +168,7 @@ void BVVPTEstimator::estimate(
 			distanceSample.inputs.set(
 				volumeHit,
 				L,
-				nextX.getDetail().getRayT() - nextRay.getMinT());
+				penetrationDepth);
 			volumeOptics->genDistanceSample(distanceSample, sampleFlow);
 			if(!distanceSample.outputs)
 			{
