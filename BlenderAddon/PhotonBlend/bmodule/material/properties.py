@@ -18,6 +18,19 @@ class PhotonMaterialData(bpy.types.PropertyGroup):
         name="Node Tree"
     )
 
+    overlap_priority: bpy.props.EnumProperty(
+        items=[
+            ('DISABLED', "Disabled", "", 0),
+            ('VERY_LOW', "Very Low", "", 100),
+            ('LOWER', "Lower", "", 200),
+            ('MIDDLE', "Middle", "", 300),
+            ('HIGHER', "Higher", "", 400),
+            ('VERY_HIGH', "Very High", "", 500),
+        ],
+        name="Overlap Priority",
+        description="Priority when volume interiors are overlapping.",
+        default='DISABLED'
+    )
 
 @blender.register_module
 class MaterialProperties(blender.BlenderModule):

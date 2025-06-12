@@ -4,6 +4,7 @@ from bmodule.material import (
     output_nodes,
     input_nodes,
     surface_nodes,
+    volume_nodes,
     math_nodes,
     )
 from psdl import sdl
@@ -56,6 +57,7 @@ PH_MATERIAL_NODES = [
     surface_nodes.PhIdealSubstanceNode,
     surface_nodes.PhPureAbsorberNode,
     surface_nodes.PhThinDielectricSurfaceNode,
+    volume_nodes.PhIdealMediumNode,
     math_nodes.PhArithmeticNode,
     math_nodes.PhClampNode,
     ]

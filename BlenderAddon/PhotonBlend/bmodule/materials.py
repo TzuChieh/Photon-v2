@@ -138,20 +138,6 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
     """
     bl_label = "Main Properties"
 
-    bpy.types.Material.ph_overlap_priority = bpy.props.EnumProperty(
-        items=[
-            ('DISABLED', "Disabled", "", 0),
-            ('VERY_LOW', "Very Low", "", 100),
-            ('LOWER', "Lower", "", 200),
-            ('MIDDLE', "Middle", "", 300),
-            ('HIGHER', "Higher", "", 400),
-            ('VERY_HIGH', "Very High", "", 500),
-        ],
-        name="Overlap Priority",
-        description="Priority when volume interiors are overlapping.",
-        default='DISABLED'
-    )
-
     def draw(self, b_context):
 
         b_material = b_context.material
@@ -173,7 +159,7 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
         else:
             layout.label(text="Material node not in use")
 
-        layout.prop(b_material, 'ph_overlap_priority')
+        layout.prop(b_material.photon, 'overlap_priority')
 
 
 # class PhOptionPanel(PhMaterialPanel):

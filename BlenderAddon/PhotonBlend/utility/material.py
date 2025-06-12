@@ -28,8 +28,6 @@ def find_output_node_from_node_tree(node_tree: bpy.types.NodeTree):
     if node_tree is None:
         return None
     
-    # FIXME: PH_OUTPUT is hard-coded; should be resolved after creating its own file
-    # if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
     output_nodes = [node for node in node_tree.nodes if getattr(node, 'bl_idname', None) == 'PH_OUTPUT']
 
     if len(output_nodes) > 1:

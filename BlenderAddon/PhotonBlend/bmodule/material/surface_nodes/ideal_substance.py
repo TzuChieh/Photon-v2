@@ -101,7 +101,6 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 

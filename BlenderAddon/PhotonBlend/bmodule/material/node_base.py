@@ -69,6 +69,15 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
 
     def draw_color(self, b_context, node):
         return [0.8, 0.1, 0.1, 1.0]  # red
+    
+
+@blender.register_class
+class PhVolumeMaterialSocket(PhMaterialNodeSocket):
+    bl_idname = 'PH_VOLUME_MATERIAL_SOCKET'
+    bl_label = "Volume Material"
+
+    def draw_color(self, b_context, node):
+        return [0.1, 0.8, 0.1, 1.0]  # green
 
 
 @blender.register_class
@@ -218,10 +227,11 @@ class NodeCategory:
         return (self.id_name, self.label) == (other.id_name, other.label)
 
 
-OUTPUT_CATEGORY = NodeCategory("OUTPUT", "Output")
-INPUT_CATEGORY = NodeCategory("INPUT", "Input")
-SURFACE_MATERIAL_CATEGORY = NodeCategory("SURFACE", "Surface Material")
-MATH_CATEGORY = NodeCategory("MATH", "Math")
+OUTPUT_CATEGORY = NodeCategory('OUTPUT', "Output")
+INPUT_CATEGORY = NodeCategory('INPUT', "Input")
+SURFACE_MATERIAL_CATEGORY = NodeCategory('SURFACE', "Surface Material")
+VOLUME_MATERIAL_CATEGORY = NodeCategory('VOLUME', "Volume Material")
+MATH_CATEGORY = NodeCategory('MATH', "Math")
 
 
 @blender.register_class
@@ -291,6 +301,10 @@ class PhMaterialInputNode(PhMaterialNode):
 
 class PhSurfaceMaterialNode(PhMaterialNode):
     node_category = SURFACE_MATERIAL_CATEGORY
+
+
+class PhVolumeMaterialNode(PhMaterialNode):
+    node_category = VOLUME_MATERIAL_CATEGORY
 
 
 class PhMaterialMathNode(PhMaterialNode):
