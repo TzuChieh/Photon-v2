@@ -6,6 +6,7 @@ from bmodule.material import (
     surface_nodes,
     volume_nodes,
     math_nodes,
+    group_nodes,
     )
 from psdl import sdl
 from bmodule import naming
@@ -41,61 +42,100 @@ def to_sdl(b_material, sdlconsole):
     to_sdl_recursive(b_material, output_node, processed_nodes, sdlconsole)
 
 
-PH_MATERIAL_NODES = [
-    output_nodes.PhOutputNode,
-    input_nodes.PhFloatValueInputNode,
-    input_nodes.PhConstantVectorInputNode,
-    input_nodes.PhConstantColorInputNode,
-    input_nodes.PhPictureNode,
-    input_nodes.PhBlackBodyInputNode,
-    surface_nodes.PhDiffuseSurfaceNode,
-    surface_nodes.PhBinaryMixedSurfaceNode,
-    surface_nodes.PhAbradedOpaqueNode,
-    surface_nodes.PhAbradedTranslucentNode,
-    surface_nodes.PhLayeredSurfaceNode,
-    surface_nodes.PhSurfaceLayerNode,
-    surface_nodes.PhIdealSubstanceNode,
-    surface_nodes.PhPureAbsorberNode,
-    surface_nodes.PhThinDielectricSurfaceNode,
-    volume_nodes.PhIdealMediumNode,
-    math_nodes.PhArithmeticNode,
-    math_nodes.PhClampNode,
-    ]
+class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
+    @classmethod
+    def poll(cls, b_context):
+        return b_context.space_data.tree_type == node_base.PhMaterialNodeTree.bl_idname
 
 
 @blender.register_module
 class MaterialNodes(blender.BlenderModule):
     node_category_idname = 'PH_MATERIAL_NODE_CATEGORIES'
 
+    node_types = [
+        output_nodes.PhOutputNode,
+        input_nodes.PhFloatValueInputNode,
+        input_nodes.PhConstantVectorInputNode,
+        input_nodes.PhConstantColorInputNode,
+        input_nodes.PhPictureNode,
+        input_nodes.PhBlackBodyInputNode,
+        surface_nodes.PhDiffuseSurfaceNode,
+        surface_nodes.PhBinaryMixedSurfaceNode,
+        surface_nodes.PhAbradedOpaqueNode,
+        surface_nodes.PhAbradedTranslucentNode,
+        surface_nodes.PhLayeredSurfaceNode,
+        surface_nodes.PhSurfaceLayerNode,
+        surface_nodes.PhIdealSubstanceNode,
+        surface_nodes.PhPureAbsorberNode,
+        surface_nodes.PhThinDielectricSurfaceNode,
+        volume_nodes.PhIdealMediumNode,
+        math_nodes.PhArithmeticNode,
+        math_nodes.PhClampNode,
+        group_nodes.PhGroupNode,
+        ]
+        
+    operator_types = [
+        node_base.PH_MATERIAL_OT_make_node_group
+        ]
+
     def __init__(self):
         super().__init__()
-
-        self.b_node_categories = []
+        self.node_categories = []
 
         node_category_to_items = defaultdict(list)
-        for node_class in PH_MATERIAL_NODES:
+
+        # Categorize node types
+        for node_class in self.node_types:
             node_category = node_class.node_category
             if node_category is not None:
                 node_category_to_items[node_category].append(nodeitems_utils.NodeItem(node_class.bl_idname))
             else:
-                print("error: node class <%s> has no \"node_category\" class attribute which is required" % (
-                    node_class.__name__))
+                print(f"error: node class {node_class.__name__} has no \"node_category\" class attribute which is required")
+                
+        # Node group category
+        node_group_category = node_base.PhMaterialGroupNode.node_category
+        node_category_to_items[node_group_category].append(nodeitems_utils.NodeItemCustom(draw=self.node_category_draw_groups))
 
         for node_category, items in node_category_to_items.items():
-            b_node_category = node_base.PhMaterialNodeCategory(
+            b_node_category = PhMaterialNodeCategory(
                 node_category.id_name,
                 node_category.label,
                 items=items)
-            self.b_node_categories.append(b_node_category)
+            self.node_categories.append(b_node_category)
+
+    @staticmethod
+    def context_menu_draw_operators(self, b_context):
+        """
+        NOTE: This is a static method, and will be called with an explicit `self`.
+        """
+        b_layout = self.layout
+        b_layout.separator()
+        for operator_type in MaterialNodes.operator_types:
+            b_layout.operator(operator_type.bl_idname, text=operator_type.bl_label)
+
+    @staticmethod
+    def node_category_draw_groups(self, b_layout, b_context):
+        """
+        NOTE: This is a static method, and will be called with an explicit `self`.
+        """
+        # `node_groups` are actually node trees. A node tree can be wrapped by a "group" node when added to another node tree.
+        for b_node_tree in bpy.data.node_groups:
+            if b_node_tree.bl_idname == node_base.PhMaterialNodeTree.bl_idname:
+                b_layout.operator("bpy.ops.node.add_node", text=b_node_tree.name)
 
     def register(self):
-        for node_type in PH_MATERIAL_NODES:
-            bpy.utils.register_class(node_type)
+        for node_class in self.node_types:
+            bpy.utils.register_class(node_class)
 
-        nodeitems_utils.register_node_categories(self.node_category_idname, self.b_node_categories)
+        nodeitems_utils.register_node_categories(self.node_category_idname, self.node_categories)
+
+        # Show operators in the right-click context menu
+        bpy.types.NODE_MT_context_menu.append(self.context_menu_draw_operators)
 
     def unregister(self):
-        for node_type in PH_MATERIAL_NODES:
-            bpy.utils.unregister_class(node_type)
-
         nodeitems_utils.unregister_node_categories(self.node_category_idname)
+
+        for node_class in self.node_types:
+            bpy.utils.unregister_class(node_class)
+
+        bpy.types.NODE_MT_context_menu.remove(self.context_menu_draw_operators)

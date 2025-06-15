@@ -93,10 +93,7 @@
 // Enums
 #include "Engine/EngineEnv/SampleSource/sdl_halton_randomization_types.h"
 #include "Engine/EngineEnv/sdl_accelerator_type.h"
-#include "Engine/EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
-#include "Engine/EngineEnv/Visualizer/sdl_sample_filter_type.h"
-#include "Engine/EngineEnv/Visualizer/sdl_scheduler_type.h"
-#include "Engine/EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
+#include "Engine/EngineEnv/Visualizer/sdl_visualizer_types.h"
 #include "Engine/Actor/Image/sdl_image_enums.h"
 #include "Engine/Actor/SDLExtension/sdl_color_enums.h"
 #include "Engine/Actor/Material/Component/sdl_component_enums.h"

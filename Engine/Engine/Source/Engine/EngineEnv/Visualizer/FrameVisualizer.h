@@ -4,7 +4,7 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Geometry/TAABB2D.h"
 #include "Engine/SDL/sdl_interface.h"
-#include "Engine/EngineEnv/Visualizer/sdl_sample_filter_type.h"
+#include "Engine/EngineEnv/Visualizer/sdl_visualizer_types.h"
 
 #include <Common/primitive_type.h>
 

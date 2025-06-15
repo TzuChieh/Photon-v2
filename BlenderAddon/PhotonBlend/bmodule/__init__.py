@@ -1,4 +1,6 @@
 from utility import blender
+
+# Important: import all packages/modules recursively, so they can be automatically registered by `@register_class`
 from bmodule import (
     cameras,
     exporter,

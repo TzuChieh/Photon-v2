@@ -1,3 +1,7 @@
+"""
+Material editing from property panels.
+"""
+
 from utility import settings, blender, material
 from bmodule.material.output_nodes import PhOutputNode
 from bmodule.material.surface_nodes import PhDiffuseSurfaceNode

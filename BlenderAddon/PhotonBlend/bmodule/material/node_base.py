@@ -1,5 +1,5 @@
 """
-Basic definitions and data for node-based materials.
+Basic definitions and data for node-based materials and node editor.
 """
 
 from utility import settings, blender, material
@@ -192,12 +192,6 @@ class PhSurfaceLayerSocket(PhMaterialNodeSocket):
         return [0.0, 0.0, 0.0, 1.0]  # black
 
 
-class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
-    @classmethod
-    def poll(cls, b_context):
-        return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
-
-
 @blender.register_class
 class PH_MATERIAL_HT_header(bpy.types.Header):
     bl_space_type = "NODE_EDITOR"
@@ -215,6 +209,25 @@ class PH_MATERIAL_HT_header(bpy.types.Header):
             row.template_ID(obj, "active_material", new="material.new")
 
 
+@blender.register_class
+class PH_MATERIAL_OT_make_node_group(bpy.types.Operator):
+    bl_label = "Make Group"
+    bl_idname = "photon.make_node_group"
+
+    @classmethod
+    def poll(cls, b_context):
+        b_material = getattr(b_context, 'material', None)
+        return b_material is not None and b_material.photon.node_tree is not None
+
+    def execute(self, b_context):
+        bpy.data.node_groups.new("Photon Node Group", PhMaterialNodeTree.bl_idname)
+        
+        return {'FINISHED'}
+    
+
+# TODO: add_node operator
+        
+
 class NodeCategory:
     def __init__(self, id_name, label):
         self.id_name = id_name
@@ -227,27 +240,29 @@ class NodeCategory:
         return (self.id_name, self.label) == (other.id_name, other.label)
 
 
-OUTPUT_CATEGORY = NodeCategory('OUTPUT', "Output")
-INPUT_CATEGORY = NodeCategory('INPUT', "Input")
-SURFACE_MATERIAL_CATEGORY = NodeCategory('SURFACE', "Surface Material")
-VOLUME_MATERIAL_CATEGORY = NodeCategory('VOLUME', "Volume Material")
-MATH_CATEGORY = NodeCategory('MATH', "Math")
-
-
 @blender.register_class
 class PhMaterialNodeTree(bpy.types.NodeTree):
     bl_idname = 'PH_MATERIAL_NODE_TREE'
     bl_label = "Photon Node Tree"
     bl_icon = 'MATERIAL'
 
+    associated_node_idname: bpy.props.StringProperty(
+        name="",
+        description="The bl_idname of the node that associated to this tree.",
+        default="",
+        options={'ANIMATABLE', 'HIDDEN'}
+    )
+
     @classmethod
     def poll(cls, b_context):
         render_settings = b_context.scene.render
         return render_settings.engine in settings.photon_engines
 
-    # Blender: set the current node tree to the one the active material owns (update editor views)
     @classmethod
     def get_from_context(cls, b_context):
+        """
+        Blender: Set the current node tree to the one the active material owns (update editor views).
+        """
         b_material = material.find_active_material_from_context(b_context)
         b_node_tree = material.find_node_tree_from_material(b_material)
         if b_material is not None and b_node_tree is not None:
@@ -260,6 +275,7 @@ class PhMaterialNode(bpy.types.Node):
     bl_idname = 'PH_MATERIAL_NODE'
     bl_label = "Photon Node"
     bl_icon = 'MATERIAL'
+
     node_category = None
 
     def to_sdl(self, b_material, sdlconsole):
@@ -292,23 +308,24 @@ class PhMaterialNode(bpy.types.Node):
 
 
 class PhMaterialOutputNode(PhMaterialNode):
-    node_category = OUTPUT_CATEGORY
+    node_category = NodeCategory('OUTPUT', "Output")
 
 
 class PhMaterialInputNode(PhMaterialNode):
-    node_category = INPUT_CATEGORY
+    node_category = NodeCategory('INPUT', "Input")
 
 
 class PhSurfaceMaterialNode(PhMaterialNode):
-    node_category = SURFACE_MATERIAL_CATEGORY
+    node_category = NodeCategory('SURFACE', "Surface Material")
 
 
 class PhVolumeMaterialNode(PhMaterialNode):
-    node_category = VOLUME_MATERIAL_CATEGORY
+    node_category = NodeCategory('VOLUME', "Volume Material")
 
 
 class PhMaterialMathNode(PhMaterialNode):
-    node_category = MATH_CATEGORY
+    node_category = NodeCategory('MATH', "Math")
 
 
-
+class PhMaterialGroupNode(PhMaterialNode):
+    node_category = NodeCategory('GROUP', "Group")

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core/LTA/SidednessAgreement.h"
+
 #include <Common/primitive_type.h>
 
 namespace ph
@@ -24,6 +26,9 @@ struct PTEstimatorParams
 	/*! Whether volumetric effects should be handled.
 	*/
 	bool includeVolumetricEffects = false;
+
+	lta::ESidednessPolicy surfaceSidednessPolicy = lta::ESidednessPolicy::Strict;
+	lta::ESidednessPolicy volumeSidednessPolicy = lta::ESidednessPolicy::TrustGeometry;
 };
 
 }// end namespace ph
