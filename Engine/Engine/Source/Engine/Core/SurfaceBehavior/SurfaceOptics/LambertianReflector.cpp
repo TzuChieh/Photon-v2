@@ -36,7 +36,7 @@ ESurfacePhenomenon LambertianReflector::getPhenomenonOf(const SurfaceElemental e
 	return ESurfacePhenomenon::DiffuseReflection;
 }
 
-void LambertianReflector::calcBsdf(
+void LambertianReflector::calcBsdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -51,7 +51,7 @@ void LambertianReflector::calcBsdf(
 	out.setBsdf(albedo * math::constant::rcp_pi<real>);
 }
 
-void LambertianReflector::genBsdfSample(
+void LambertianReflector::genBsdfSampleCore(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -83,7 +83,7 @@ void LambertianReflector::genBsdfSample(
 	out.setL(L);
 }
 
-void LambertianReflector::calcBsdfPdf(
+void LambertianReflector::calcBsdfPdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

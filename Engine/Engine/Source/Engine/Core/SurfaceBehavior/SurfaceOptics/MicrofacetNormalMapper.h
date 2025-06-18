@@ -1,26 +1,23 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Core/Texture/TTexture.h"
-#include "Engine/Math/Color/Spectrum.h"
-
-#include <Common/primitive_type.h>
+#include "Engine/Core/Texture/texture_fwd.h"
+#include "Engine/Math/math_fwd.h"
+#include "Engine/Core/Texture/TSampler.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class OrenNayar : public SurfaceOptics
+/*! @brief Microfacet-based normal mapping.
+*/
+class MicrofacetNormalMapper : public SurfaceOptics
 {
 public:
-	OrenNayar(
-		const std::shared_ptr<TTexture<math::Spectrum>>& albedo,
-		real sigmaDegrees);
-
-	OrenNayar(
-		const std::shared_ptr<TTexture<math::Spectrum>>& albedo,
-		const std::shared_ptr<TTexture<real>>&           sigmaDegrees);
+	MicrofacetNormalMapper(
+		const SurfaceOptics* target,
+		const std::shared_ptr<TTexture<math::Vector3R>>& normalMap);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -43,15 +40,19 @@ public:
 	std::string toString() const override;
 
 private:
-	std::shared_ptr<TTexture<math::Spectrum>> m_albedo;
-	std::shared_ptr<TTexture<real>>           m_sigmaDegrees;
+	const SurfaceOptics*                      m_target;
+	std::shared_ptr<TTexture<math::Vector3R>> m_normalMap;
+	TSampler<math::Vector3R>                  m_sampler;
 };
 
 // In-header Implementations:
 
-inline std::string OrenNayar::toString() const
+inline std::string MicrofacetNormalMapper::toString() const
 {
-	return "Oren Nayar, " + SurfaceOptics::toString();
+	return 
+		"Microfacet Normal Mapper (Surface Optics), "
+		"target: <" + (m_target ? m_target->toString() : "null" ) + ">" +
+		", " + SurfaceOptics::toString();
 }
 
 }// end namespace ph

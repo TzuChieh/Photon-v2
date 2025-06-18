@@ -8,7 +8,6 @@
 #include <Common/primitive_type.h>
 
 #include <memory>
-#include <vector>
 
 namespace ph
 {
@@ -38,25 +37,25 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
-	std::string toString() const override;
-
-private:
-	void calcBsdf(
+	void calcBsdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
 
-	void genBsdfSample(
+	void genBsdfSampleCore(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const override;
 
-	void calcBsdfPdf(
+	void calcBsdfPdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;
 
+	std::string toString() const override;
+
+private:
 	static real probabilityOfPickingOptics0(const math::Spectrum& ratio);
 
 	const SurfaceOptics*                      m_optics0;
@@ -72,8 +71,8 @@ inline std::string LerpedSurfaceOptics::toString() const
 {
 	return 
 		"Lerped Surface Optics, "
-		"optics_0: " + m_optics0->toString() + 
-		"optics_1: " + m_optics1->toString() + 
+		"optics_0: <" + (m_optics0 ? m_optics0->toString() : "null") + ">" +
+		"optics_1: <" + (m_optics1 ? m_optics1->toString() : "null") + ">" +
 		", " + SurfaceOptics::toString();
 }
 

@@ -21,7 +21,7 @@ HomogeneousAbsorption::HomogeneousAbsorption(
 	PH_ASSERT(m_transmittance);
 }
 
-void HomogeneousAbsorption::genDistanceSample(
+void HomogeneousAbsorption::genDistanceSampleCore(
 	const MediumDistanceSampleInput& in,
 	SampleFlow& sampleFlow,
 	MediumDistanceSampleOutput& out) const

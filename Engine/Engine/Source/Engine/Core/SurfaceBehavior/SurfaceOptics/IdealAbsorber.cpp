@@ -21,7 +21,7 @@ ESurfacePhenomenon IdealAbsorber::getPhenomenonOf(const SurfaceElemental element
 	return ESurfacePhenomenon::DiffuseReflection;
 }
 
-void IdealAbsorber::calcBsdf(
+void IdealAbsorber::calcBsdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -29,7 +29,7 @@ void IdealAbsorber::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealAbsorber::genBsdfSample(
+void IdealAbsorber::genBsdfSampleCore(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -38,7 +38,7 @@ void IdealAbsorber::genBsdfSample(
 	out.setMeasurability(false);
 }
 
-void IdealAbsorber::calcBsdfPdf(
+void IdealAbsorber::calcBsdfPdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

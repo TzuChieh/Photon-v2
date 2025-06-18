@@ -29,25 +29,25 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
-	std::string toString() const override;
-
-private:
-	void calcBsdf(
+	void calcBsdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
 
-	void genBsdfSample(
+	void genBsdfSampleCore(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const override;
 
-	void calcBsdfPdf(
+	void calcBsdfPdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;
 
+	std::string toString() const override;
+
+private:
 	std::vector<math::Spectrum> m_iorNs;
 	std::vector<math::Spectrum> m_iorKs;
 	std::vector<real>           m_alphas;

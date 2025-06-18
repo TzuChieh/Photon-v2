@@ -28,6 +28,7 @@
 #include "Engine/Actor/Material/LayeredSurface.h"
 #include "Engine/Actor/Material/ThinFilm.h"
 #include "Engine/Actor/Material/ThinDielectricSurface.h"
+#include "Engine/Actor/Material/SurfaceNormalMap.h"
 
 // Motions
 #include "Engine/Actor/MotionSource/MotionSource.h"
@@ -160,6 +161,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<BinaryMixedSurfaceMaterial>(),
 		get_sdl_class<ThinDielectricSurface>(),
 		get_sdl_class<IdealMedium>(),
+		get_sdl_class<SurfaceNormalMap>(),
 
 		// Images
 		get_sdl_class<Image>(),

@@ -19,13 +19,12 @@ class VolumeOptics
 public:
 	virtual ~VolumeOptics() = 0;
 
-	void genDistanceSample(MediumDistanceSampleQuery& sample, SampleFlow& sampleFlow) const;
-
-private:
-	virtual void genDistanceSample(
+	virtual void genDistanceSampleCore(
 		const MediumDistanceSampleInput& in,
 		SampleFlow& sampleFlow,
 		MediumDistanceSampleOutput& out) const = 0;
+
+	void genDistanceSample(MediumDistanceSampleQuery& sample, SampleFlow& sampleFlow) const;
 };
 
 }// end namespace ph

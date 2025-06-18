@@ -21,19 +21,18 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
-private:
-	void calcBsdf(
+	void calcBsdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
 
-	void genBsdfSample(
+	void genBsdfSampleCore(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const override;
 
-	void calcBsdfPdf(
+	void calcBsdfPdfCore(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;

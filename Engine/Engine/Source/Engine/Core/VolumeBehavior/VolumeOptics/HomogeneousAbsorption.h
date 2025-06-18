@@ -17,12 +17,12 @@ public:
 		const math::Spectrum& sigmaA,
 		std::shared_ptr<TransmittanceFunction> transmittance);
 
-private:
-	void genDistanceSample(
+	void genDistanceSampleCore(
 		const MediumDistanceSampleInput& in,
 		SampleFlow& sampleFlow,
 		MediumDistanceSampleOutput& out) const override;
 
+private:
 	math::Spectrum m_sigmaA;
 	std::shared_ptr<TransmittanceFunction> m_transmittance;
 };

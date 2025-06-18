@@ -15,9 +15,6 @@ class SampleFlow;
 */
 class SurfaceOptics
 {
-	// FIXME: sort-of hacked, should clarify the need of this in the future
-	friend class LerpedSurfaceOptics;
-
 public:
 	SurfaceOptics();
 	virtual ~SurfaceOptics() = default;
@@ -26,6 +23,36 @@ public:
 	One can also setup query for a specific elemental. See `BsdfQueryContext`.
 	*/
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
+
+	/*! @brief Calculate BSDF.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void calcBsdfCore(
+		const BsdfQueryContext& ctx,
+		const BsdfEvalInput&    in,
+		BsdfEvalOutput&         out) const = 0;
+
+	/*! @brief Generate BSDF sample.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void genBsdfSampleCore(
+		const BsdfQueryContext& ctx,
+		const BsdfSampleInput&  in,
+		SampleFlow&             sampleFlow,
+		BsdfSampleOutput&       out) const = 0;
+
+	/*! @brief Calculate BSDF PDF.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void calcBsdfPdfCore(
+		const BsdfQueryContext& ctx,
+		const BsdfPdfInput&     in,
+		BsdfPdfOutput&          out) const = 0;
+
+	virtual std::string toString() const;
 
 	/*! @brief Executes a BSDF evaluation query.
 	Respects sidedness policy.
@@ -53,40 +80,9 @@ public:
 	*/
 	SurfaceElemental numElementals() const;
 
-	virtual std::string toString() const;
-
 protected:
 	SurfacePhenomena m_phenomena;
 	SurfaceElemental m_numElementals;
-
-private:
-	/*!
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
-	*/
-	virtual void calcBsdf(
-		const BsdfQueryContext& ctx,
-		const BsdfEvalInput&    in,
-		BsdfEvalOutput&         out) const = 0;
-
-	/*!
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
-	*/
-	virtual void genBsdfSample(
-		const BsdfQueryContext& ctx,
-		const BsdfSampleInput&  in,
-		SampleFlow&             sampleFlow,
-		BsdfSampleOutput&       out) const = 0;
-
-	/*!
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
-	*/
-	virtual void calcBsdfPdf(
-		const BsdfQueryContext& ctx,
-		const BsdfPdfInput&     in,
-		BsdfPdfOutput&          out) const = 0;
 };
 
 // In-header Implementations:

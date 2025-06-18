@@ -8,7 +8,7 @@ VolumeOptics::~VolumeOptics() = default;
 
 void VolumeOptics::genDistanceSample(MediumDistanceSampleQuery& sample, SampleFlow& sampleFlow) const
 {
-	genDistanceSample(
+	genDistanceSampleCore(
 		sample.inputs,
 		sampleFlow,
 		sample.outputs);

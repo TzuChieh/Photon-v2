@@ -23,7 +23,7 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 		return;
 	}
 
-	calcBsdf(
+	calcBsdfCore(
 		eval.context,
 		eval.inputs,
 		eval.outputs);
@@ -37,7 +37,7 @@ void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlo
 		return;
 	}
 
-	genBsdfSample(
+	genBsdfSampleCore(
 		sample.context,
 		sample.inputs, 
 		sampleFlow,
@@ -60,7 +60,7 @@ void SurfaceOptics::calcBsdfPdf(BsdfPdfQuery& pdfQuery) const
 		return;
 	}
 
-	calcBsdfPdf(
+	calcBsdfPdfCore(
 		pdfQuery.context,
 		pdfQuery.inputs,
 		pdfQuery.outputs);

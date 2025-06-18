@@ -80,7 +80,7 @@ ESurfacePhenomenon ThinDielectricShell::getPhenomenonOf(const SurfaceElemental e
 	                                 ESurfacePhenomenon::DeltaTransmission;
 }
 
-void ThinDielectricShell::calcBsdf(
+void ThinDielectricShell::calcBsdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -88,7 +88,7 @@ void ThinDielectricShell::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void ThinDielectricShell::genBsdfSample(
+void ThinDielectricShell::genBsdfSampleCore(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -201,7 +201,7 @@ void ThinDielectricShell::genBsdfSample(
 	out.setL(L);
 }
 
-void ThinDielectricShell::calcBsdfPdf(
+void ThinDielectricShell::calcBsdfPdfCore(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
