@@ -18,59 +18,19 @@ void SurfaceNormalMap::storeCooked(
 	}
 
 	m_material->storeCooked(out_material, ctx);
+	
+	if(m_map)
+	{
+		std::shared_ptr<TTexture<math::Vector3R>> mapTexture = m_map->genVector3RTexture(ctx);
 
-	if(!m_map)
+		auto const normalMappedSurface = ctx.getResources().makeSurfaceOptics<MicrofacetNormalMapper>(
+			out_material.surfaceOptics, mapTexture);
+		out_material.surfaceOptics = normalMappedSurface;
+	}
+	else
 	{
 		PH_DEFAULT_LOG(Warning,
 			"SurfaceNormalMap has no normal map specified.");
-	}
-
-	std::shared_ptr<TTexture<real>> maskTexture;
-	{
-		auto mask = TSdl<SwizzledImage>::makeResource();
-		mask->setInput(m_mask);
-		mask->setSwizzleSubscripts("x");
-
-		maskTexture = mask->genRealTexture(ctx);
-	}
-
-	auto const normalMapper = ctx.getResources().makeSurfaceOptics<MicrofacetNormalMapper>(
-		out_material.surfaceOptics,
-		factor);
-
-	const CookedMaterial* cookedMaterial0 = m_material0->createCooked(ctx);
-	const CookedMaterial* cookedMaterial1 = m_material1->createCooked(ctx);
-
-	if(!(cookedMaterial0 && cookedMaterial0->surfaceOptics) || 
-	   !(cookedMaterial1 && cookedMaterial1->surfaceOptics))
-	{
-		throw CookException("Surface optics generation failed. Cannot perform binary mix operation.");
-	}
-
-	switch(m_mode)
-	{
-	case ESurfaceMaterialMixMode::Lerp:
-		if(m_factor)
-		{
-			auto factor = m_factor->genColorTexture(ctx);
-			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
-				cookedMaterial0->surfaceOptics,
-				cookedMaterial1->surfaceOptics,
-				factor);
-		}
-		else
-		{
-			PH_LOG(BinaryMixedSurfaceMaterial, Warning,
-				"No lerp factor specified. The result might not be what you want.");
-			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
-				cookedMaterial0->surfaceOptics,
-				cookedMaterial1->surfaceOptics);
-		}
-		break;
-
-	default:
-		throw CookException("Unsupported material mixing mode.");
-		break;
 	}
 }
 

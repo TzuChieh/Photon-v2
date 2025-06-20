@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/TSdlResourceBase.h"
-#include "Engine/Math/TVector3.h"
+#include "Engine/Math/math_fwd.h"
 #include "Engine/Core/Texture/TTexture.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/SDL/sdl_interface.h"
@@ -40,6 +40,17 @@ public:
 	*/
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) = 0;
+
+	/*! @brief Generates numeric texture of an alternative type.
+	Effectively converting the numeric texture to a different type. Truncates `ArrayType` if the
+	resulting type is narrower, and appends 0 if the resulting type is wider.
+	*/
+	///@{
+	virtual std::shared_ptr<TTexture<real>> genRealTexture(const CookingContext& ctx);
+	virtual std::shared_ptr<TTexture<math::Vector2R>> genVector2RTexture(const CookingContext& ctx);
+	virtual std::shared_ptr<TTexture<math::Vector3R>> genVector3RTexture(const CookingContext& ctx);
+	virtual std::shared_ptr<TTexture<math::Vector4R>> genVector4RTexture(const CookingContext& ctx);
+	///@}
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Image>)

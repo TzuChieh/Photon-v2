@@ -23,6 +23,8 @@ public:
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) override;
 
+	// TODO: override more numeric texture type for better performance
+
 	RegularPicture loadRegularPicture() const;
 	void setFilePath(Path filePath);
 

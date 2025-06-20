@@ -5,7 +5,6 @@
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/TransientResourceCache.h"
 #include "Engine/Core/Intersection/MaskedIntersectable.h"
-#include "Engine/Actor/Image/SwizzledImage.h"
 
 #include <Common/logging.h>
 
@@ -55,15 +54,7 @@ TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCo
 	// Cannot have primitive view as the intersectables will be further masked
 	result.primitivesView.clear();
 
-	std::shared_ptr<TTexture<real>> maskTexture;
-	{
-		auto mask = TSdl<SwizzledImage>::makeResource();
-		mask->setInput(m_mask);
-		mask->setSwizzleSubscripts("x");
-
-		maskTexture = mask->genRealTexture(ctx);
-	}
-
+	std::shared_ptr<TTexture<real>> maskTexture = m_mask->genRealTexture(ctx);
 	for(auto& isable : result.intersectables)
 	{
 		auto* maskedIsable = ctx.getResources().makeIntersectable<MaskedIntersectable>(
