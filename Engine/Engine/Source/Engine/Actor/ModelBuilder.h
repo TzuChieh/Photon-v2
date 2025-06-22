@@ -3,7 +3,7 @@
 #include "Engine/Utility/IMoveOnly.h"
 #include "Engine/Core/Intersection/Intersectable.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Math/Transform/Transform.h"
+#include "Engine/Core/Transform/Transform.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 
 #include <memory>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/Intersectable.h"
-#include "Engine/Math/Transform/Transform.h"
+#include "Engine/Core/Transform/Transform.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/HitProbe.h"
@@ -20,9 +20,9 @@ public:
 	TransformedIntersectable();
 
 	TransformedIntersectable(
-		const Intersectable*   intersectable, 
-		const math::Transform* localToWorld,
-		const math::Transform* worldToLocal);
+		const Intersectable* intersectable, 
+		const Transform*     localToWorld,
+		const Transform*     worldToLocal);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
@@ -43,9 +43,9 @@ public:
 	math::AABB3D calcAABB() const override;
 
 protected:
-	const Intersectable*   m_intersectable;
-	const math::Transform* m_localToWorld;
-	const math::Transform* m_worldToLocal;
+	const Intersectable* m_intersectable;
+	const Transform*     m_localToWorld;
+	const Transform*     m_worldToLocal;
 };
 
 inline bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const

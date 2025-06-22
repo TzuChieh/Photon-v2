@@ -17,7 +17,7 @@ public:
 		const CookingContext& ctx) const override;
 
 	std::shared_ptr<Geometry> genTransformed(
-		const math::StaticAffineTransform& transform) const override;
+		const StaticAffineTransform& transform) const override;
 
 	bool isDegenerate() const;
 

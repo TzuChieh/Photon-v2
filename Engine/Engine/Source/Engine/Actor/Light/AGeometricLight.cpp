@@ -6,8 +6,8 @@
 #include "Engine/Core/Intersection/TransformedIntersectable.h"
 #include "Engine/Core/Intersection/TransformedPrimitive.h"
 #include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
-#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
@@ -37,9 +37,9 @@ PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 	}
 	else
 	{
-		auto* localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
+		auto* localToWorld = ctx.getResources().makeTransform<StaticRigidTransform>(
 			m_localToWorld.getForwardStaticRigid());
-		auto* worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
+		auto* worldToLocal = ctx.getResources().makeTransform<StaticRigidTransform>(
 			m_localToWorld.getInverseStaticRigid());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);
@@ -111,8 +111,8 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	}
 	else
 	{
-		const math::RigidTransform* localToWorld = nullptr;
-		const math::RigidTransform* worldToLocal = nullptr;
+		const RigidTransform* localToWorld = nullptr;
+		const RigidTransform* worldToLocal = nullptr;
 		if(m_localToWorld.getDecomposed().hasScaleEffect())
 		{
 			// Should use transform from the sanification process (should not be pre-cooked)
@@ -121,10 +121,10 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 			if(!remainingLocalToWorld.isIdentity())
 			{
-				localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
-					math::StaticRigidTransform::makeForward(remainingLocalToWorld));
-				worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
-					math::StaticRigidTransform::makeInverse(remainingLocalToWorld));
+				localToWorld = ctx.getResources().makeTransform<StaticRigidTransform>(
+					StaticRigidTransform::makeForward(remainingLocalToWorld));
+				worldToLocal = ctx.getResources().makeTransform<StaticRigidTransform>(
+					StaticRigidTransform::makeInverse(remainingLocalToWorld));
 			}
 		}
 		else
@@ -134,8 +134,8 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 			PH_ASSERT(report.getBaseWorldToLocal());
 
 			// Must match the type used in `preCook()`
-			localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());
-			worldToLocal = static_cast<const math::StaticRigidTransform*>(report.getBaseWorldToLocal());
+			localToWorld = static_cast<const StaticRigidTransform*>(report.getBaseLocalToWorld());
+			worldToLocal = static_cast<const StaticRigidTransform*>(report.getBaseWorldToLocal());
 		}
 
 		if(localToWorld && worldToLocal)

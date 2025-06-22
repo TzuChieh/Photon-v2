@@ -7,7 +7,7 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
-namespace ph::math { class RigidTransform; }
+namespace ph { class RigidTransform; }
 
 namespace ph
 {
@@ -24,7 +24,7 @@ class Receiver
 	// TODO: sample flow
 
 public:
-	explicit Receiver(const math::RigidTransform* receiverToWorld);
+	explicit Receiver(const RigidTransform* receiverToWorld);
 
 	inline virtual ~Receiver() = default;
 
@@ -49,15 +49,15 @@ public:
 
 	virtual void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
-	const math::RigidTransform& getReceiverToWorld() const;
+	const RigidTransform& getReceiverToWorld() const;
 
 private:
-	const math::RigidTransform* m_receiverToWorld;
+	const RigidTransform* m_receiverToWorld;
 };
 
 // In-header Implementations:
 
-inline const math::RigidTransform& Receiver::getReceiverToWorld() const
+inline const RigidTransform& Receiver::getReceiverToWorld() const
 {
 	PH_ASSERT(m_receiverToWorld);
 

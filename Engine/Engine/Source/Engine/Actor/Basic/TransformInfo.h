@@ -2,13 +2,13 @@
 
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/TQuaternion.h"
-#include "Engine/Math/Transform/TDecomposedTransform.h"
+#include "Engine/Math/TDecomposedTransform.h"
 #include "Engine/SDL/sdl_interface.h"
 
 #include <Common/primitive_type.h>
 
-namespace ph::math { class StaticAffineTransform; }
-namespace ph::math { class StaticRigidTransform; }
+namespace ph { class StaticAffineTransform; }
+namespace ph { class StaticRigidTransform; }
 
 namespace ph
 {
@@ -37,10 +37,10 @@ public:
 	math::Vector3R getScale() const;
 
 	math::TDecomposedTransform<real> getDecomposed() const;
-	math::StaticAffineTransform getForwardStaticAffine() const;
-	math::StaticAffineTransform getInverseStaticAffine() const;
-	math::StaticRigidTransform getForwardStaticRigid() const;
-	math::StaticRigidTransform getInverseStaticRigid() const;
+	StaticAffineTransform getForwardStaticAffine() const;
+	StaticAffineTransform getInverseStaticAffine() const;
+	StaticRigidTransform getForwardStaticRigid() const;
+	StaticRigidTransform getInverseStaticRigid() const;
 	TransformInfo& set(const math::TDecomposedTransform<real>& decomposed);
 
 private:

@@ -8,9 +8,9 @@ namespace ph
 {
 
 TransformedPrimitive::TransformedPrimitive(
-	const Primitive* const            primitive,
-	const math::RigidTransform* const localToWorld,
-	const math::RigidTransform* const worldToLocal)
+	const Primitive* const      primitive,
+	const RigidTransform* const localToWorld,
+	const RigidTransform* const worldToLocal)
 
 	: Primitive()
 

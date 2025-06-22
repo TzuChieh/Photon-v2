@@ -26,7 +26,7 @@ void GRectangle::storeCooked(
 }
 
 std::shared_ptr<Geometry> GRectangle::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformed(transform);
 }

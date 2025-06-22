@@ -15,9 +15,9 @@ TransformedIntersectable::TransformedIntersectable()
 {}
 
 TransformedIntersectable::TransformedIntersectable(
-	const Intersectable* const   intersectable,
-	const math::Transform* const localToWorld,
-	const math::Transform* const worldToLocal)
+	const Intersectable* const intersectable,
+	const Transform* const     localToWorld,
+	const Transform* const     worldToLocal)
 
 	: m_intersectable(intersectable)
 	, m_localToWorld(localToWorld)

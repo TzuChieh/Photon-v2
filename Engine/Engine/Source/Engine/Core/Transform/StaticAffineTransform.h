@@ -2,12 +2,12 @@
 
 #include "Engine/Math/TMatrix4.h"
 #include "Engine/Math/TVector3.h"
-#include "Engine/Math/Transform/Transform.h"
-#include "Engine/Math/Transform/TDecomposedTransform.h"
+#include "Engine/Math/TDecomposedTransform.h"
+#include "Engine/Core/Transform/Transform.h"
 
 #include <vector>
 
-namespace ph::math
+namespace ph
 {
 
 class StaticAffineTransform : public Transform
@@ -15,19 +15,19 @@ class StaticAffineTransform : public Transform
 	friend class StaticRigidTransform;
 
 public:
-	static const StaticAffineTransform& IDENTITY();
+	static const StaticAffineTransform& makeIdentity();
 
 	/*!
 	Generates a StaticAffineTransform that can be used to transform values from local to world space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeForward(const TDecomposedTransform<U>& transform);
+	static StaticAffineTransform makeForward(const math::TDecomposedTransform<U>& transform);
 
 	/*!
 	Generates a StaticAffineTransform that can be used to transform values from world to local space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeInverse(const TDecomposedTransform<U>& transform);
+	static StaticAffineTransform makeInverse(const math::TDecomposedTransform<U>& transform);
 
 	/*!
 	Given a chain of transforms from root (world, the last transform applied) to local (the first
@@ -35,7 +35,7 @@ public:
 	from local to world space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticAffineTransform makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
 
 	/*!
 	Given a chain of transforms from root (world, the last transform applied) to local (the first
@@ -43,14 +43,14 @@ public:
 	from world to local space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticAffineTransform makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
 
 public:
 	/*! @brief Creates an identity transform.
 	*/
 	StaticAffineTransform();
 
-	StaticAffineTransform(const Matrix4R& transform, const Matrix4R& inverseTransform);
+	StaticAffineTransform(const math::Matrix4R& transform, const math::Matrix4R& inverseTransform);
 
 	virtual std::unique_ptr<Transform> genInversed() const override;
 
@@ -59,70 +59,70 @@ public:
 
 private:
 	void transformVector(
-		const Vector3R& vector,
-		const Time&     time,
-		Vector3R*       out_vector) const override;
+		const math::Vector3R& vector,
+		const Time&           time,
+		math::Vector3R*       out_vector) const override;
 
 	void transformOrientation(
-		const Vector3R& orientation,
-		const Time&     time,
-		Vector3R*       out_orientation) const override;
+		const math::Vector3R& orientation,
+		const Time&           time,
+		math::Vector3R*       out_orientation) const override;
 
 	void transformPoint(
-		const Vector3R& point,
-		const Time&     time,
-		Vector3R*       out_point) const override;
+		const math::Vector3R& point,
+		const Time&           time,
+		math::Vector3R*       out_point) const override;
 
 	void transformLineSegment(
-		const Vector3R& lineStartPos,
-		const Vector3R& lineDir,
-		real            lineMinT,
-		real            lineMaxT,
-		const Time&     time,
-		Vector3R*       out_lineStartPos,
-		Vector3R*       out_lineDir,
-		real*           out_lineMinT,
-		real*           out_lineMaxT) const override;
+		const math::Vector3R& lineStartPos,
+		const math::Vector3R& lineDir,
+		real                  lineMinT,
+		real                  lineMaxT,
+		const Time&           time,
+		math::Vector3R*       out_lineStartPos,
+		math::Vector3R*       out_lineDir,
+		real*                 out_lineMinT,
+		real*                 out_lineMaxT) const override;
 
 private:
-	Matrix4R m_transformMatrix;
-	Matrix4R m_inverseTransformMatrix;
+	math::Matrix4R m_transformMatrix;
+	math::Matrix4R m_inverseTransformMatrix;
 };
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeForward(const TDecomposedTransform<U>& transform)
+::makeForward(const math::TDecomposedTransform<U>& transform)
 {
-	TMatrix4<U> transformMatrix;
-	TMatrix4<U> invTransformMatrix;
+	math::TMatrix4<U> transformMatrix;
+	math::TMatrix4<U> invTransformMatrix;
 	transform.genTransformMatrix(&transformMatrix);
 	transform.genInverseTransformMatrix(&invTransformMatrix);
 
-	return StaticAffineTransform(Matrix4R(transformMatrix), Matrix4R(invTransformMatrix));
+	return StaticAffineTransform(math::Matrix4R(transformMatrix), math::Matrix4R(invTransformMatrix));
 }
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeInverse(const TDecomposedTransform<U>& transform)
+::makeInverse(const math::TDecomposedTransform<U>& transform)
 {
-	TMatrix4<U> transformMatrix;
-	TMatrix4<U> invTransformMatrix;
+	math::TMatrix4<U> transformMatrix;
+	math::TMatrix4<U> invTransformMatrix;
 	transform.genInverseTransformMatrix(&transformMatrix);
 	transform.genTransformMatrix(&invTransformMatrix);
 
-	return StaticAffineTransform(Matrix4R(transformMatrix), Matrix4R(invTransformMatrix));
+	return StaticAffineTransform(math::Matrix4R(transformMatrix), math::Matrix4R(invTransformMatrix));
 }
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeParentedForward(const std::vector<TDecomposedTransform<U>>& fromRootToLocal)
+::makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
 {
-	TMatrix4<U> parentedMatrix(TMatrix4<U>::makeIdentity());
-	TMatrix4<U> invParentedMatrix(TMatrix4<U>::makeIdentity());
+	math::TMatrix4<U> parentedMatrix(math::TMatrix4<U>::makeIdentity());
+	math::TMatrix4<U> invParentedMatrix(math::TMatrix4<U>::makeIdentity());
 	for(const auto& transform : fromRootToLocal)
 	{
-		TMatrix4<U> matrix;
-		TMatrix4<U> invMatrix;
+		math::TMatrix4<U> matrix;
+		math::TMatrix4<U> invMatrix;
 		transform.genTransformMatrix(&matrix);
 		transform.genInverseTransformMatrix(&invMatrix);
 
@@ -130,19 +130,19 @@ inline StaticAffineTransform StaticAffineTransform
 		invParentedMatrix = invMatrix.mul(invParentedMatrix);
 	}
 
-	return StaticAffineTransform(Matrix4R(parentedMatrix), Matrix4R(invParentedMatrix));
+	return StaticAffineTransform(math::Matrix4R(parentedMatrix), math::Matrix4R(invParentedMatrix));
 }
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeParentedInverse(const std::vector<TDecomposedTransform<U>>& fromRootToLocal)
+::makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
 {
-	TMatrix4<U> parentedMatrix(TMatrix4<U>::makeIdentity());
-	TMatrix4<U> invParentedMatrix(TMatrix4<U>::makeIdentity());
+	math::TMatrix4<U> parentedMatrix(math::TMatrix4<U>::makeIdentity());
+	math::TMatrix4<U> invParentedMatrix(math::TMatrix4<U>::makeIdentity());
 	for(const auto& transform : fromRootToLocal)
 	{
-		TMatrix4<U> matrix;
-		TMatrix4<U> invMatrix;
+		math::TMatrix4<U> matrix;
+		math::TMatrix4<U> invMatrix;
 		transform.genInverseTransformMatrix(&matrix);
 		transform.genTransformMatrix(&invMatrix);
 
@@ -176,4 +176,4 @@ inline const math::Matrix4R& StaticAffineTransform
 //	m_inverseTransformMatrix = localTransform.m_inverseTransformMatrix(parent.m_inverseTransformMatrix);
 //}
 
-}// end namespace ph::math
+}// end namespace ph

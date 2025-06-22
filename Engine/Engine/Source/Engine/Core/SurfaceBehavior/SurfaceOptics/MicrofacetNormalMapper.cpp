@@ -19,7 +19,7 @@ namespace ph
 namespace
 {
 
-inline math::Vector3R Nt(const math::Vector3R& Ng, const math::Vector3R& Np)
+inline math::Vector3R tangentFacetNormal(const math::Vector3R& Ng, const math::Vector3R& Np)
 {
 	return (Ng * Ng.dot(Np) - Np).normalize();
 }
@@ -39,12 +39,12 @@ inline real lambdaP(
 	const math::Vector3R& Ng,
 	const math::Vector3R& Np,
 	const math::Vector3R& Nt,
-	const math::Vector3R& L)
+	const math::Vector3R& V)
 {
-	const real NpDotL= Np.dot(L);
+	const real NpDotV= Np.dot(V);
 	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
 	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
-	return math::safe_clamp(NpDotL / (NpDotL + Nt.dot(L) * sinNgDotNp), 0.0_r, 1.0_r);
+	return math::safe_clamp(NpDotV / (NpDotV + Nt.dot(V) * sinNgDotNp), 0.0_r, 1.0_r);
 }
 
 }// end namespace
@@ -83,6 +83,22 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
+	const auto V = in.getV();
+	const auto N = in.getX().getShadingNormal();
+	const auto Np = samplePerturbedNormal(in.getX());
+	const auto Nt = tangentFacetNormal(N, Np);
+
+	// Sample the perturbed facet
+	if(sampleFlow.unflowedPick(lambdaP(N, Np, Nt, V)))
+	{
+
+	}
+	// Sample the tangent facet
+	else
+	{
+
+	}
+
 	// TODO
 	m_target->genBsdfSampleCore(ctx, in, sampleFlow, out);
 }
@@ -93,6 +109,16 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 	BsdfPdfOutput&          out) const
 {
 	PH_ASSERT_UNREACHABLE_SECTION();
+}
+
+math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X) const
+{
+	math::Vector3R Np = m_sampler.sample(*m_normalMap, X);
+
+	// Assuming normal can be unpacked the conventional way
+	Np = (Np * 2 - 1).normalize();
+
+	return Np;
 }
 
 }// end namespace ph

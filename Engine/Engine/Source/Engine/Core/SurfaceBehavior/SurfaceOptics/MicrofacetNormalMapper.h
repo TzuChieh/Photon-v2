@@ -11,6 +11,7 @@ namespace ph
 {
 
 /*! @brief Microfacet-based normal mapping.
+Implements the "normalmap_microfacet_default" model in the original paper.
 */
 class MicrofacetNormalMapper : public SurfaceOptics
 {
@@ -40,6 +41,8 @@ public:
 	std::string toString() const override;
 
 private:
+	math::Vector3R samplePerturbedNormal(const SurfaceHit& X) const;
+
 	const SurfaceOptics*                      m_target;
 	std::shared_ptr<TTexture<math::Vector3R>> m_normalMap;
 	TSampler<math::Vector3R>                  m_sampler;

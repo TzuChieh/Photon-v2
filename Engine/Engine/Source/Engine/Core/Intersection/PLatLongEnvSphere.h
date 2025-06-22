@@ -4,7 +4,7 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
-#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticRigidTransform.h"
 
 #include <array>
 
@@ -25,8 +25,8 @@ public:
 
 	PLatLongEnvSphere(
 		real radius, 
-		const math::StaticRigidTransform* localToWorld,
-		const math::StaticRigidTransform* worldToLocal);
+		const StaticRigidTransform* localToWorld,
+		const StaticRigidTransform* worldToLocal);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	bool isOccluding(const Ray& ray) const override;
@@ -110,8 +110,8 @@ private:
 		math::Vector3R* out_unitObservationDir,
 		real* out_pdfA) const;
 
-	const math::StaticRigidTransform* m_localToWorld;
-	const math::StaticRigidTransform* m_worldToLocal;
+	const StaticRigidTransform* m_localToWorld;
+	const StaticRigidTransform* m_worldToLocal;
 	math::Vector3R m_worldOrigin;
 };
 

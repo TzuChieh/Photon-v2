@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Intersection/UvwMapper/UvwMapper.h"
 #include "Engine/Core/Intersection/PrimitiveChannel.h"
 #include "Engine/Core/VolumeBehavior/VolumeBehavior.h"

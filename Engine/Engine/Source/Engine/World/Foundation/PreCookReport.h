@@ -4,7 +4,7 @@
 
 #include <Common/primitive_type.h>
 
-namespace ph::math { class Transform; }
+namespace ph { class Transform; }
 
 namespace ph
 {
@@ -18,17 +18,17 @@ public:
 	PreCookReport& markAsUncookable();
 
 	PreCookReport& setBaseTransforms(
-		const math::Transform* localToWorld, 
-		const math::Transform* worldToLocal);
+		const Transform* localToWorld, 
+		const Transform* worldToLocal);
 
 	bool isCookable() const;
-	const math::Transform* getBaseLocalToWorld() const;
-	const math::Transform* getBaseWorldToLocal() const;
+	const Transform* getBaseLocalToWorld() const;
+	const Transform* getBaseWorldToLocal() const;
 
 private:
 	SdlResourceId m_rawResourceId;
-	const math::Transform* m_baseLocalToWorld;
-	const math::Transform* m_baseWorldToLocal;
+	const Transform* m_baseLocalToWorld;
+	const Transform* m_baseWorldToLocal;
 	uint32 m_isCookable : 1;
 };
 

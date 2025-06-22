@@ -18,8 +18,8 @@
 #include <Engine/Math/Geometry/TTriangle.h>
 #include <Engine/Math/Geometry/THemisphere.h>
 #include <Engine/Math/TOrthonormalBasis3.h>
-#include <Engine/Math/Transform/TDecomposedTransform.h>
-#include <Engine/Math/Transform/StaticAffineTransform.h>
+#include <Engine/Math/TDecomposedTransform.h>
+#include <Engine/Core/Transform/StaticAffineTransform.h>
 #include <Engine/DataIO/Data/CsvFile.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/Utility/Timer.h>
@@ -475,12 +475,12 @@ private:
 	{
 		TransformedIntersectable* triangle = nullptr;
 		math::TTriangle<real> localTriangle = math::TTriangle<real>();
-		math::StaticAffineTransform localToWorld = math::StaticAffineTransform::IDENTITY();
+		StaticAffineTransform localToWorld = StaticAffineTransform::makeIdentity();
 		PTriangle localPTriangle = PTriangle(math::Vector3R(0), math::Vector3R(1), math::Vector3R(2));
 		std::vector<TransformedIntersectable> intersectables;
-		std::vector<math::StaticAffineTransform> transforms;
-		std::vector<math::StaticAffineTransform> inversedTransforms;
-		std::vector<math::TDecomposedTransform<real>> decomposedTransforms;
+		std::vector<StaticAffineTransform> transforms;
+		std::vector<StaticAffineTransform> inversedTransforms;
+		std::vector<TDecomposedTransform<real>> decomposedTransforms;
 	};
 
 	void makeRandomTriangle(const IntersectConfig& config, TriangleData& out_data) const
@@ -488,7 +488,7 @@ private:
 		out_data.decomposedTransforms.clear();
 		makeRandomTransforms(config, m_numTransformLevels, out_data.decomposedTransforms);
 
-		out_data.localToWorld = math::StaticAffineTransform::makeParentedForward(
+		out_data.localToWorld = StaticAffineTransform::makeParentedForward(
 			out_data.decomposedTransforms);
 
 		out_data.localTriangle = TriangleCase::makeRandomTriangle(config);
@@ -504,9 +504,9 @@ private:
 				? static_cast<const Intersectable*>(&out_data.localPTriangle)
 				: static_cast<const Intersectable*>(&out_data.intersectables[n]);
 
-			out_data.transforms[n - 1] = math::StaticAffineTransform::makeForward(
+			out_data.transforms[n - 1] = StaticAffineTransform::makeForward(
 				out_data.decomposedTransforms[n - 1]);
-			out_data.inversedTransforms[n - 1] = math::StaticAffineTransform::makeInverse(
+			out_data.inversedTransforms[n - 1] = StaticAffineTransform::makeInverse(
 				out_data.decomposedTransforms[n - 1]);
 			out_data.intersectables[n - 1] = TransformedIntersectable(
 				intersectable,
@@ -663,11 +663,11 @@ private:
 	{
 		TransformedIntersectable* sphere = nullptr;
 		math::TSphere<real> localSphere = math::TSphere<real>(0);
-		math::StaticAffineTransform localToWorld = math::StaticAffineTransform::IDENTITY();
+		StaticAffineTransform localToWorld = StaticAffineTransform::makeIdentity();
 		PLatLong01Sphere localPSphere = PLatLong01Sphere(0);
 		std::vector<TransformedIntersectable> intersectables;
-		std::vector<math::StaticAffineTransform> transforms;
-		std::vector<math::StaticAffineTransform> inversedTransforms;
+		std::vector<StaticAffineTransform> transforms;
+		std::vector<StaticAffineTransform> inversedTransforms;
 		std::vector<math::TDecomposedTransform<real>> decomposedTransforms;
 	};
 
@@ -676,7 +676,7 @@ private:
 		out_data.decomposedTransforms.clear();
 		makeRandomTransforms(config, m_numTransformLevels, out_data.decomposedTransforms);
 
-		out_data.localToWorld = math::StaticAffineTransform::makeParentedForward(
+		out_data.localToWorld = StaticAffineTransform::makeParentedForward(
 			out_data.decomposedTransforms);
 
 		out_data.localSphere = SphereCase::makeRandomSphere(config);
@@ -691,9 +691,9 @@ private:
 				? static_cast<const Intersectable*>(&out_data.localPSphere)
 				: static_cast<const Intersectable*>(&out_data.intersectables[n]);
 
-			out_data.transforms[n - 1] = math::StaticAffineTransform::makeForward(
+			out_data.transforms[n - 1] = StaticAffineTransform::makeForward(
 				out_data.decomposedTransforms[n - 1]);
-			out_data.inversedTransforms[n - 1] = math::StaticAffineTransform::makeInverse(
+			out_data.inversedTransforms[n - 1] = StaticAffineTransform::makeInverse(
 				out_data.decomposedTransforms[n - 1]);
 			out_data.intersectables[n - 1] = TransformedIntersectable(
 				intersectable,

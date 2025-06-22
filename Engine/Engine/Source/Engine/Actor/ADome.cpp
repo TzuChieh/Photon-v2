@@ -2,7 +2,7 @@
 #include "Engine/Actor/Geometry/GSphere.h"
 #include "Engine/Actor/Material/IdealSubstance.h"
 #include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/Core/Intersection/PLatLongEnvSphere.h"
 #include "Engine/Core/Emitter/LatLongEnvEmitter.h"
 #include "Engine/Actor/Dome/AImageDome.h"
@@ -39,10 +39,10 @@ PreCookReport ADome::preCook(const CookingContext& ctx) const
 		sanifiedLocalToWorld.setScale(1);
 	}
 
-	auto localToWorld = ctx.getResources().makeTransform<math::StaticRigidTransform>(
-		math::StaticRigidTransform::makeForward(sanifiedLocalToWorld));
-	auto worldToLocal = ctx.getResources().makeTransform<math::StaticRigidTransform>(
-		math::StaticRigidTransform::makeInverse(sanifiedLocalToWorld));
+	auto localToWorld = ctx.getResources().makeTransform<StaticRigidTransform>(
+		StaticRigidTransform::makeForward(sanifiedLocalToWorld));
+	auto worldToLocal = ctx.getResources().makeTransform<StaticRigidTransform>(
+		StaticRigidTransform::makeInverse(sanifiedLocalToWorld));
 
 	report.setBaseTransforms(localToWorld, worldToLocal);
 
@@ -52,8 +52,8 @@ PreCookReport ADome::preCook(const CookingContext& ctx) const
 TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	// Must match what was used in `preCook()`
-	auto localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());
-	auto worldToLocal = static_cast<const math::StaticRigidTransform*>(report.getBaseWorldToLocal());
+	auto localToWorld = static_cast<const StaticRigidTransform*>(report.getBaseLocalToWorld());
+	auto worldToLocal = static_cast<const StaticRigidTransform*>(report.getBaseWorldToLocal());
 
 	const math::AABB3D worldBound = ctx.getLeafActorsBound();
 	

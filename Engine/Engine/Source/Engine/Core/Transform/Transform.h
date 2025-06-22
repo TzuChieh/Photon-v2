@@ -12,7 +12,7 @@ namespace ph
 	class HitInfo;
 }
 
-namespace ph::math
+namespace ph
 {
 
 // TODO: templatize
@@ -33,19 +33,19 @@ public:
 	//
 	// and calculate the transformed result.
 
-	void transformV(const Vector3R& vector, 
-	                Vector3R* out_vector) const;
-	void transformO(const Vector3R& orientation, 
-	                Vector3R* out_orientation) const;
-	void transformP(const Vector3R& point, 
-	                Vector3R* out_point) const;
+	void transformV(const math::Vector3R& vector, 
+	                math::Vector3R* out_vector) const;
+	void transformO(const math::Vector3R& orientation,
+	                math::Vector3R* out_orientation) const;
+	void transformP(const math::Vector3R& point,
+	                math::Vector3R* out_point) const;
 
-	void transformV(const Vector3R& vector, const Time& time, 
-	                Vector3R* out_vector) const;
-	void transformO(const Vector3R& orientation, const Time& time, 
-	                Vector3R* out_orientation) const;
-	void transformP(const Vector3R& point, const Time& time, 
-	                Vector3R* out_point) const;
+	void transformV(const math::Vector3R& vector, const Time& time,
+	                math::Vector3R* out_vector) const;
+	void transformO(const math::Vector3R& orientation, const Time& time,
+	                math::Vector3R* out_orientation) const;
+	void transformP(const math::Vector3R& point, const Time& time,
+	                math::Vector3R* out_point) const;
 
 	// Notice that transforming a ray neither will change its parametric 
 	// distance (t) nor renormalizing its direction vector even if the transform 
@@ -63,27 +63,27 @@ public:
 
 	void transform(const HitInfo& info,
 	               HitInfo* out_info) const;
-	void transform(const AABB3D& aabb, 
-	               AABB3D* out_aabb) const;
+	void transform(const math::AABB3D& aabb,
+	               math::AABB3D* out_aabb) const;
 
 	void transform(const HitInfo& info, const Time& time,
 	               HitInfo* out_info) const;
-	void transform(const AABB3D& aabb, const Time& time,
-	               AABB3D* out_aabb) const;
+	void transform(const math::AABB3D& aabb, const Time& time,
+	               math::AABB3D* out_aabb) const;
 
 private:
 
 	// Treating a Vector3R as either a vector, orientation, or point and 
 	// calculate the transformed result.
 
-	virtual void transformVector(const Vector3R& vector, const Time& time, 
-	                             Vector3R* out_vector) const = 0;
+	virtual void transformVector(const math::Vector3R& vector, const Time& time,
+	                             math::Vector3R* out_vector) const = 0;
 
-	virtual void transformOrientation(const Vector3R& orientation, const Time& time,
-	                                  Vector3R* out_orientation) const = 0;
+	virtual void transformOrientation(const math::Vector3R& orientation, const Time& time,
+	                                  math::Vector3R* out_orientation) const = 0;
 
-	virtual void transformPoint(const Vector3R& point, const Time& time, 
-	                            Vector3R* out_point) const = 0;
+	virtual void transformPoint(const math::Vector3R& point, const Time& time,
+	                            math::Vector3R* out_point) const = 0;
 
 	// Transform the specified line segment. A line segment's definition is 
 	// as follows:
@@ -93,10 +93,10 @@ private:
 	//
 	// Also note that lineDir is not necessary to be normalized.
 	//
-	virtual void transformLineSegment(const Vector3R& lineStartPos, const Vector3R& lineDir, 
+	virtual void transformLineSegment(const math::Vector3R& lineStartPos, const math::Vector3R& lineDir,
 	                                  real lineMinT, real lineMaxT, const Time& time, 
-	                                  Vector3R* out_lineStartPos, Vector3R* out_lineDir,
+	                                  math::Vector3R* out_lineStartPos, math::Vector3R* out_lineDir,
 	                                  real* out_lineMinT, real* out_lineMaxT) const = 0;
 };
 
-}// end namespace ph::math
+}// end namespace ph

@@ -5,7 +5,7 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/TQuaternion.h"
-#include "Engine/Math/Transform/TDecomposedTransform.h"
+#include "Engine/Math/TDecomposedTransform.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>

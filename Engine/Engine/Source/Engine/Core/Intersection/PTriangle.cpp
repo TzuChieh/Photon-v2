@@ -1,5 +1,5 @@
 #include "Engine/Core/Intersection/PTriangle.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/HitDetail.h"

@@ -14,7 +14,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(Geometry, Geometry);
 
 std::shared_ptr<Geometry> Geometry::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	auto triangulatedGeometry = genTriangulated();
 	if(triangulatedGeometry == nullptr)

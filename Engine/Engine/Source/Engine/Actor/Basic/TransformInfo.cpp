@@ -1,6 +1,6 @@
 #include "Engine/Actor/Basic/TransformInfo.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
-#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticRigidTransform.h"
 
 namespace ph
 {
@@ -106,24 +106,24 @@ math::TDecomposedTransform<real> TransformInfo::getDecomposed() const
 		m_scale);
 }
 
-math::StaticAffineTransform TransformInfo::getForwardStaticAffine() const
+StaticAffineTransform TransformInfo::getForwardStaticAffine() const
 {
-	return math::StaticAffineTransform::makeForward(getDecomposed());
+	return StaticAffineTransform::makeForward(getDecomposed());
 }
 
-math::StaticAffineTransform TransformInfo::getInverseStaticAffine() const
+StaticAffineTransform TransformInfo::getInverseStaticAffine() const
 {
-	return math::StaticAffineTransform::makeInverse(getDecomposed());
+	return StaticAffineTransform::makeInverse(getDecomposed());
 }
 
-math::StaticRigidTransform TransformInfo::getForwardStaticRigid() const
+StaticRigidTransform TransformInfo::getForwardStaticRigid() const
 {
-	return math::StaticRigidTransform::makeForward(getDecomposed());
+	return StaticRigidTransform::makeForward(getDecomposed());
 }
 
-math::StaticRigidTransform TransformInfo::getInverseStaticRigid() const
+StaticRigidTransform TransformInfo::getInverseStaticRigid() const
 {
-	return math::StaticRigidTransform::makeInverse(getDecomposed());
+	return StaticRigidTransform::makeInverse(getDecomposed());
 }
 
 TransformInfo& TransformInfo::set(const math::TDecomposedTransform<real>& decomposed)

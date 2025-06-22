@@ -1,4 +1,4 @@
-#include "Engine/Math/Transform/Transform.h"
+#include "Engine/Core/Transform/Transform.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/TVector3.h"
@@ -6,7 +6,7 @@
 
 #include <Common/assertion.h>
 
-namespace ph::math
+namespace ph
 {
 
 std::unique_ptr<Transform> Transform::genInversed() const
@@ -14,42 +14,42 @@ std::unique_ptr<Transform> Transform::genInversed() const
 	return nullptr;
 }
 
-void Transform::transformV(const Vector3R& vector, const Time& time, 
-                           Vector3R* const out_vector) const
+void Transform::transformV(const math::Vector3R& vector, const Time& time,
+                           math::Vector3R* const out_vector) const
 {
 	transformVector(vector, time, out_vector);
 }
 
-void Transform::transformO(const Vector3R& orientation, const Time& time, 
-                           Vector3R* const out_orientation) const
+void Transform::transformO(const math::Vector3R& orientation, const Time& time,
+                           math::Vector3R* const out_orientation) const
 {
 	transformOrientation(orientation, time, out_orientation);
 }
 
-void Transform::transformP(const Vector3R& point, const Time& time, 
-                           Vector3R* const out_point) const
+void Transform::transformP(const math::Vector3R& point, const Time& time,
+                           math::Vector3R* const out_point) const
 {
 	transformPoint(point, time, out_point);
 }
 
-void Transform::transformV(const Vector3R& vector, Vector3R* const out_vector) const
+void Transform::transformV(const math::Vector3R& vector, math::Vector3R* const out_vector) const
 {
 	transformVector(vector, Time(), out_vector);
 }
 
-void Transform::transformO(const Vector3R& orientation, Vector3R* const out_orientation) const
+void Transform::transformO(const math::Vector3R& orientation, math::Vector3R* const out_orientation) const
 {
 	transformOrientation(orientation, Time(), out_orientation);
 }
 
-void Transform::transformP(const Vector3R& point, Vector3R* const out_point) const
+void Transform::transformP(const math::Vector3R& point, math::Vector3R* const out_point) const
 {
 	transformPoint(point, Time(), out_point);
 }
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
 {
-	Vector3R rayOrigin, rayDir;
+	math::Vector3R rayOrigin, rayDir;
 	real rayMinT, rayMaxT;
 	transformLineSegment(ray.getOrigin(), ray.getDir(),
 	                     ray.getMinT(), ray.getMaxT(), 
@@ -66,9 +66,9 @@ void Transform::transform(const Ray& ray, Ray* const out_ray) const
 void Transform::transform(const HitInfo& info, const Time& time,
                           HitInfo* const out_info) const
 {
-	Vector3R tPosition;
-	Vector3R tGeometryNormal;
-	Vector3R tShadingNormal;
+	math::Vector3R tPosition;
+	math::Vector3R tGeometryNormal;
+	math::Vector3R tShadingNormal;
 	transformPoint(info.getPos(), time, &tPosition);
 	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
 	transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
@@ -77,10 +77,10 @@ void Transform::transform(const HitInfo& info, const Time& time,
 	                        tGeometryNormal.normalizeLocal(),
 	                        tShadingNormal.normalizeLocal());
 
-	Vector3R tdPdU;
-	Vector3R tdPdV;
-	Vector3R tdNdU;
-	Vector3R tdNdV;
+	math::Vector3R tdPdU;
+	math::Vector3R tdPdV;
+	math::Vector3R tdNdU;
+	math::Vector3R tdNdV;
 	transformVector(info.getdPdU(), time, &tdPdU);
 	transformVector(info.getdPdV(), time, &tdPdV);
 	transformVector(info.getdNdU(), time, &tdNdU);
@@ -89,8 +89,8 @@ void Transform::transform(const HitInfo& info, const Time& time,
 	out_info->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
 }
 
-void Transform::transform(const AABB3D& aabb, const Time& time,
-                          AABB3D* const out_aabb) const
+void Transform::transform(const math::AABB3D& aabb, const Time& time,
+                          math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
@@ -101,13 +101,13 @@ void Transform::transform(const AABB3D& aabb, const Time& time,
 		// TODO: consider moving this check to transformPoint()
 		if(vertex.isFinite())
 		{
-			Vector3R tVertex;
+			math::Vector3R tVertex;
 			transformPoint(vertex, time, &tVertex);
 			vertex = tVertex;
 		}
 	}
 	
-	*out_aabb = AABB3D(vertices[0]);
+	*out_aabb = math::AABB3D(vertices[0]);
 	for(std::size_t i = 1; i < vertices.size(); i++)
 	{
 		out_aabb->unionWith(vertices[i]);
@@ -120,9 +120,9 @@ void Transform::transform(const HitInfo& info,
 	transform(info, Time(), out_info);
 }
 
-void Transform::transform(const AABB3D& aabb, AABB3D* const out_aabb) const
+void Transform::transform(const math::AABB3D& aabb, math::AABB3D* const out_aabb) const
 {
 	transform(aabb, Time(), out_aabb);
 }
 
-}// end namespace ph::math
+}// end namespace ph

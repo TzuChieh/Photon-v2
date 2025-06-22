@@ -1,7 +1,7 @@
 #include "EditorLib/Designer/Imposter/GeneralImposter.h"
 #include "EditorLib/Designer/UI/UIPropertyLayout.h"
 
-#include <Engine/Math/Transform/TDecomposedTransform.h>
+#include <Engine/Math/TDecomposedTransform.h>
 
 namespace ph::editor
 {

@@ -7,7 +7,7 @@
 #include <Engine/Utility/TSpan.h>
 #include <Engine/SDL/sdl_interface.h>
 #include <Engine/Math/math_fwd.h>
-#include <Engine/Math/Transform/TDecomposedTransform.h>
+#include <Engine/Math/TDecomposedTransform.h>
 #include <Engine/Utility/TFunction.h>
 
 #include <string>

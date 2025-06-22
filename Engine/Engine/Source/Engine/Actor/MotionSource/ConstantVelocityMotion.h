@@ -17,7 +17,7 @@ public:
 		const CookingContext& ctx,
 		const MotionCookConfig& config) const override;
 
-	std::unique_ptr<math::Transform> genLocalToWorld(
+	std::unique_ptr<Transform> genLocalToWorld(
 		const Time& start,
 		const Time& end) const override;
 

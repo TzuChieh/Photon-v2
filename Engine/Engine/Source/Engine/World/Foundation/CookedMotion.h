@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Quantity/Time.h"
 
-namespace ph::math { class Transform; }
+namespace ph { class Transform; }
 
 namespace ph
 {
@@ -21,8 +21,8 @@ public:
 class CookedMotion final
 {
 public:
-	const math::Transform* localToWorld = nullptr;
-	const math::Transform* worldToLocal = nullptr;
+	const Transform* localToWorld = nullptr;
+	const Transform* worldToLocal = nullptr;
 };
 
 }// end namespace ph

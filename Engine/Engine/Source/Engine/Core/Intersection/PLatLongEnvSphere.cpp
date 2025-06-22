@@ -23,14 +23,14 @@ namespace ph
 PLatLongEnvSphere::PLatLongEnvSphere(const real radius) :
 	PLatLongEnvSphere(
 		radius,
-		&math::StaticRigidTransform::IDENTITY(),
-		&math::StaticRigidTransform::IDENTITY())
+		&StaticRigidTransform::makeIdentity(),
+		&StaticRigidTransform::makeIdentity())
 {}
 
 PLatLongEnvSphere::PLatLongEnvSphere(
 	const real radius,
-	const math::StaticRigidTransform* const localToWorld,
-	const math::StaticRigidTransform* const worldToLocal)
+	const StaticRigidTransform* const localToWorld,
+	const StaticRigidTransform* const worldToLocal)
 
 	: PBasicSphere(radius)
 

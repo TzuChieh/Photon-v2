@@ -1,7 +1,6 @@
 #include "Engine/Core/Receiver/ThinLensCamera.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Math/Transform/Transform.h"
-#include "Engine/Math/Transform/RigidTransform.h"
+#include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/Math/Random/Random.h"
 #include "Engine/Math/Geometry/TDisk.h"
 
@@ -13,11 +12,11 @@ namespace ph
 {
 
 ThinLensCamera::ThinLensCamera(
-	const float64                     lensRadius,
-	const float64                     focalDistance,
-	const math::Vector2D&             sensorSize,
-	const math::Transform*  const     rasterToSensor,
-	const math::RigidTransform* const cameraToWorld) : 
+	const float64               lensRadius,
+	const float64               focalDistance,
+	const math::Vector2D&       sensorSize,
+	const Transform*  const     rasterToSensor,
+	const RigidTransform* const cameraToWorld) : 
 
 	RectangularSensorReceiver(
 		sensorSize, 

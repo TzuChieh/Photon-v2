@@ -15,16 +15,16 @@ public:
 	@param receiverToWorld Transform from camera to world space.
 	*/
 	PinholeCamera(
-		const math::Vector2D&       sensorSize,
-		const math::Transform*      rasterToSensor,
-		const math::RigidTransform* cameraToWorld);
+		const math::Vector2D& sensorSize,
+		const Transform*      rasterToSensor,
+		const RigidTransform* cameraToWorld);
 
 	math::Spectrum receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
 	void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const override;
 
 	// TODO: need Time
 	//const math::Vector3R& getPinholePos() const;
-	const math::RigidTransform& getCameraToWorld() const;
+	const RigidTransform& getCameraToWorld() const;
 
 private:
 	//math::Vector3R m_pinholePos;
@@ -39,7 +39,7 @@ private:
 //	return m_pinholePos;
 //}
 
-inline const math::RigidTransform& PinholeCamera::getCameraToWorld() const
+inline const RigidTransform& PinholeCamera::getCameraToWorld() const
 {
 	return getReceiverToWorld();
 }

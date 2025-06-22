@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Engine/SDL/TSdlResourceBase.h"
-#include "Engine/Math/Transform/TDecomposedTransform.h"
-#include "Engine/Math/Transform/Transform.h"
+#include "Engine/Math/TDecomposedTransform.h"
+#include "Engine/Core/Transform/Transform.h"
 
 #include <Common/primitive_type.h>
 
@@ -27,7 +27,7 @@ public:
 		const MotionCookConfig& config) const = 0;
 	
 	// DEPRECATED
-	virtual std::unique_ptr<math::Transform> genLocalToWorld(
+	virtual std::unique_ptr<Transform> genLocalToWorld(
 		const Time& start, 
 		const Time& end) const = 0;
 

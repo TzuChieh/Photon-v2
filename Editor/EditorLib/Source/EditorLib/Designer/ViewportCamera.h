@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Common/primitive_type.h>
-#include <Engine/Math/Transform/TDecomposedTransform.h>
+#include <Engine/Math/TDecomposedTransform.h>
 #include <Engine/Math/TVector2.h>
 
 namespace ph::editor

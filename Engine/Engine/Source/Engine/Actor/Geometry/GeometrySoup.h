@@ -19,13 +19,13 @@ public:
 		const CookingContext& ctx) const override;
 
 	std::shared_ptr<Geometry> genTransformed(
-		const math::StaticAffineTransform& transform) const override;
+		const StaticAffineTransform& transform) const override;
 
 	void add(const std::shared_ptr<Geometry>& geometry);
 
 	bool addTransformed(
 		const std::shared_ptr<Geometry>& geometry, 
-		const math::StaticAffineTransform& transform);
+		const StaticAffineTransform& transform);
 
 private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;

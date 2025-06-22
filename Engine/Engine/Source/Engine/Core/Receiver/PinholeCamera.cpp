@@ -2,8 +2,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/math.h"
 #include "Engine/Math/Random/Random.h"
-#include "Engine/Math/Transform/Transform.h"
-#include "Engine/Math/Transform/RigidTransform.h"
+#include "Engine/Core/Transform/RigidTransform.h"
 
 #include <Common/assertion.h>
 
@@ -13,9 +12,9 @@ namespace ph
 {
 
 PinholeCamera::PinholeCamera(
-	const math::Vector2D&             sensorSize,
-	const math::Transform* const      rasterToSensor,
-	const math::RigidTransform* const receiverToWorld) : 
+	const math::Vector2D&       sensorSize,
+	const Transform* const      rasterToSensor,
+	const RigidTransform* const receiverToWorld) : 
 
 	RectangularSensorReceiver(
 		sensorSize,

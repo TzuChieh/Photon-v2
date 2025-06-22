@@ -2,13 +2,13 @@
 
 #include "Engine/World/Foundation/CookedResourceCollectionBase.h"
 #include "Engine/Utility/TUniquePtrVector.h"
-#include "Engine/Math/Transform/Transform.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookedMotion.h"
 #include "Engine/Utility/Concurrent/TSynchronized.h"
 #include "Engine/Utility/traits.h"
 #include "Engine/SDL/SdlResourceId.h"
+#include "Engine/Core/Transform/Transform.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/Intersectable.h"
 #include "Engine/Core/Intersection/DataStructure/TIndexedPolygonBuffer.h"
@@ -45,7 +45,7 @@ public:
 			m_metadatas, std::forward<DeducedArgs>(args)...);
 	}
 
-	template<CDerived<math::Transform> TransformType, typename... DeducedArgs>
+	template<CDerived<Transform> TransformType, typename... DeducedArgs>
 	[[nodiscard]]
 	TransformType* makeTransform(DeducedArgs&&... args)
 	{
@@ -129,7 +129,7 @@ public:
 
 private:
 	TSynchronized<TUniquePtrVector<PrimitiveMetadata>> m_metadatas;
-	TSynchronized<TUniquePtrVector<math::Transform>> m_transforms;
+	TSynchronized<TUniquePtrVector<Transform>> m_transforms;
 	TSynchronized<TUniquePtrVector<Intersectable>> m_intersectables;
 	TSynchronized<TUniquePtrVector<Emitter>> m_emitters;
 	TSynchronized<TUniquePtrVector<IndexedTriangleBuffer>> m_triangleBuffers;

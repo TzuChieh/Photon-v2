@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Utility/IMoveOnly.h"
-#include "Engine/Math/Transform/Transform.h"
+#include "Engine/Core/Transform/Transform.h"
 
 #include <Common/assertion.h>
 
@@ -28,7 +28,7 @@ public:
 	void addReceiver(std::unique_ptr<Receiver> receiver);
 	void addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 
-	void addTransform(std::unique_ptr<math::Transform> transform);
+	void addTransform(std::unique_ptr<Transform> transform);
 
 	Renderer* getRenderer() const;
 	Receiver* getReceiver() const;
@@ -43,7 +43,7 @@ private:
 	std::unique_ptr<Receiver>        m_receiver;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 
-	std::vector<std::unique_ptr<math::Transform>> m_transforms;
+	std::vector<std::unique_ptr<Transform>> m_transforms;
 
 	// Cooked
 	/*std::shared_ptr<Intersector>     m_intersector;
@@ -68,7 +68,7 @@ inline SampleGenerator* CoreCookedUnit::getSampleGenerator() const
 	return m_sampleGenerator.get();
 }
 
-inline void CoreCookedUnit::addTransform(std::unique_ptr<math::Transform> transform)
+inline void CoreCookedUnit::addTransform(std::unique_ptr<Transform> transform)
 {
 	PH_ASSERT(transform);
 

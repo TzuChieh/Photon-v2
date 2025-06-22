@@ -11,7 +11,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Receiver, Receiver);
 
-Receiver::Receiver(const math::RigidTransform* const receiverToWorld) : 
+Receiver::Receiver(const RigidTransform* const receiverToWorld) : 
 	m_receiverToWorld(receiverToWorld)
 {
 	PH_ASSERT(m_receiverToWorld);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/Primitive.h"
-#include "Engine/Math/Transform/RigidTransform.h"
+#include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/Ray.h"
@@ -23,9 +23,9 @@ class TransformedPrimitive : public Primitive
 	// FIXME: intersecting routines' time correctness
 public:
 	TransformedPrimitive(
-		const Primitive*            primitive,
-		const math::RigidTransform* localToWorld,
-		const math::RigidTransform* worldToLocal);
+		const Primitive*      primitive,
+		const RigidTransform* localToWorld,
+		const RigidTransform* worldToLocal);
 
 	bool isOccluding(const Ray& ray) const override;
 
@@ -57,9 +57,9 @@ public:
 	const PrimitiveMetadata& getMetadata() const override;
 
 private:
-	const Primitive*            m_primitive;
-	const math::RigidTransform* m_localToWorld;
-	const math::RigidTransform* m_worldToLocal;
+	const Primitive*      m_primitive;
+	const RigidTransform* m_localToWorld;
+	const RigidTransform* m_worldToLocal;
 };
 
 inline bool TransformedPrimitive::isOccluding(const Ray& ray) const

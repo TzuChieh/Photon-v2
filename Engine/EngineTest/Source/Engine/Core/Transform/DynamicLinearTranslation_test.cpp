@@ -1,6 +1,6 @@
 #include "engine_test_constants.h"
 
-#include <Engine/Math/Transform/DynamicLinearTranslation.h>
+#include <Engine/Core/Transform/DynamicLinearTranslation.h>
 #include <Engine/Math/TVector3.h>
 #include <Engine/Math/TMatrix4.h>
 #include <Engine/Math/TQuaternion.h>

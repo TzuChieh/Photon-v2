@@ -1,7 +1,7 @@
 #include "EditorLib/Designer/Basic/ObjectTransform.h"
 
-#include <Engine/Math/Transform/StaticAffineTransform.h>
-#include <Engine/Math/Transform/StaticRigidTransform.h>
+#include <Engine/Core/Transform/StaticAffineTransform.h>
+#include <Engine/Core/Transform/StaticRigidTransform.h>
 
 namespace ph::editor
 {
@@ -107,24 +107,24 @@ math::TDecomposedTransform<real> ObjectTransform::getDecomposed() const
 		m_scale);
 }
 
-math::StaticAffineTransform ObjectTransform::getForwardStaticAffine() const
+StaticAffineTransform ObjectTransform::getForwardStaticAffine() const
 {
-	return math::StaticAffineTransform::makeForward(getDecomposed());
+	return StaticAffineTransform::makeForward(getDecomposed());
 }
 
-math::StaticAffineTransform ObjectTransform::getInverseStaticAffine() const
+StaticAffineTransform ObjectTransform::getInverseStaticAffine() const
 {
-	return math::StaticAffineTransform::makeInverse(getDecomposed());
+	return StaticAffineTransform::makeInverse(getDecomposed());
 }
 
-math::StaticRigidTransform ObjectTransform::getForwardStaticRigid() const
+StaticRigidTransform ObjectTransform::getForwardStaticRigid() const
 {
-	return math::StaticRigidTransform::makeForward(getDecomposed());
+	return StaticRigidTransform::makeForward(getDecomposed());
 }
 
-math::StaticRigidTransform ObjectTransform::getInverseStaticRigid() const
+StaticRigidTransform ObjectTransform::getInverseStaticRigid() const
 {
-	return math::StaticRigidTransform::makeInverse(getDecomposed());
+	return StaticRigidTransform::makeInverse(getDecomposed());
 }
 
 ObjectTransform& ObjectTransform::set(const math::TDecomposedTransform<real>& decomposed)

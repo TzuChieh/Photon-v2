@@ -64,7 +64,7 @@ void GPlyPolygonMesh::storeCooked(
 }
 
 std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	// TODO
 	return nullptr;

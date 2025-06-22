@@ -1,5 +1,5 @@
 #include "Engine/Actor/Geometry/GeometrySoup.h"
-#include "Engine/Math/Transform/TDecomposedTransform.h"
+#include "Engine/Math/TDecomposedTransform.h"
 
 #include <iostream>
 
@@ -22,7 +22,7 @@ void GeometrySoup::storeCooked(
 }
 
 std::shared_ptr<Geometry> GeometrySoup::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	auto tGeometrySoup = TSdl<GeometrySoup>::makeResource();
 	for(const auto& geometry : m_geometries)
@@ -48,7 +48,7 @@ void GeometrySoup::add(const std::shared_ptr<Geometry>& geometry)
 
 bool GeometrySoup::addTransformed(
 	const std::shared_ptr<Geometry>& geometry,
-	const math::StaticAffineTransform& transform)
+	const StaticAffineTransform& transform)
 {
 	const auto& transformed = geometry->genTransformed(transform);
 	if(!transformed)

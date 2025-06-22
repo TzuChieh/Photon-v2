@@ -6,7 +6,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Actor/ModelBuilder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
@@ -30,9 +30,9 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 
 	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
-		auto localToWorld = ctx.getResources().makeTransform<math::StaticAffineTransform>(
+		auto localToWorld = ctx.getResources().makeTransform<StaticAffineTransform>(
 			m_localToWorld.getForwardStaticAffine());
-		auto worldToLocal = ctx.getResources().makeTransform<math::StaticAffineTransform>(
+		auto worldToLocal = ctx.getResources().makeTransform<StaticAffineTransform>(
 			m_localToWorld.getInverseStaticAffine());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);

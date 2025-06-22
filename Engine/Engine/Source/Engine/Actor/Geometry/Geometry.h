@@ -2,7 +2,7 @@
 
 #include "Engine/SDL/TSdlResourceBase.h"
 #include "Engine/Core/Intersection/Primitive.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/SDL/sdl_interface.h"
 
 #include <vector>
@@ -27,7 +27,7 @@ public:
 		const CookingContext& ctx) const = 0;
 
 	virtual std::shared_ptr<Geometry> genTransformed(
-		const math::StaticAffineTransform& transform) const;
+		const StaticAffineTransform& transform) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
 

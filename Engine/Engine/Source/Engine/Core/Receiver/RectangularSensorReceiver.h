@@ -5,8 +5,8 @@
 
 #include <Common/assertion.h>
 
-namespace ph::math { class Transform; }
-namespace ph::math { class RigidTransform; }
+namespace ph { class Transform; }
+namespace ph { class RigidTransform; }
 
 namespace ph
 {
@@ -24,9 +24,9 @@ public:
 	@param receiverToWorld Transform from receiver to world space.
 	*/
 	RectangularSensorReceiver(
-		const math::Vector2D&       sensorSize, 
-		const math::Transform*      rasterToSensor,
-		const math::RigidTransform* receiverToWorld);
+		const math::Vector2D& sensorSize, 
+		const Transform*      rasterToSensor,
+		const RigidTransform* receiverToWorld);
 
 	math::Spectrum receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override = 0;
 
@@ -38,11 +38,11 @@ public:
 		real* const out_pdfW) const override = 0;
 
 	const math::Vector2D& getSensorSize() const;
-	const math::Transform& getRasterToSensor() const;
+	const Transform& getRasterToSensor() const;
 
 private:
-	math::Vector2D         m_sensorSize;
-	const math::Transform* m_rasterToSensor;
+	math::Vector2D   m_sensorSize;
+	const Transform* m_rasterToSensor;
 };
 
 // In-header Implementations:
@@ -52,7 +52,7 @@ inline const math::Vector2D& RectangularSensorReceiver::getSensorSize() const
 	return m_sensorSize;
 }
 
-inline const math::Transform& RectangularSensorReceiver::getRasterToSensor() const
+inline const Transform& RectangularSensorReceiver::getRasterToSensor() const
 {
 	PH_ASSERT(m_rasterToSensor);
 

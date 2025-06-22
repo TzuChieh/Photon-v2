@@ -43,7 +43,7 @@ void GTriangle::storeCooked(
 }
 
 std::shared_ptr<Geometry> GTriangle::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	auto tTriangle = std::make_shared<GTriangle>(*this);
 

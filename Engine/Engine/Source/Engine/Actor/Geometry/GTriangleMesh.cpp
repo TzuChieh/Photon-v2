@@ -89,7 +89,7 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 
 // TODO: can actually gen a transformed GTriangleMesh
 std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
-	const math::StaticAffineTransform& transform) const
+	const StaticAffineTransform& transform) const
 {
 	const auto gTriangles = genTriangles();
 

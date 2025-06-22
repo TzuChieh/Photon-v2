@@ -27,8 +27,8 @@ PreCookReport& PreCookReport::markAsUncookable()
 }
 
 PreCookReport& PreCookReport::setBaseTransforms(
-	const math::Transform* const localToWorld,
-	const math::Transform* const worldToLocal)
+	const Transform* const localToWorld,
+	const Transform* const worldToLocal)
 {
 	m_baseLocalToWorld = localToWorld;
 	m_baseWorldToLocal = worldToLocal;
@@ -40,12 +40,12 @@ bool PreCookReport::isCookable() const
 	return m_isCookable;
 }
 
-const math::Transform* PreCookReport::getBaseLocalToWorld() const
+const Transform* PreCookReport::getBaseLocalToWorld() const
 {
 	return m_baseLocalToWorld;
 }
 
-const math::Transform* PreCookReport::getBaseWorldToLocal() const
+const Transform* PreCookReport::getBaseWorldToLocal() const
 {
 	return m_baseWorldToLocal;
 }

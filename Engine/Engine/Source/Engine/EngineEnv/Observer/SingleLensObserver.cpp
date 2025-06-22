@@ -3,8 +3,8 @@
 #include "Engine/Core/Receiver/ThinLensCamera.h"
 #include "Engine/EngineEnv/CoreCookingContext.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
-#include "Engine/Math/Transform/StaticAffineTransform.h"
-#include "Engine/Math/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
+#include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/Math/math.h"
 
 #include <utility>
@@ -88,10 +88,10 @@ void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCoo
 {
 	PH_ASSERT_EQ(m_lensRadiusMM, 0);
 
-	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(makeRasterToSensor(ctx)));
-	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
-		math::StaticRigidTransform::makeForward(makeObserverPose()));
+	auto rasterToSensor = std::make_unique<StaticAffineTransform>(
+		StaticAffineTransform::makeForward(makeRasterToSensor(ctx)));
+	auto receiverToWorld = std::make_unique<StaticRigidTransform>(
+		StaticRigidTransform::makeForward(makeObserverPose()));
 
 	auto camera = std::make_unique<PinholeCamera>(
 		getSensorSize(ctx),
@@ -107,10 +107,10 @@ void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCo
 {
 	PH_ASSERT_GT(m_lensRadiusMM, 0);
 
-	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(makeRasterToSensor(ctx)));
-	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
-		math::StaticRigidTransform::makeForward(makeObserverPose()));
+	auto rasterToSensor = std::make_unique<StaticAffineTransform>(
+		StaticAffineTransform::makeForward(makeRasterToSensor(ctx)));
+	auto receiverToWorld = std::make_unique<StaticRigidTransform>(
+		StaticRigidTransform::makeForward(makeObserverPose()));
 
 	auto camera = std::make_unique<ThinLensCamera>(
 		getLensRadius(),
