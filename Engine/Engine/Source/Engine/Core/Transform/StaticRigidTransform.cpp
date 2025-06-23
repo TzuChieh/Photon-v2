@@ -44,26 +44,14 @@ void StaticRigidTransform::transformPoint(
 }
 
 void StaticRigidTransform::transformLineSegment(
-	const math::Vector3R& lineStartPos,
-	const math::Vector3R& lineDir,
-	const real            lineMinT,
-	const real            lineMaxT,
-	const Time&           time,
-	math::Vector3R*       out_lineStartPos,
-	math::Vector3R*       out_lineDir,
-	real* const           out_lineMinT,
-	real* const           out_lineMaxT) const
+	const math::TLineSegment<real>& segment,
+	const Time&                     time,
+	math::TLineSegment<real>* const out_segment) const
 {
 	m_staticTransform.transformLineSegment(
-		lineStartPos, 
-		lineDir, 
-		lineMinT, 
-		lineMaxT, 
+		segment,
 		time, 
-		out_lineStartPos, 
-		out_lineDir, 
-		out_lineMinT, 
-		out_lineMaxT);
+		out_segment);
 }
 
 }// end namespace ph

@@ -49,18 +49,12 @@ void Transform::transformP(const math::Vector3R& point, math::Vector3R* const ou
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
 {
-	math::Vector3R rayOrigin, rayDir;
-	real rayMinT, rayMaxT;
-	transformLineSegment(ray.getOrigin(), ray.getDir(),
-	                     ray.getMinT(), ray.getMaxT(), 
+	math::TLineSegment<real> transformedSegment;
+	transformLineSegment(ray.getSegment(),
 	                     ray.getTime(),
-	                     &rayOrigin, &rayDir,
-	                     &rayMinT, &rayMaxT);
+	                     &transformedSegment);
 
-	out_ray->setOrigin(rayOrigin);
-	out_ray->setDir(rayDir);
-	out_ray->setMinT(rayMinT);
-	out_ray->setMaxT(rayMaxT);
+	out_ray->setSegment(transformedSegment);
 }
 
 void Transform::transform(const HitInfo& info, const Time& time,

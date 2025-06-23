@@ -52,7 +52,7 @@ public:
 
 	StaticAffineTransform(const math::Matrix4R& transform, const math::Matrix4R& inverseTransform);
 
-	virtual std::unique_ptr<Transform> genInversed() const override;
+	std::unique_ptr<Transform> genInversed() const override;
 
 	const math::Matrix4R& getTransformMatrix() const;
 	const math::Matrix4R& getInversedTransformMatrix() const;
@@ -74,15 +74,9 @@ private:
 		math::Vector3R*       out_point) const override;
 
 	void transformLineSegment(
-		const math::Vector3R& lineStartPos,
-		const math::Vector3R& lineDir,
-		real                  lineMinT,
-		real                  lineMaxT,
-		const Time&           time,
-		math::Vector3R*       out_lineStartPos,
-		math::Vector3R*       out_lineDir,
-		real*                 out_lineMinT,
-		real*                 out_lineMaxT) const override;
+		const math::TLineSegment<real>& segment,
+		const Time&                     time,
+		math::TLineSegment<real>*       out_segment) const override;
 
 private:
 	math::Matrix4R m_transformMatrix;

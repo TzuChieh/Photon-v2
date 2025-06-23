@@ -54,15 +54,9 @@ private:
 		math::Vector3R*       out_point) const override;
 
 	void transformLineSegment(
-		const math::Vector3R& lineStartPos,
-		const math::Vector3R& lineDir,
-		real                  lineMinT,
-		real                  lineMaxT,
-		const Time&           time,
-		math::Vector3R*       out_lineStartPos,
-		math::Vector3R*       out_lineDir,
-		real*                 out_lineMinT,
-		real*                 out_lineMaxT) const override;
+		const math::TLineSegment<real>& segment,
+		const Time&                     time,
+		math::TLineSegment<real>*       out_segment) const override;
 
 private:
 	StaticAffineTransform m_staticTransform;

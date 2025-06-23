@@ -46,20 +46,15 @@ void DynamicLinearTranslation::transformPoint(
 }
 
 void DynamicLinearTranslation::transformLineSegment(
-	const math::Vector3R& lineStartPos,
-	const math::Vector3R& lineDir,
-	const real            lineMinT, 
-	const real            lineMaxT,
-	const Time&           time,
-	math::Vector3R* const out_lineStartPos,
-	math::Vector3R* const out_lineDir,
-	real* const           out_lineMinT, 
-	real* const           out_lineMaxT) const
+	const math::TLineSegment<real>& segment,
+	const Time&                     time,
+	math::TLineSegment<real>* const out_segment) const
 {
-	DynamicLinearTranslation::transformPoint(lineStartPos, time, out_lineStartPos);
-	*out_lineDir  = lineDir;
-	*out_lineMinT = lineMinT;
-	*out_lineMaxT = lineMaxT;
+	math::Vector3R transformedOrigin;
+	DynamicLinearTranslation::transformPoint(segment.getOrigin(), time, &transformedOrigin);
+
+	*out_segment = segment;
+	out_segment->setOrigin(transformedOrigin);
 }
 
 }// end namespace ph

@@ -57,20 +57,19 @@ void StaticAffineTransform::transformPoint(
 }
 
 void StaticAffineTransform::transformLineSegment(
-	const math::Vector3R& lineStartPos,
-	const math::Vector3R& lineDir,
-	const real            lineMinT, 
-	const real            lineMaxT, 
-	const Time&           time,
-	math::Vector3R* const out_lineStartPos,
-	math::Vector3R* const out_lineDir,
-	real* const           out_lineMinT, 
-	real* const           out_lineMaxT) const
+	const math::TLineSegment<real>& segment,
+	const Time&                     time,
+	math::TLineSegment<real>* const out_segment) const
 {
-	StaticAffineTransform::transformPoint (lineStartPos, time, out_lineStartPos);
-	StaticAffineTransform::transformVector(lineDir,      time, out_lineDir);
-	*out_lineMinT = lineMinT;
-	*out_lineMaxT = lineMaxT;
+	math::Vector3R transformedOrigin;
+	StaticAffineTransform::transformPoint(segment.getOrigin(), time, &transformedOrigin);
+
+	math::Vector3R transformedDir;
+	StaticAffineTransform::transformVector(segment.getDir(), time, &transformedDir);
+
+	out_segment->setOrigin(transformedOrigin);
+	out_segment->setDir(transformedDir);
+	out_segment->setRange(segment.getMinT(), segment.getMaxT());
 }
 
 }// end namespace ph
