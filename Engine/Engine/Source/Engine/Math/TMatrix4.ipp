@@ -102,7 +102,10 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 }
 
 template<typename T>
-inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ)
+inline TMatrix4<T>& TMatrix4<T>::initRotation(
+	const TVector3<T>& orthBasisX, 
+	const TVector3<T>& orthBasisY, 
+	const TVector3<T>& orthBasisZ)
 {
 	m[0][0] = orthBasisX.x(); m[0][1] = orthBasisY.x(); m[0][2] = orthBasisZ.x(); m[0][3] = 0;
 	m[1][0] = orthBasisX.y(); m[1][1] = orthBasisY.y(); m[1][2] = orthBasisZ.y(); m[1][3] = 0;
@@ -110,6 +113,12 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, con
 	m[3][0] = 0;              m[3][1] = 0;              m[3][2] = 0;              m[3][3] = 1;
 
 	return *this;
+}
+
+template<typename T>
+inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& normalizedAxis, T radians)
+{
+	return initRotation(TQuaternion<T>(normalizedAxis, radians));
 }
 
 template<typename T>

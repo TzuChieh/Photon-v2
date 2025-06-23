@@ -4,6 +4,7 @@
 #include "Engine/Core/Texture/texture_fwd.h"
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Core/Texture/TSampler.h"
+#include "Engine/Core/SurfaceBehavior/Property/enums.h"
 
 #include <memory>
 
@@ -41,11 +42,15 @@ public:
 	std::string toString() const override;
 
 private:
+	/*!
+	@return Mapped normal vector in world space.
+	*/
 	math::Vector3R samplePerturbedNormal(const SurfaceHit& X) const;
 
 	const SurfaceOptics*                      m_target;
 	std::shared_ptr<TTexture<math::Vector3R>> m_normalMap;
 	TSampler<math::Vector3R>                  m_sampler;
+	ENormalMapFormat                          m_format;
 };
 
 // In-header Implementations:

@@ -40,7 +40,10 @@ public:
 	template<typename U>
 	explicit TQuaternion(const std::array<U, 4>& xyzwValues);
 
+	/*! @brief Initialize a quaternion with a rotation defined by an axis and an angle in radians.
+	*/
 	TQuaternion(const TVector3<T>& normalizedAxis, T radians);
+
 	explicit TQuaternion(const TMatrix4<T>& rotationMatrix);
 
 	T& x();

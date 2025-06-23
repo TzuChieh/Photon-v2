@@ -80,6 +80,7 @@ public:
 	bool reintersect(const Ray& ray, HitProbe& probe) const;
 
 	const HitDetail& getDetail() const;
+	const HitProbe& getProbe() const;
 	SurfaceHitReason getReason() const;
 
 	/*!
@@ -152,6 +153,11 @@ inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
 inline const HitDetail& SurfaceHit::getDetail() const
 {
 	return m_detail;
+}
+
+inline const HitProbe& SurfaceHit::getProbe() const
+{
+	return m_recordedProbe;
 }
 
 inline SurfaceHitReason SurfaceHit::getReason() const

@@ -37,7 +37,7 @@ void PLatLong01Sphere::calcHitDetail(
 
 	const math::Vector2R hitUv = posToUV(hitPosition);
 
-	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
+	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		hitNormal,
 		hitNormal);
@@ -54,10 +54,10 @@ void PLatLong01Sphere::calcHitDetail(
 	const math::Vector3R& dNdU = dPdU.mul(getRadius());
 	const math::Vector3R& dNdV = dPdV.mul(getRadius());
 
-	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
+	out_detail->hitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
 
-	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 	out_detail->setHitIntrinsics(
 		this, 
 		math::Vector3R(hitUv.x(), hitUv.y(), 0), 

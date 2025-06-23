@@ -88,7 +88,7 @@ void PTriangle::calcHitDetail(
 	// TODO: respect primitive channel
 	// (if it's default channel, use vertex uvw; otherwise, use mapper)
 
-	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
+	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		m_faceNormal, 
 		hitShadingNormal);
@@ -114,10 +114,10 @@ void PTriangle::calcHitDetail(
 		}
 	}
 	
-	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
+	out_detail->hitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
 
-	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 	out_detail->setHitIntrinsics(
 		this, 
 		hitUVW, 

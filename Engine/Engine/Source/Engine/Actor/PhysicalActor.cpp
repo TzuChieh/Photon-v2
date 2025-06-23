@@ -15,7 +15,7 @@ void PhysicalActor::translate(const math::Vector3R& amount)
 
 void PhysicalActor::rotate(const math::Vector3R& axis, const real additionalDegrees)
 {
-	m_localToWorld.rotate(axis, additionalDegrees);
+	m_localToWorld.rotate(axis, math::to_radians(additionalDegrees));
 }
 
 void PhysicalActor::rotate(const math::QuaternionR& additionalRotation)

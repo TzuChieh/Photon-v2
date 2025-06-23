@@ -97,13 +97,13 @@ inline math::Vector3R HitInfo::getdNdV() const
 
 inline const math::Basis3R& HitInfo::getGeometryBasis() const
 {
-	PH_ASSERT(m_isBasesComputed);
+	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` before accessing geometry basis.");
 	return m_geometryBasis;
 }
 
 inline const math::Basis3R& HitInfo::getShadingBasis() const
 {
-	PH_ASSERT(m_isBasesComputed);
+	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` before accessing shading basis.");
 	return m_shadingBasis;
 }
 

@@ -92,7 +92,7 @@ public:
 	const Primitive* getPrimitive() const;
 
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
-	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
+	HitInfo& hitInfo(ECoordSys coordSys = ECoordSys::World);
 	std::pair<real, real> getDistanceErrorFactors() const;
 	void updatePrimitive(const Primitive* primitive);
 	void updateDistanceErrorFactors(real meanFactor, real maxFactor);
@@ -193,7 +193,7 @@ inline const HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys) const
 	return m_hitInfos[enum_to_value(coordSys)];
 }
 
-inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
+inline HitInfo& HitDetail::hitInfo(const ECoordSys coordSys)
 {
 	PH_ASSERT_IN_RANGE(enum_to_value(coordSys), 0, enum_size<ECoordSys>());
 	return m_hitInfos[enum_to_value(coordSys)];

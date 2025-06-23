@@ -14,51 +14,67 @@ std::unique_ptr<Transform> Transform::genInversed() const
 	return nullptr;
 }
 
-void Transform::transformV(const math::Vector3R& vector, const Time& time,
-                           math::Vector3R* const out_vector) const
+void Transform::transformV(
+	const math::Vector3R& vector,
+	const Time&           time,
+	math::Vector3R* const out_vector) const
 {
 	transformVector(vector, time, out_vector);
 }
 
-void Transform::transformO(const math::Vector3R& orientation, const Time& time,
-                           math::Vector3R* const out_orientation) const
+void Transform::transformO(
+	const math::Vector3R& orientation,
+	const Time&           time,
+	math::Vector3R* const out_orientation) const
 {
 	transformOrientation(orientation, time, out_orientation);
 }
 
-void Transform::transformP(const math::Vector3R& point, const Time& time,
-                           math::Vector3R* const out_point) const
+void Transform::transformP(
+	const math::Vector3R& point,
+	const Time&           time,
+	math::Vector3R* const out_point) const
 {
 	transformPoint(point, time, out_point);
 }
 
-void Transform::transformV(const math::Vector3R& vector, math::Vector3R* const out_vector) const
+void Transform::transformV(
+	const math::Vector3R& vector,
+	math::Vector3R* const out_vector) const
 {
 	transformVector(vector, Time(), out_vector);
 }
 
-void Transform::transformO(const math::Vector3R& orientation, math::Vector3R* const out_orientation) const
+void Transform::transformO(
+	const math::Vector3R& orientation,
+	math::Vector3R* const out_orientation) const
 {
 	transformOrientation(orientation, Time(), out_orientation);
 }
 
-void Transform::transformP(const math::Vector3R& point, math::Vector3R* const out_point) const
+void Transform::transformP(
+	const math::Vector3R& point,
+	math::Vector3R* const out_point) const
 {
 	transformPoint(point, Time(), out_point);
 }
 
-void Transform::transform(const Ray& ray, Ray* const out_ray) const
+void Transform::transform(
+	const Ray& ray,
+	Ray* const out_ray) const
 {
-	math::TLineSegment<real> transformedSegment;
+	math::TLineSegment<real> tSegment;
 	transformLineSegment(ray.getSegment(),
 	                     ray.getTime(),
-	                     &transformedSegment);
+	                     &tSegment);
 
-	out_ray->setSegment(transformedSegment);
+	out_ray->setSegment(tSegment);
 }
 
-void Transform::transform(const HitInfo& info, const Time& time,
-                          HitInfo* const out_info) const
+void Transform::transform(
+	const HitInfo& info,
+	const Time&    time,
+	HitInfo* const out_info) const
 {
 	math::Vector3R tPosition;
 	math::Vector3R tGeometryNormal;
@@ -83,8 +99,10 @@ void Transform::transform(const HitInfo& info, const Time& time,
 	out_info->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
 }
 
-void Transform::transform(const math::AABB3D& aabb, const Time& time,
-                          math::AABB3D* const out_aabb) const
+void Transform::transform(
+	const math::AABB3D& aabb,
+	const Time&         time,
+	math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
 
@@ -108,13 +126,16 @@ void Transform::transform(const math::AABB3D& aabb, const Time& time,
 	}
 }
 
-void Transform::transform(const HitInfo& info,
-                          HitInfo* const out_info) const
+void Transform::transform(
+	const HitInfo& info,
+	HitInfo* const out_info) const
 {
 	transform(info, Time(), out_info);
 }
 
-void Transform::transform(const math::AABB3D& aabb, math::AABB3D* const out_aabb) const
+void Transform::transform(
+	const math::AABB3D& aabb,
+	math::AABB3D* const out_aabb) const
 {
 	transform(aabb, Time(), out_aabb);
 }

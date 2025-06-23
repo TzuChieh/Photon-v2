@@ -61,14 +61,14 @@ void StaticAffineTransform::transformLineSegment(
 	const Time&                     time,
 	math::TLineSegment<real>* const out_segment) const
 {
-	math::Vector3R transformedOrigin;
-	StaticAffineTransform::transformPoint(segment.getOrigin(), time, &transformedOrigin);
+	math::Vector3R tOrigin;
+	StaticAffineTransform::transformPoint(segment.getOrigin(), time, &tOrigin);
 
-	math::Vector3R transformedDir;
-	StaticAffineTransform::transformVector(segment.getDir(), time, &transformedDir);
+	math::Vector3R tDir;
+	StaticAffineTransform::transformVector(segment.getDir(), time, &tDir);
 
-	out_segment->setOrigin(transformedOrigin);
-	out_segment->setDir(transformedDir);
+	out_segment->setOrigin(tOrigin);
+	out_segment->setDir(tDir);
 	out_segment->setRange(segment.getMinT(), segment.getMaxT());
 }
 

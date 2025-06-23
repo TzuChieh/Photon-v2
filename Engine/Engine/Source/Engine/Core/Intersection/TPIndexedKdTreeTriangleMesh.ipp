@@ -182,13 +182,13 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 		probe.getHitRayT(),
 		lossless_cast<uint64>(closestHit.faceIdx),
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
-	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
+	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		position,
 		faceNormal,
 		shadingNormal);
-	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
+	out_detail->hitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
-	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 
 	constexpr auto meanFactor = 5e-8_r;
 	out_detail->updateDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);

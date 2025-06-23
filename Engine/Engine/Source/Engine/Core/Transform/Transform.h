@@ -7,10 +7,12 @@
 
 namespace ph
 {
-	class Time;
-	class Ray;
-	class HitInfo;
-}
+
+class Time;
+class Ray;
+class HitInfo;
+
+}// end namespace ph
 
 namespace ph
 {
@@ -77,7 +79,6 @@ public:
 
 	this operation will always yield a correctly transformed result while saving an expensive `sqrt()` call.
 	*/
-	///@{
 	void transform(
 		const Ray& ray, 
 		Ray*       out_ray) const;
@@ -99,7 +100,6 @@ public:
 		const math::AABB3D& aabb, 
 		const Time&         time,
 		math::AABB3D*       out_aabb) const;
-	///@}
 
 private:
 	/*! @brief Treating a `Vector3R` as either a vector, orientation, or point and calculate the transformed result.

@@ -60,10 +60,10 @@ public:
 		return *this;
 	}
 
-	inline TDecomposedTransform& rotate(const TVector3<T>& axis, const T degrees)
+	inline TDecomposedTransform& rotate(const TVector3<T>& axis, const T radians)
 	{
 		const TVector3<T> normalizedAxis(axis.normalize());
-		rotate(TQuaternion<T>(normalizedAxis, math::to_radians(degrees)));
+		rotate(TQuaternion<T>(normalizedAxis, radians));
 
 		return *this;
 	}

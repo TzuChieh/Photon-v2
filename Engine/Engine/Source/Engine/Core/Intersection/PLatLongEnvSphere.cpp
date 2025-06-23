@@ -94,11 +94,11 @@ void PLatLongEnvSphere::calcHitDetail(
 	math::Vector3R hitNormal;
 	m_localToWorld->transformO(localHitNormal, &hitNormal);
 
-	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
+	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		hitNormal,
 		hitNormal);
-	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 
 	out_detail->setHitIntrinsics(
 		this, 

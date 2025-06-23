@@ -35,8 +35,24 @@ public:
 	TMatrix4& initIdentity();
 	TMatrix4& initTranslation(T x, T y, T z);
 	TMatrix4& initTranslation(const TVector3<T>& value);
+
+	/*! @brief Initialize the matrix with a rotation defined by a quaternion.
+	*/
 	TMatrix4& initRotation(const TQuaternion<T>& rot);
-	TMatrix4& initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ);
+
+	/*! @brief Initialize the matrix with a rotation defined by an orthonormal basis.
+	Multiplying this matrix with a vector will rotate the vector from the local coordinate system defined
+	by the basis to the world coordinate system.
+	*/
+	TMatrix4& initRotation(
+		const TVector3<T>& orthBasisX,
+		const TVector3<T>& orthBasisY,
+		const TVector3<T>& orthBasisZ);
+
+	/*! @brief Initialize the matrix with a rotation defined by an axis and an angle in radians.
+	*/
+	TMatrix4& initRotation(const TVector3<T>& normalizedAxis, T radians);
+	
 	TMatrix4& initScale(T x, T y, T z);
 	TMatrix4& initScale(const TVector3<T>& scale);
 	TMatrix4& initPerspectiveProjection(T fov,

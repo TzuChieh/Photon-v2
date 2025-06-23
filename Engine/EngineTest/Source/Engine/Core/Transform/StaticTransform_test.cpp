@@ -96,7 +96,7 @@ TEST(StaticAffineTransformTest, GeneratesInversed)
 	const Vector3R v1(1.0_r, 2.0_r, -3.0_r);
 	TDecomposedTransform<real> decom1;
 	decom1.translate(1, 2, 3);
-	decom1.rotate(Vector3R(-0.5_r, 0.1_r, 3.3_r), 50);
+	decom1.rotate(Vector3R(-0.5_r, 0.1_r, 3.3_r), math::to_radians(50));
 	decom1.scale(-2, 1, 0.1_r);
 	const Transform& t1 = StaticAffineTransform::makeForward(decom1);
 

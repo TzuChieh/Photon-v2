@@ -50,11 +50,11 @@ void DynamicLinearTranslation::transformLineSegment(
 	const Time&                     time,
 	math::TLineSegment<real>* const out_segment) const
 {
-	math::Vector3R transformedOrigin;
-	DynamicLinearTranslation::transformPoint(segment.getOrigin(), time, &transformedOrigin);
+	math::Vector3R tOrigin;
+	DynamicLinearTranslation::transformPoint(segment.getOrigin(), time, &tOrigin);
 
 	*out_segment = segment;
-	out_segment->setOrigin(transformedOrigin);
+	out_segment->setOrigin(tOrigin);
 }
 
 }// end namespace ph

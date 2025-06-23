@@ -44,7 +44,7 @@ void TransformedPrimitive::calcHitDetail(
 
 	*out_detail = localDetail;
 	m_localToWorld->transform(
-		localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
+		localDetail.getHitInfo(ECoordSys::World), &(out_detail->hitInfo(ECoordSys::World)));
 
 	const auto [meanFactor, maxFactor] = out_detail->getDistanceErrorFactors();
 	out_detail->updateDistanceErrorFactors(meanFactor, maxFactor * 1.25_r);

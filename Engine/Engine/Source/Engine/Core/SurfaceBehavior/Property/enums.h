@@ -31,4 +31,17 @@ enum class EMaskingShadowing
 	HeightDirectionCorrelated
 };
 
+enum class ENormalMapFormat
+{
+	/*! The conventional OpenGL format, where RGB stores +x, +y, +z of the normal vector. The vector
+	is scaled and biased to fit into the range [0, 1].
+	*/
+	PX_PY_PZ,
+
+	/*! The conventional DirectX format, where RGB stores +x, -y, +z of the normal vector. The vector
+	is scaled and biased to fit into the range [0, 1].
+	*/
+	//PX_NY_PZ
+};
+
 }// end namespace ph
