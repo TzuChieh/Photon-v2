@@ -46,7 +46,7 @@ void IdealDielectricTransmitter::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void IdealDielectricTransmitter::genBsdfSampleCore(
@@ -60,7 +60,7 @@ void IdealDielectricTransmitter::genBsdfSampleCore(
 	const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), N);
 	if(!optRefractDir)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

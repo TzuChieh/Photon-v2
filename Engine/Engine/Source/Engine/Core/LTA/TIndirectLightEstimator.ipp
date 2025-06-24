@@ -78,7 +78,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 		{
 			SurfaceHit nextHit;
 			if(!surfaceTracer.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextHit) ||
-			   !bsdfSample.outputs.isMeasurable())
+			   !bsdfSample.outputs.isContributable())
 			{
 				return false;
 			}
@@ -147,7 +147,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 			math::Spectrum Lo;
 			std::optional<SurfaceHit> nextHit;
 			if(!directLight.bsdfSampleSurfacePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) ||
-			   !bsdfSample.outputs.isMeasurable() ||
+			   !bsdfSample.outputs.isContributable() ||
 			   !nextHit)
 			{
 				break;
@@ -161,7 +161,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 		{
 			SurfaceHit nextHit;
 			if(!surfaceTracer.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextHit) ||
-			   !bsdfSample.outputs.isMeasurable())
+			   !bsdfSample.outputs.isContributable())
 			{
 				break;
 			}

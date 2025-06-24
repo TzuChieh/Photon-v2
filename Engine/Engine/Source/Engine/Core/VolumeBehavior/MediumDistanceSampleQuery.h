@@ -37,7 +37,7 @@ public:
 		const math::Spectrum& pdfAppliedWeight,
 		bool inferContributability = true);
 
-	void setContributability(bool isContributable);
+	void setContributability(bool contributability);
 
 	void setContributability(const math::Spectrum& reference);
 
@@ -122,9 +122,9 @@ inline void MediumDistanceSampleOutput::setPdfAppliedWeight(
 	}
 }
 
-inline void MediumDistanceSampleOutput::setContributability(bool isContributable)
+inline void MediumDistanceSampleOutput::setContributability(bool contributability)
 {
-	m_isContributable = isContributable;
+	m_isContributable = contributability;
 }
 
 inline void MediumDistanceSampleOutput::setContributability(const math::Spectrum& reference)

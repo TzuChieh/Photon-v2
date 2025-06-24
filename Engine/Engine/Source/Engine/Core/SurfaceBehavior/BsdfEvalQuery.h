@@ -41,18 +41,18 @@ private:
 };
 
 /*! @brief Output for `BsdfEvalQuery`.
-@note It is an error to get output data if `isMeasurable()` returns `false`.
+@note It is an error to get output data if `isContributable()` returns `false`.
 */
 class BsdfEvalOutput
 {
 public:
 	/*!
 	@param bsdf The evaluated BSDF.
-	@param inferMeasurability Whether to determine measurability from the supplied data.
+	@param inferContributability Whether to determine contributability from the supplied data.
 	*/
 	void setBsdf(
 		const math::Spectrum& bsdf, 
-		bool inferMeasurability = true);
+		bool inferContributability = true);
 
 	/*!
 	@return Get the evaluated BSDF. Guaranteed to be finite.
@@ -63,25 +63,25 @@ public:
 	All evaluated data should be usable if true is returned; otherwise, zero contribution is implied,
 	and evaluated data is undefined. This method is also an efficient way to decide whether the BSDF
 	has sane value (compared to manually testing its value).
-	@note Measurability has nothing to do with whether the sampled value is 0 or not.
+	@note Contributability has nothing to do with whether the sampled value is 0 or not.
 	*/
-	bool isMeasurable() const;
+	bool isContributable() const;
 
-	/*! @brief Set measurability directly.
+	/*! @brief Set contributability directly.
 	*/
-	void setMeasurability(bool measurability);
+	void setContributability(bool contributability);
 
-	/*! @brief Set measurability based on a reference spectrum.
+	/*! @brief Set contributability based on a reference spectrum.
 	*/
-	void setMeasurability(const math::Spectrum& reference);
+	void setContributability(const math::Spectrum& reference);
 
-	/*! @brief Convenient method for `isMeasurable()`.
+	/*! @brief Convenient method for `isContributable()`.
 	*/
 	operator bool () const;
 
 private:
 	math::Spectrum m_bsdf{0};
-	bool m_isMeasurable{false};
+	bool m_isContributable{false};
 };
 
 /*! @brief Information for obtaining a sample value from BSDF.
@@ -153,43 +153,43 @@ inline const math::Vector3R& BsdfEvalInput::getV() const
 
 inline void BsdfEvalOutput::setBsdf(
 	const math::Spectrum& bsdf,
-	const bool inferMeasurabilityFromThis)
+	const bool inferContributabilityFromThis)
 {
 	m_bsdf = bsdf;
 
-	if(inferMeasurabilityFromThis)
+	if(inferContributabilityFromThis)
 	{
-		setMeasurability(bsdf);
+		setContributability(bsdf);
 	}
 }
 
 inline const math::Spectrum& BsdfEvalOutput::getBsdf() const
 {
-	// When an evaluation report being measurable, it must not be some crazy values
-	PH_ASSERT(m_isMeasurable);
+	// When an evaluation report being contributable, it must not be some crazy values
+	PH_ASSERT(m_isContributable);
 	PH_ASSERT_MSG(m_bsdf.isFinite(), m_bsdf.toString());
 
 	return m_bsdf;
 }
 
-inline bool BsdfEvalOutput::isMeasurable() const
+inline bool BsdfEvalOutput::isContributable() const
 {
-	return m_isMeasurable;
+	return m_isContributable;
 }
 
-inline void BsdfEvalOutput::setMeasurability(const bool measurability)
+inline void BsdfEvalOutput::setContributability(const bool contributability)
 {
-	m_isMeasurable = measurability;
+	m_isContributable = contributability;
 }
 
-inline void BsdfEvalOutput::setMeasurability(const math::Spectrum& reference)
+inline void BsdfEvalOutput::setContributability(const math::Spectrum& reference)
 {
-	setMeasurability(reference.isFinite());
+	setContributability(reference.isFinite());
 }
 
 inline BsdfEvalOutput::operator bool () const
 {
-	return isMeasurable();
+	return isContributable();
 }
 
 }// end namespace ph

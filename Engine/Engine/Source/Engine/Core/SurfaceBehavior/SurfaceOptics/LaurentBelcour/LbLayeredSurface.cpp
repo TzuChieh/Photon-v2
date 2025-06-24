@@ -77,7 +77,7 @@ void LbLayeredSurface::calcBsdfCore(
 {
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -87,14 +87,14 @@ void LbLayeredSurface::calcBsdfCore(
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
 	if(brdfDeno == 0.0_r)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 	
@@ -175,7 +175,7 @@ void LbLayeredSurface::genBsdfSampleCore(
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -203,7 +203,7 @@ void LbLayeredSurface::genBsdfSampleCore(
 
 	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
-		evalOutput.isMeasurable() ? evalOutput.getBsdf() : math::Spectrum(0);
+		evalOutput.isContributable() ? evalOutput.getBsdf() : math::Spectrum(0);
 
 	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 	out.setL(L);

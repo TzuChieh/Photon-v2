@@ -116,46 +116,72 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	const auto Np = samplePerturbedNormal(in.getX());
 
 	// Just use the original BSDF if perturbation is too small
-	if(N.dot(Np) > std::cos(math::to_radians(89.99_r)))
+	// (to avoid numerical error later during transform)
+	if(N.dot(Np) > std::cos(math::to_radians(0.01_r)))
 	{
 		m_target->genBsdfSampleCore(ctx, in, sampleFlow, out);
 		return;
 	}
 
+	out.setContributability(false);
+
 	const auto V = in.getV();
 	const auto Nt = tangentFacetNormal(N, Np);
 	const auto [perturbedToWorld, worldToPerturbed] = perturbedToWorldTransformPair(N, Np);
 
+	const SurfaceHit perturbedX = toPerturbedHit(in.getX(), worldToPerturbed);
+
 	// Sample the perturbed facet
-	math::Spectrum bsdfCos(1);
+	math::Spectrum weight(1);
 	if(sampleFlow.unflowedPick(lambdaP(N, Np, Nt, V)))
 	{
-		SurfaceHit perturbedX = toPerturbedHit(in.getX(), worldToPerturbed);
-
 		BsdfSampleInput perturbedIn{};
-		perturbedIn.set(perturbedX, perturbedX.getIncidentRay().getDir().normalize() * -1);
+		perturbedIn.set(perturbedX, (-perturbedX.getIncidentRay().getDir()).normalize());
 
 		BsdfSampleOutput perturbedOut{};
 		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
 		if(perturbedOut)
 		{
-			math::Vector3R L;
-			perturbedToWorld.transformV(perturbedOut.getL(), &L);
+			weight *= perturbedOut.getPdfAppliedBsdfCos();
 
-			// TODO
-		}
-		else
-		{
-			bsdfCos *= 0;
+			// Is `Lp` shadowed?
+			math::Vector3R Lp;
+			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
+			if(!sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
+			{
+				// Reflect on the tangent facet
+				const auto Lt = Lp.reflect(Nt);
+
+				weight *= G1(N, Np, Nt, Lt);
+				
+				out.setL(Lt);
+				out.setPdfAppliedBsdfCos(weight, N.dot(Lt));
+			}
 		}
 	}
 	// Sample the tangent facet
 	else
 	{
-		// TODO
-	}
+		const auto Lt = (-V).reflect(Nt);
 
-	// TODO
+		BsdfSampleInput perturbedIn{};
+		perturbedIn.set(perturbedX, -Lt);
+
+		BsdfSampleOutput perturbedOut{};
+		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
+		if(perturbedOut)
+		{
+			weight *= perturbedOut.getPdfAppliedBsdfCos();
+
+			math::Vector3R Lp;
+			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
+
+			weight *= G1(N, Np, Nt, Lp);
+
+			out.setL(Lp);
+			out.setPdfAppliedBsdfCos(weight, N.dot(Lp));
+		}
+	}
 }
 
 void MicrofacetNormalMapper::calcBsdfPdfCore(

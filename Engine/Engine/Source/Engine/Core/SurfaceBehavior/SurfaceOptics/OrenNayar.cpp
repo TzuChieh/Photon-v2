@@ -68,7 +68,7 @@ void OrenNayar::calcBsdfCore(
 
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -132,7 +132,7 @@ void OrenNayar::genBsdfSampleCore(
 		sampleFlow.flow2D(), &pdfW);
 	if(pdfW == 0.0_r)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -150,7 +150,7 @@ void OrenNayar::genBsdfSampleCore(
 
 	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
-		eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
+		eval.outputs.isContributable() ? eval.outputs.getBsdf() : math::Spectrum(0);
 
 	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 	out.setL(L);

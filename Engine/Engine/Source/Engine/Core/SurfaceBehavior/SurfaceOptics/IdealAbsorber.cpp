@@ -26,7 +26,7 @@ void IdealAbsorber::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void IdealAbsorber::genBsdfSampleCore(
@@ -35,7 +35,7 @@ void IdealAbsorber::genBsdfSampleCore(
 	SampleFlow&             /* sampleFlow */,
 	BsdfSampleOutput&       out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void IdealAbsorber::calcBsdfPdfCore(

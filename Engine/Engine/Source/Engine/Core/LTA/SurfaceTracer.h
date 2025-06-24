@@ -213,7 +213,7 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow&
 
 	optics.genBsdfSample(bsdfSample, sampleFlow);
 
-	return bsdfSample.outputs.isMeasurable();
+	return bsdfSample.outputs.isContributable();
 }
 
 inline bool SurfaceTracer::doBsdfSample(
@@ -244,7 +244,7 @@ inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 
 	optics.calcBsdf(bsdfEval);
 
-	return bsdfEval.outputs.isMeasurable();
+	return bsdfEval.outputs.isContributable();
 }
 
 inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const

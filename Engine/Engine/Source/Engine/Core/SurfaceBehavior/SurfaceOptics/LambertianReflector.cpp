@@ -43,7 +43,7 @@ void LambertianReflector::calcBsdfCore(
 {
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

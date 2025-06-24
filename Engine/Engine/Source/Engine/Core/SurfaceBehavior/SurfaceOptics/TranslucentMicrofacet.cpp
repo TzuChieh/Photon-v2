@@ -72,7 +72,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 	const real NoLmulNoV = NoL * NoV;
 	if(NoLmulNoV == 0.0_r)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -83,7 +83,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -113,7 +113,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
 		if(H.isZero())
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 		H.normalizeLocal();
@@ -137,7 +137,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
 		if(!std::isfinite(iorTerm))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -148,7 +148,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 	}
 	else
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 	}
 }
 
@@ -163,7 +163,7 @@ void TranslucentMicrofacet::genBsdfSampleCore(
 
 	if(!canReflect && !canTransmit)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -205,7 +205,7 @@ void TranslucentMicrofacet::genBsdfSampleCore(
 		L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -221,7 +221,7 @@ void TranslucentMicrofacet::genBsdfSampleCore(
 		const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), H);
 		if(!optRefractDir || !ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), *optRefractDir))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -253,7 +253,7 @@ void TranslucentMicrofacet::genBsdfSampleCore(
 	else
 	{
 		// RARE: may be called due to numerical error
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

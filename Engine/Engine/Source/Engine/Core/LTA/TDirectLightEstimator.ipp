@@ -44,7 +44,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfaceEmission(
 {
 	SurfaceHit nextX;
 	const bool foundNextX = SurfaceTracer{m_scene}.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextX);
-	if(!bsdfSample.outputs.isMeasurable())
+	if(!bsdfSample.outputs.isContributable())
 	{
 		return false;
 	}
@@ -121,7 +121,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 		math::Spectrum bsdfLe;
 		std::optional<SurfaceHit> nextX;
 		if(bsdfSampleSurfaceEmission(bsdfSample, sampleFlow, &bsdfLe, &nextX) &&
-		   bsdfSample.outputs.isMeasurable() &&
+		   bsdfSample.outputs.isContributable() &&
 		   nextX)
 		{
 			const SurfaceOptics& optics = X.getSurfaceOptics();
@@ -186,7 +186,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 			BsdfEvalQuery bsdfEval{bsdfSample.context};
 			bsdfEval.inputs.set(X, directSample.getTargetToEmit().normalize(), V);
 			optics.calcBsdf(bsdfEval);
-			if(bsdfEval.outputs.isMeasurable())
+			if(bsdfEval.outputs.isContributable())
 			{
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfEval.inputs);

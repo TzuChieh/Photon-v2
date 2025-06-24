@@ -85,7 +85,7 @@ void ThinDielectricShell::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void ThinDielectricShell::genBsdfSampleCore(
@@ -173,7 +173,7 @@ void ThinDielectricShell::genBsdfSampleCore(
 		L = in.getV().mul(-1.0_r).reflect(N).normalizeLocal();
 		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -185,7 +185,7 @@ void ThinDielectricShell::genBsdfSampleCore(
 		L = -in.getV();
 		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -193,7 +193,7 @@ void ThinDielectricShell::genBsdfSampleCore(
 	}
 	else
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

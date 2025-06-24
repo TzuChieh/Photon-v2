@@ -50,8 +50,16 @@ public:
 
 	TVector3& maddLocal(T multiplier, const TVector3& adder);
 	
+	/*! @brief Calculate the reflected vector.
+	For example, if the surface normal is @f$ N @f$ and this vector is @f$ -N @f$, the reflected vector
+	will be @f$ N @f$.
+	@param normal Normal of the surface to reflect this vector.
+	@return Reflected vector.
+	*/
+	///@{
 	TVector3 reflect(const TVector3& normal) const;
 	TVector3& reflectLocal(const TVector3& normal);
+	///@}
 
 	/*!
 	@param out_result The sorted values, (x, y, z) = (min, mid, max).

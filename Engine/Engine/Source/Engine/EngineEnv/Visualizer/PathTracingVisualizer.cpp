@@ -74,11 +74,11 @@ PTEstimatorParams PathTracingVisualizer::makePTEstimatorParams() const
 
 	if(getEstimator() == ERayEnergyEstimator::BVVPT)
 	{
-		params.includeVolumetricEffects = false;
+		params.includeVolumetricEffects = true;
 	}
 	else
 	{
-		params.includeVolumetricEffects = true;
+		params.includeVolumetricEffects = false;
 	}
 
 	return params;

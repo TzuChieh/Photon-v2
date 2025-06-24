@@ -124,7 +124,7 @@ void BNEEPTEstimator::estimate(
 				BsdfEvalQuery bsdfEval(bsdfContext);
 				bsdfEval.inputs.set(X, L, V);
 				surfaceOptics.calcBsdf(bsdfEval);
-				if(bsdfEval.outputs.isMeasurable())
+				if(bsdfEval.outputs.isContributable())
 				{
 					// MIS: NEE + BSDF sample
 
@@ -163,7 +163,7 @@ void BNEEPTEstimator::estimate(
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			bsdfSample.inputs.set(X, V);
 			surfaceOptics.genBsdfSample(bsdfSample, sampleFlow);
-			if(!bsdfSample.outputs.isMeasurable())
+			if(!bsdfSample.outputs.isContributable())
 			{
 				break;
 			}

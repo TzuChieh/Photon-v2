@@ -19,7 +19,7 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 	if(!eval.context.sidedness.isSidednessAgreed(eval.inputs.getX(), eval.inputs.getL()) ||
 	   !eval.context.sidedness.isSidednessAgreed(eval.inputs.getX(), eval.inputs.getV()))
 	{
-		eval.outputs.setMeasurability(false);
+		eval.outputs.setContributability(false);
 		return;
 	}
 
@@ -33,7 +33,7 @@ void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlo
 {
 	if(!sample.context.sidedness.isSidednessAgreed(sample.inputs.getX(), sample.inputs.getV()))
 	{
-		sample.outputs.setMeasurability(false);
+		sample.outputs.setContributability(false);
 		return;
 	}
 
@@ -43,10 +43,10 @@ void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlo
 		sampleFlow,
 		sample.outputs);
 
-	if(sample.outputs.isMeasurable() &&
+	if(sample.outputs.isContributable() &&
 	   !sample.context.sidedness.isSidednessAgreed(sample.inputs.getX(), sample.outputs.getL()))
 	{
-		sample.outputs.setMeasurability(false);
+		sample.outputs.setContributability(false);
 		return;
 	}
 }

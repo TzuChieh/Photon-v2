@@ -47,7 +47,7 @@ void ThinDielectricFilm::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void ThinDielectricFilm::genBsdfSampleCore(
@@ -61,7 +61,7 @@ void ThinDielectricFilm::genBsdfSampleCore(
 
 	if(!canReflect && !canTransmit)
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
@@ -100,7 +100,7 @@ void ThinDielectricFilm::genBsdfSampleCore(
 	{
 		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -118,7 +118,7 @@ void ThinDielectricFilm::genBsdfSampleCore(
 		const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), N);
 		if(!optRefractDir || !ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), *optRefractDir))
 		{
-			out.setMeasurability(false);
+			out.setContributability(false);
 			return;
 		}
 
@@ -148,7 +148,7 @@ void ThinDielectricFilm::genBsdfSampleCore(
 	else
 	{
 		// RARE: may be called due to numerical error
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

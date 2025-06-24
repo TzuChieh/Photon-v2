@@ -48,7 +48,7 @@ void IdealReflector::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.setMeasurability(false);
+	out.setContributability(false);
 }
 
 void IdealReflector::genBsdfSampleCore(

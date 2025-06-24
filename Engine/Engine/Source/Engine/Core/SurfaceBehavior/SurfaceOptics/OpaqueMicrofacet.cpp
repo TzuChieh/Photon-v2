@@ -71,14 +71,14 @@ void OpaqueMicrofacet::calcBsdfCore(
 	// Ensure L & V lies on the same side of the surface
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
-		out.setMeasurability(false);
+		out.setContributability(false);
 		return;
 	}
 

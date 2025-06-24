@@ -39,7 +39,7 @@ private:
 };
 
 /*! @brief Output for `BsdfSampleQuery`.
-@note It is an error to get output data if `isMeasurable()` returns `false`.
+@note It is an error to get output data if `isContributable()` returns `false`.
 */
 class BsdfSampleOutput final
 {
@@ -51,13 +51,13 @@ public:
 	more information.
 	@param cos The contained Lambert's cosine term (absolute value). See `getCos()` for
 	more information.
-	@param inferMeasurability Whether to determine measurability from the supplied data. All supplied
-	data must be sane for the sample to be measurable.
+	@param inferContributability Whether to determine contributability from the supplied data. All supplied
+	data must be sane for the sample to be contributable.
 	*/
 	void setPdfAppliedBsdfCos(
 		const math::Spectrum& pdfAppliedBsdfCos,
 		real cos,
-		bool inferMeasurability = true);
+		bool inferContributability = true);
 
 	/*!
 	@return Sampled direction (normalized) of the incident ray.
@@ -106,24 +106,24 @@ public:
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
 	and sampled data is undefined. This method is also an efficient way to decide whether the BSDF
 	sample has sane value (compared to manually testing its value).
-	@note Measurability has nothing to do with whether the sampled value is 0 or not.
+	@note Contributability has nothing to do with whether the sampled value is 0 or not.
 	*/
-	bool isMeasurable() const;
+	bool isContributable() const;
 
-	/*! @brief Set measurability directly.
+	/*! @brief Set contributability directly.
 	*/
-	void setMeasurability(bool measurability);
+	void setContributability(bool contributability);
 
-	/*! @brief Set measurability based on a reference spectrum.
+	/*! @brief Set contributability based on a reference spectrum.
 	*/
-	void setMeasurability(const math::Spectrum& reference);
+	void setContributability(const math::Spectrum& reference);
 
 	/*!
 	@param relativeIor See `getRelativeIor()` for more information.
 	*/
 	void setRelativeIor(real relativeIor);
 
-	/*! @brief Convenient method for `isMeasurable()`.
+	/*! @brief Convenient method for `isContributable()`.
 	*/
 	operator bool () const;
 
@@ -132,7 +132,7 @@ private:
 	math::Spectrum m_pdfAppliedBsdfCos{0};
 	real           m_cos{0};
 	real           m_relativeIor{1};
-	bool           m_isMeasurable{false};
+	bool           m_isContributable{false};
 };
 
 /*! @brief Information for generating a BSDF sample.
@@ -200,21 +200,21 @@ inline void BsdfSampleOutput::setL(const math::Vector3R& L)
 inline void BsdfSampleOutput::setPdfAppliedBsdfCos(
 	const math::Spectrum& pdfAppliedBsdfCos,
 	const real cos,
-	const bool inferMeasurability)
+	const bool inferContributability)
 {
 	m_pdfAppliedBsdfCos = pdfAppliedBsdfCos;
 	m_cos = cos;
 
-	if(inferMeasurability)
+	if(inferContributability)
 	{
-		setMeasurability(pdfAppliedBsdfCos);
-		setMeasurability(isMeasurable() && 0.0_r < cos && cos < 1.1_r);
+		setContributability(pdfAppliedBsdfCos);
+		setContributability(isContributable() && 0.0_r < cos && cos < 1.1_r);
 	}
 }
 
 inline const math::Vector3R& BsdfSampleOutput::getL() const
 {
-	PH_ASSERT(isMeasurable());
+	PH_ASSERT(isContributable());
 	PH_ASSERT_IN_RANGE(m_L.lengthSquared(), 0.9_r, 1.1_r);
 
 	return m_L;
@@ -222,7 +222,7 @@ inline const math::Vector3R& BsdfSampleOutput::getL() const
 
 inline real BsdfSampleOutput::getCos() const
 {
-	PH_ASSERT(isMeasurable());
+	PH_ASSERT(isContributable());
 	PH_ASSERT_IN_RANGE_EXCLUSIVE(m_cos, 0.0_r, 1.1_r);
 
 	return m_cos;
@@ -236,8 +236,8 @@ inline math::Spectrum BsdfSampleOutput::getPdfAppliedBsdf() const
 
 inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdfCos() const
 {
-	// When a sample report being measurable, it must not be some crazy values
-	PH_ASSERT(isMeasurable());
+	// When a sample report being contributale, it must not be some crazy values
+	PH_ASSERT(isContributable());
 	PH_ASSERT_MSG(m_pdfAppliedBsdfCos.isFinite(), m_pdfAppliedBsdfCos.toString());
 
 	return m_pdfAppliedBsdfCos;
@@ -245,7 +245,7 @@ inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdfCos() const
 
 inline real BsdfSampleOutput::getRelativeIor() const
 {
-	PH_ASSERT(isMeasurable());
+	PH_ASSERT(isContributable());
 	PH_ASSERT_MSG(std::isfinite(m_relativeIor) && m_relativeIor > 0, std::to_string(m_relativeIor));
 
 	return m_relativeIor;
@@ -257,19 +257,19 @@ inline real BsdfSampleOutput::getRelativeIor2() const
 	return relativeIor * relativeIor;
 }
 
-inline bool BsdfSampleOutput::isMeasurable() const
+inline bool BsdfSampleOutput::isContributable() const
 {
-	return m_isMeasurable;
+	return m_isContributable;
 }
 
-inline void BsdfSampleOutput::setMeasurability(const bool measurability)
+inline void BsdfSampleOutput::setContributability(const bool contributability)
 {
-	m_isMeasurable = measurability;
+	m_isContributable = contributability;
 }
 
-inline void BsdfSampleOutput::setMeasurability(const math::Spectrum& reference)
+inline void BsdfSampleOutput::setContributability(const math::Spectrum& reference)
 {
-	setMeasurability(reference.isFinite());
+	setContributability(reference.isFinite());
 }
 
 inline void BsdfSampleOutput::setRelativeIor(const real relativeIor)
@@ -279,7 +279,7 @@ inline void BsdfSampleOutput::setRelativeIor(const real relativeIor)
 
 inline BsdfSampleOutput::operator bool () const
 {
-	return isMeasurable();
+	return isContributable();
 }
 
 }// end namespace ph
