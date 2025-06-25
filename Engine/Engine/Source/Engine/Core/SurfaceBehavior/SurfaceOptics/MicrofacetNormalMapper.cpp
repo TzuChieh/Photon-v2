@@ -22,6 +22,9 @@ namespace ph
 namespace
 {
 
+// cos(0.05 degrees)
+inline constexpr auto cos_small_angle = 0.99999961922_r;
+
 inline math::Vector3R tangentFacetNormal(const math::Vector3R& Ng, const math::Vector3R& Np)
 {
 	return (Ng * Ng.dot(Np) - Np).normalize();
@@ -117,7 +120,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 
 	// Just use the original BSDF if perturbation is too small
 	// (to avoid numerical error later during transform)
-	if(N.dot(Np) > std::cos(math::to_radians(0.01_r)))
+	if(N.dot(Np) > cos_small_angle)
 	{
 		m_target->genBsdfSampleCore(ctx, in, sampleFlow, out);
 		return;
@@ -136,7 +139,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	if(sampleFlow.unflowedPick(lambdaP(N, Np, Nt, V)))
 	{
 		BsdfSampleInput perturbedIn{};
-		perturbedIn.set(perturbedX, (-perturbedX.getIncidentRay().getDir()).normalize());
+		perturbedIn.set(perturbedX, (-perturbedX.getIncidentRay().getDir()).safeNormalize(V));
 
 		BsdfSampleOutput perturbedOut{};
 		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
@@ -144,16 +147,24 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 		{
 			weight *= perturbedOut.getPdfAppliedBsdfCos();
 
-			// Is `Lp` shadowed?
 			math::Vector3R Lp;
 			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
-			if(!sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
+			Lp = Lp.safeNormalize(perturbedOut.getL());
+
+			// `Lp` is not shadowed
+			if(sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
+			{
+				out.setL(Lp);
+				out.setPdfAppliedBsdfCos(weight, N.dot(Lp));
+			}
+			// `Lp` is shadowed
+			else
 			{
 				// Reflect on the tangent facet
-				const auto Lt = Lp.reflect(Nt);
+				const auto Lt = Lp.reflect(Nt).safeNormalize(-Lp);
 
 				weight *= G1(N, Np, Nt, Lt);
-				
+
 				out.setL(Lt);
 				out.setPdfAppliedBsdfCos(weight, N.dot(Lt));
 			}
@@ -162,7 +173,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	// Sample the tangent facet
 	else
 	{
-		const auto Lt = (-V).reflect(Nt);
+		const auto Lt = (-V).reflect(Nt).safeNormalize(V);
 
 		BsdfSampleInput perturbedIn{};
 		perturbedIn.set(perturbedX, -Lt);
@@ -175,6 +186,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 
 			math::Vector3R Lp;
 			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
+			Lp = Lp.safeNormalize(perturbedOut.getL());
 
 			weight *= G1(N, Np, Nt, Lp);
 
@@ -205,14 +217,13 @@ math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X
 
 		// Basically the TBN matrix commonly heard in real-time rendering
 		Np = X.getDetail().getShadingBasis().localToWorld(Np);
-		Np = Np.normalize();
 	}
 	else
 	{
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 
-	return Np;
+	return Np.safeNormalize(X.getShadingNormal());
 }
 
 }// end namespace ph

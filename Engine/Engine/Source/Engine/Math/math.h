@@ -129,7 +129,7 @@ inline T safe_rcp(const T value)
 /*! @brief Convert radians to degrees.
 */
 template<typename T>
-inline T to_degrees(const T radians)
+inline constexpr T to_degrees(const T radians)
 {
 	return radians * (constant::rcp_pi<T> * T(180));
 }
@@ -137,7 +137,7 @@ inline T to_degrees(const T radians)
 /*! @brief Convert degrees to radians.
 */
 template<typename T>
-inline T to_radians(const T degrees)
+inline constexpr T to_radians(const T degrees)
 {
 	return degrees * (constant::pi<T> / T(180));
 }
