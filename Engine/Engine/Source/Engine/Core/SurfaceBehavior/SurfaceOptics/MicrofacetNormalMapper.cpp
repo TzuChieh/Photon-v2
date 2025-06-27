@@ -201,7 +201,8 @@ math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X
 		Np = {Np.y(), Np.z(), Np.x()};
 
 		// Basically the TBN matrix commonly heard in real-time rendering
-		Np = X.getDetail().getShadingBasis().localToWorld(Np);
+		//Np = X.getDetail().getShadingBasis().localToWorld(Np);
+		Np = X.getDetail().getGeometryBasis().localToWorld(Np);
 	}
 	else
 	{
