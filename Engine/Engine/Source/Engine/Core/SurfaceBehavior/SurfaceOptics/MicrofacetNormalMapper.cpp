@@ -53,7 +53,8 @@ inline real lambdaP(
 	return math::safe_clamp(NpDotV / (NpDotV + Nt.dot(V) * sinNgDotNp), 0.0_r, 1.0_r);
 }
 
-inline std::pair<StaticRigidTransform, StaticRigidTransform> perturbedToWorldTransformPair(
+inline SurfaceHit perturbX(
+	const SurfaceHit& X,
 	const math::Vector3R& Ng,
 	const math::Vector3R& Np)
 {
@@ -63,19 +64,9 @@ inline std::pair<StaticRigidTransform, StaticRigidTransform> perturbedToWorldTra
 	math::TDecomposedTransform<real> perturbedToWorld;
 	perturbedToWorld.rotate(rotAxis, theta);
 
-	return {
-		StaticRigidTransform::makeForward(perturbedToWorld),
-		StaticRigidTransform::makeInverse(perturbedToWorld)};
-}
-
-inline SurfaceHit toPerturbedHit(
-	const SurfaceHit& worldX,
-	const StaticRigidTransform& worldToPerturbed)
-{
-	Ray localRay;
-	worldToPerturbed.transform(worldX.getRay(), &localRay);
-
-	return SurfaceHit(localRay, worldX.getProbe(), worldX.getReason());
+	SurfaceHit perturbedX;
+	StaticRigidTransform::makeForward(perturbedToWorld).transform(X, &perturbedX);
+	return perturbedX;
 }
 
 }// end namespace
@@ -130,16 +121,14 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 
 	const auto V = in.getV();
 	const auto Nt = tangentFacetNormal(N, Np);
-	const auto [perturbedToWorld, worldToPerturbed] = perturbedToWorldTransformPair(N, Np);
-
-	const SurfaceHit perturbedX = toPerturbedHit(in.getX(), worldToPerturbed);
+	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
 
 	// Sample the perturbed facet
 	math::Spectrum weight(1);
 	if(sampleFlow.unflowedPick(lambdaP(N, Np, Nt, V)))
 	{
 		BsdfSampleInput perturbedIn{};
-		perturbedIn.set(perturbedX, (-perturbedX.getIncidentRay().getDir()).safeNormalize(V));
+		perturbedIn.set(perturbedX, V);
 
 		BsdfSampleOutput perturbedOut{};
 		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
@@ -147,9 +136,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 		{
 			weight *= perturbedOut.getPdfAppliedBsdfCos();
 
-			math::Vector3R Lp;
-			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
-			Lp = Lp.safeNormalize(perturbedOut.getL());
+			const auto Lp = perturbedOut.getL();
 
 			// `Lp` is not shadowed
 			if(sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
@@ -184,9 +171,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 		{
 			weight *= perturbedOut.getPdfAppliedBsdfCos();
 
-			math::Vector3R Lp;
-			perturbedToWorld.transformV(perturbedOut.getL(), &Lp);
-			Lp = Lp.safeNormalize(perturbedOut.getL());
+			const auto Lp = perturbedOut.getL();
 
 			weight *= G1(N, Np, Nt, Lp);
 

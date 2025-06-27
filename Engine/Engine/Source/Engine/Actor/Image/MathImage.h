@@ -43,7 +43,7 @@ class MathImage : public Image
 public:
 	MathImage();
 
-	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::NumericType>> genNumericTexture(
 		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(

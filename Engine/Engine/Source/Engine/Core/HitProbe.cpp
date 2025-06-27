@@ -1,7 +1,6 @@
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/Intersectable.h"
-#include "Engine/Core/HitDetail.h"
 
 #include <Common/assertion.h>
 
@@ -21,14 +20,6 @@ void HitProbe::calcHitDetail(
 
 	HitProbe copiedProbe(*this);
 	getTopHit()->calcHitDetail(ray, copiedProbe, out_detail);
-}
-
-void HitProbe::calcFullHitDetail(
-	const Ray&       ray,
-	HitDetail* const out_detail) const
-{
-	calcHitDetail(ray, out_detail);
-	out_detail->computeBases();
 }
 
 bool HitProbe::reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay) const

@@ -13,7 +13,7 @@ class BinaryMixedImage : public Image
 public:
 	BinaryMixedImage();
 
-	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::NumericType>> genNumericTexture(
 		const CookingContext& ctx) override = 0;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(

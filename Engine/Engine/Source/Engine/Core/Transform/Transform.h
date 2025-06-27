@@ -11,6 +11,8 @@ namespace ph
 class Time;
 class Ray;
 class HitInfo;
+class HitDetail;
+class SurfaceHit;
 
 }// end namespace ph
 
@@ -87,6 +89,21 @@ public:
 		const HitInfo& info,
 		HitInfo*       out_info) const;
 
+	/*!
+	Will only affect world-space hit info.
+	*/
+	void transform(
+		const HitDetail& detail,
+		HitDetail*       out_detail) const;
+
+	/*!
+	Will only affect world-space hit info. Full hit detail will be automatically calculated if
+	the original hit detail is not full.
+	*/
+	void transform(
+		const SurfaceHit& surfaceHit,
+		SurfaceHit*       out_surfaceHit) const;
+
 	void transform(
 		const math::AABB3D& aabb,
 		math::AABB3D*       out_aabb) const;
@@ -95,6 +112,11 @@ public:
 		const HitInfo& info, 
 		const Time&    time,
 		HitInfo*       out_info) const;
+
+	void transform(
+		const HitDetail& detail,
+		const Time&      time,
+		HitDetail*       out_detail) const;
 
 	void transform(
 		const math::AABB3D& aabb, 

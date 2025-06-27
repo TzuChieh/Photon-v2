@@ -83,15 +83,15 @@ inline pixel_texture::EWrapMode to_texture_wrap_mode(const EImageWrapMode wrapMo
 
 }// end anonymous namespace
 
-std::shared_ptr<TTexture<Image::ArrayType>> RasterFileImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::NumericType>> RasterFileImage::genNumericTexture(
 	const CookingContext& ctx)
 {
-	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::ARRAY_SIZE too small)
+	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::NUMERIC_TYPE_WIDTH too small)
 	setResolution(pixelBuffer->getSize());
 
 	// When used as a numeric texture, no color space info is required--pixel buffer should directly
 	// store the desired values
-	return std::make_shared<TNumericPixelTexture2D<float64, Image::ARRAY_SIZE>>(
+	return std::make_shared<TNumericPixelTexture2D<float64, Image::NUMERIC_TYPE_WIDTH>>(
 		pixelBuffer,
 		getTextureSampleMode(),
 		getTextureWrapModeS(),

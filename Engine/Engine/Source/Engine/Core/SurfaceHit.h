@@ -64,11 +64,15 @@ public:
 		const HitProbe&  probe,
 		SurfaceHitReason reason);
 
+	/*! @brief Contruct with all internal data specified explicitly.
+	No extra calculation is performed.
+	*/
 	SurfaceHit(
 		const Ray&       ray,
 		const HitProbe&  probe,
 		const HitDetail& detail,
-		SurfaceHitReason reason);
+		SurfaceHitReason reason,
+		bool             hasFullHitDetail);
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
 
@@ -84,6 +88,8 @@ public:
 	SurfaceHitReason getReason() const;
 
 	/*!
+	This ray is the ray that caused the hit event and will not be affected when transforming
+	a surface hit.
 	@return The ray that caused a hit event.
 	*/
 	const Ray& getRay() const;
@@ -96,6 +102,7 @@ public:
 	math::Vector3R getPos() const;
 	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
+	bool hasFullHitDetail() const;
 
 	const Primitive& getPrimitive() const;
 	const PrimitiveMetadata& getMetadata() const;
@@ -109,15 +116,17 @@ private:
 	HitProbe         m_recordedProbe;
 	HitDetail        m_detail;
 	SurfaceHitReason m_reason;
+	bool             m_hasFullHitDetail;
 };
 
 // In-header Implementations:
 
 inline SurfaceHit::SurfaceHit()
-	: m_ray          {}
-	, m_recordedProbe{}
-	, m_detail       {}
-	, m_reason       {}
+	: m_ray             {}
+	, m_recordedProbe   {}
+	, m_detail          {}
+	, m_reason          {}
+	, m_hasFullHitDetail{false}
 {}
 
 inline SurfaceHit::SurfaceHit(
@@ -125,24 +134,30 @@ inline SurfaceHit::SurfaceHit(
 	const HitProbe&  probe,
 	SurfaceHitReason reason)
 
-	: m_ray          {ray}
-	, m_recordedProbe{probe}
-	, m_detail       {}
-	, m_reason       {reason}
+	: m_ray             {ray}
+	, m_recordedProbe   {probe}
+	, m_detail          {}
+	, m_reason          {reason}
+	, m_hasFullHitDetail{false}
 {
-	probe.calcFullHitDetail(ray, &m_detail);
+	probe.calcHitDetail(ray, &m_detail);
+
+	m_detail.computeBases();
+	m_hasFullHitDetail = true;
 }
 
 inline SurfaceHit::SurfaceHit(
 	const Ray&             ray, 
 	const HitProbe&        probe, 
 	const HitDetail&       detail,
-	const SurfaceHitReason reason)
+	const SurfaceHitReason reason,
+	const bool             hasFullHitDetail)
 
-	: m_ray          {ray}
-	, m_recordedProbe{probe}
-	, m_detail       {detail}
-	, m_reason       {reason}
+	: m_ray             {ray}
+	, m_recordedProbe   {probe}
+	, m_detail          {detail}
+	, m_reason          {reason}
+	, m_hasFullHitDetail{hasFullHitDetail}
 {}
 
 inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
@@ -195,6 +210,11 @@ inline math::Vector3R SurfaceHit::getShadingNormal() const
 inline math::Vector3R SurfaceHit::getGeometryNormal() const
 {
 	return m_detail.getGeometryNormal();
+}
+
+inline bool SurfaceHit::hasFullHitDetail() const
+{
+	return m_hasFullHitDetail;
 }
 
 inline const Primitive& SurfaceHit::getPrimitive() const

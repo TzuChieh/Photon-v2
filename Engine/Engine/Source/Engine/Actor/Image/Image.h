@@ -20,9 +20,10 @@ namespace ph
 class Image : public TSdlResourceBase<ESdlTypeCategory::Ref_Image>
 {
 public:
-	using ArrayType = math::TArithmeticArray<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
+	using NumericElementType = float64;
+	using NumericType = math::TArithmeticArray<NumericElementType, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
 	
-	inline static constexpr auto ARRAY_SIZE = ArrayType::NUM_ELEMENTS;
+	inline static constexpr auto NUMERIC_TYPE_WIDTH = NumericType::NUM_ELEMENTS;
 
 public:
 	/*!
@@ -30,7 +31,7 @@ public:
 	raw values are used. Numeric textures are expected to be used as part of a general
 	mathematical operation.
 	*/
-	virtual std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
+	virtual std::shared_ptr<TTexture<Image::NumericType>> genNumericTexture(
 		const CookingContext& ctx) = 0;
 
 	/*!
@@ -42,7 +43,7 @@ public:
 		const CookingContext& ctx) = 0;
 
 	/*! @brief Generates numeric texture of an alternative type.
-	Effectively converting the numeric texture to a different type. Truncates `ArrayType` if the
+	Effectively converting the numeric texture to a different type. Truncates `NumericType` if the
 	resulting type is narrower, and appends 0 if the resulting type is wider.
 	*/
 	///@{

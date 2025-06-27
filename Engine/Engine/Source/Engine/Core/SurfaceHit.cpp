@@ -22,7 +22,18 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 
 	HitProbe newProbe = m_recordedProbe;
 	newProbe.setChannel(newChannel);
-	return SurfaceHit(m_ray, newProbe, m_reason);
+
+	if(m_hasFullHitDetail)
+	{
+		return SurfaceHit(m_ray, newProbe, m_reason);
+	}
+	else
+	{
+		HitDetail newDetail;
+		newProbe.calcHitDetail(m_ray, &newDetail);
+
+		return SurfaceHit(m_ray, newProbe, newDetail, m_reason, false);
+	}
 }
 
 const PrimitiveMetadata& SurfaceHit::getMetadata() const

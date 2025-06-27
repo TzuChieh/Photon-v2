@@ -11,12 +11,12 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CheckerboardImage, Image);
 
-std::shared_ptr<TTexture<Image::ArrayType>> CheckerboardImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::NumericType>> CheckerboardImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	auto [odd, even] = getOddAndEvenImages();
 
-	return std::make_shared<TCheckerboardTexture<Image::ArrayType>>(
+	return std::make_shared<TCheckerboardTexture<Image::NumericType>>(
 		m_numTilesU,
 		m_numTilesV,
 		odd->genNumericTexture(ctx),

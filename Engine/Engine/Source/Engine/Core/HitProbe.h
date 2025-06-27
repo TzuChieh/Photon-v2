@@ -33,14 +33,11 @@ public:
 	HitProbe();
 
 	/*! @brief Calculates basic hit information using this probe.
-	The information is calculated using a copy of the current state of this probe.
+	The information is calculated using a copy of the current state of this probe. Only basic hit
+	information is calculated. For detailed hit information, there are dedicated methods such as
+	`HitDetail::computeBases()` so they can be obtained on demand.
 	*/
 	void calcHitDetail(const Ray& ray, HitDetail* out_detail) const;
-
-	/*! @brief Calculates full hit information using this probe.
-	The information is calculated using a copy of the current state of this probe.
-	*/
-	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail) const;
 
 	/*! @brief Intersect the intersected object again with a different ray.
 	The operation is done using a copy of the current state of this probe.

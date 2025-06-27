@@ -310,7 +310,7 @@ MathImage::MathImage()
 	, m_imageInput1 (nullptr)
 {}
 
-std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::NumericType>> MathImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(!m_operandImage)
@@ -321,12 +321,12 @@ std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 	switch(m_mathOp)
 	{
 	case EMathImageOp::Absolute:
-		return cook_zero_input_operation<Image::ArrayType, Image::ArrayType>(
+		return cook_zero_input_operation<Image::NumericType, Image::NumericType>(
 			m_mathOp,
 			m_operandImage->genNumericTexture(ctx));
 
 	case EMathImageOp::Clamp:
-		return cook_two_inputs_operation<Image::ArrayType, Image::ArrayType, Image::ArrayType, Image::ArrayType, float64, float64>(
+		return cook_two_inputs_operation<Image::NumericType, Image::NumericType, Image::NumericType, Image::NumericType, float64, float64>(
 			m_mathOp,
 			m_operandImage->genNumericTexture(ctx),
 			m_imageInput0 ? m_imageInput0->genNumericTexture(ctx) : nullptr,
@@ -335,7 +335,7 @@ std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 			m_scalarInput1);
 
 	default:
-		return cook_one_input_operation<Image::ArrayType, Image::ArrayType, Image::ArrayType, float64>(
+		return cook_one_input_operation<Image::NumericType, Image::NumericType, Image::NumericType, float64>(
 			m_mathOp, 
 			m_operandImage->genNumericTexture(ctx),
 			m_imageInput0 ? m_imageInput0->genNumericTexture(ctx) : nullptr,

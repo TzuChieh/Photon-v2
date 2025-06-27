@@ -47,6 +47,7 @@ public:
 		FaceTopology          faceTopology = FaceTopology(EFaceTopology::General));
 
 	void computeBases();
+	void computeBasesOf(ECoordSys coordSys = ECoordSys::World);
 
 	math::Vector3R getPos(ECoordSys coordSys = ECoordSys::World) const;
 	math::Vector3R getShadingNormal(ECoordSys coordSys = ECoordSys::World) const;

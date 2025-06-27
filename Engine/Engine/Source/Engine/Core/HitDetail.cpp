@@ -50,6 +50,11 @@ void HitDetail::computeBases()
 	}
 }
 
+void HitDetail::computeBasesOf(ECoordSys coordSys)
+{
+	m_hitInfos[enum_to_value(coordSys)].computeBases();
+}
+
 uint64 HitDetail::getGlobalFaceID() const
 {
 	if(m_globalPrimitiveID == NO_FACE_ID)

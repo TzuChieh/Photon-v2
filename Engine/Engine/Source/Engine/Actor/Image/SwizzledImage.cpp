@@ -153,7 +153,7 @@ inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzl
 	// Check if the swizzle map will overflow the array size of numeric texture
 	for(const auto idxOfInput : swizzleMap)
 	{
-		if(idxOfInput >= Image::ARRAY_SIZE)
+		if(idxOfInput >= Image::NUMERIC_TYPE_WIDTH)
 		{
 			throw CookException("Swizzle subscripts overflow input array.");
 		}
@@ -179,13 +179,13 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 
 }// end anonymous namespace
 
-std::shared_ptr<TTexture<Image::ArrayType>> SwizzledImage::genNumericTexture(const CookingContext& ctx)
+std::shared_ptr<TTexture<Image::NumericType>> SwizzledImage::genNumericTexture(const CookingContext& ctx)
 {
-	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
+	if(m_swizzleSubscripts.size() > Image::NUMERIC_TYPE_WIDTH)
 	{
 		throw_formatted<CookException>(
 			"Input swizzle subscripts has more elements ({}) than the max number ({}) swizzler can handle.",
-			m_swizzleSubscripts.size(), Image::ARRAY_SIZE);
+			m_swizzleSubscripts.size(), Image::NUMERIC_TYPE_WIDTH);
 	}
 
 	if(m_input)
@@ -196,14 +196,14 @@ std::shared_ptr<TTexture<Image::ArrayType>> SwizzledImage::genNumericTexture(con
 		}
 		else
 		{
-			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
-			return std::make_shared<TSwizzledTexture<Image::ArrayType, Image::ArrayType, Image::ARRAY_SIZE>>(
+			const auto swizzleMap = to_texture_swizzle_map<Image::NUMERIC_TYPE_WIDTH>(m_swizzleSubscripts);
+			return std::make_shared<TSwizzledTexture<Image::NumericType, Image::NumericType, Image::NUMERIC_TYPE_WIDTH>>(
 				m_input->genNumericTexture(ctx), swizzleMap);
 		}
 	}
 	else
 	{
-		return std::make_shared<TConstantTexture<Image::ArrayType>>(Image::ArrayType(0));
+		return std::make_shared<TConstantTexture<Image::NumericType>>(Image::NumericType(0));
 	}
 }
 
@@ -274,12 +274,12 @@ std::shared_ptr<TTexture<real>> SwizzledImage::genRealTexture(const CookingConte
 	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<1>(m_swizzleSubscripts);
-		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::ArrayType& inputValue)
+		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::NumericType& inputValue)
 		{
 			return static_cast<real>(inputValue[mappedIndex]);
 		};
 
-		return std::make_shared<TUnaryTextureOperator<Image::ArrayType, real, decltype(numericArrayToReal)>>(
+		return std::make_shared<TUnaryTextureOperator<Image::NumericType, real, decltype(numericArrayToReal)>>(
 			m_input->genNumericTexture(ctx), std::move(numericArrayToReal));
 	}
 	else
@@ -293,7 +293,7 @@ std::shared_ptr<TTexture<math::Vector2R>> SwizzledImage::genVector2RTexture(cons
 	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<2>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector2R, 2>>(
+		return std::make_shared<TSwizzledTexture<Image::NumericType, math::Vector2R, 2>>(
 			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -307,7 +307,7 @@ std::shared_ptr<TTexture<math::Vector3R>> SwizzledImage::genVector3RTexture(cons
 	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<3>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector3R, 3>>(
+		return std::make_shared<TSwizzledTexture<Image::NumericType, math::Vector3R, 3>>(
 			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -321,7 +321,7 @@ std::shared_ptr<TTexture<math::Vector4R>> SwizzledImage::genVector4RTexture(cons
 	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<4>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector4R, 4>>(
+		return std::make_shared<TSwizzledTexture<Image::NumericType, math::Vector4R, 4>>(
 			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else

@@ -16,7 +16,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(BlackBodyRadiationImage, Image);
 
-std::shared_ptr<TTexture<Image::ArrayType>> BlackBodyRadiationImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::NumericType>> BlackBodyRadiationImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	constexpr bool isTristimulusMode = 
@@ -48,21 +48,21 @@ std::shared_ptr<TTexture<Image::ArrayType>> BlackBodyRadiationImage::genNumericT
 		radiation.transformTo(&triValues, m_numericColorSpace, math::EColorUsage::EMR);
 	}
 
-	if(triValues.size() > Image::ARRAY_SIZE)
+	if(triValues.size() > Image::NUMERIC_TYPE_WIDTH)
 	{
 		PH_LOG(BlackBodyRadiationImage, Warning,
 			"{} values provided for a numeric array of max size {}, there will be data loss",
-			triValues.size(), Image::ARRAY_SIZE);
+			triValues.size(), Image::NUMERIC_TYPE_WIDTH);
 	}
 
-	Image::ArrayType arrayValues;
+	Image::NumericType arrayValues;
 	arrayValues.set(0);
-	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < triValues.size(); ++i)
+	for(std::size_t i = 0; i < Image::NUMERIC_TYPE_WIDTH && i < triValues.size(); ++i)
 	{
 		arrayValues[i] = triValues[i];
 	}
 
-	return std::make_shared<TConstantTexture<Image::ArrayType>>(arrayValues);
+	return std::make_shared<TConstantTexture<Image::NumericType>>(arrayValues);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> BlackBodyRadiationImage::genColorTexture(

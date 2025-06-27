@@ -14,14 +14,14 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ConstantImage, Image);
 
-std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::NumericType>> ConstantImage::genNumericTexture(
 	const CookingContext& ctx)
 {
-	if(m_values.size() > Image::ARRAY_SIZE)
+	if(m_values.size() > Image::NUMERIC_TYPE_WIDTH)
 	{
 		PH_LOG(ConstantImage, Warning,
 			"{} values provided for a numeric array of max size {}, there will be data loss.",
-			m_values.size(), Image::ARRAY_SIZE);
+			m_values.size(), Image::NUMERIC_TYPE_WIDTH);
 	}
 
 	if(m_colorSpace != math::EColorSpace::Unspecified)
@@ -31,13 +31,13 @@ std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 			TSdlEnum<math::EColorSpace>{}[m_colorSpace]);
 	}
 
-	Image::ArrayType arr(0);
-	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
+	Image::NumericType arr(0);
+	for(std::size_t i = 0; i < Image::NUMERIC_TYPE_WIDTH && i < m_values.size(); ++i)
 	{
 		arr[i] = m_values[i];
 	}
 
-	return std::make_shared<TConstantTexture<Image::ArrayType>>(arr);
+	return std::make_shared<TConstantTexture<Image::NumericType>>(arr);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
