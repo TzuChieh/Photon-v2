@@ -4,6 +4,7 @@
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/TDecomposedTransform.h"
 #include "Engine/Core/Transform/Transform.h"
+#include "Engine/Utility/TSpan.h"
 
 #include <vector>
 
@@ -35,7 +36,7 @@ public:
 	from local to world space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticAffineTransform makeParentedForward(TSpanView<math::TDecomposedTransform<U>> fromRootToLocal);
 
 	/*!
 	Given a chain of transforms from root (world, the last transform applied) to local (the first
@@ -43,7 +44,7 @@ public:
 	from world to local space.
 	*/
 	template<typename U>
-	static StaticAffineTransform makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticAffineTransform makeParentedInverse(TSpanView<math::TDecomposedTransform<U>> fromRootToLocal);
 
 public:
 	/*! @brief Creates an identity transform.
@@ -109,7 +110,7 @@ inline StaticAffineTransform StaticAffineTransform
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
+::makeParentedForward(TSpanView<math::TDecomposedTransform<U>> fromRootToLocal)
 {
 	math::TMatrix4<U> parentedMatrix(math::TMatrix4<U>::makeIdentity());
 	math::TMatrix4<U> invParentedMatrix(math::TMatrix4<U>::makeIdentity());
@@ -129,7 +130,7 @@ inline StaticAffineTransform StaticAffineTransform
 
 template<typename U>
 inline StaticAffineTransform StaticAffineTransform
-::makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
+::makeParentedInverse(TSpanView<math::TDecomposedTransform<U>> fromRootToLocal)
 {
 	math::TMatrix4<U> parentedMatrix(math::TMatrix4<U>::makeIdentity());
 	math::TMatrix4<U> invParentedMatrix(math::TMatrix4<U>::makeIdentity());

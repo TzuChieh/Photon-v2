@@ -3,9 +3,13 @@
 #include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Math/TDecomposedTransform.h"
+#include "Engine/Utility/TSpan.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+
+#include <array>
+#include <vector>
 
 namespace ph
 {
@@ -21,16 +25,31 @@ public:
 	static const StaticRigidTransform& makeIdentity();
 
 	template<typename U>
-	static StaticRigidTransform makeForward(const math::TDecomposedTransform<U>& transform);
+	static StaticRigidTransform makeForward(
+		const math::TDecomposedTransform<U>& transform,
+		bool ensureScaleFree = true);
 
 	template<typename U>
-	static StaticRigidTransform makeInverse(const math::TDecomposedTransform<U>& transform);
+	static StaticRigidTransform makeInverse(
+		const math::TDecomposedTransform<U>& transform,
+		bool ensureScaleFree = true);
 
 	template<typename U>
-	static StaticRigidTransform makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticRigidTransform makeParentedForward(
+		TSpanView<math::TDecomposedTransform<U>> fromRootToLocal,
+		bool ensureScaleFree = true,
+		bool allowDynamicAllocation = false);
 
 	template<typename U>
-	static StaticRigidTransform makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal);
+	static StaticRigidTransform makeParentedInverse(
+		TSpanView<math::TDecomposedTransform<U>> fromRootToLocal,
+		bool ensureScaleFree = true,
+		bool allowDynamicAllocation = false);
+
+	template<typename U>
+	static inline void getScaleFreeTransforms(
+		TSpanView<math::TDecomposedTransform<U>> transforms,
+		TSpan<math::TDecomposedTransform<U>> out_scaleFreeTransforms);
 
 public:
 	/*! @brief Creates an identity transform.
@@ -59,67 +78,131 @@ private:
 		math::TLineSegment<real>*       out_segment) const override;
 
 private:
-	StaticAffineTransform m_staticTransform;
-
 	explicit StaticRigidTransform(const StaticAffineTransform& transform);
 
-	template<typename U>
-	static inline std::vector<math::TDecomposedTransform<U>> getScaleFreeTransforms(
-		const std::vector<math::TDecomposedTransform<U>>& transforms);
+	StaticAffineTransform m_staticTransform;
 };
 
 template<typename U>
-inline auto StaticRigidTransform::makeForward(const math::TDecomposedTransform<U>& transform)
+inline auto StaticRigidTransform::makeForward(
+	const math::TDecomposedTransform<U>& transform,
+	const bool ensureScaleFree)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticAffineTransform::makeForward(getScaleFreeTransforms<U>({transform})[0]));
+	if(ensureScaleFree)
+	{
+		std::array<math::TDecomposedTransform<U>, 1> scaledFreeTransform;
+		getScaleFreeTransforms<U>({&transform, 1}, scaledFreeTransform);
+
+		return StaticRigidTransform(StaticAffineTransform::makeForward(scaledFreeTransform[0]));
+	}
+	else
+	{
+		return StaticRigidTransform(StaticAffineTransform::makeForward(transform));
+	}
 }
 
 template<typename U>
-inline auto StaticRigidTransform::makeInverse(const math::TDecomposedTransform<U>& transform)
+inline auto StaticRigidTransform::makeInverse(
+	const math::TDecomposedTransform<U>& transform,
+	const bool ensureScaleFree)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticAffineTransform::makeInverse(getScaleFreeTransforms<U>({transform})[0]));
+	if(ensureScaleFree)
+	{
+		std::array<math::TDecomposedTransform<U>, 1> scaledFreeTransform;
+		getScaleFreeTransforms<U>({&transform, 1}, scaledFreeTransform);
+
+		return StaticRigidTransform(StaticAffineTransform::makeInverse(scaledFreeTransform[0]));
+	}
+	else
+	{
+		return StaticRigidTransform(StaticAffineTransform::makeInverse(transform));
+	}
 }
 
 template<typename U>
-inline auto StaticRigidTransform::makeParentedForward(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
+inline auto StaticRigidTransform::makeParentedForward(
+	TSpanView<math::TDecomposedTransform<U>> fromRootToLocal,
+	const bool ensureScaleFree,
+	const bool allowDynamicAllocation)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticAffineTransform::makeParentedForward(getScaleFreeTransforms<U>({fromRootToLocal})));
+	if(ensureScaleFree)
+	{
+		if(allowDynamicAllocation)
+		{
+			std::vector<math::TDecomposedTransform<U>> scaleFreeTransforms(fromRootToLocal.size());
+			getScaleFreeTransforms<U>(fromRootToLocal, scaleFreeTransforms);
+
+			return StaticRigidTransform(StaticAffineTransform::makeParentedForward(scaleFreeTransforms));
+		}
+		else
+		{
+			std::array<math::TDecomposedTransform<U>, 4> scaleFreeTransforms;
+			getScaleFreeTransforms<U>(fromRootToLocal, scaleFreeTransforms);
+
+			return StaticRigidTransform(StaticAffineTransform::makeParentedForward(scaleFreeTransforms));
+		}
+	}
+	else
+	{
+		return StaticRigidTransform(StaticAffineTransform::makeParentedForward(fromRootToLocal));
+	}
 }
 
 template<typename U>
-inline auto StaticRigidTransform::makeParentedInverse(const std::vector<math::TDecomposedTransform<U>>& fromRootToLocal)
+inline auto StaticRigidTransform::makeParentedInverse(
+	TSpanView<math::TDecomposedTransform<U>> fromRootToLocal,
+	const bool ensureScaleFree,
+	const bool allowDynamicAllocation)
 	-> StaticRigidTransform
 {
-	return StaticRigidTransform(StaticAffineTransform::makeParentedInverse(getScaleFreeTransforms<U>({fromRootToLocal})));
+	if(ensureScaleFree)
+	{
+		if(allowDynamicAllocation)
+		{
+			std::vector<math::TDecomposedTransform<U>> scaleFreeTransforms(fromRootToLocal.size());
+			getScaleFreeTransforms<U>(fromRootToLocal, scaleFreeTransforms);
+
+			return StaticRigidTransform(StaticAffineTransform::makeParentedInverse(scaleFreeTransforms));
+		}
+		else
+		{
+			std::array<math::TDecomposedTransform<U>, 4> scaleFreeTransforms;
+			getScaleFreeTransforms<U>(fromRootToLocal, scaleFreeTransforms);
+
+			return StaticRigidTransform(StaticAffineTransform::makeParentedInverse(scaleFreeTransforms));
+		}
+	}
+	else
+	{
+		return StaticRigidTransform(StaticAffineTransform::makeParentedInverse(fromRootToLocal));
+	}
 }
 
 template<typename U>
-inline auto StaticRigidTransform::getScaleFreeTransforms(const std::vector<math::TDecomposedTransform<U>>& transforms)
-	-> std::vector<math::TDecomposedTransform<U>>
+inline void StaticRigidTransform::getScaleFreeTransforms(
+	TSpanView<math::TDecomposedTransform<U>> transforms,
+	TSpan<math::TDecomposedTransform<U>> out_scaleFreeTransforms)
 {
-	std::vector<math::TDecomposedTransform<U>> scaleFreeTransforms;
-	for(const auto& transform : transforms)
+	PH_ASSERT_GE(out_scaleFreeTransforms.size(), transforms.size());
+
+	for(std::size_t ti = 0; ti < transforms.size(); ++ti)
 	{
 		// FIXME: better scale tolerance value, not hardcoded like this
-		if(!transform.hasScaleEffect(0.000001_r))
+		if(!transforms[ti].hasScaleEffect(0.000001_r))
 		{
-			scaleFreeTransforms.push_back(transform);
+			out_scaleFreeTransforms[ti] = transforms[ti];
 		}
 		else
 		{
 			PH_LOG(StaticRigidTransform, Warning,
-				"scale effect detected, which is {}, ignoring", transform.getScale().toString());
+				"scale effect detected, which is {}, ignoring", transforms[ti].getScale());
 
-			scaleFreeTransforms.push_back(math::TDecomposedTransform<U>(transform).setScale(1));
+			out_scaleFreeTransforms[ti] = math::TDecomposedTransform<U>(transforms[ti]).setScale(1);
 		}
 	}
-
-	PH_ASSERT(scaleFreeTransforms.size() == transforms.size());
-
-	return scaleFreeTransforms;
 }
 
 }// end namespace ph::math

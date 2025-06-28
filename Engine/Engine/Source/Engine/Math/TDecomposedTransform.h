@@ -110,7 +110,16 @@ public:
 	TQuaternion<T> getRot() const;
 	TVector3<T> getScale() const;
 
+	/*!
+	@param out_result[out] A 4x4 matrix @f$ M @f$ for the recorded transform. Follows the convention
+	of vector transformation, i.e., a column vector @f$ v @f$ is transformed by the formula
+	@f$ M * v @f$ where @f$ M = M_translation * M_rotation * M_scale @f$.
+	*/
 	void genTransformMatrix(TMatrix4<T>* out_result) const;
+
+	/*!
+	@param out_result[out] Inversed version of `genTransformMatrix()`.
+	*/
 	void genInverseTransformMatrix(TMatrix4<T>* out_result) const;
 
 	// Inverts the transformation components. The effect of inverted and 

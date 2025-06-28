@@ -8,10 +8,11 @@
 #include "Engine/Core/Texture/TTexture.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
 #include "Engine/Math/TDecomposedTransform.h"
-#include "Engine/Core/Transform/StaticRigidTransform.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 
 #include <cmath>
 #include <algorithm>
+#include <array>
 
 namespace ph
 {
@@ -55,11 +56,13 @@ inline SurfaceHit perturbX(
 	const real theta = std::acos(math::clamp(Ng.dot(Np), -1.0_r, 1.0_r));
 	const auto rotAxis = Ng.cross(Np).normalize();
 
-	math::TDecomposedTransform<real> perturbedToWorld;
-	perturbedToWorld.rotate(rotAxis, theta);
+	std::array<math::TDecomposedTransform<real>, 2> perturbedToWorld;
+	perturbedToWorld[0].translate(-X.getPos());// move to origin
+	perturbedToWorld[1].rotate(rotAxis, theta);// rotate to the inclined angle
+	perturbedToWorld[1].translate(X.getPos()); // move back to hit pos
 
 	SurfaceHit perturbedX;
-	StaticRigidTransform::makeForward(perturbedToWorld).transform(X, &perturbedX);
+	StaticAffineTransform::makeParentedForward<real>(perturbedToWorld).transform(X, &perturbedX);
 	return perturbedX;
 }
 
