@@ -25,27 +25,49 @@ inline math::Vector3R tangentFacetNormal(const math::Vector3R& Ng, const math::V
 	return (Ng * Ng.dot(Np) - Np).normalize();
 }
 
+inline real positiveDot(const math::Vector3R& A, const math::Vector3R& B)
+{
+	return std::max(A.dot(B), 0.0_r);
+}
+
 inline real G1(
 	const math::Vector3R& Ng, 
 	const math::Vector3R& Np, 
 	const math::Vector3R& Nt, 
-	const math::Vector3R& L)
+	math::Vector3R L)
 {
+	// If light is coming from back face, flip its direction to correctly account for invisible facets
+	if(Ng.dot(L) < 0)
+	{
+		L *= -1;
+	}
+
 	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
 	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
-	return math::safe_clamp((Ng.dot(L) * Np.dot(L)) / (Np.dot(L) + Nt.dot(L) * sinNgDotNp), 0.0_r, 1.0_r);
+	return math::safe_clamp(
+		(positiveDot(Ng, L) * positiveDot(Np, L)) / (positiveDot(Np, L) + positiveDot(Nt, L) * sinNgDotNp),
+		0.0_r,
+		1.0_r);
 }
 
 inline real lambdaP(
 	const math::Vector3R& Ng,
 	const math::Vector3R& Np,
 	const math::Vector3R& Nt,
-	const math::Vector3R& V)
+	math::Vector3R L)
 {
-	const real NpDotV= Np.dot(V);
+	// If light is coming from back face, flip its direction to correctly account for invisible facets
+	if(Ng.dot(L) < 0)
+	{
+		L *= -1;
+	}
+
 	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
 	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
-	return math::safe_clamp(NpDotV / (NpDotV + Nt.dot(V) * sinNgDotNp), 0.0_r, 1.0_r);
+	return math::safe_clamp(
+		positiveDot(Np, L) / (positiveDot(Np, L) + positiveDot(Nt, L) * sinNgDotNp),
+		0.0_r, 
+		1.0_r);
 }
 
 inline SurfaceHit perturbX(
@@ -137,7 +159,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 			if(sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
 			{
 				out.setL(Lp);
-				out.setPdfAppliedBsdfCos(weight, N.dot(Lp));
+				out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
 			}
 			// `Lp` is shadowed
 			else
@@ -148,7 +170,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 				weight *= G1(N, Np, Nt, Lt);
 
 				out.setL(Lt);
-				out.setPdfAppliedBsdfCos(weight, N.dot(Lt));
+				out.setPdfAppliedBsdfCos(weight, N.absDot(Lt));
 			}
 		}
 	}
@@ -171,7 +193,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 			weight *= G1(N, Np, Nt, Lp);
 
 			out.setL(Lp);
-			out.setPdfAppliedBsdfCos(weight, N.dot(Lp));
+			out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
 		}
 	}
 }
