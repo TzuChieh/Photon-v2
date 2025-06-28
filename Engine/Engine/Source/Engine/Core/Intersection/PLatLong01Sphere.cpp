@@ -39,7 +39,6 @@ void PLatLong01Sphere::calcHitDetail(
 
 	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
-		hitNormal,
 		hitNormal);
 
 	// TODO: use exact UV derivatives; this is finite difference

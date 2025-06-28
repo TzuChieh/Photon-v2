@@ -6,6 +6,7 @@
 #include "Engine/Core/ECoordSys.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 namespace ph
 {
@@ -21,8 +22,18 @@ public:
 
 	void setAttributes(
 		const math::Vector3R& pos,
+		const math::Vector3R& geometryNormal);
+
+	void setAttributes(
+		const math::Vector3R& pos,
 		const math::Vector3R& geometryNormal,
 		const math::Vector3R& shadingNormal);
+
+	void setAttributes(
+		const math::Vector3R& pos,
+		const math::Vector3R& geometryNormal,
+		const math::Vector3R& shadingNormal,
+		const math::Vector3R& shadingTangent);
 
 	void setDerivatives(
 		const math::Vector3R& dPdU,
@@ -33,14 +44,22 @@ public:
 	void computeBases();
 
 	math::Vector3R getPos() const;
-	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
+	math::Vector3R getShadingNormal() const;
+
+	/*!
+	@return Shading tangent if `hasShadingTangent() == true`; otherwise, the value is undefined.
+	*/
+	math::Vector3R getShadingTangent() const;
+
 	math::Vector3R getdPdU() const;
 	math::Vector3R getdPdV() const;
 	math::Vector3R getdNdU() const;
 	math::Vector3R getdNdV() const;
 	const math::Basis3R& getGeometryBasis() const;
 	const math::Basis3R& getShadingBasis() const;
+
+	bool hasShadingTangent() const;
 
 private:
 	math::Vector3R m_pos;
@@ -52,6 +71,8 @@ private:
 
 	math::Basis3R m_geometryBasis;
 	math::Basis3R m_shadingBasis;
+
+	uint32f m_hasShadingTangent : 1;
 
 #if PH_DEBUG
 	bool m_isBasesComputed{false};
@@ -65,14 +86,20 @@ inline math::Vector3R HitInfo::getPos() const
 	return m_pos;
 }
 
+inline math::Vector3R HitInfo::getGeometryNormal() const
+{
+	return m_geometryBasis.getYAxis();
+}
+
 inline math::Vector3R HitInfo::getShadingNormal() const
 {
 	return m_shadingBasis.getYAxis();
 }
 
-inline math::Vector3R HitInfo::getGeometryNormal() const
+inline math::Vector3R HitInfo::getShadingTangent() const
 {
-	return m_geometryBasis.getYAxis();
+	PH_ASSERT(m_hasShadingTangent);
+	return m_shadingBasis.getZAxis();
 }
 
 inline math::Vector3R HitInfo::getdPdU() const
@@ -97,14 +124,26 @@ inline math::Vector3R HitInfo::getdNdV() const
 
 inline const math::Basis3R& HitInfo::getGeometryBasis() const
 {
-	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` before accessing geometry basis.");
+	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` first.");
 	return m_geometryBasis;
 }
 
 inline const math::Basis3R& HitInfo::getShadingBasis() const
 {
-	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` before accessing shading basis.");
+	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` first.");
 	return m_shadingBasis;
+}
+
+inline bool HitInfo::hasShadingTangent() const
+{
+	return m_hasShadingTangent;
+}
+
+inline void HitInfo::setAttributes(
+	const math::Vector3R& pos,
+	const math::Vector3R& geometryNormal)
+{
+	setAttributes(pos, geometryNormal, geometryNormal);
 }
 
 inline void HitInfo::setAttributes(
@@ -115,6 +154,26 @@ inline void HitInfo::setAttributes(
 	m_pos = pos;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
+
+	m_hasShadingTangent = false;
+
+#if PH_DEBUG
+	m_isBasesComputed = false;
+#endif
+}
+
+inline void HitInfo::setAttributes(
+	const math::Vector3R& pos,
+	const math::Vector3R& geometryNormal,
+	const math::Vector3R& shadingNormal,
+	const math::Vector3R& shadingTangent)
+{
+	m_pos = pos;
+	m_geometryBasis.setYAxis(geometryNormal);
+	m_shadingBasis.setYAxis(shadingNormal);
+	m_shadingBasis.setZAxis(shadingTangent);
+
+	m_hasShadingTangent = false;
 
 #if PH_DEBUG
 	m_isBasesComputed = false;
@@ -134,43 +193,6 @@ inline void HitInfo::setDerivatives(
 
 #if PH_DEBUG
 	m_isBasesComputed = false;
-#endif
-}
-
-inline void HitInfo::computeBases()
-{
-	// FIXME: currently this is a hacky way to avoid crossing two parallel vectors
-	// (this condition can rarely happen)
-	// (which will result in 0-length vector and cause normalization to fail)
-
-	m_geometryBasis.setXAxis(m_geometryBasis.getYAxis().cross(m_dPdU));
-	if(m_geometryBasis.getXAxis().lengthSquared() > 0.0_r)
-	{
-		m_geometryBasis.renormalizeXAxis();
-		m_geometryBasis.setZAxis(m_geometryBasis.getXAxis().cross(m_geometryBasis.getYAxis()));
-	}
-	else
-	{
-		m_geometryBasis = math::Basis3R::makeFromUnitY(m_geometryBasis.getYAxis());
-	}
-
-	m_shadingBasis.setXAxis(m_shadingBasis.getYAxis().cross(m_dNdU));
-	if(m_shadingBasis.getXAxis().lengthSquared() > 0.0_r)
-	{
-		m_shadingBasis.renormalizeXAxis();
-		m_shadingBasis.setZAxis(m_shadingBasis.getXAxis().cross(m_shadingBasis.getYAxis()));
-	}
-	else
-	{
-		m_shadingBasis = math::Basis3R::makeFromUnitY(m_shadingBasis.getYAxis());
-	}
-
-	PH_ASSERT_MSG(m_geometryBasis.getYAxis().isFinite() && m_shadingBasis.getYAxis().isFinite(), "\n"
-		"m_geometryBasis.getYAxis() = " + m_geometryBasis.getYAxis().toString() + "\n"
-		"m_shadingBasis.getYAxis()  = " + m_shadingBasis.getYAxis().toString() + "\n");
-
-#if PH_DEBUG
-	m_isBasesComputed = true;
 #endif
 }
 

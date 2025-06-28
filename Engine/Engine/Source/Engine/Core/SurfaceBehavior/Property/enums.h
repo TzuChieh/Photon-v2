@@ -34,12 +34,12 @@ enum class EMaskingShadowing
 enum class ENormalMapFormat
 {
 	/*! The conventional OpenGL format, where RGB stores +x, +y, +z of the normal vector. The vector
-	is scaled and biased to fit into the range [0, 1].
+	is scaled and biased to fit into the range [0, 1]. Each channel takes 8 bits.
 	*/
-	PX_PY_PZ,
+	PXPYPZ_8Bits,
 
 	/*! The conventional DirectX format, where RGB stores +x, -y, +z of the normal vector. The vector
-	is scaled and biased to fit into the range [0, 1].
+	is scaled and biased to fit into the range [0, 1]. Each channel takes 8 bits.
 	*/
 	//PX_NY_PZ
 };

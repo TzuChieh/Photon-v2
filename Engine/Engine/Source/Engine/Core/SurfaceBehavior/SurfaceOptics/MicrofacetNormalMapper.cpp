@@ -10,20 +10,14 @@
 #include "Engine/Math/TDecomposedTransform.h"
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 
-#include <Common/assertion.h>
-
 #include <cmath>
 #include <algorithm>
-#include <utility>
 
 namespace ph
 {
 
 namespace
 {
-
-// cos(0.05 degrees)
-inline constexpr auto cos_small_angle = 0.99999961922_r;
 
 inline math::Vector3R tangentFacetNormal(const math::Vector3R& Ng, const math::Vector3R& Np)
 {
@@ -78,7 +72,7 @@ MicrofacetNormalMapper::MicrofacetNormalMapper(
 	: m_target(target)
 	, m_normalMap(normalMap)
 	, m_sampler(math::EColorUsage::Raw)
-	, m_format(ENormalMapFormat::PX_PY_PZ)
+	, m_format(ENormalMapFormat::PXPYPZ_8Bits)
 {
 	PH_ASSERT(target);
 	PH_ASSERT(normalMap);
@@ -109,9 +103,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	const auto N = in.getX().getShadingNormal();
 	const auto Np = samplePerturbedNormal(in.getX());
 
-	// Just use the original BSDF if perturbation is too small
-	// (to avoid numerical error later during transform)
-	if(N.dot(Np) > cos_small_angle)
+	if(isPerturbationTooSmall(N.absDot(Np)))
 	{
 		m_target->genBsdfSampleCore(ctx, in, sampleFlow, out);
 		return;
@@ -193,23 +185,26 @@ math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X
 {
 	math::Vector3R Np = m_sampler.sample(*m_normalMap, X);
 
-	if(m_format == ENormalMapFormat::PX_PY_PZ)
+	if(m_format == ENormalMapFormat::PXPYPZ_8Bits)
 	{
 		Np = Np * 2 - 1;
 		
 		// Swizzle into Photon's local space convention
 		Np = {Np.y(), Np.z(), Np.x()};
-
-		// Basically the TBN matrix commonly heard in real-time rendering
-		//Np = X.getDetail().getShadingBasis().localToWorld(Np);
-		Np = X.getDetail().getGeometryBasis().localToWorld(Np);
 	}
 	else
 	{
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 
-	return Np.safeNormalize(X.getShadingNormal());
+	// Renormalize local normal, in case they it is interpolated or not stored in unit length.
+	// Some normal map also have quantization error and renormalization helps.
+	Np = Np.safeNormalize({0, 1, 0});
+
+	// To world space, with basically the TBN matrix commonly heard in real-time rendering
+	Np = X.getDetail().getShadingBasis().localToWorld(Np);
+
+	return Np;
 }
 
 }// end namespace ph

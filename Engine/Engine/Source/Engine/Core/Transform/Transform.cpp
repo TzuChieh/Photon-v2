@@ -91,9 +91,22 @@ void Transform::transform(
 	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
 	transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 
-	out_info->setAttributes(tPosition,
-	                        tGeometryNormal.normalizeLocal(),
-	                        tShadingNormal.normalizeLocal());
+	if(!info.hasShadingTangent())
+	{
+		out_info->setAttributes(tPosition,
+		                        tGeometryNormal.normalizeLocal(),
+		                        tShadingNormal.normalizeLocal());
+	}
+	else
+	{
+		math::Vector3R tShadingTangent;
+		transformVector(info.getShadingTangent(), time, &tShadingTangent);
+
+		out_info->setAttributes(tPosition,
+		                        tGeometryNormal.normalizeLocal(),
+		                        tShadingNormal.normalizeLocal(),
+		                        tShadingTangent.normalizeLocal());
+	}
 
 	math::Vector3R tdPdU;
 	math::Vector3R tdPdV;

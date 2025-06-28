@@ -96,7 +96,6 @@ void PLatLongEnvSphere::calcHitDetail(
 
 	out_detail->hitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
-		hitNormal,
 		hitNormal);
 	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 
