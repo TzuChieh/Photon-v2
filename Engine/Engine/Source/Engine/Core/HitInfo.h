@@ -8,6 +8,8 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
+#include <optional>
+
 namespace ph
 {
 
@@ -72,7 +74,7 @@ private:
 	math::Basis3R m_geometryBasis;
 	math::Basis3R m_shadingBasis;
 
-	uint32f m_hasShadingTangent : 1;
+	std::optional<math::Vector3R> m_shadingTangent;
 
 #if PH_DEBUG
 	bool m_isBasesComputed{false};
@@ -98,8 +100,8 @@ inline math::Vector3R HitInfo::getShadingNormal() const
 
 inline math::Vector3R HitInfo::getShadingTangent() const
 {
-	PH_ASSERT(m_hasShadingTangent);
-	return m_shadingBasis.getZAxis();
+	PH_ASSERT(hasShadingTangent());
+	return *m_shadingTangent;
 }
 
 inline math::Vector3R HitInfo::getdPdU() const
@@ -136,7 +138,7 @@ inline const math::Basis3R& HitInfo::getShadingBasis() const
 
 inline bool HitInfo::hasShadingTangent() const
 {
-	return m_hasShadingTangent;
+	return m_shadingTangent.has_value();
 }
 
 inline void HitInfo::setAttributes(
@@ -154,8 +156,7 @@ inline void HitInfo::setAttributes(
 	m_pos = pos;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
-
-	m_hasShadingTangent = false;
+	m_shadingTangent = std::nullopt;
 
 #if PH_DEBUG
 	m_isBasesComputed = false;
@@ -171,9 +172,7 @@ inline void HitInfo::setAttributes(
 	m_pos = pos;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
-	m_shadingBasis.setZAxis(shadingTangent);
-
-	m_hasShadingTangent = false;
+	m_shadingTangent = shadingTangent;
 
 #if PH_DEBUG
 	m_isBasesComputed = false;

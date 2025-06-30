@@ -42,6 +42,9 @@ inline real G1(
 		L *= -1;
 	}
 
+	// The H(<L, Np or Nt>) term is not used here. It is either implicitly or explicitly incorporated
+	// in the optics implementation.
+
 	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
 	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
 	return math::safe_clamp(
@@ -50,7 +53,7 @@ inline real G1(
 		1.0_r);
 }
 
-inline real lambdaP(
+inline real lambdaOfPerturbed(
 	const math::Vector3R& Ng,
 	const math::Vector3R& Np,
 	const math::Vector3R& Nt,
@@ -116,7 +119,77 @@ void MicrofacetNormalMapper::calcBsdfCore(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	PH_ASSERT_UNREACHABLE_SECTION();
+	const auto N = in.getX().getShadingNormal();
+	const auto Np = samplePerturbedNormal(in.getX());
+
+	if(isPerturbationTooSmall(N.absDot(Np)))
+	{
+		m_target->calcBsdfCore(ctx, in, out);
+		return;
+	}
+
+	out.setContributability(false);
+
+	const auto Nt = tangentFacetNormal(N, Np);
+	const real lambdaP = lambdaOfPerturbed(N, Np, Nt, in.getV());
+	const real G1TermForL = G1(N, Np, Nt, in.getL());
+	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
+
+	math::Spectrum weight(0);
+
+	// Case i -> p -> o
+	{
+		BsdfEvalInput perturbedIn{};
+		perturbedIn.set(perturbedX, in.getL(), in.getV());
+
+		BsdfEvalOutput perturbedOut{};
+		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * lambdaP * G1TermForL);
+		}
+	}
+
+	// Case i -> p -> t -> o; cannot exit from backface 
+	if(in.getL().dot(Nt) > 0)
+	{
+		// Reflect on the tangent facet (saved some negation here)
+		const auto Lp = in.getL().reflect(Nt).safeNormalize(N);
+
+		BsdfEvalInput perturbedIn{};
+		perturbedIn.set(perturbedX, Lp, in.getV());
+
+		BsdfEvalOutput perturbedOut{};
+		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			// The last `G1TermForL` is not a typo. In the original paper, equation 23 is multiplying
+			// with G1(L, Nt). Since we incorporate the Heviside term in the `if` condition above,
+			// we can use `G1TermForL` here as they are equivalent.
+			weight += 
+				perturbedOut.getBsdf() *
+				(Np.absDot(Lp) * lambdaP * (1 - G1(N, Np, Nt, Lp)) * G1TermForL);
+		}
+	}
+
+	// Case i -> t -> p -> o; cannot enter from backface
+	if(in.getV().dot(Nt) > 0)
+	{
+		// Reflect on the tangent facet (saved some negation here)
+		const auto Vp = in.getV().reflect(Nt).safeNormalize(N);
+
+		BsdfEvalInput perturbedIn{};
+		perturbedIn.set(perturbedX, in.getL(), Vp);
+
+		BsdfEvalOutput perturbedOut{};
+		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * (1 - lambdaP) * G1TermForL);
+		}
+	}
+
+	out.setBsdf(weight / N.absDot(in.getL()));
 }
 
 void MicrofacetNormalMapper::genBsdfSampleCore(
@@ -140,9 +213,10 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	const auto Nt = tangentFacetNormal(N, Np);
 	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
 
-	// Sample the perturbed facet
 	math::Spectrum weight(1);
-	if(sampleFlow.unflowedPick(lambdaP(N, Np, Nt, V)))
+
+	// Sample the perturbed facet
+	if(sampleFlow.unflowedPick(lambdaOfPerturbed(N, Np, Nt, V)))
 	{
 		BsdfSampleInput perturbedIn{};
 		perturbedIn.set(perturbedX, V);
@@ -165,7 +239,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 			else
 			{
 				// Reflect on the tangent facet
-				const auto Lt = Lp.reflect(Nt).safeNormalize(-Lp);
+				const auto Lt = Lp.reflect(Nt).safeNormalize(N);
 
 				weight *= G1(N, Np, Nt, Lt);
 
@@ -177,10 +251,11 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	// Sample the tangent facet
 	else
 	{
-		const auto Lt = (-V).reflect(Nt).safeNormalize(V);
+		// Reflect on the tangent facet (saved some negation here)
+		const auto Vp = (V).reflect(Nt).safeNormalize(N);
 
 		BsdfSampleInput perturbedIn{};
-		perturbedIn.set(perturbedX, -Lt);
+		perturbedIn.set(perturbedX, Vp);
 
 		BsdfSampleOutput perturbedOut{};
 		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
@@ -203,7 +278,75 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	PH_ASSERT_UNREACHABLE_SECTION();
+	const auto N = in.getX().getShadingNormal();
+	const auto Np = samplePerturbedNormal(in.getX());
+
+	if(isPerturbationTooSmall(N.absDot(Np)))
+	{
+		m_target->calcBsdfPdfCore(ctx, in, out);
+		return;
+	}
+
+	out.setSampleDirPdf({});
+
+	const auto Nt = tangentFacetNormal(N, Np);
+	const real lambdaP = lambdaOfPerturbed(N, Np, Nt, in.getV());
+	const real G1TermForL = G1(N, Np, Nt, in.getL());
+	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
+
+	real pdfW = 0;
+
+	// Case i -> p -> o
+	{
+		BsdfPdfInput perturbedIn{};
+		perturbedIn.set(perturbedX, in.getL(), in.getV());
+
+		BsdfPdfOutput perturbedOut{};
+		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			pdfW += perturbedOut.getSampleDirPdfW() * (lambdaP * G1TermForL);
+		}
+	}
+
+	// Case i -> p -> t -> o; cannot exit from backface 
+	if(in.getL().dot(Nt) > 0)
+	{
+		// Reflect on the tangent facet (saved some negation here)
+		const auto Lp = in.getL().reflect(Nt).safeNormalize(N);
+
+		BsdfPdfInput perturbedIn{};
+		perturbedIn.set(perturbedX, Lp, in.getV());
+
+		BsdfPdfOutput perturbedOut{};
+		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			// The last `G1TermForL` is not a typo, see the corresponding part in `calcBsdfCore()`.
+			pdfW +=
+				perturbedOut.getSampleDirPdfW() *
+				(lambdaP * (1 - G1(N, Np, Nt, Lp)) * G1TermForL);
+		}
+	}
+
+	// Case i -> t -> p -> o; cannot enter from backface
+	if(in.getV().dot(Nt) > 0)
+	{
+		// Reflect on the tangent facet (saved some negation here)
+		const auto Vp = in.getV().reflect(Nt).safeNormalize(N);
+
+		BsdfPdfInput perturbedIn{};
+		perturbedIn.set(perturbedX, in.getL(), Vp);
+
+		BsdfPdfOutput perturbedOut{};
+		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		if(perturbedOut)
+		{
+			pdfW += perturbedOut.getSampleDirPdfW() * ((1 - lambdaP) * G1TermForL);
+		}
+	}
+
+	out.setSampleDirPdf(lta::PDF::W(pdfW));
 }
 
 math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X) const

@@ -53,7 +53,7 @@ HitInfo::HitInfo()
 	, m_geometryBasis()
 	, m_shadingBasis()
 
-	, m_hasShadingTangent(false)
+	, m_shadingTangent(std::nullopt)
 {}
 
 void HitInfo::computeBases()
@@ -74,7 +74,7 @@ void HitInfo::computeBases()
 	// Shading basis
 
 	// X axis of shading basis: try to align with tangent if available
-	if(m_hasShadingTangent)
+	if(hasShadingTangent())
 	{
 		if(!compute_basis_from_Y_and_refZ(m_shadingBasis, getShadingTangent()))
 		{

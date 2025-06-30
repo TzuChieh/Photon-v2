@@ -185,6 +185,7 @@ void Transform::transform(
 
 	if(surfaceHit.hasFullHitDetail())
 	{
+		// We can only modify world hit info by transform
 		tDetail.computeBasesOf(ECoordSys::World);
 	}
 
