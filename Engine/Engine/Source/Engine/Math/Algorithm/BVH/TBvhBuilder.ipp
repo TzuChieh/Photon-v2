@@ -412,6 +412,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 		buckets[bucketIndex].numItems++;
 	}
 
+	// For x buckets, there are x - 1 split points, and we expect at least 1 split point
+	PH_ASSERT_GE(m_params.numSahBuckets - 1, 1);
+
 	std::array<real, MAX_SAH_BUCKETS - 1> splitCosts{};
 	for(std::size_t i = 0; i < m_params.numSahBuckets - 1; ++i)
 	{
@@ -445,7 +448,7 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	}
 
 	const auto minCostIndex = static_cast<std::size_t>(
-		std::min_element(splitCosts.begin(), splitCosts.begin() + m_params.numSahBuckets) - splitCosts.begin());
+		std::min_element(splitCosts.begin(), splitCosts.begin() + (m_params.numSahBuckets - 1)) - splitCosts.begin());
 	const real minSplitCost = splitCosts[minCostIndex];
 	const real noSplitCost  = m_params.interactCost * static_cast<real>(itemInfos.size());
 
