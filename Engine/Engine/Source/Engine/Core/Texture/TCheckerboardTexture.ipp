@@ -5,45 +5,38 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
-#include <memory>
-
 namespace ph
 {
 
 template<typename OutputType>
 inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
-	const real numUtiles,
-	const real numVtiles,
+	const real numUTiles,
+	const real numVTiles,
 	const OutputType& oddValue, const OutputType& evenValue) : 
 
 	TCheckerboardTexture(
-		numUtiles, numVtiles, 
+		numUTiles, numVTiles, 
 		std::make_shared<TConstantTexture<OutputType>>(oddValue),
 		std::make_shared<TConstantTexture<OutputType>>(evenValue))
 {}
 
 template<typename OutputType>
 inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
-	const real numUtiles,
-	const real numVtiles,
+	const real numUTiles,
+	const real numVTiles,
 	const std::shared_ptr<TTexture<OutputType>>& oddTexture,
 	const std::shared_ptr<TTexture<OutputType>>& evenTexture)
 {
-	if(numUtiles <= 0.0f || numVtiles <= 0.0f)
+	if(numUTiles <= 0.0f || numVTiles <= 0.0f)
 	{
 		PH_DEFAULT_LOG(Warning,
 			"at TCheckerboardTexture's ctor, number of tiles <= 0 (numUtiles = {}, numVtiles = {})",
-			numUtiles, numVtiles);
+			numUTiles, numVTiles);
 	}
 
 	setOddTexture(oddTexture);
 	setEvenTexture(evenTexture);
-
-	setOddTextureScale(math::Vector3R(1.0_r / numUtiles));
-	setEvenTextureScale(math::Vector3R(1.0_r / numVtiles));
-
-	m_uTileSize = 1.0f / numUtiles;
-	m_vTileSize = 1.0f / numVtiles;
+	setNumTiles(numUTiles, numVTiles);
 }
 
 template<typename OutputType>
@@ -57,16 +50,17 @@ inline void TCheckerboardTexture<OutputType>::sample(
 	const int32 uNumber = static_cast<int32>(std::floor(uvw.x() / m_uTileSize));
 	const int32 vNumber = static_cast<int32>(std::floor(uvw.y() / m_vTileSize));
 
+	TTexture<OutputType>* tileTexture = nullptr;
 	if(std::abs(uNumber % 2) != std::abs(vNumber % 2))
 	{
-		m_oddTexture->sample(sampleLocation.getUvwScaled(m_oddUvwScale), 
-		                     out_value);
+		tileTexture = m_oddTexture.get();
 	}
 	else
 	{
-		m_evenTexture->sample(sampleLocation.getUvwScaled(m_evenUvwScale), 
-		                      out_value);
+		tileTexture = m_evenTexture.get();
 	}
+
+	tileTexture->sample(sampleLocation.getUvwScaled(m_uvwScale), out_value);
 }
 
 template<typename OutputType>
@@ -97,21 +91,15 @@ inline void TCheckerboardTexture<OutputType>::setEvenTexture(
 	m_evenTexture = evenTexture;
 }
 
-/*
-	Note that in order to scale a texture, we need to multiply texture
-	coordinates by a reciprocal factor.
-*/
-
 template<typename OutputType>
-inline void TCheckerboardTexture<OutputType>::setOddTextureScale(const math::Vector3R& scale)
+inline void TCheckerboardTexture<OutputType>::setNumTiles(real numUTiles, real numVTiles)
 {
-	m_oddUvwScale = scale.rcp();
-}
+	m_uTileSize = 1.0f / numUTiles;
+	m_vTileSize = 1.0f / numVTiles;
 
-template<typename OutputType>
-inline void TCheckerboardTexture<OutputType>::setEvenTextureScale(const math::Vector3R& scale)
-{
-	m_evenUvwScale = scale.rcp();
+	// Note that in order to scale a texture, we need to multiply texture coordinates by
+	// the reciprocal of tile size, which is equivalent to multiplying by tile size.
+	m_uvwScale = {numUTiles, numVTiles, 1};
 }
 
 }// end namespace ph

@@ -28,14 +28,14 @@ class TCheckerboardTexture : public TTexture<OutputType>
 {
 public:
 	TCheckerboardTexture(
-		real numUtiles,
-		real numVtiles,
+		real numUTiles,
+		real numVTiles,
 		const OutputType& oddValue, 
 		const OutputType& evenValue);
 
 	TCheckerboardTexture(
-		real numUtiles,
-		real numVtiles,
+		real numUTiles,
+		real numVTiles,
 		const std::shared_ptr<TTexture<OutputType>>& oddTexture, 
 		const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
@@ -49,14 +49,11 @@ public:
 	*/
 	void setEvenTexture(const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
-	/*! @brief Sets the scale factors of cell texture.
-	Larger u-, v- and w-scale makes texture appears to be larger in the corresponding direction,
-	and vice versa.
+	/*! @brief Sets the number of tiles of the checkerboard.
+	Internally, this sets the scale factors of cell texture. Larger u-, v- and w-scale makes texture
+	appears to be smaller in the corresponding direction, and vice versa.
 	*/
-	///@{
-	void setOddTextureScale(const math::Vector3R& sale);
-	void setEvenTextureScale(const math::Vector3R& scale);
-	///@}
+	void setNumTiles(real numUTiles, real numVTiles);
 
 private:
 	std::shared_ptr<TTexture<OutputType>> m_oddTexture;
@@ -64,8 +61,7 @@ private:
 
 	real m_uTileSize;
 	real m_vTileSize;
-	math::Vector3R m_oddUvwScale;
-	math::Vector3R m_evenUvwScale;
+	math::Vector3R m_uvwScale;
 };
 
 }// end namespace ph
