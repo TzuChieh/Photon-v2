@@ -30,6 +30,12 @@ inline real positiveDot(const math::Vector3R& A, const math::Vector3R& B)
 	return std::max(A.dot(B), 0.0_r);
 }
 
+inline real heaviside(const real x)
+{
+	return x >= 0 ? 1.0_r : 0.0_r;
+}
+
+template<bool IS_PERTURBED_FACET>
 inline real G1(
 	const math::Vector3R& Ng, 
 	const math::Vector3R& Np, 
@@ -42,18 +48,45 @@ inline real G1(
 		L *= -1;
 	}
 
-	// The H(<L, Np or Nt>) term is not used here. It is either implicitly or explicitly incorporated
-	// in the optics implementation.
+	real heavisideTerm;
+	if constexpr(IS_PERTURBED_FACET)
+	{
+		// To support transparent perturbed facet, we need to allow transmission
+		heavisideTerm = 1;
+	}
+	else
+	{
+		heavisideTerm = heaviside(Nt.dot(L));
+	}
 
-	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
-	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
-	return math::safe_clamp(
+	const real NgDotNp2 = std::min(math::squared(Ng.dot(Np)), 1.0_r);
+	const real sinNgDotNp = std::sqrt(1 - NgDotNp2);
+	return heavisideTerm * math::safe_clamp(
 		(positiveDot(Ng, L) * positiveDot(Np, L)) / (positiveDot(Np, L) + positiveDot(Nt, L) * sinNgDotNp),
 		0.0_r,
 		1.0_r);
 }
 
-inline real lambdaOfPerturbed(
+inline real G1OfPerturbedFacet(
+	const math::Vector3R& Ng,
+	const math::Vector3R& Np,
+	const math::Vector3R& Nt,
+	const math::Vector3R& L)
+{
+	return G1<true>(Ng, Np, Nt, L);
+}
+
+inline real G1OfTangentFacet(
+	const math::Vector3R& Ng,
+	const math::Vector3R& Np,
+	const math::Vector3R& Nt,
+	const math::Vector3R& L)
+{
+	return G1<false>(Ng, Np, Nt, L);
+}
+
+template<bool IS_PERTURBED_FACET>
+inline real lambda(
 	const math::Vector3R& Ng,
 	const math::Vector3R& Np,
 	const math::Vector3R& Nt,
@@ -65,12 +98,39 @@ inline real lambdaOfPerturbed(
 		L *= -1;
 	}
 
-	const real NgDotNp = std::min(Ng.dot(Np), 1.0_r);
-	const real sinNgDotNp = std::sqrt(1 - NgDotNp * NgDotNp);
-	return math::safe_clamp(
+	const real NgDotNp2 = std::min(math::squared(Ng.dot(Np)), 1.0_r);
+	const real sinNgDotNp = std::sqrt(1 - NgDotNp2);
+	const real lambdaP = math::safe_clamp(
 		positiveDot(Np, L) / (positiveDot(Np, L) + positiveDot(Nt, L) * sinNgDotNp),
 		0.0_r, 
 		1.0_r);
+
+	if constexpr(IS_PERTURBED_FACET)
+	{
+		return lambdaP;
+	}
+	else
+	{
+		return 1 - lambdaP;
+	}
+}
+
+inline real lambdaOfPerturbedFacet(
+	const math::Vector3R& Ng,
+	const math::Vector3R& Np,
+	const math::Vector3R& Nt,
+	const math::Vector3R& L)
+{
+	return lambda<true>(Ng, Np, Nt, L);
+}
+
+inline real lambdaOfTangentFacet(
+	const math::Vector3R& Ng,
+	const math::Vector3R& Np,
+	const math::Vector3R& Nt,
+	const math::Vector3R& L)
+{
+	return lambda<false>(Ng, Np, Nt, L);
 }
 
 inline SurfaceHit perturbX(
@@ -131,8 +191,8 @@ void MicrofacetNormalMapper::calcBsdfCore(
 	out.setContributability(false);
 
 	const auto Nt = tangentFacetNormal(N, Np);
-	const real lambdaP = lambdaOfPerturbed(N, Np, Nt, in.getV());
-	const real G1TermForL = G1(N, Np, Nt, in.getL());
+	const real lambdaP = lambdaOfPerturbedFacet(N, Np, Nt, in.getV());
+	const real G1PForL = G1OfPerturbedFacet(N, Np, Nt, in.getL());
 	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
 
 	math::Spectrum weight(0);
@@ -146,7 +206,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * lambdaP * G1TermForL);
+			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * lambdaP * G1PForL);
 		}
 	}
 
@@ -163,12 +223,9 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			// The last `G1TermForL` is not a typo. In the original paper, equation 23 is multiplying
-			// with G1(L, Nt). Since we incorporate the Heviside term in the `if` condition above,
-			// we can use `G1TermForL` here as they are equivalent.
-			weight += 
-				perturbedOut.getBsdf() *
-				(Np.absDot(Lp) * lambdaP * (1 - G1(N, Np, Nt, Lp)) * G1TermForL);
+			const real G1PForLp = G1OfPerturbedFacet(N, Np, Nt, Lp);
+			const real G1TForL = G1OfTangentFacet(N, Np, Nt, in.getL());
+			weight += perturbedOut.getBsdf() * (Np.absDot(Lp) * lambdaP * (1 - G1PForLp) * G1TForL);
 		}
 	}
 
@@ -185,7 +242,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * (1 - lambdaP) * G1TermForL);
+			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * (1 - lambdaP) * G1PForL);
 		}
 	}
 
@@ -216,7 +273,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	math::Spectrum weight(1);
 
 	// Sample the perturbed facet
-	if(sampleFlow.unflowedPick(lambdaOfPerturbed(N, Np, Nt, V)))
+	if(sampleFlow.unflowedPick(lambdaOfPerturbedFacet(N, Np, Nt, V)))
 	{
 		BsdfSampleInput perturbedIn{};
 		perturbedIn.set(perturbedX, V);
@@ -230,8 +287,9 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 			const auto Lp = perturbedOut.getL();
 
 			// `Lp` is not shadowed
-			if(sampleFlow.unflowedPick(G1(N, Np, Nt, Lp)))
+			if(sampleFlow.unflowedPick(G1OfPerturbedFacet(N, Np, Nt, Lp)))
 			{
+				// Case i -> p -> o
 				out.setL(Lp);
 				out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
 			}
@@ -241,8 +299,9 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 				// Reflect on the tangent facet
 				const auto Lt = Lp.reflect(Nt).safeNormalize(N);
 
-				weight *= G1(N, Np, Nt, Lt);
+				weight *= G1OfTangentFacet(N, Np, Nt, Lt);
 
+				// Case i -> p -> t -> o
 				out.setL(Lt);
 				out.setPdfAppliedBsdfCos(weight, N.absDot(Lt));
 			}
@@ -265,8 +324,9 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 
 			const auto Lp = perturbedOut.getL();
 
-			weight *= G1(N, Np, Nt, Lp);
+			weight *= G1OfPerturbedFacet(N, Np, Nt, Lp);
 
+			// Case i -> t -> p -> o
 			out.setL(Lp);
 			out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
 		}
@@ -290,8 +350,8 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 	out.setSampleDirPdf({});
 
 	const auto Nt = tangentFacetNormal(N, Np);
-	const real lambdaP = lambdaOfPerturbed(N, Np, Nt, in.getV());
-	const real G1TermForL = G1(N, Np, Nt, in.getL());
+	const real lambdaP = lambdaOfPerturbedFacet(N, Np, Nt, in.getV());
+	const real G1PForL = G1OfPerturbedFacet(N, Np, Nt, in.getL());
 	const SurfaceHit perturbedX = perturbX(in.getX(), N, Np);
 
 	real pdfW = 0;
@@ -305,7 +365,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			pdfW += perturbedOut.getSampleDirPdfW() * (lambdaP * G1TermForL);
+			pdfW += perturbedOut.getSampleDirPdfW() * (lambdaP * G1PForL);
 		}
 	}
 
@@ -322,10 +382,8 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			// The last `G1TermForL` is not a typo, see the corresponding part in `calcBsdfCore()`.
-			pdfW +=
-				perturbedOut.getSampleDirPdfW() *
-				(lambdaP * (1 - G1(N, Np, Nt, Lp)) * G1TermForL);
+			const real G1ForLp = G1OfPerturbedFacet(N, Np, Nt, Lp);
+			pdfW += perturbedOut.getSampleDirPdfW() * (lambdaP * (1 - G1ForLp));
 		}
 	}
 
@@ -342,7 +400,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
-			pdfW += perturbedOut.getSampleDirPdfW() * ((1 - lambdaP) * G1TermForL);
+			pdfW += perturbedOut.getSampleDirPdfW() * (1 - lambdaP);
 		}
 	}
 
