@@ -37,6 +37,7 @@ struct PMCommonParams
 	0-bounce lighting is done via traditional path sampling.
 	*/
 	uint32 minPhotonPathLength = 1;
+	//uint32 minPhotonPathLength = 2;// DEBUG
 
 	/*! Maximum path length for a photon. The default value is effectively infinite bounces.
 	Combined with `minPhotonPathLength`, these parameters are useful if only some number of bounces
@@ -51,7 +52,7 @@ struct PMCommonParams
 	*/
 	real alpha = 2.0_r / 3.0_r;
 
-	/*! Hint for the minimum path length to start estimating energy using photons on glossy surface.
+	/*! Hint for the minimum view path length to start estimating energy using photons on glossy surface.
 	If the scene contains diffuse surface and is easily reachable by photons, it is recommended
 	to set this to a lower value.
 	*/

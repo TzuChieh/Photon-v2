@@ -88,7 +88,7 @@ public:
 
 		TSdlUInt32<OwnerType> glossyMergeBeginLengthHint("glossy-merge-begin-length-hint", &OwnerType::m_glossyMergeBeginLengthHint);
 		glossyMergeBeginLengthHint.description(
-			"Hint for the minimum path length to start estimating energy using photons on glossy surface."
+			"Hint for the minimum view path length to start estimating energy using photons on glossy surface."
 			"If the scene contains diffuse surface and is easily reachable by photons, it is recommended "
 			"to set this to a lower value.");
 		glossyMergeBeginLengthHint.defaultTo(commonParams.glossyMergeBeginLengthHint);

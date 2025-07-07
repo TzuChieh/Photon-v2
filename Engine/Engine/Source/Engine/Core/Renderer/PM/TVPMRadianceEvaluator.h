@@ -168,6 +168,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		ESurfacePhenomenon::NearDiffuseReflection,
 		ESurfacePhenomenon::NearDiffuseTransmission};
 
+	// TODO: properly differentiate diffuse & glossy threshold
 	const auto phenomena = optics.getAllPhenomena();
 	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
 		? phenomena.hasAny(smoothEnoughPhenomena)

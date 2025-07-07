@@ -82,9 +82,9 @@ if we account for the BSDF asymmetry when shading normal is used. However, this 
 high variance (big firefly marks). This version attempts to lower the variance by removing large
 correction factor (and this introduces bias, though not easily noticeable).
 
-In PBRT-v3, this factor is completely ignored. In Mitsuba 0.6, this factor is only applied on last
-bounce, i.e., during radiance estimation (applying the `importance_BSDF_Ns_corrector()`, not the
-scattering/throughput one).
+In PBRT-v3, this factor is completely ignored. In Mitsuba 0.6, this factor is also ignored (see
+`ParticleTracer::process()`) except for last bounce, i.e., during radiance estimation (applying
+the `importance_BSDF_Ns_corrector()`, not the scattering/throughput one).
 */
 inline real tamed_importance_scatter_Ns_corrector(
 	const math::Vector3R& Ns,
@@ -113,7 +113,8 @@ inline real tamed_importance_BSDF_Ns_corrector(
 	return factor;
 #else
 	// To my testing, the corrector for BSDF dominates the unbearable variance. Clamping to 10 seems to
-	// work well. Mitsuba 0.6 uses another approach: discards the photon if `Ng.dot(V) < 1e-2f`.
+	// work well. Mitsuba 0.6 uses another approach: discards the photon if `Ng.dot(V) < 1e-2f` (see its
+	// `RawRadianceQuery`).
 	return math::safe_clamp(factor, 0.0_r, 10.0_r);
 #endif
 }

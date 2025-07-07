@@ -161,8 +161,8 @@ class Exporter:
             visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
             visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
             visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-            visualizer.set_glossy_merge_begin_length(sdl.Integer(b_scene.ph_render_glossy_merge_begin_length))
-            visualizer.set_stochastic_view_sample_begin_length(sdl.Integer(b_scene.ph_render_stochastic_view_sample_begin_length))
+            visualizer.set_glossy_merge_begin_length_hint(sdl.Integer(b_scene.ph_render_glossy_merge_begin_length))
+            visualizer.set_stochastic_view_sample_begin_length_hint(sdl.Integer(b_scene.ph_render_stochastic_view_sample_begin_length))
 
             if integrator_type != 'VPM':
                 visualizer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
