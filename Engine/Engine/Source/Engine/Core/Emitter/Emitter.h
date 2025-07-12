@@ -22,10 +22,10 @@ namespace detail
 
 using EmitterFlagIntType = uint8;
 
-inline constexpr auto efs_zero_bounce_sample_bits = math::flag_bit<uint8, 1>();
-inline constexpr auto efs_bsdf_sample_bits        = math::flag_bit<uint8, 2>();
-inline constexpr auto efs_direct_sample_bits      = math::flag_bit<uint8, 3>();
-inline constexpr auto efs_emission_sample_bits    = math::flag_bit<uint8, 4>();
+inline constexpr auto efs_zero_bounce_sample_bits = math::flag_bit<EmitterFlagIntType, 1>();
+inline constexpr auto efs_bsdf_sample_bits        = math::flag_bit<EmitterFlagIntType, 2>();
+inline constexpr auto efs_direct_sample_bits      = math::flag_bit<EmitterFlagIntType, 3>();
+inline constexpr auto efs_emission_sample_bits    = math::flag_bit<EmitterFlagIntType, 4>();
 
 }// end namespace detail
 

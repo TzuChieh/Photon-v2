@@ -18,10 +18,10 @@ namespace detail
 
 using HitReasonIntType = uint8;
 
-inline constexpr auto hr_unknown_bits      = math::flag_bit<uint8, 0>();
-inline constexpr auto hr_incident_ray_bits = math::flag_bit<uint8, 1>();
-inline constexpr auto hr_sampled_pos_bits  = math::flag_bit<uint8, 2>();
-inline constexpr auto hr_sampled_dir_bits  = math::flag_bit<uint8, 3>();
+inline constexpr auto hr_unknown_bits      = math::flag_bit<HitReasonIntType, 0>();
+inline constexpr auto hr_incident_ray_bits = math::flag_bit<HitReasonIntType, 1>();
+inline constexpr auto hr_sampled_pos_bits  = math::flag_bit<HitReasonIntType, 2>();
+inline constexpr auto hr_sampled_dir_bits  = math::flag_bit<HitReasonIntType, 3>();
 
 }// end namespace detail
 

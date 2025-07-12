@@ -36,7 +36,7 @@ public:
 		const TPhotonMapInfo<Photon>& photonMapInfo,
 		const Scene*                  scene);
 
-	bool impl_onReceiverSampleStart(
+	bool impl_onReceiverSampleBegin(
 		const math::Vector2D& rasterCoord,
 		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
@@ -93,7 +93,7 @@ inline TPPMViewpointCollector<Viewpoint, Photon>::TPPMViewpointCollector(
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
-inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleStart(
+inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleBegin(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -160,8 +160,8 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	// NOTE: Also merges on glossy! This is just a reference implementation and this can simplify
 	// the logic. Can also merge on delta elemental when max viewpoint depth reached (in this case
 	// some energy is lost due to the view point depth limit).
-	if(pathLength == m_maxViewpointDepth || optics.getAllPhenomena().hasNone({
-		ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}))
+	if(pathLength == m_maxViewpointDepth ||
+	   optics.getAllPhenomena().hasNone(ESurfacePhenomenon::Delta))
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
@@ -185,8 +185,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 	else
 	{
-		PH_ASSERT(optics.getAllPhenomena().hasAny({
-			ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}));
+		PH_ASSERT(optics.getAllPhenomena().hasAny(ESurfacePhenomenon::Delta));
 
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
@@ -200,8 +199,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 		}
 
 		return ViewPathTracingPolicy().
-			traceBranchedPathFor(SurfacePhenomena({
-				ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission})).
+			traceBranchedPathFor(SurfacePhenomena(ESurfacePhenomenon::Delta)).
 			useRussianRoulette(false);
 	}
 }

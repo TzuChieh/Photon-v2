@@ -89,7 +89,7 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			tracingRay.reverse();
 
 			math::Spectrum pathThroughput(quantityWeight);
-			if(!m_handler->onReceiverSampleStart(rasterCoord, sampleIndex, pathThroughput))
+			if(!m_handler->onReceiverSampleBegin(rasterCoord, sampleIndex, pathThroughput))
 			{
 				m_handler->onReceiverSampleEnd();
 				continue;

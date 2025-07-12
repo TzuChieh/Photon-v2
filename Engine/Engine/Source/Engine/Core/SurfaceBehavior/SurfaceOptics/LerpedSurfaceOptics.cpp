@@ -61,8 +61,8 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	m_numElementals = optics0->numElementals() + optics1->numElementals();
 
 	m_containsDelta = 
-		optics0->getAllPhenomena().hasAny(DELTA_SURFACE_PHENOMENA) ||
-		optics1->getAllPhenomena().hasAny(DELTA_SURFACE_PHENOMENA);
+		optics0->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta) ||
+		optics1->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
 }
 
 ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental elemental) const

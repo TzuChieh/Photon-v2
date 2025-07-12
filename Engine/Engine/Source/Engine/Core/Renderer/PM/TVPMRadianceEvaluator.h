@@ -33,7 +33,7 @@ public:
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film);
 
-	bool impl_onReceiverSampleStart(
+	bool impl_onReceiverSampleBegin(
 		const math::Vector2D&          rasterCoord,
 		const math::Vector2S&          sampleIndex,
 		const math::Spectrum&          pathThroughput);
@@ -132,7 +132,7 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 
 template<CPhoton Photon, typename PhotonMap>
 inline bool TVPMRadianceEvaluator<Photon, PhotonMap>
-::impl_onReceiverSampleStart(
+::impl_onReceiverSampleBegin(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -164,18 +164,17 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 	m_sampledRadiance += unaccountedEnergy;
 
 	const auto smoothEnoughPhenomena = {
-		DIFFUSE_SURFACE_PHENOMENA,
-		ESurfacePhenomenon::NearDiffuseReflection,
-		ESurfacePhenomenon::NearDiffuseTransmission};
+		ESurfacePhenomenon::Diffuse,
+		ESurfacePhenomenon::NearDiffuse};
 
 	// TODO: properly differentiate diffuse & glossy threshold
 	const auto phenomena = optics.getAllPhenomena();
 	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
 		? phenomena.hasAny(smoothEnoughPhenomena)
-		: phenomena.hasExactly(DIFFUSE_SURFACE_PHENOMENA);
+		: phenomena.hasExactly(ESurfacePhenomenon::Diffuse);
 
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
-	   phenomena.hasNone(DELTA_SURFACE_PHENOMENA) &&
+	   phenomena.hasNone(ESurfacePhenomenon::Delta) &&
 	   isSufficientlyDiffuse)
 	{
 		const BsdfQueryContext bsdfContext(
@@ -214,7 +213,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		if(pathLength < m_stochasticSampleBeginLength)
 		{
 			return ViewPathTracingPolicy().
-				traceBranchedPathFor(SurfacePhenomena(ALL_SURFACE_PHENOMENA)).
+				traceBranchedPathFor(ALL_SURFACE_PHENOMENA).
 				useRussianRoulette(false);
 		}
 		else

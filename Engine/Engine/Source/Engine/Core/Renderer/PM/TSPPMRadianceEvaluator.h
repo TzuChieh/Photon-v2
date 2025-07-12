@@ -53,7 +53,7 @@ public:
 		std::size_t                    totalPhotonPaths,
 		std::size_t                    numViewRadianceSamples);
 
-	bool impl_onReceiverSampleStart(
+	bool impl_onReceiverSampleBegin(
 		const math::Vector2D&          rasterCoord,
 		const math::Vector2S&          sampleIndex,
 		const math::Spectrum&          pathThroughput);
@@ -131,7 +131,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
-inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStart(
+inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleBegin(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -162,11 +162,10 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 
 	const auto smoothEnoughPhenomena = {
-		DIFFUSE_SURFACE_PHENOMENA,
-		ESurfacePhenomenon::NearDiffuseReflection,
-		ESurfacePhenomenon::NearDiffuseTransmission};
+		ESurfacePhenomenon::Diffuse,
+		ESurfacePhenomenon::NearDiffuse};
 
-	if(optics.getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) && 
+	if(optics.getAllPhenomena().hasNone(ESurfacePhenomenon::Delta) &&
 	   optics.getAllPhenomena().hasAny(smoothEnoughPhenomena))
 	{
 		// For path length = N, we can construct light transport path lengths with photon map,

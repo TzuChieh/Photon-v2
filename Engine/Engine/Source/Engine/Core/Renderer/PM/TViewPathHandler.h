@@ -4,6 +4,7 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Renderer/PM/ViewPathTracingPolicy.h"
+#include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Engine/Utility/utility.h"
 #include "Engine/Utility/traits.h"
 
@@ -30,7 +31,7 @@ public:
 	/*! @brief Called after a receiver sample is generated.
 	@return Whether this receiver sample should be used.
 	*/
-	bool onReceiverSampleStart(
+	bool onReceiverSampleBegin(
 		const math::Vector2D& rasterCoord,
 		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
@@ -61,7 +62,7 @@ protected:
 // In-header Implementations:
 
 template<typename Derived>
-bool TViewPathHandler<Derived>::onReceiverSampleStart(
+bool TViewPathHandler<Derived>::onReceiverSampleBegin(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -73,7 +74,7 @@ bool TViewPathHandler<Derived>::onReceiverSampleStart(
 		math::Spectrum pathThroughput)
 		{
 			{
-				derived.impl_onReceiverSampleStart(
+				derived.impl_onReceiverSampleBegin(
 					rasterCoord,
 					sampleIndex, 
 					pathThroughput)
@@ -81,9 +82,9 @@ bool TViewPathHandler<Derived>::onReceiverSampleStart(
 			-> CSame<bool>;
 		},
 		"A view path handler type must implement a method callable as "
-		"`impl_onReceiverSampleStart(math::Vector2D{}, math::Vector2S{}, math::Spectrum{}) -> bool`.");
+		"`impl_onReceiverSampleBegin(math::Vector2D{}, math::Vector2S{}, math::Spectrum{}) -> bool`.");
 
-	return static_cast<Derived&>(*this).impl_onReceiverSampleStart(
+	return static_cast<Derived&>(*this).impl_onReceiverSampleBegin(
 		rasterCoord,
 		sampleIndex,
 		pathThroughput);
