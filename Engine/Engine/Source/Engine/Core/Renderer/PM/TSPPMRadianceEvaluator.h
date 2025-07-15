@@ -144,9 +144,9 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleBegi
 
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
-	const std::size_t     pathLength,
-	const SurfaceHit&     surfaceHit,
-	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
+	const std::size_t       pathLength,
+	const SurfaceHit&       surfaceHit,
+	const math::Spectrum&   pathThroughput) -> ViewPathTracingPolicy
 {
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 

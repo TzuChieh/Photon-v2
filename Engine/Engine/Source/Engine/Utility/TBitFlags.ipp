@@ -160,6 +160,20 @@ inline constexpr Value TBitFlags<Value, Input>::get() const
 }
 
 template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::operator == (const TBitFlags& rhs) const
+{
+	return isEqual(rhs);
+}
+
+#if !PH_COMPILER_HAS_P2468R2
+template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::operator != (const TBitFlags& rhs) const
+{
+	return !isEqual(rhs);
+}
+#endif
+
+template<typename Value, typename Input>
 inline constexpr Value TBitFlags<Value, Input>::collectFlags(const FlagsSet& flagsSet)
 {
 	Value inputFlags = 0;

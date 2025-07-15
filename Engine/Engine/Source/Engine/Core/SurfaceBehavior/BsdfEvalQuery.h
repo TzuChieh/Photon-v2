@@ -75,6 +75,8 @@ public:
 	*/
 	void setContributability(const math::Spectrum& reference);
 
+	void add(const BsdfEvalOutput& other);
+
 	/*! @brief Convenient method for `isContributable()`.
 	*/
 	operator bool () const;
@@ -185,6 +187,16 @@ inline void BsdfEvalOutput::setContributability(const bool contributability)
 inline void BsdfEvalOutput::setContributability(const math::Spectrum& reference)
 {
 	setContributability(reference.isFinite());
+}
+
+inline void BsdfEvalOutput::add(const BsdfEvalOutput& other)
+{
+	m_isContributable = isContributable() || other.isContributable();
+
+	if(other.isContributable())
+	{
+		m_bsdf += other.m_bsdf;
+	}
 }
 
 inline BsdfEvalOutput::operator bool () const

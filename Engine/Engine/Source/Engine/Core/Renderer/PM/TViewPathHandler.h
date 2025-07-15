@@ -4,7 +4,6 @@
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Renderer/PM/ViewPathTracingPolicy.h"
-#include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Engine/Utility/utility.h"
 #include "Engine/Utility/traits.h"
 
@@ -92,15 +91,15 @@ bool TViewPathHandler<Derived>::onReceiverSampleBegin(
 
 template<typename Derived>
 auto TViewPathHandler<Derived>::onPathHitSurface(
-	const std::size_t     pathLength,
-	const SurfaceHit&     surfaceHit,
-	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
+	const std::size_t       pathLength,
+	const SurfaceHit&       surfaceHit,
+	const math::Spectrum&   pathThroughput) -> ViewPathTracingPolicy
 {
 	static_assert(requires (
-		Derived        derived,
-		std::size_t    pathLength,
-		SurfaceHit     surfaceHit,
-		math::Spectrum pathThroughput)
+		Derived          derived,
+		std::size_t      pathLength,
+		SurfaceHit       surfaceHit,
+		math::Spectrum   pathThroughput)
 		{
 			{
 				derived.impl_onPathHitSurface(

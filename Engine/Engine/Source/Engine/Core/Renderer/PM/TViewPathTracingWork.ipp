@@ -96,7 +96,6 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			}
 
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
-			real rrScale = 1.0_r;
 
 			traceViewPath(
 				SurfaceHit{},
@@ -148,6 +147,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		}
 
 		++pathLength;
+
 		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, X, pathThroughput);
 		if(policy.isKilled())
 		{
@@ -155,7 +155,6 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		}
 
 		PH_ASSERT_IN_RANGE(tracingRay.getDir().lengthSquared(), 0.9_r, 1.1_r);
-
 		const math::Vector3R V = -tracingRay.getDir();
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)

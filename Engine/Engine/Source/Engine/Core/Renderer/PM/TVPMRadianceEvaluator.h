@@ -146,9 +146,9 @@ inline bool TVPMRadianceEvaluator<Photon, PhotonMap>
 template<CPhoton Photon, typename PhotonMap>
 inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 ::impl_onPathHitSurface(
-	const std::size_t     pathLength,
-	const SurfaceHit&     surfaceHit,
-	const math::Spectrum& pathThroughput)
+	const std::size_t       pathLength,
+	const SurfaceHit&       surfaceHit,
+	const math::Spectrum&   pathThroughput)
 -> ViewPathTracingPolicy
 {
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
@@ -163,18 +163,33 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
 
+	const auto smoothPhenomena = {
+		ESurfacePhenomenon::Diffuse};
 	const auto smoothEnoughPhenomena = {
 		ESurfacePhenomenon::Diffuse,
 		ESurfacePhenomenon::NearDiffuse};
-
-	// TODO: properly differentiate diffuse & glossy threshold
 	const auto phenomena = optics.getAllPhenomena();
-	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
-		? phenomena.hasAny(smoothEnoughPhenomena)
-		: phenomena.hasExactly(ESurfacePhenomenon::Diffuse);
+
+	bool shouldExtendPath = true;
+	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength))
+	{
+		const auto mergeTarget = pathLength < m_glossyMergeBeginLength
+			? smoothPhenomena : smoothEnoughPhenomena;
+
+		if(phenomena.hasAny())
+
+		if(phenomena.has(ESurfacePhenomenon::Diffuse))
+		{
+
+		}
+	}
+
+	const auto phenomena = optics.getAllPhenomena();
+	const bool isSufficientlyDiffuse = 
+		phenomena.hasNone(ESurfacePhenomenon::Delta) &&
+		(pathLength >= m_glossyMergeBeginLength ? phenomena.hasAny(smoothEnoughPhenomena) : phenomena.hasExactly(ESurfacePhenomenon::Diffuse));
 
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
-	   phenomena.hasNone(ESurfacePhenomenon::Delta) &&
 	   isSufficientlyDiffuse)
 	{
 		const BsdfQueryContext bsdfContext(

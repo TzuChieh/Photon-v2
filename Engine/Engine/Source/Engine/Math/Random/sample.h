@@ -17,6 +17,7 @@ A "sample" is expected to be uniformly and randomly distributed in [0, 1].
 #include <utility>
 #include <type_traits>
 #include <climits>
+#include <optional>
 
 namespace ph::math
 {
@@ -69,6 +70,64 @@ inline bool reused_pick(const T pickProbability, T& sample)
 
 		return false;
 	}
+}
+
+/*! @brief Get a uniform random index in [`lowerBound`, `upperBound`).
+*/
+template<typename T, typename Index>
+inline Index ranged_pick(const Index lowerBound, const Index upperBound, const T sample)
+{
+	PH_ASSERT_GT(upperBound, lowerBound);
+
+	const auto numIntervals = upperBound - lowerBound;
+	const auto index        = static_cast<Index>(lowerBound + sample * numIntervals);
+
+	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
+}
+
+/*! @brief Uniformly sample from a collection of indices.
+This function can sample from a non-contiguous collection of indices, and without the need of
+a container. The cost is that it performs random selection #indices times.
+@tparam SampleFunc Invocable object with signature `SampleType(void)`.
+@tparam IndexFunc Invocable object with signature `std::optional<IndexType>(void)`.
+@return A pair containing the selected index (an `std::optional`) and the total number of indices.
+*/
+template<typename SampleFunc, typename IndexFunc>
+inline auto uniform_reservoir_pick(IndexFunc indexFunc, SampleFunc sampleFunc)
+{
+	static_assert(std::is_invocable_v<SampleFunc>);
+	static_assert(std::is_invocable_v<IndexFunc>);
+
+	using T        = decltype(sampleFunc());
+	using OptIndex = decltype(indexFunc());
+	using Index    = OptIndex::value_type;
+
+	OptIndex selected   = indexFunc();
+	OptIndex next       = selected;
+	Index    numIndices = 0;
+	while(next.has_value())
+	{
+		++numIndices;
+
+		const auto probability = 1 / T(numIndices);
+		if(pick(probability, sampleFunc()))
+		{
+			selected = next;
+		}
+
+		next = indexFunc();
+	}
+	return std::pair<OptIndex, Index>{selected, numIndices};
+}
+
+/*! @brief Same as `uniform_reservoir_pick()`, just with a more friendly name.
+*/
+template<typename SampleFunc, typename IndexFunc>
+inline auto uniform_pick(IndexFunc indexFunc, SampleFunc sampleFunc)
+{
+	return uniform_reservoir_pick(
+		std::forward<IndexFunc>(indexFunc),
+		std::forward<SampleFunc>(sampleFunc));
 }
 
 /*! @brief Converts input bits to a sample.

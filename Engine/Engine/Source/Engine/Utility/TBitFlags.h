@@ -2,6 +2,8 @@
 
 #include "Engine/Utility/traits.h"
 
+#include <Common/compiler.h>
+
 #include <type_traits>
 #include <initializer_list>
 
@@ -129,6 +131,12 @@ public:
 	{
 		return static_cast<Input>(m_bits);
 	}
+
+	constexpr bool operator == (const TBitFlags& rhs) const;
+
+#if !PH_COMPILER_HAS_P2468R2
+	constexpr bool operator != (const TBitFlags& rhs) const;
+#endif
 
 private:
 	Value m_bits;

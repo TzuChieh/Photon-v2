@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Math/Random/Random.h"
+#include "Engine/Math/Random/sample.h"
 
 #include <Common/assertion.h>
 
@@ -22,12 +23,7 @@ inline std::array<T, N> Random::sampleND()
 
 inline std::size_t Random::index(const std::size_t lowerBound, const std::size_t upperBound)
 {
-	PH_ASSERT_GT(upperBound, lowerBound);
-
-	const std::size_t numIntervals = upperBound - lowerBound;
-	std::size_t index = static_cast<std::size_t>(lowerBound + sample() * numIntervals);
-
-	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
+	return ranged_pick(lowerBound, upperBound, sample());
 }
 
 }// end namespace ph::math
