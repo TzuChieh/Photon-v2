@@ -88,19 +88,21 @@ inline Index ranged_pick(const Index lowerBound, const Index upperBound, const T
 /*! @brief Uniformly sample from a collection of indices.
 This function can sample from a non-contiguous collection of indices, and without the need of
 a container. The cost is that it performs random selection #indices times.
-@tparam SampleFunc Invocable object with signature `SampleType(void)`.
-@tparam IndexFunc Invocable object with signature `std::optional<IndexType>(void)`.
+@tparam T Type of the probability to feed into `PickFunc`.
+@tparam Index Type of the index.
+@tparam PickFunc Invocable object to perform pick with a certain probability with signature `bool(T)`.
+@tparam IndexFunc Invocable object to get an index with signature `std::optional<Index>(void)`.
+Returning an empty index indicates the index stream ends.
 @return A pair containing the selected index (an `std::optional`) and the total number of indices.
 */
-template<typename SampleFunc, typename IndexFunc>
-inline auto uniform_reservoir_pick(IndexFunc indexFunc, SampleFunc sampleFunc)
+template<typename T, typename Index, typename PickFunc, typename IndexFunc>
+inline auto uniform_reservoir_pick(IndexFunc indexFunc, PickFunc pickFunc)
+-> std::pair<std::optional<Index>, Index>
 {
-	static_assert(std::is_invocable_v<SampleFunc>);
-	static_assert(std::is_invocable_v<IndexFunc>);
+	using OptIndex = std::optional<Index>;
 
-	using T        = decltype(sampleFunc());
-	using OptIndex = decltype(indexFunc());
-	using Index    = OptIndex::value_type;
+	static_assert(std::is_invocable_r_v<bool, PickFunc, T>);
+	static_assert(std::is_invocable_r_v<OptIndex, IndexFunc>);
 
 	OptIndex selected   = indexFunc();
 	OptIndex next       = selected;
@@ -110,24 +112,25 @@ inline auto uniform_reservoir_pick(IndexFunc indexFunc, SampleFunc sampleFunc)
 		++numIndices;
 
 		const auto probability = 1 / T(numIndices);
-		if(pick(probability, sampleFunc()))
+		if(pickFunc(probability))
 		{
 			selected = next;
 		}
 
 		next = indexFunc();
 	}
-	return std::pair<OptIndex, Index>{selected, numIndices};
+	return std::pair<std::optional<Index>, Index>{selected, numIndices};
 }
 
 /*! @brief Same as `uniform_reservoir_pick()`, just with a more friendly name.
 */
-template<typename SampleFunc, typename IndexFunc>
-inline auto uniform_pick(IndexFunc indexFunc, SampleFunc sampleFunc)
+template<typename T, typename Index, typename PickFunc, typename IndexFunc>
+inline auto uniform_pick(IndexFunc indexFunc, PickFunc pickFunc)
+-> std::pair<std::optional<Index>, Index>
 {
-	return uniform_reservoir_pick(
+	return uniform_reservoir_pick<T, Index>(
 		std::forward<IndexFunc>(indexFunc),
-		std::forward<SampleFunc>(sampleFunc));
+		std::forward<PickFunc>(pickFunc));
 }
 
 /*! @brief Converts input bits to a sample.

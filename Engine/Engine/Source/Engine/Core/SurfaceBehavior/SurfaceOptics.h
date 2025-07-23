@@ -20,6 +20,7 @@ class SurfaceOptics
 {
 public:
 	class ElementalIterator;
+	class ElementalIteratorProxy;
 
 	SurfaceOptics();
 	virtual ~SurfaceOptics() = default;
@@ -88,10 +89,14 @@ public:
 	*/
 	SurfaceElemental numElementals() const;
 
-	auto getElementalIteratorFor(SurfacePhenomena phenomena) const
+	auto beginElementalIteratorFor(SurfacePhenomena phenomena) const
 	-> ElementalIterator;
 
-	// TODO: proxy for ranged for
+	auto endElementalIterator() const
+	-> ElementalIterator;
+
+	auto getElemenalIteratorProxy(SurfacePhenomena phenomena) const
+	-> ElementalIteratorProxy;
 
 public:
 	struct ElementalInfo
@@ -126,21 +131,25 @@ public:
 		// Dereferenceable
 		reference operator * () const
 		{
-			PH_ASSERT(m_optics);
-			PH_ASSERT_LT(m_current.elemental, m_optics->numElementals());
-			PH_ASSERT(m_current.phenomenon == m_optics->getPhenomenonOf(m_current.elemental));
+			PH_ASSERT(m_target != SurfacePhenomena{});
+			PH_ASSERT_LT(m_current.elemental, getOptics().numElementals());
+			PH_ASSERT(m_current.phenomenon == getOptics().getPhenomenonOf(m_current.elemental));
 			PH_ASSERT(m_target.has(m_current.phenomenon));
 
 			return m_current;
 		}
 
+		// Dereferenceable
+		pointer operator -> () const
+		{
+			return &(this->operator * ());
+		}
+
 		// Pre-incrementable
 		ElementalIterator& operator ++ ()
 		{
-			PH_ASSERT(m_optics);
-
 			++m_current.elemental;
-			m_current = m_optics->nextElementalOf(m_target, m_current.elemental);
+			m_current = getOptics().nextElementalOf(m_target, m_current.elemental);
 			return *this;
 		}
 
@@ -155,6 +164,9 @@ public:
 		// Equality
 		bool operator == (const ElementalIterator& rhs) const
 		{
+			// It's user's responsibility to not mix different target phenomena
+			PH_ASSERT(m_target == rhs.m_target);
+
 			return m_current.elemental == rhs.m_current.elemental && m_optics == rhs.m_optics;
 		}
 
@@ -167,9 +179,38 @@ public:
 #endif
 
 	private:
+		const SurfaceOptics& getOptics() const
+		{
+			PH_ASSERT(m_optics);
+			return *m_optics;
+		}
+
 		const SurfaceOptics* m_optics  = nullptr;
 		SurfacePhenomena     m_target  = ALL_SURFACE_PHENOMENA;
 		ElementalInfo        m_current = {};
+	};
+
+	class ElementalIteratorProxy
+	{
+	public:
+		ElementalIteratorProxy(const SurfaceOptics& optics, SurfacePhenomena phenomena)
+			: m_optics   (optics)
+			, m_phenomena(phenomena)
+		{}
+
+		ElementalIterator begin() const
+		{
+			return m_optics.beginElementalIteratorFor(m_phenomena);
+		}
+
+		ElementalIterator end() const
+		{
+			return m_optics.endElementalIterator();
+		}
+
+	private:
+		const SurfaceOptics& m_optics;
+		SurfacePhenomena     m_phenomena;
 	};
 
 protected:
@@ -213,10 +254,22 @@ inline std::string SurfaceOptics::toString() const
 	return std::to_string(m_numElementals) + " elementals";
 }
 
-inline auto SurfaceOptics::getElementalIteratorFor(SurfacePhenomena phenomena) const
+inline auto SurfaceOptics::beginElementalIteratorFor(SurfacePhenomena phenomena) const
 -> ElementalIterator
 {
 	return ElementalIterator(this, phenomena, nextElementalOf(phenomena, 0));
+}
+
+inline auto SurfaceOptics::endElementalIterator() const
+-> ElementalIterator
+{
+	return ElementalIterator(this, SurfacePhenomena{}, ElementalInfo{numElementals(), static_cast<ESurfacePhenomenon>(0)});
+}
+
+inline auto SurfaceOptics::getElemenalIteratorProxy(SurfacePhenomena phenomena) const
+-> ElementalIteratorProxy
+{
+	return ElementalIteratorProxy(*this, phenomena);
 }
 
 }// end namespace ph
