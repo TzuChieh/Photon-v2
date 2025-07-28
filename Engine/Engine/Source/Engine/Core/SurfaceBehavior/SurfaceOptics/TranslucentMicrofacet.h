@@ -28,13 +28,13 @@ public:
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
 
-	void genBsdfSampleCore(
+	void genElementalBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const override;
 
-	void calcBsdfPdfCore(
+	void calcElementalBsdfPdf(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;

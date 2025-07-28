@@ -174,7 +174,7 @@ ESurfacePhenomenon MicrofacetNormalMapper::getPhenomenonOf(const SurfaceElementa
 	return m_target->getPhenomenonOf(elemental);
 }
 
-void MicrofacetNormalMapper::calcBsdfCore(
+void MicrofacetNormalMapper::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -184,7 +184,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 
 	if(isPerturbationTooSmall(N.absDot(Np)))
 	{
-		m_target->calcBsdfCore(ctx, in, out);
+		m_target->calcElementalBsdf(ctx, in, out);
 		return;
 	}
 
@@ -203,7 +203,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		perturbedIn.set(perturbedX, in.getL(), in.getV());
 
 		BsdfEvalOutput perturbedOut{};
-		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * lambdaP * G1PForL);
@@ -220,7 +220,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		perturbedIn.set(perturbedX, Lp, in.getV());
 
 		BsdfEvalOutput perturbedOut{};
-		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			const real G1PForLp = G1OfPerturbedFacet(N, Np, Nt, Lp);
@@ -239,7 +239,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 		perturbedIn.set(perturbedX, in.getL(), Vp);
 
 		BsdfEvalOutput perturbedOut{};
-		m_target->calcBsdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			weight += perturbedOut.getBsdf() * (Np.absDot(in.getL()) * (1 - lambdaP) * G1PForL);
@@ -249,7 +249,7 @@ void MicrofacetNormalMapper::calcBsdfCore(
 	out.setBsdf(weight / N.absDot(in.getL()));
 }
 
-void MicrofacetNormalMapper::genBsdfSampleCore(
+void MicrofacetNormalMapper::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -260,7 +260,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 
 	if(isPerturbationTooSmall(N.absDot(Np)))
 	{
-		m_target->genBsdfSampleCore(ctx, in, sampleFlow, out);
+		m_target->genElementalBsdfSample(ctx, in, sampleFlow, out);
 		return;
 	}
 
@@ -279,7 +279,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 		perturbedIn.set(perturbedX, V);
 
 		BsdfSampleOutput perturbedOut{};
-		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
+		m_target->genElementalBsdfSample(ctx, perturbedIn, sampleFlow, perturbedOut);
 		if(perturbedOut)
 		{
 			weight *= perturbedOut.getPdfAppliedBsdfCos();
@@ -317,7 +317,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 		perturbedIn.set(perturbedX, Vp);
 
 		BsdfSampleOutput perturbedOut{};
-		m_target->genBsdfSampleCore(ctx, perturbedIn, sampleFlow, perturbedOut);
+		m_target->genElementalBsdfSample(ctx, perturbedIn, sampleFlow, perturbedOut);
 		if(perturbedOut)
 		{
 			weight *= perturbedOut.getPdfAppliedBsdfCos();
@@ -333,7 +333,7 @@ void MicrofacetNormalMapper::genBsdfSampleCore(
 	}
 }
 
-void MicrofacetNormalMapper::calcBsdfPdfCore(
+void MicrofacetNormalMapper::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
@@ -343,7 +343,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 
 	if(isPerturbationTooSmall(N.absDot(Np)))
 	{
-		m_target->calcBsdfPdfCore(ctx, in, out);
+		m_target->calcElementalBsdfPdf(ctx, in, out);
 		return;
 	}
 
@@ -362,7 +362,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		perturbedIn.set(perturbedX, in.getL(), in.getV());
 
 		BsdfPdfOutput perturbedOut{};
-		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdfPdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			pdfW += perturbedOut.getSampleDirPdfW() * (lambdaP * G1PForL);
@@ -379,7 +379,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		perturbedIn.set(perturbedX, Lp, in.getV());
 
 		BsdfPdfOutput perturbedOut{};
-		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdfPdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			const real G1ForLp = G1OfPerturbedFacet(N, Np, Nt, Lp);
@@ -397,7 +397,7 @@ void MicrofacetNormalMapper::calcBsdfPdfCore(
 		perturbedIn.set(perturbedX, in.getL(), Vp);
 
 		BsdfPdfOutput perturbedOut{};
-		m_target->calcBsdfPdfCore(ctx, perturbedIn, perturbedOut);
+		m_target->calcElementalBsdfPdf(ctx, perturbedIn, perturbedOut);
 		if(perturbedOut)
 		{
 			pdfW += perturbedOut.getSampleDirPdfW() * (1 - lambdaP);

@@ -43,7 +43,7 @@ ESurfacePhenomenon IdealReflector::getPhenomenonOf(const SurfaceElemental elemen
 	return ESurfacePhenomenon::DeltaReflection;
 }
 
-void IdealReflector::calcBsdfCore(
+void IdealReflector::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -51,7 +51,7 @@ void IdealReflector::calcBsdfCore(
 	out.setContributability(false);
 }
 
-void IdealReflector::genBsdfSampleCore(
+void IdealReflector::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -70,9 +70,10 @@ void IdealReflector::genBsdfSampleCore(
 
 	out.setPdfAppliedBsdfCos(F, std::abs(NoL));
 	out.setL(L);
+	out.setElemental(0);
 }
 
-void IdealReflector::calcBsdfPdfCore(
+void IdealReflector::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

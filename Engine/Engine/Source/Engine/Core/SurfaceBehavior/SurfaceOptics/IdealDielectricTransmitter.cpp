@@ -41,7 +41,7 @@ ESurfacePhenomenon IdealDielectricTransmitter::getPhenomenonOf(const SurfaceElem
 	return ESurfacePhenomenon::DeltaTransmission;
 }
 
-void IdealDielectricTransmitter::calcBsdfCore(
+void IdealDielectricTransmitter::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -49,7 +49,7 @@ void IdealDielectricTransmitter::calcBsdfCore(
 	out.setContributability(false);
 }
 
-void IdealDielectricTransmitter::genBsdfSampleCore(
+void IdealDielectricTransmitter::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -92,9 +92,10 @@ void IdealDielectricTransmitter::genBsdfSampleCore(
 
 	out.setPdfAppliedBsdfCos(F, std::abs(cosI));
 	out.setL(L);
+	out.setElemental(0);
 }
 
-void IdealDielectricTransmitter::calcBsdfPdfCore(
+void IdealDielectricTransmitter::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

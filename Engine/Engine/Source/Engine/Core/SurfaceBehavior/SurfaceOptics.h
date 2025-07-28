@@ -4,6 +4,7 @@
 #include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
 
 #include <Common/compiler.h>
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <array>
@@ -13,6 +14,7 @@ namespace ph
 {
 
 class SampleFlow;
+class SurfaceHit;
 
 /*! @brief Describes how light interacts with a surface. 
 */
@@ -33,33 +35,61 @@ public:
 	*/
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
-	/*! @brief Calculate BSDF.
+	/*! @brief Calculate BSDF for all or one elemental.
 	Implementations do not need to care whether the input or output vectors are in a geometrically
 	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
 	*/
-	virtual void calcBsdfCore(
+	virtual void calcElementalBsdf(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const = 0;
 
-	/*! @brief Generate BSDF sample.
+	/*! @brief Generate BSDF sample for all or one elemental.
 	Implementations do not need to care whether the input or output vectors are in a geometrically
 	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
 	*/
-	virtual void genBsdfSampleCore(
+	virtual void genElementalBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const = 0;
 
-	/*! @brief Calculate BSDF PDF.
+	/*! @brief Calculate BSDF sample PDF for all or one elemental.
 	Implementations do not need to care whether the input or output vectors are in a geometrically
 	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
 	*/
-	virtual void calcBsdfPdfCore(
+	virtual void calcElementalBsdfPdf(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const = 0;
+
+	/*! @brief Generate BSDF sample for all or a subset of phenomena.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void calcPhenomenalBsdf(
+		const BsdfQueryContext& ctx,
+		const BsdfEvalInput&    in,
+		BsdfEvalOutput&         out) const;
+
+	/*! @brief Generate BSDF sample for all or a subset of phenomena.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void genPhenomenalBsdfSample(
+		const BsdfQueryContext& ctx,
+		const BsdfSampleInput&  in,
+		SampleFlow&             sampleFlow,
+		BsdfSampleOutput&       out) const;
+
+	/*! @brief Calculate BSDF sample PDF for all or a subset of phenomena.
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
+	virtual void calcPhenomenalBsdfPdf(
+		const BsdfQueryContext& ctx,
+		const BsdfPdfInput&     in,
+		BsdfPdfOutput&          out) const;
 
 	virtual std::string toString() const;
 
@@ -214,6 +244,8 @@ public:
 	};
 
 protected:
+	static uint64 svbsdfHash(const SurfaceHit& X);
+
 	SurfacePhenomena m_phenomena;
 	SurfaceElemental m_numElementals;
 

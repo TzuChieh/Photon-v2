@@ -59,7 +59,7 @@ ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) 
 
 	[1] http://mimosa-pudica.net/improved-oren-nayar.html
 */
-void OrenNayar::calcBsdfCore(
+void OrenNayar::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -116,7 +116,7 @@ void OrenNayar::calcBsdfCore(
 	out.setBsdf(bsdf);
 }
 
-void OrenNayar::genBsdfSampleCore(
+void OrenNayar::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -146,7 +146,7 @@ void OrenNayar::genBsdfSampleCore(
 
 	BsdfEvalQuery eval;
 	eval.inputs.set(in.getX(), L, in.getV());
-	OrenNayar::calcBsdfCore(ctx, eval.inputs, eval.outputs);
+	OrenNayar::calcElementalBsdf(ctx, eval.inputs, eval.outputs);
 
 	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
@@ -156,7 +156,7 @@ void OrenNayar::genBsdfSampleCore(
 	out.setL(L);
 }
 
-void OrenNayar::calcBsdfPdfCore(
+void OrenNayar::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

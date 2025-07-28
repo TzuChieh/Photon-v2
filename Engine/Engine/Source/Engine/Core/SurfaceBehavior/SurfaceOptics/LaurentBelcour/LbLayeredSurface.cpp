@@ -70,7 +70,7 @@ ESurfacePhenomenon LbLayeredSurface::getPhenomenonOf(const SurfaceElemental elem
 	return ESurfacePhenomenon::GlossyReflection;
 }
 
-void LbLayeredSurface::calcBsdfCore(
+void LbLayeredSurface::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -120,7 +120,7 @@ void LbLayeredSurface::calcBsdfCore(
 	out.setBsdf(bsdf);
 }
 
-void LbLayeredSurface::genBsdfSampleCore(
+void LbLayeredSurface::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -199,7 +199,7 @@ void LbLayeredSurface::genBsdfSampleCore(
 	evalInput.set(in.getX(), L, in.getV());
 
 	BsdfEvalOutput evalOutput;
-	LbLayeredSurface::calcBsdfCore(ctx, evalInput, evalOutput);
+	LbLayeredSurface::calcElementalBsdf(ctx, evalInput, evalOutput);
 
 	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
@@ -209,7 +209,7 @@ void LbLayeredSurface::genBsdfSampleCore(
 	out.setL(L);
 }
 
-void LbLayeredSurface::calcBsdfPdfCore(
+void LbLayeredSurface::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

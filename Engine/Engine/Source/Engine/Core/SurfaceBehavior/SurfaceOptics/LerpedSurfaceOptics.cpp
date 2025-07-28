@@ -80,7 +80,7 @@ ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental e
 	}
 }
 
-void LerpedSurfaceOptics::calcBsdfCore(
+void LerpedSurfaceOptics::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -90,8 +90,8 @@ void LerpedSurfaceOptics::calcBsdfCore(
 		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 
 		BsdfEvalOutput eval0, eval1;
-		m_optics0->calcBsdfCore(ctx, in, eval0);
-		m_optics1->calcBsdfCore(ctx, in, eval1);
+		m_optics0->calcElementalBsdf(ctx, in, eval0);
+		m_optics1->calcElementalBsdf(ctx, in, eval1);
 
 		// One or both of them can fail due to single sided, etc.
 		const math::Spectrum bsdf0 = eval0.isContributable() ? eval0.getBsdf() : math::Spectrum(0);
@@ -109,7 +109,7 @@ void LerpedSurfaceOptics::calcBsdfCore(
 
 		if(ctx.elemental < m_optics0->numElementals())
 		{
-			m_optics0->calcBsdfCore(ctx, in, out);
+			m_optics0->calcElementalBsdf(ctx, in, out);
 			
 			if(out.isContributable())
 			{
@@ -122,7 +122,7 @@ void LerpedSurfaceOptics::calcBsdfCore(
 
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->numElementals();
-			m_optics1->calcBsdfCore(localCtx, in, out);
+			m_optics1->calcElementalBsdf(localCtx, in, out);
 
 			if(out.isContributable())
 			{
@@ -132,7 +132,7 @@ void LerpedSurfaceOptics::calcBsdfCore(
 	}
 }
 
-void LerpedSurfaceOptics::genBsdfSampleCore(
+void LerpedSurfaceOptics::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -155,7 +155,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 		}
 
 		BsdfSampleQuery::Output sampleOutputs;
-		sampledOptics->genBsdfSampleCore(ctx, in, sampleFlow, sampleOutputs);
+		sampledOptics->genElementalBsdfSample(ctx, in, sampleFlow, sampleOutputs);
 		if(!sampleOutputs.isContributable())
 		{
 			out.setContributability(false);
@@ -164,7 +164,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 
 		BsdfEvalQuery eval;
 		eval.inputs.set(in, sampleOutputs);
-		anotherOptics->calcBsdfCore(ctx, eval.inputs, eval.outputs);
+		anotherOptics->calcElementalBsdf(ctx, eval.inputs, eval.outputs);
 
 		const math::Spectrum anotherBsdfCos = eval.outputs.isContributable()
 			? eval.outputs.getBsdf() * sampleOutputs.getCos() : math::Spectrum(0);
@@ -172,8 +172,8 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 		BsdfPdfQuery sampledPdf, anotherPdf;
 		sampledPdf.inputs.set(in, sampleOutputs);
 		anotherPdf.inputs.set(in, sampleOutputs);
-		sampledOptics->calcBsdfPdfCore(ctx, sampledPdf.inputs, sampledPdf.outputs);
-		anotherOptics->calcBsdfPdfCore(ctx, anotherPdf.inputs, anotherPdf.outputs);
+		sampledOptics->calcElementalBsdfPdf(ctx, sampledPdf.inputs, sampledPdf.outputs);
+		anotherOptics->calcElementalBsdfPdf(ctx, anotherPdf.inputs, anotherPdf.outputs);
 
 		// One or both of them can fail due to single sided, etc.
 		const real sampledPdfW = sampledPdf.outputs ? sampledPdf.outputs.getSampleDirPdfW() : 0.0_r;
@@ -201,7 +201,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 			sampledProb = 1.0_r - sampledProb;
 		}
 
-		sampledOptics->genBsdfSampleCore(ctx, in, sampleFlow, out);
+		sampledOptics->genElementalBsdfSample(ctx, in, sampleFlow, out);
 		if(!out.isContributable())
 		{
 			return;
@@ -215,7 +215,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 	{
 		if(ctx.elemental < m_optics0->numElementals())
 		{
-			m_optics0->genBsdfSampleCore(ctx, in, sampleFlow, out);
+			m_optics0->genElementalBsdfSample(ctx, in, sampleFlow, out);
 
 			if(out.isContributable())
 			{
@@ -228,7 +228,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->numElementals();
-			m_optics1->genBsdfSampleCore(localCtx, in, sampleFlow, out);
+			m_optics1->genElementalBsdfSample(localCtx, in, sampleFlow, out);
 
 			if(out.isContributable())
 			{
@@ -238,7 +238,7 @@ void LerpedSurfaceOptics::genBsdfSampleCore(
 	}
 }
 
-void LerpedSurfaceOptics::calcBsdfPdfCore(
+void LerpedSurfaceOptics::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
@@ -249,8 +249,8 @@ void LerpedSurfaceOptics::calcBsdfPdfCore(
 		const real prob0 = probabilityOfPickingOptics0(ratio);
 
 		BsdfPdfQuery::Output query0, query1;
-		m_optics0->calcBsdfPdfCore(ctx, in, query0);
-		m_optics1->calcBsdfPdfCore(ctx, in, query1);
+		m_optics0->calcElementalBsdfPdf(ctx, in, query0);
+		m_optics1->calcElementalBsdfPdf(ctx, in, query1);
 
 		// One or both of them can fail due to single sided, etc.
 		const real pdfW0 = query0 ? query0.getSampleDirPdfW() : 0.0_r;
@@ -267,7 +267,7 @@ void LerpedSurfaceOptics::calcBsdfPdfCore(
 	{
 		if(ctx.elemental < m_optics0->numElementals())
 		{
-			m_optics0->calcBsdfPdfCore(ctx, in, out);
+			m_optics0->calcElementalBsdfPdf(ctx, in, out);
 		}
 		else
 		{
@@ -275,7 +275,7 @@ void LerpedSurfaceOptics::calcBsdfPdfCore(
 
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->numElementals();
-			m_optics1->calcBsdfPdfCore(localCtx, in, out);
+			m_optics1->calcElementalBsdfPdf(localCtx, in, out);
 		}
 	}
 }

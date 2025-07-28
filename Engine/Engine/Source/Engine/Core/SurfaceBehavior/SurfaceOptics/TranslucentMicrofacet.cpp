@@ -60,7 +60,7 @@ ESurfacePhenomenon TranslucentMicrofacet::getPhenomenonOf(const SurfaceElemental
 	                                 ESurfacePhenomenon::GlossyTransmission;
 }
 
-void TranslucentMicrofacet::calcBsdfCore(
+void TranslucentMicrofacet::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -152,7 +152,7 @@ void TranslucentMicrofacet::calcBsdfCore(
 	}
 }
 
-void TranslucentMicrofacet::genBsdfSampleCore(
+void TranslucentMicrofacet::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -273,7 +273,7 @@ void TranslucentMicrofacet::genBsdfSampleCore(
 	out.setL(L);
 }
 
-void TranslucentMicrofacet::calcBsdfPdfCore(
+void TranslucentMicrofacet::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

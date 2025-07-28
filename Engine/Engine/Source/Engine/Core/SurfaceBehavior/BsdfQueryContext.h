@@ -14,12 +14,14 @@ namespace ph
 class BsdfQueryContext final
 {
 public:
-	SurfaceElemental        elemental = ALL_SURFACE_ELEMENTALS;
-	lta::ETransport         transport = lta::ETransport::Radiance;
-	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
-	
-	/*! If not `ALL_SURFACE_PHENOMENA`, indicates there are multiple elementals to query for. */
+	/*! The elemental in `targetPhenomena` that will be involved. */
+	SurfaceElemental elemental = ALL_SURFACE_ELEMENTALS;
+
+	/*! The phenomena that will be involved. */
 	SurfacePhenomena targetPhenomena = ALL_SURFACE_PHENOMENA;
+
+	lta::ETransport transport = lta::ETransport::Radiance;
+	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
 
 	BsdfQueryContext() = default;
 	explicit BsdfQueryContext(SurfaceElemental elemental);
@@ -67,9 +69,9 @@ inline BsdfQueryContext::BsdfQueryContext(
 	lta::ESidednessPolicy sidednessPolicy)
 
 	: elemental(elemental)
+	, targetPhenomena(ALL_SURFACE_PHENOMENA)
 	, transport(transport)
 	, sidedness(sidednessPolicy)
-	, targetPhenomena(ALL_SURFACE_PHENOMENA)
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(
@@ -78,9 +80,9 @@ inline BsdfQueryContext::BsdfQueryContext(
 	lta::ESidednessPolicy sidednessPolicy)
 
 	: elemental(ALL_SURFACE_ELEMENTALS)
+	, targetPhenomena(targetPhenomena)
 	, transport(transport)
 	, sidedness(sidednessPolicy)
-	, targetPhenomena(targetPhenomena)
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(

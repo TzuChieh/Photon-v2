@@ -58,7 +58,7 @@ ESurfacePhenomenon OpaqueMicrofacet::getPhenomenonOf(const SurfaceElemental elem
 	return ESurfacePhenomenon::GlossyReflection;
 }
 
-void OpaqueMicrofacet::calcBsdfCore(
+void OpaqueMicrofacet::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -92,7 +92,7 @@ void OpaqueMicrofacet::calcBsdfCore(
 	out.setBsdf(bsdf);
 }
 
-void OpaqueMicrofacet::genBsdfSampleCore(
+void OpaqueMicrofacet::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -124,7 +124,7 @@ void OpaqueMicrofacet::genBsdfSampleCore(
 	out.setL(L);
 }
 
-void OpaqueMicrofacet::calcBsdfPdfCore(
+void OpaqueMicrofacet::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

@@ -36,7 +36,7 @@ ESurfacePhenomenon LambertianReflector::getPhenomenonOf(const SurfaceElemental e
 	return ESurfacePhenomenon::DiffuseReflection;
 }
 
-void LambertianReflector::calcBsdfCore(
+void LambertianReflector::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -51,7 +51,7 @@ void LambertianReflector::calcBsdfCore(
 	out.setBsdf(albedo * math::constant::rcp_pi<real>);
 }
 
-void LambertianReflector::genBsdfSampleCore(
+void LambertianReflector::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -81,13 +81,16 @@ void LambertianReflector::genBsdfSampleCore(
 
 	out.setPdfAppliedBsdfCos(albedo, N.absDot(L));
 	out.setL(L);
+	out.setElemental(0);
 }
 
-void LambertianReflector::calcBsdfPdfCore(
+void LambertianReflector::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
+	PH_ASSERT_EQ(in);
+
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setSampleDirPdf({});
