@@ -187,7 +187,7 @@ struct TNonTypeTemplateArgDummy final
 
 /*! @brief Cast `const` value to non-`const` value.
 When code duplication is undesirable between `const` and non-`const` getters, one can reuse the `const`
-version in the following way (providing the caller object is actually non-`const`):
+version in the following way, providing the caller object is actually non-`const`:
 
 ```C++
 const T& f() const
