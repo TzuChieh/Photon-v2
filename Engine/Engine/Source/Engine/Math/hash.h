@@ -81,23 +81,22 @@ Note that there are no collisions when `T` has <= 32 bits (two distinct inputs w
 same output). In general, if there is a way to reverse a function (reversing `murmur3_32()` is possible), 
 it is guaranteed there cannot be any collisions. Otherwise, it would not be possible to revert.
 */
-template<typename T, typename BitMixerType = Murmur3BitMixer32>
-uint32 murmur3_32(const T& data, uint32 seed);
+template<typename T, typename BitMixerType>
+uint32 murmur3_32(const T& data, uint32 seed, BitMixerType&& bitMixer = Murmur3BitMixer32{});
 
 /*! @brief Generate 32-bit hash values using MurmurHash3.
-This is a lower level variant of MurmurHash3 and can be useful for customizing its behavior, e.g.,
-it can accept arbitrary `BitMixerType` without requiring it to be default constructible.
+This is a lower level variant of MurmurHash3 and can be useful for customizing its behavior.
 @param data Pointer to a data array of type `T`.
 @param dataSize Number of elements in the data array.
-@param bitMixer The finalizer for the hashing algorithm.
 @param seed A value for generating the hash. Can be from a RNG or anything you prefer.
+@param bitMixer The finalizer for the hashing algorithm.
 */
 template<typename T, typename BitMixerType>
 uint32 murmur3_32(
 	const T* data,
 	std::size_t dataSize,
-	BitMixerType&& bitMixer,
-	uint32 seed);
+	uint32 seed,
+	BitMixerType&& bitMixer);
 
 /*! @brief Get the permuted index or value in O(1) space and O(1) time.
 @param i The index or value to be permuted.

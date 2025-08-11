@@ -36,8 +36,13 @@ public:
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
 	/*! @brief Calculate BSDF for all or one elemental.
+	BSDF-based optics generally have 3 core methods: evaluation, sampling and PDF calculation.
+	These methods must work consistently with each other, i.e., if a BSDF is sampled with a specific
+	set of input, the evaluation and PDF calculation for that set of input, deterministically.
 	Implementations do not need to care whether the input or output vectors are in a geometrically
 	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	@param ctx The context of the query. It is assumed `BsdfQueryContext::targetPhenomena == ALL_SURFACE_PHENOMENA`
+	for elemental-based query.
 	*/
 	virtual void calcElementalBsdf(
 		const BsdfQueryContext& ctx,
@@ -45,8 +50,7 @@ public:
 		BsdfEvalOutput&         out) const = 0;
 
 	/*! @brief Generate BSDF sample for all or one elemental.
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	See `calcElementalBsdf()` for more information.
 	*/
 	virtual void genElementalBsdfSample(
 		const BsdfQueryContext& ctx,
@@ -55,8 +59,7 @@ public:
 		BsdfSampleOutput&       out) const = 0;
 
 	/*! @brief Calculate BSDF sample PDF for all or one elemental.
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	See `calcElementalBsdf()` for more information.
 	*/
 	virtual void calcElementalBsdfPdf(
 		const BsdfQueryContext& ctx,
@@ -64,8 +67,9 @@ public:
 		BsdfPdfOutput&          out) const = 0;
 
 	/*! @brief Generate BSDF sample for all or a subset of phenomena.
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	This is the phenomenon variant of `calcElementalBsdf()`.
+	@param ctx The context of the query. It is assumed `BsdfQueryContext::targetPhenomena != ALL_SURFACE_PHENOMENA`
+	for phenomenon-based query.
 	*/
 	virtual void calcPhenomenalBsdf(
 		const BsdfQueryContext& ctx,
@@ -73,8 +77,7 @@ public:
 		BsdfEvalOutput&         out) const;
 
 	/*! @brief Generate BSDF sample for all or a subset of phenomena.
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	This is the phenomenon variant of `genElementalBsdfSample()`. See `calcPhenomenalBsdf()` for more information.
 	*/
 	virtual void genPhenomenalBsdfSample(
 		const BsdfQueryContext& ctx,
@@ -83,8 +86,7 @@ public:
 		BsdfSampleOutput&       out) const;
 
 	/*! @brief Calculate BSDF sample PDF for all or a subset of phenomena.
-	Implementations do not need to care whether the input or output vectors are in a geometrically
-	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	This is the phenomenon variant of `calcElementalBsdfPdf()`. See `calcPhenomenalBsdf()` for more information.
 	*/
 	virtual void calcPhenomenalBsdfPdf(
 		const BsdfQueryContext& ctx,

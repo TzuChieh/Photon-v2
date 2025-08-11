@@ -12,6 +12,7 @@ void BsdfEvalInput::set(const BsdfSampleQuery& sample)
 void BsdfEvalInput::set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput)
 {
 	set(
+		sampleInput.getBase(),
 		sampleInput.getX(),
 		sampleOutput.getL(),
 		sampleInput.getV());

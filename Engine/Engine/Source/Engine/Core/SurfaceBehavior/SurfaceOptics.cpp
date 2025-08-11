@@ -89,6 +89,8 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
+	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+
 	// In case not all phenomena are queried, we iterate and accumulate
 	for(const auto& ei : getElemenalIteratorProxy(ctx.targetPhenomena))
 	{
@@ -111,6 +113,8 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
+	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+
 	// In case not all phenomena are queried, we randomly pick one from the phenomena specified
 	auto [optPickedElemental, numPickableElementals] = math::uniform_pick<real, SurfaceElemental>(
 		[this, ei = beginElementalIteratorFor(ctx.targetPhenomena)]() mutable -> std::optional<SurfaceElemental>
@@ -181,6 +185,9 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
+	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+
+	// TODO
 }
 
 uint64 SurfaceOptics::svbsdfHash(const SurfaceHit& X)

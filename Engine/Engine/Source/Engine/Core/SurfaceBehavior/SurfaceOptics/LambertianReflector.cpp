@@ -81,7 +81,6 @@ void LambertianReflector::genElementalBsdfSample(
 
 	out.setPdfAppliedBsdfCos(albedo, N.absDot(L));
 	out.setL(L);
-	out.setElemental(0);
 }
 
 void LambertianReflector::calcElementalBsdfPdf(

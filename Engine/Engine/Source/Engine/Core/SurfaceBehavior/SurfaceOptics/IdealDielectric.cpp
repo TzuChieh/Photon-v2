@@ -117,8 +117,6 @@ void IdealDielectric::genElementalBsdfSample(
 		{
 			F.divLocal(reflectProb);
 		}
-
-		out.setElemental(REFLECTION);
 	}
 	else if(sampleTransmit)
 	{
@@ -159,8 +157,6 @@ void IdealDielectric::genElementalBsdfSample(
 		{
 			F.divLocal(1.0_r - reflectProb);
 		}
-
-		out.setElemental(TRANSMISSION);
 	}
 	else
 	{

@@ -2,6 +2,7 @@
 
 #include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
+#include "Engine/Core/SurfaceBehavior/bsdf_query_common.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Math/Color/Spectrum.h"
@@ -22,8 +23,13 @@ class BsdfSampleInput final
 {
 public:
 	void set(const BsdfEvalInput& evalInput);
-	void set(const SurfaceHit& X, const math::Vector3R& V);
 
+	void set(
+		const BsdfInputBase& base,
+		const SurfaceHit& X,
+		const math::Vector3R& V);
+
+	const BsdfInputBase& getBase() const;
 	const SurfaceHit& getX() const;
 
 	/*!
@@ -32,10 +38,11 @@ public:
 	const math::Vector3R& getV() const;
 
 private:
-	SurfaceHit     m_X;
+	BsdfInputBase m_base;
+	SurfaceHit m_X;
 	math::Vector3R m_V;
 #if PH_DEBUG
-	bool           m_hasSet{false};
+	bool m_hasSet{false};
 #endif
 };
 
@@ -103,11 +110,6 @@ public:
 	*/
 	real getRelativeIor2() const;
 
-	/*!
-	@return The elemental that is sampled.
-	*/
-	SurfaceElemental getElemental() const;
-
 	/*! @brief Tells whether this sample has potential to contribute.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
 	and sampled data is undefined. This method is also an efficient way to decide whether the BSDF
@@ -129,22 +131,16 @@ public:
 	*/
 	void setRelativeIor(real relativeIor);
 
-	/*!
-	@param elemental The elemental that is sampled.
-	*/
-	void setElemental(SurfaceElemental elemental);
-
 	/*! @brief Convenient method for `isContributable()`.
 	*/
 	operator bool () const;
 
 private:
-	math::Vector3R   m_L{0};
-	math::Spectrum   m_pdfAppliedBsdfCos{0};
-	real             m_cos{0};
-	real             m_relativeIor{1};
-	SurfaceElemental m_elemental{ALL_SURFACE_ELEMENTALS};
-	bool             m_isContributable{false};
+	math::Vector3R m_L{0};
+	math::Spectrum m_pdfAppliedBsdfCos{0};
+	real m_cos{0};
+	real m_relativeIor{1};
+	bool m_isContributable{false};
 };
 
 /*! @brief Information for generating a BSDF sample.
@@ -173,19 +169,30 @@ inline BsdfSampleQuery::BsdfSampleQuery(BsdfQueryContext context)
 	// (rest of the fields are initialized via setters)
 }
 
-inline void BsdfSampleInput::set(const SurfaceHit& X, const math::Vector3R& V)
+inline void BsdfSampleInput::set(
+	const BsdfInputBase& base,
+	const SurfaceHit& X,
+	const math::Vector3R& V)
 {
 	// Not querying from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
 	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
 
+	m_base = base;
 	m_X = X;
 	m_V = V;
 
 #if PH_DEBUG
 	m_hasSet = true;
 #endif
+}
+
+inline const BsdfInputBase& BsdfSampleInput::getBase() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_base;
 }
 
 inline const SurfaceHit& BsdfSampleInput::getX() const
@@ -269,13 +276,6 @@ inline real BsdfSampleOutput::getRelativeIor2() const
 	return relativeIor * relativeIor;
 }
 
-inline SurfaceElemental BsdfSampleOutput::getElemental() const
-{
-	PH_ASSERT(isContributable());
-	PH_ASSERT_NE(m_elemental, ALL_SURFACE_ELEMENTALS);
-	return m_elemental;
-}
-
 inline bool BsdfSampleOutput::isContributable() const
 {
 	return m_isContributable;
@@ -294,11 +294,6 @@ inline void BsdfSampleOutput::setContributability(const math::Spectrum& referenc
 inline void BsdfSampleOutput::setRelativeIor(const real relativeIor)
 {
 	m_relativeIor = relativeIor;
-}
-
-inline void BsdfSampleOutput::setElemental(SurfaceElemental elemental)
-{
-	m_elemental = elemental;
 }
 
 inline BsdfSampleOutput::operator bool () const

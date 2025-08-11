@@ -70,11 +70,11 @@ inline std::size_t discrete_spatial_hash(
 
 inline uint32 murmur3_bit_mix_32(uint32 v)
 {
-	v ^= v >> 16;
+	v ^= (v >> 16);
 	v *= 0x85EBCA6BUL;
-	v ^= v >> 13;
+	v ^= (v >> 13);
 	v *= 0xC2B2AE35UL;
-	v ^= v >> 16;
+	v ^= (v >> 16);
 
 	return v;
 }
@@ -106,27 +106,27 @@ inline uint64 moremur_bit_mix_64(uint64 v)
 	// The constants were derived by Pelle Evensen:
 	// https://mostlymangling.blogspot.com/2019/12/stronger-better-morer-moremur-better.html
 
-	v ^= v >> 27;
+	v ^= (v >> 27);
 	v *= 0x3C79AC492BA7B653ULL;
-	v ^= v >> 33;
+	v ^= (v >> 33);
 	v *= 0x1C69B3F74AC4AE35ULL;
-	v ^= v >> 27;
+	v ^= (v >> 27);
 
 	return v;
 }
 
 template<typename T, typename BitMixerType>
-inline uint32 murmur3_32(const T& data, const uint32 seed)
+inline uint32 murmur3_32(const T& data, const uint32 seed, BitMixerType&& bitMixer)
 {
-	return murmur3_32(&data, 1, BitMixerType{}, seed);
+	return murmur3_32(&data, 1, seed, std::forward<BitMixerType>(bitMixer)));
 }
 
 template<typename T, typename BitMixerType>
 inline uint32 murmur3_32(
 	const T* const data,
 	const std::size_t dataSize,
-	BitMixerType&& bitMixer,
-	const uint32 seed)
+	const uint32 seed,
+	BitMixerType&& bitMixer)
 {
 	/*
 	References:
@@ -251,7 +251,19 @@ inline T combine_hashes(const T& hashA, const T& hashB)
 	const UnsignedT uHashB(hashB);
 
 	auto newHash = uHashA;
-	newHash ^= uHashB + UnsignedT(0x9e3779b9) + (uHashA << 6) + (uHashA >> 2);
+	if constexpr(sizeof(UnsignedT) <= 2)
+	{
+		newHash ^= uHashB + UnsignedT(0x9e37U) + (uHashA << 3) + (uHashA >> 1);
+	}
+	else if constexpr(sizeof(UnsignedT) <= 4)
+	{
+		newHash ^= uHashB + UnsignedT(0x9e3779b9U) + (uHashA << 6) + (uHashA >> 2);
+	}
+	else
+	{
+		// For 64-bit; 128-bit would be 0x9e3779b97f4a7c15f39cc0605d396154
+		newHash ^= uHashB + UnsignedT(0x9e3779b97f4a7c15LLU) + (uHashA << 12) + (uHashA >> 4);
+	}
 	return T(newHash);
 }
 

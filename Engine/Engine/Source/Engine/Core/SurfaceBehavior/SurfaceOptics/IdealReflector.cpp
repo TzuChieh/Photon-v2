@@ -70,7 +70,6 @@ void IdealReflector::genElementalBsdfSample(
 
 	out.setPdfAppliedBsdfCos(F, std::abs(NoL));
 	out.setL(L);
-	out.setElemental(0);
 }
 
 void IdealReflector::calcElementalBsdfPdf(

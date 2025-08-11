@@ -92,7 +92,6 @@ void IdealDielectricTransmitter::genElementalBsdfSample(
 
 	out.setPdfAppliedBsdfCos(F, std::abs(cosI));
 	out.setL(L);
-	out.setElemental(0);
 }
 
 void IdealDielectricTransmitter::calcElementalBsdfPdf(

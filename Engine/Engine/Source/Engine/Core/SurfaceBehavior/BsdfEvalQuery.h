@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
+#include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
+#include "Engine/Core/SurfaceBehavior/bsdf_query_common.h"
 #include "Engine/Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
 
 #include <Common/assertion.h>
 
@@ -23,20 +24,23 @@ public:
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
 
 	void set(
-		const SurfaceHit&     X, 
+		const BsdfInputBase& base,
+		const SurfaceHit& X, 
 		const math::Vector3R& L,
 		const math::Vector3R& V);
 
+	const BsdfInputBase& getBase() const;
 	const SurfaceHit& getX() const;
 	const math::Vector3R& getL() const;
 	const math::Vector3R& getV() const;
 
 private:
-	SurfaceHit     m_X;
+	BsdfInputBase m_base;
+	SurfaceHit m_X;
 	math::Vector3R m_L;
 	math::Vector3R m_V;
 #if PH_DEBUG
-	bool           m_hasSet{false};
+	bool m_hasSet{false};
 #endif
 };
 
@@ -113,7 +117,8 @@ inline BsdfEvalQuery::BsdfEvalQuery(BsdfQueryContext context)
 }
 
 inline void BsdfEvalInput::set(
-	const SurfaceHit&     X, 
+	const BsdfInputBase& base,
+	const SurfaceHit& X, 
 	const math::Vector3R& L,
 	const math::Vector3R& V)
 {
@@ -123,6 +128,7 @@ inline void BsdfEvalInput::set(
 	PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
 	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
 
+	m_base = base;
 	m_X = X;
 	m_L = L;
 	m_V = V;
@@ -130,6 +136,13 @@ inline void BsdfEvalInput::set(
 #if PH_DEBUG
 	m_hasSet = true;
 #endif
+}
+
+inline const BsdfInputBase& BsdfEvalInput::getBase() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_base;
 }
 
 inline const SurfaceHit& BsdfEvalInput::getX() const

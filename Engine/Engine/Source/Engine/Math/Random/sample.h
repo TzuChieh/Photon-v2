@@ -47,6 +47,12 @@ inline bool pick(const T pickProbability, const T sample)
 	return sample < pickProbability;
 }
 
+/*! @brief Randomly pick a branch with some probability.
+Same as `pick()`, except that `sample` will be updated for the next pick.
+@param pickProbability The probability for the function to return `true`.
+@param sample[inout] The source of randomness. Will be updated for the next pick.
+@return `true` if the pick is successful.
+*/
 template<typename T>
 inline bool reused_pick(const T pickProbability, T& sample)
 {
