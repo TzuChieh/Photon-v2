@@ -2,6 +2,7 @@
 
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/hash.h"
+#include "Engine/Math/Random/sample.h"
 #include "Engine/Math/Random/Random.h"
 
 #include <Common/assertion.h>
@@ -93,7 +94,7 @@ inline uint32 BsdfInputKey::getValue() const
 
 inline real BsdfInputKey::getValueAsSample() const
 {
-
+	return math::bits_to_sample<real>(getValue());
 }
 
 inline BsdfInputKey BsdfInputKey::getNext() const
