@@ -24,6 +24,9 @@ class BsdfSampleInput final
 public:
 	void set(const BsdfEvalInput& evalInput);
 
+	/*!
+	Sets all members to avoid accidental input slicing.
+	*/
 	void set(
 		const BsdfInputBase& base,
 		const SurfaceHit& X,

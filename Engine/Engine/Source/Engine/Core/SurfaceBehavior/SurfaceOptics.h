@@ -9,6 +9,7 @@
 #include <string>
 #include <array>
 #include <iterator>
+#include <optional>
 
 namespace ph
 {
@@ -246,7 +247,10 @@ public:
 	};
 
 protected:
-	static uint64 svbsdfHash(const SurfaceHit& X);
+	std::optional<SurfaceElemental> selectElementalFromKey(
+		const BsdfQueryContext& ctx,
+		const BsdfInputBase& in,
+		real* out_pdf) const;
 
 	SurfacePhenomena m_phenomena;
 	SurfaceElemental m_numElementals;

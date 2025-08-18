@@ -91,19 +91,22 @@ inline Index ranged_pick(const Index lowerBound, const Index upperBound, const T
 	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
 }
 
-/*! @brief Uniformly sample from a collection of indices.
-This function can sample from a non-contiguous collection of indices, and without the need of
-a container. The cost is that it performs random selection #indices times.
+/*! @brief Uniformly sample from a stream of indices.
+This function can sample from a stream of indices, and without the need of a container.
+The cost is that it performs random selection #indices times.
 @tparam T Type of the probability to feed into `PickFunc`.
 @tparam Index Type of the index.
 @tparam PickFunc Invocable object to perform pick with a certain probability with signature `bool(T)`.
 @tparam IndexFunc Invocable object to get an index with signature `std::optional<Index>(void)`.
+@param out_numIndices If not `nullptr`, returns the number of indices sampled from the index stream.
 Returning an empty index indicates the index stream ends.
-@return A pair containing the selected index (an `std::optional`) and the total number of indices.
+@return The selected index (an `std::optional`).
 */
 template<typename T, typename Index, typename PickFunc, typename IndexFunc>
-inline auto uniform_reservoir_pick(IndexFunc indexFunc, PickFunc pickFunc)
--> std::pair<std::optional<Index>, Index>
+inline std::optional<Index> uniform_reservoir_pick(
+	IndexFunc indexFunc,
+	PickFunc pickFunc,
+	Index* const out_numIndices = nullptr)
 {
 	using OptIndex = std::optional<Index>;
 
@@ -125,18 +128,26 @@ inline auto uniform_reservoir_pick(IndexFunc indexFunc, PickFunc pickFunc)
 
 		next = indexFunc();
 	}
-	return std::pair<std::optional<Index>, Index>{selected, numIndices};
+
+	if(out_numIndices)
+	{
+		*out_numIndices = numIndices;
+	}
+	return selected;
 }
 
 /*! @brief Same as `uniform_reservoir_pick()`, just with a more friendly name.
 */
 template<typename T, typename Index, typename PickFunc, typename IndexFunc>
-inline auto uniform_pick(IndexFunc indexFunc, PickFunc pickFunc)
--> std::pair<std::optional<Index>, Index>
+inline std::optional<Index> uniform_pick(
+	IndexFunc indexFunc,
+	PickFunc pickFunc,
+	Index* const out_numIndices = nullptr)
 {
 	return uniform_reservoir_pick<T, Index>(
 		std::forward<IndexFunc>(indexFunc),
-		std::forward<PickFunc>(pickFunc));
+		std::forward<PickFunc>(pickFunc),
+		out_numIndices);
 }
 
 /*! @brief Converts input bits to a sample.

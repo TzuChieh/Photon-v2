@@ -7,6 +7,7 @@
 #include <utility>
 #include <climits>
 #include <limits>
+#include <cstring>
 
 namespace ph
 {
@@ -23,6 +24,21 @@ inline constexpr std::array<T, sizeof...(Is)> make_array(
 	return {(static_cast<void>(Is), element)...};
 }
 
+template<typename CurrArg, typename... NextArgs>
+inline constexpr void fill_bytes_from_args_recursive(
+	std::byte* const out_buffer,
+	CurrArg&& currArg,
+	NextArgs&&... nextArgs)
+{
+	std::memcpy(out_buffer, &currArg, sizeof(currArg));
+
+	// Copy more args recursively
+	if constexpr(sizeof...(NextArgs))
+	{
+		fill_bytes_from_args_recursive(out_buffer + sizeof(currArg), std::forward<NextArgs>(nextArgs)...);
+	}
+}
+
 }// end namespace detail
 
 template<typename T>
@@ -31,10 +47,33 @@ inline consteval std::size_t sizeof_in_bits()
 	return CHAR_BIT * sizeof(T);
 }
 
+template<typename... Args>
+inline consteval std::size_t sizeof_args()
+{
+	// Binary right fold in case of 0 arguments
+	consteval size_t numBytes = (sizeof(Args) + ... + 0);
+	return numBytes;
+}
+
 template<typename T, std::size_t N>
 inline constexpr std::array<T, N> make_array(const T& element)
 {
 	return detail::make_array(element, std::make_index_sequence<N>());
+}
+
+template<typename... Args>
+inline constexpr std::array<std::byte, sizeof_args<Args...>()> make_array_from_args(Args&&... args)
+{
+	std::array<std::byte, sizeof_args<Args...>()> arr;
+	if constexpr(sizeof...(Args))
+	{
+		fill_bytes_from_args_recursive(arr.data(), std::forward<Args>(args)...);
+	}
+	else
+	{
+		static_assert(sizeof_args<Args...>() == 0);
+	}
+	return arr;
 }
 
 template<std::integral DstType, std::integral SrcType>

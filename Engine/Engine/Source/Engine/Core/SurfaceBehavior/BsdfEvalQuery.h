@@ -23,6 +23,9 @@ public:
 	void set(const BsdfSampleQuery& sample);
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
 
+	/*!
+	Sets all members to avoid accidental input slicing.
+	*/
 	void set(
 		const BsdfInputBase& base,
 		const SurfaceHit& X, 

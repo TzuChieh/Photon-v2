@@ -91,19 +91,32 @@ void SurfaceOptics::calcPhenomenalBsdf(
 {
 	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
 
-	// In case not all phenomena are queried, we iterate and accumulate
-	for(const auto& ei : getElemenalIteratorProxy(ctx.targetPhenomena))
+	real pdf;
+	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	if(!optElemental)
 	{
-		BsdfQueryContext eCtx = ctx;
-		eCtx.elemental = ei.elemental;
+		return;
+	}
 
-		BsdfEvalOutput eOutputs;
-		calcElementalBsdf(
-			eCtx,
-			in,
-			eOutputs);
+	BsdfQueryContext eCtx = ctx;
+	eCtx.elemental = *optElemental;
 
-		out.add(eOutputs);
+	// Update key as we consumed one for selecting elemental
+	BsdfInputBase eBase;
+	eBase.set(in.getBase().getKey().getNext());
+
+	BsdfEvalInput eIn;
+	eIn.set(eBase, in.getX(), in.getL(), in.getV());
+
+	calcElementalBsdf(
+		eCtx,
+		eIn,
+		out);
+
+	if(out)
+	{
+		const real rcpPdf = 1.0_r / pdf;
+		out.setBsdf(out.getBsdf() * rcpPdf);
 	}
 }
 
@@ -115,9 +128,82 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 {
 	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
 
+	real pdf;
+	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	if(!optElemental)
+	{
+		return;
+	}
+
+	BsdfQueryContext eCtx = ctx;
+	eCtx.elemental = *optElemental;
+
+	// Update key as we consumed one for selecting elemental
+	BsdfInputBase eBase;
+	eBase.set(in.getBase().getKey().getNext());
+
+	BsdfSampleInput eIn;
+	eIn.set(eBase, in.getX(), in.getV());
+
+	genElementalBsdfSample(
+		eCtx,
+		eIn,
+		sampleFlow,
+		out);
+
+	if(out)
+	{
+		const real rcpPdf = 1.0_r / pdf;
+		out.setPdfAppliedBsdfCos(out.getPdfAppliedBsdfCos() * rcpPdf, out.getCos());
+	}
+}
+
+void SurfaceOptics::calcPhenomenalBsdfPdf(
+	const BsdfQueryContext& ctx,
+	const BsdfPdfInput&     in,
+	BsdfPdfOutput&          out) const
+{
+	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+
+	real pdf;
+	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	if(!optElemental)
+	{
+		return;
+	}
+
+	BsdfQueryContext eCtx = ctx;
+	eCtx.elemental = *optElemental;
+
+	// Update key as we consumed one for selecting elemental
+	BsdfInputBase eBase;
+	eBase.set(in.getBase().getKey().getNext());
+
+	BsdfPdfInput eIn;
+	eIn.set(eBase, in.getX(), in.getL(), in.getV());
+
+	calcElementalBsdfPdf(
+		eCtx,
+		eIn,
+		out);
+
+	if(out)
+	{
+		const real rcpPdf = 1.0_r / pdf;
+		out.setSampleDirPdf(out.getSampleDirPdf() * rcpPdf);
+	}
+}
+
+std::optional<SurfaceElemental> SurfaceOptics::selectElementalFromKey(
+	const BsdfQueryContext& ctx,
+	const BsdfInputBase& in,
+	real* const out_pdf) const
+{
 	// In case not all phenomena are queried, we randomly pick one from the phenomena specified
-	auto [optPickedElemental, numPickableElementals] = math::uniform_pick<real, SurfaceElemental>(
-		[this, ei = beginElementalIteratorFor(ctx.targetPhenomena)]() mutable -> std::optional<SurfaceElemental>
+	SurfaceElemental numPickableElementals;
+	auto optPickedElemental = math::uniform_pick<real, SurfaceElemental>(
+		[this, ei = beginElementalIteratorFor(ctx.targetPhenomena)]() mutable
+		-> std::optional<SurfaceElemental>
 		{
 			if(ei != endElementalIterator())
 			{
@@ -128,71 +214,21 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 				return std::nullopt;
 			}
 		},
-		[&sampleFlow](real probability)
+		[sample = in.getKey().getValueAsSample()](real probability) mutable
 		{
-			return sampleFlow.unflowedPick(probability);
-		});
+			return math::reused_pick(probability, sample);
+		},
+		&numPickableElementals);
 
 	if(!optPickedElemental)
 	{
-		return;
+		return std::nullopt;
 	}
 	PH_ASSERT_GE(numPickableElementals, 1);
 
-	BsdfQueryContext eCtx = ctx;
-	eCtx.elemental = *optPickedElemental;
-
-	genElementalBsdfSample(
-		eCtx,
-		in,
-		sampleFlow,
-		out);
-
-	if(out)
-	{
-		const real rcpPickProb = numPickableElementals;
-		out.setPdfAppliedBsdfCos(out.getPdfAppliedBsdfCos() * rcpPickProb, out.getCos());
-	}
-	
-
-
-	// TODO: sample and weight
-	// TODO: how to let PDF know which elemental got picked? is it a good strategy?
-
-	// If not all phenomena is queried, we iterate
-	/*for_each_elemental_of(
-		sample.context.targetPhenomena,
-		*this,
-		[this, &sample, &sampleFlow](SurfaceElemental elemental, ESurfacePhenomenon phenomenon)
-		{
-			BsdfQueryContext ctx = sample.context;
-			ctx.elemental = elemental;
-			ctx.targetPhenomena = SurfacePhenomena(phenomenon);
-
-			BsdfSampleOutput outputs;
-			genBsdfSampleCore(
-				ctx,
-				sample.inputs,
-				sampleFlow,
-				outputs);
-
-			eval.outputs.add(outputs);
-		});*/
-}
-
-void SurfaceOptics::calcPhenomenalBsdfPdf(
-	const BsdfQueryContext& ctx,
-	const BsdfPdfInput&     in,
-	BsdfPdfOutput&          out) const
-{
-	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
-
-	// TODO
-}
-
-uint64 SurfaceOptics::svbsdfHash(const SurfaceHit& X)
-{
-	// SVBRDF input includes position, 
+	PH_ASSERT(out_pdf);
+	*out_pdf = 1.0_r / numPickableElementals;
+	return optPickedElemental;
 }
 
 }// end namespace ph

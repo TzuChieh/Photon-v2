@@ -118,7 +118,7 @@ inline uint64 moremur_bit_mix_64(uint64 v)
 template<typename T, typename BitMixerType>
 inline uint32 murmur3_32(const T& data, const uint32 seed, BitMixerType&& bitMixer)
 {
-	return murmur3_32(&data, 1, seed, std::forward<BitMixerType>(bitMixer)));
+	return murmur3_32(&data, 1, seed, std::forward<BitMixerType>(bitMixer));
 }
 
 template<typename T, typename BitMixerType>

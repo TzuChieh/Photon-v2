@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/hash.h"
 #include "Engine/Math/Random/sample.h"
@@ -69,10 +70,7 @@ inline BsdfInputKey::BsdfInputKey(uint32 key)
 
 inline BsdfInputKey BsdfInputKey::makeHashed(const math::Vector3R& L, const math::Vector3R& V)
 {
-	return BsdfInputKey{
-		math::combine_hashes<uint32>(
-			math::murmur3_32(L, 0),
-			math::murmur3_32(V, 0))};
+	return BsdfInputKey{math::murmur3_32(make_array_from_args(L, V), 0)};
 }
 
 inline BsdfInputKey BsdfInputKey::makeSampled(real sample)

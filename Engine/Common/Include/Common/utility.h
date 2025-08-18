@@ -33,11 +33,17 @@ namespace ph
 template<typename T>
 consteval std::size_t sizeof_in_bits();
 
+template<typename... Args>
+consteval std::size_t sizeof_args();
+
 /*! @brief Creates an `std::array` filled with the same element.
 @note The element does not need to be default-constructible.
 */
 template<typename T, std::size_t N>
 constexpr std::array<T, N> make_array(const T& element);
+
+template<typename... Args>
+constexpr std::array<std::byte, sizeof_args<Args...>()> make_array_from_args(Args&&... args);
 
 template<std::integral DstType, std::integral SrcType>
 DstType lossless_integer_cast(const SrcType& src);

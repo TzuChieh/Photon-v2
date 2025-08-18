@@ -102,8 +102,7 @@ inline void TViewPathTracingWork<Handler>::doWork()
 				tracingRay, 
 				pathThroughput, 
 				0,
-				sampleFlow,
-				rrScale);
+				sampleFlow);
 			
 			m_handler->onReceiverSampleEnd();
 		}// end for single sample
