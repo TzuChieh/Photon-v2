@@ -51,7 +51,7 @@ template<typename... Args>
 inline consteval std::size_t sizeof_args()
 {
 	// Binary right fold in case of 0 arguments
-	consteval size_t numBytes = (sizeof(Args) + ... + 0);
+	constexpr size_t numBytes = (sizeof(Args) + ... + 0);
 	return numBytes;
 }
 
@@ -67,7 +67,7 @@ inline constexpr std::array<std::byte, sizeof_args<Args...>()> make_array_from_a
 	std::array<std::byte, sizeof_args<Args...>()> arr;
 	if constexpr(sizeof...(Args))
 	{
-		fill_bytes_from_args_recursive(arr.data(), std::forward<Args>(args)...);
+		detail::fill_bytes_from_args_recursive(arr.data(), std::forward<Args>(args)...);
 	}
 	else
 	{

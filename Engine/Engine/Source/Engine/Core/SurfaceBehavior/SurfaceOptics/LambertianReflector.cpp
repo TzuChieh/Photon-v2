@@ -88,8 +88,6 @@ void LambertianReflector::calcElementalBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	PH_ASSERT_EQ(in);
-
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setSampleDirPdf({});

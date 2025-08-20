@@ -10,6 +10,8 @@
 #include <Common/primitive_type.h>
 #include <Common/utility.h>
 
+#include <variant>
+
 namespace ph
 {
 
@@ -38,12 +40,15 @@ public:
 	BsdfInputKey getNext() const;
 
 private:
-	explicit BsdfInputKey(uint32 key);
+	using Key = std::variant<std::monostate, uint32, real>;
 
-	uint32 m_key;
-#if PH_DEBUG
-	bool m_hasSet{false};
-#endif
+	explicit BsdfInputKey(Key key);
+
+	// TODO: implement generation for cheaper `getNext()`
+	// TODO: move to ctx
+
+	Key m_key;
+	uint32 m_generation;
 };
 
 class BsdfInputBase final
@@ -60,12 +65,8 @@ private:
 #endif
 };
 
-inline BsdfInputKey::BsdfInputKey(uint32 key)
+inline BsdfInputKey::BsdfInputKey(Key key)
 	: m_key{key}
-#if PH_DEBUG
-	// Only this ctor is a valid init
-	, m_hasSet{true}
-#endif
 {}
 
 inline BsdfInputKey BsdfInputKey::makeHashed(const math::Vector3R& L, const math::Vector3R& V)
@@ -75,7 +76,7 @@ inline BsdfInputKey BsdfInputKey::makeHashed(const math::Vector3R& L, const math
 
 inline BsdfInputKey BsdfInputKey::makeSampled(real sample)
 {
-	return BsdfInputKey{math::murmur3_32(sample, 0)};
+	return BsdfInputKey{sample};
 }
 
 inline BsdfInputKey BsdfInputKey::makeRandom()
@@ -85,21 +86,29 @@ inline BsdfInputKey BsdfInputKey::makeRandom()
 
 inline uint32 BsdfInputKey::getValue() const
 {
-	PH_ASSERT(m_hasSet);
+	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
 
-	return m_key;
+	return std::holds_alternative<uint32>(m_key)
+		? std::get<uint32>(m_key)
+		: math::murmur3_32(std::get<real>(m_key), 0);
 }
 
 inline real BsdfInputKey::getValueAsSample() const
 {
-	return math::bits_to_sample<real>(getValue());
+	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
+
+	return std::holds_alternative<uint32>(m_key)
+		? math::bits_to_sample<real>(std::get<uint32>(m_key))
+		: std::get<real>(m_key);
 }
 
 inline BsdfInputKey BsdfInputKey::getNext() const
 {
+	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
+
 	// Next key must be different to the current one while being deterministic,
 	// so a consistent value can be seen across mutiple call sites
-	return BsdfInputKey{math::murmur3_bit_mix_32(getValue())};
+	return BsdfInputKey{math::murmur3_32(m_key, 0)};
 }
 
 inline void BsdfInputBase::set(const BsdfInputKey& key)

@@ -23,7 +23,7 @@ public:
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
-	void calcBsdfCore(
+	void calcElementalBsdf(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
