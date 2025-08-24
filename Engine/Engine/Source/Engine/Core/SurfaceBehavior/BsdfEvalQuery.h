@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Engine/Core/SurfaceBehavior/bsdf_query_common.h"
 #include "Engine/Core/SurfaceBehavior/BsdfQueryContext.h"
@@ -27,18 +26,15 @@ public:
 	Sets all members to avoid accidental input slicing.
 	*/
 	void set(
-		const BsdfInputBase& base,
 		const SurfaceHit& X, 
 		const math::Vector3R& L,
 		const math::Vector3R& V);
 
-	const BsdfInputBase& getBase() const;
 	const SurfaceHit& getX() const;
 	const math::Vector3R& getL() const;
 	const math::Vector3R& getV() const;
 
 private:
-	BsdfInputBase m_base;
 	SurfaceHit m_X;
 	math::Vector3R m_L;
 	math::Vector3R m_V;
@@ -120,7 +116,6 @@ inline BsdfEvalQuery::BsdfEvalQuery(BsdfQueryContext context)
 }
 
 inline void BsdfEvalInput::set(
-	const BsdfInputBase& base,
 	const SurfaceHit& X, 
 	const math::Vector3R& L,
 	const math::Vector3R& V)
@@ -131,7 +126,6 @@ inline void BsdfEvalInput::set(
 	PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
 	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
 
-	m_base = base;
 	m_X = X;
 	m_L = L;
 	m_V = V;
@@ -139,13 +133,6 @@ inline void BsdfEvalInput::set(
 #if PH_DEBUG
 	m_hasSet = true;
 #endif
-}
-
-inline const BsdfInputBase& BsdfEvalInput::getBase() const
-{
-	PH_ASSERT(m_hasSet);
-
-	return m_base;
 }
 
 inline const SurfaceHit& BsdfEvalInput::getX() const

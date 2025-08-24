@@ -170,7 +170,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		ESurfacePhenomenon::NearDiffuse};
 	const auto phenomena = optics.getAllPhenomena();
 
-	bool shouldExtendPath = true;
+	/*bool shouldExtendPath = true;
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength))
 	{
 		const auto mergeTarget = pathLength < m_glossyMergeBeginLength
@@ -182,7 +182,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		{
 
 		}
-	}
+	}*/
 
 	const auto phenomena = optics.getAllPhenomena();
 	const bool isSufficientlyDiffuse = 

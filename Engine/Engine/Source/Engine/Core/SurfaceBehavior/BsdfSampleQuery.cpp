@@ -7,7 +7,6 @@ namespace ph
 void BsdfSampleInput::set(const BsdfEvalInput& evalInput)
 {
 	set(
-		evalInput.getBase(),
 		evalInput.getX(),
 		evalInput.getV());
 }

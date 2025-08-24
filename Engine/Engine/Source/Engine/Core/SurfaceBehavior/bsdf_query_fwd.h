@@ -5,8 +5,7 @@ namespace ph
 
 class BsdfQueryContext;
 
-class BsdfInputKey;
-class BsdfInputBase;
+class BsdfKey;
 
 class BsdfEvalInput;
 class BsdfEvalOutput;

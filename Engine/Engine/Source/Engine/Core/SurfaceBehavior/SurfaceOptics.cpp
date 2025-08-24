@@ -92,7 +92,7 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
-	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
 		return;
@@ -102,11 +102,10 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	BsdfInputBase eBase;
-	eBase.set(in.getBase().getKey().getNext());
+	eCtx.key = ctx.key.getNext(numElementals());
 
 	BsdfEvalInput eIn;
-	eIn.set(eBase, in.getX(), in.getL(), in.getV());
+	eIn.set(in.getX(), in.getL(), in.getV());
 
 	calcElementalBsdf(
 		eCtx,
@@ -129,7 +128,7 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
-	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
 		return;
@@ -139,11 +138,10 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	BsdfInputBase eBase;
-	eBase.set(in.getBase().getKey().getNext());
+	eCtx.key = ctx.key.getNext(numElementals());
 
 	BsdfSampleInput eIn;
-	eIn.set(eBase, in.getX(), in.getV());
+	eIn.set(in.getX(), in.getV());
 
 	genElementalBsdfSample(
 		eCtx,
@@ -166,7 +164,7 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
-	const auto optElemental = selectElementalFromKey(ctx, in.getBase(), &pdf);
+	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
 		return;
@@ -176,11 +174,10 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	BsdfInputBase eBase;
-	eBase.set(in.getBase().getKey().getNext());
+	eCtx.key = ctx.key.getNext(numElementals());
 
 	BsdfPdfInput eIn;
-	eIn.set(eBase, in.getX(), in.getL(), in.getV());
+	eIn.set(in.getX(), in.getL(), in.getV());
 
 	calcElementalBsdfPdf(
 		eCtx,
@@ -196,7 +193,6 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 
 std::optional<SurfaceElemental> SurfaceOptics::selectElementalFromKey(
 	const BsdfQueryContext& ctx,
-	const BsdfInputBase& in,
 	real* const out_pdf) const
 {
 	// In case not all phenomena are queried, we randomly pick one from the phenomena specified
@@ -214,7 +210,7 @@ std::optional<SurfaceElemental> SurfaceOptics::selectElementalFromKey(
 				return std::nullopt;
 			}
 		},
-		[sample = in.getKey().getValueAsSample()](real probability) mutable
+		[sample = ctx.key.getValueAsSample()](real probability) mutable
 		{
 			return math::reused_pick(probability, sample);
 		},

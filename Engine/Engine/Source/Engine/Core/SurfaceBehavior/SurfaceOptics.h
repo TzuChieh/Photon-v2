@@ -249,7 +249,6 @@ public:
 protected:
 	std::optional<SurfaceElemental> selectElementalFromKey(
 		const BsdfQueryContext& ctx,
-		const BsdfInputBase& in,
 		real* out_pdf) const;
 
 	SurfacePhenomena m_phenomena;

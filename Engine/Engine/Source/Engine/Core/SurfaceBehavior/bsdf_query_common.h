@@ -5,6 +5,7 @@
 #include "Engine/Math/hash.h"
 #include "Engine/Math/Random/sample.h"
 #include "Engine/Math/Random/Random.h"
+#include "Engine/Utility/utility.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -15,17 +16,19 @@
 namespace ph
 {
 
-/*! @brief Identify a set of input by a key value.
-Think of it like a hash value, it may have collision, but generally well distributed.
+/*! @brief Identify a set of BSDF input or value by a key value.
+This class is useful when, say, you want to stochastically pick a BSDF elemental for evaluation or
+to identify a BSDF query across multiple queries. Think of it like a hash value, it may have collision,
+but generally well distributed.
 */
-class BsdfInputKey final
+class BsdfKey final
 {
 public:
-	static BsdfInputKey makeHashed(const math::Vector3R& L, const math::Vector3R& V);
-	static BsdfInputKey makeSampled(real sample);
-	static BsdfInputKey makeRandom();
+	static BsdfKey makeHashed(const math::Vector3R& L, const math::Vector3R& V);
+	static BsdfKey makeSampled(real sample);
+	static BsdfKey makeRandom();
 
-	BsdfInputKey() = default;
+	BsdfKey() = default;
 
 	/*! @brief Get the key value.
 	*/
@@ -35,96 +38,120 @@ public:
 	*/
 	real getValueAsSample() const;
 
-	/*! @brief Get the next key.
+	/*! @brief Get the next key derived from this key.
+	This is deterministic. For the same key, it will always return the same next key. If the key
+	was from `makeSampled()`, the next key will decay to a hash internally.
+	@param numAdvances The number of advances to perform. Must be >= 0.
 	*/
-	BsdfInputKey getNext() const;
+	BsdfKey getNext(uint32 numAdvances) const;
 
 private:
-	using Key = std::variant<std::monostate, uint32, real>;
+	struct PreHashed
+	{
+		uint32 value;
+	};
 
-	explicit BsdfInputKey(Key key);
+	struct LazilyHashed
+	{
+		uint32 value;
+	};
 
-	// TODO: implement generation for cheaper `getNext()`
-	// TODO: move to ctx
+	struct Sampled
+	{
+		real value;
+	};
+
+	using Key = std::variant<std::monostate, PreHashed, LazilyHashed, Sampled>;
+
+	BsdfKey(Key key, uint32 generation);
 
 	Key m_key;
 	uint32 m_generation;
 };
 
-class BsdfInputBase final
-{
-public:
-	void set(const BsdfInputKey& key);
-
-	const BsdfInputKey& getKey() const;
-
-private:
-	BsdfInputKey m_key;
-#if PH_DEBUG
-	bool m_hasSet{false};
-#endif
-};
-
-inline BsdfInputKey::BsdfInputKey(Key key)
+inline BsdfKey::BsdfKey(Key key, uint32 generation)
 	: m_key{key}
+	, m_generation{generation}
 {}
 
-inline BsdfInputKey BsdfInputKey::makeHashed(const math::Vector3R& L, const math::Vector3R& V)
+inline BsdfKey BsdfKey::makeHashed(const math::Vector3R& L, const math::Vector3R& V)
 {
-	return BsdfInputKey{math::murmur3_32(make_array_from_args(L, V), 0)};
+	return BsdfKey{
+		PreHashed{math::murmur3_32(make_array_from_args(L, V), 0)},
+		0};
 }
 
-inline BsdfInputKey BsdfInputKey::makeSampled(real sample)
+inline BsdfKey BsdfKey::makeSampled(real sample)
 {
-	return BsdfInputKey{sample};
+	return BsdfKey{
+		Sampled{sample},
+		0};
 }
 
-inline BsdfInputKey BsdfInputKey::makeRandom()
+inline BsdfKey BsdfKey::makeRandom()
 {
-	return BsdfInputKey{math::Random::bits32()};
+	return BsdfKey{
+		PreHashed{math::Random::bits32()},
+		0};
 }
 
-inline uint32 BsdfInputKey::getValue() const
+inline uint32 BsdfKey::getValue() const
 {
-	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
+	switch(m_key.index())
+	{
+	case variant_index_of<PreHashed, Key>():
+		// Caller's responsibility to ensure the key is not reused in a way that can cause correlation
+		return std::get<PreHashed>(m_key).value;
 
-	return std::holds_alternative<uint32>(m_key)
-		? std::get<uint32>(m_key)
-		: math::murmur3_32(std::get<real>(m_key), 0);
+	case variant_index_of<LazilyHashed, Key>():
+		return math::murmur3_32(std::get<LazilyHashed>(m_key).value, m_generation);
+
+	case variant_index_of<Sampled, Key>():
+		return math::murmur3_32(std::get<Sampled>(m_key).value, m_generation);
+
+	default:
+		// Uninitialized!
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0;
+	}
 }
 
-inline real BsdfInputKey::getValueAsSample() const
+inline real BsdfKey::getValueAsSample() const
 {
-	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
-
-	return std::holds_alternative<uint32>(m_key)
-		? math::bits_to_sample<real>(std::get<uint32>(m_key))
-		: std::get<real>(m_key);
+	if(std::holds_alternative<Sampled>(m_key) && m_generation == 0)
+	{
+		// Caller's responsibility to ensure the key is not reused in a way that can cause correlation
+		return std::get<Sampled>(m_key).value;
+	}
+	else
+	{
+		return math::bits_to_sample<real>(getValue());
+	}
 }
 
-inline BsdfInputKey BsdfInputKey::getNext() const
+inline BsdfKey BsdfKey::getNext(uint32 numAdvances) const
 {
-	PH_ASSERT(!std::holds_alternative<std::monostate>(m_key));
+	PH_ASSERT_GE(numAdvances, 1);
 
-	// Next key must be different to the current one while being deterministic,
-	// so a consistent value can be seen across mutiple call sites
-	return BsdfInputKey{math::murmur3_32(m_key, 0)};
-}
+	// Keep this method cheap, as key is used rarely currently and most call sites simply call
+	// this method to forward/advance the key.
+	//
+	// Next key must also be different to the current one while being deterministic,
+	// so a consistent value can be seen across multiple call sites in different queries.
+	switch(m_key.index())
+	{
+	case variant_index_of<PreHashed, Key>():
+		// Transition to lazily hashed so no rehashing is performed until next call to `getValue()`
+		return BsdfKey{
+			LazilyHashed{getValue()},
+			m_generation + numAdvances};
 
-inline void BsdfInputBase::set(const BsdfInputKey& key)
-{
-	m_key = key;
-
-#if PH_DEBUG
-	m_hasSet = true;
-#endif
-}
-
-inline const BsdfInputKey& BsdfInputBase::getKey() const
-{
-	PH_ASSERT(m_hasSet);
-
-	return m_key;
+	default:
+		// All other types are generation-aware, we can simply copy the key
+		return BsdfKey{
+			m_key,
+			m_generation + numAdvances};
+	}
 }
 
 }// end namespace ph

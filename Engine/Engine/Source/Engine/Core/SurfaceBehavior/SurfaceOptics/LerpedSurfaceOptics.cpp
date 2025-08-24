@@ -89,9 +89,15 @@ void LerpedSurfaceOptics::calcElementalBsdf(
 	{
 		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 
+		const BsdfQueryContext& ctx0 = ctx;
+
+		// We need distinct keys in two optics to avoid correlation
+		BsdfQueryContext ctx1 = ctx;
+		ctx1.key = ctx0.key.getNext(numElementals());
+
 		BsdfEvalOutput eval0, eval1;
-		m_optics0->calcElementalBsdf(ctx, in, eval0);
-		m_optics1->calcElementalBsdf(ctx, in, eval1);
+		m_optics0->calcElementalBsdf(ctx0, in, eval0);
+		m_optics1->calcElementalBsdf(ctx1, in, eval1);
 
 		// One or both of them can fail due to single sided, etc.
 		const math::Spectrum bsdf0 = eval0.isContributable() ? eval0.getBsdf() : math::Spectrum(0);
@@ -154,8 +160,14 @@ void LerpedSurfaceOptics::genElementalBsdfSample(
 			sampledProb = 1.0_r - sampledProb;
 		}
 
+		const BsdfQueryContext& sampledCtx = ctx;
+
+		// We need distinct keys in two optics to avoid correlation
+		BsdfQueryContext anotherCtx = ctx;
+		anotherCtx.key = sampledCtx.key.getNext(numElementals());
+
 		BsdfSampleQuery::Output sampleOutputs;
-		sampledOptics->genElementalBsdfSample(ctx, in, sampleFlow, sampleOutputs);
+		sampledOptics->genElementalBsdfSample(sampledCtx, in, sampleFlow, sampleOutputs);
 		if(!sampleOutputs.isContributable())
 		{
 			out.setContributability(false);
@@ -164,7 +176,7 @@ void LerpedSurfaceOptics::genElementalBsdfSample(
 
 		BsdfEvalQuery eval;
 		eval.inputs.set(in, sampleOutputs);
-		anotherOptics->calcElementalBsdf(ctx, eval.inputs, eval.outputs);
+		anotherOptics->calcElementalBsdf(anotherCtx, eval.inputs, eval.outputs);
 
 		const math::Spectrum anotherBsdfCos = eval.outputs.isContributable()
 			? eval.outputs.getBsdf() * sampleOutputs.getCos() : math::Spectrum(0);
@@ -172,8 +184,8 @@ void LerpedSurfaceOptics::genElementalBsdfSample(
 		BsdfPdfQuery sampledPdf, anotherPdf;
 		sampledPdf.inputs.set(in, sampleOutputs);
 		anotherPdf.inputs.set(in, sampleOutputs);
-		sampledOptics->calcElementalBsdfPdf(ctx, sampledPdf.inputs, sampledPdf.outputs);
-		anotherOptics->calcElementalBsdfPdf(ctx, anotherPdf.inputs, anotherPdf.outputs);
+		sampledOptics->calcElementalBsdfPdf(sampledCtx, sampledPdf.inputs, sampledPdf.outputs);
+		anotherOptics->calcElementalBsdfPdf(anotherCtx, anotherPdf.inputs, anotherPdf.outputs);
 
 		// One or both of them can fail due to single sided, etc.
 		const real sampledPdfW = sampledPdf.outputs ? sampledPdf.outputs.getSampleDirPdfW() : 0.0_r;
@@ -248,9 +260,15 @@ void LerpedSurfaceOptics::calcElementalBsdfPdf(
 		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 		const real prob0 = probabilityOfPickingOptics0(ratio);
 
+		const BsdfQueryContext& ctx0 = ctx;
+
+		// We need distinct keys in two optics to avoid correlation
+		BsdfQueryContext ctx1 = ctx;
+		ctx1.key = ctx0.key.getNext(numElementals());
+
 		BsdfPdfQuery::Output query0, query1;
-		m_optics0->calcElementalBsdfPdf(ctx, in, query0);
-		m_optics1->calcElementalBsdfPdf(ctx, in, query1);
+		m_optics0->calcElementalBsdfPdf(ctx0, in, query0);
+		m_optics1->calcElementalBsdfPdf(ctx1, in, query1);
 
 		// One or both of them can fail due to single sided, etc.
 		const real pdfW0 = query0 ? query0.getSampleDirPdfW() : 0.0_r;

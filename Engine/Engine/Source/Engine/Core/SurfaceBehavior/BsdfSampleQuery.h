@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Engine/Core/SurfaceBehavior/bsdf_query_common.h"
 #include "Engine/Math/TVector3.h"
@@ -28,11 +27,9 @@ public:
 	Sets all members to avoid accidental input slicing.
 	*/
 	void set(
-		const BsdfInputBase& base,
 		const SurfaceHit& X,
 		const math::Vector3R& V);
 
-	const BsdfInputBase& getBase() const;
 	const SurfaceHit& getX() const;
 
 	/*!
@@ -41,7 +38,6 @@ public:
 	const math::Vector3R& getV() const;
 
 private:
-	BsdfInputBase m_base;
 	SurfaceHit m_X;
 	math::Vector3R m_V;
 #if PH_DEBUG
@@ -173,7 +169,6 @@ inline BsdfSampleQuery::BsdfSampleQuery(BsdfQueryContext context)
 }
 
 inline void BsdfSampleInput::set(
-	const BsdfInputBase& base,
 	const SurfaceHit& X,
 	const math::Vector3R& V)
 {
@@ -182,20 +177,12 @@ inline void BsdfSampleInput::set(
 
 	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
 
-	m_base = base;
 	m_X = X;
 	m_V = V;
 
 #if PH_DEBUG
 	m_hasSet = true;
 #endif
-}
-
-inline const BsdfInputBase& BsdfSampleInput::getBase() const
-{
-	PH_ASSERT(m_hasSet);
-
-	return m_base;
 }
 
 inline const SurfaceHit& BsdfSampleInput::getX() const

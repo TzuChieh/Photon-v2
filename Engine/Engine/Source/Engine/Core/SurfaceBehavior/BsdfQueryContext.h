@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/surface_optics_fwd.h"
+#include "Engine/Core/SurfaceBehavior/bsdf_query_common.h"
 #include "Engine/Core/LTA/SidednessAgreement.h"
 #include "Engine/Core/LTA/enums.h"
 
@@ -22,6 +23,8 @@ public:
 
 	lta::ETransport transport = lta::ETransport::Radiance;
 	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
+
+	BsdfKey key = BsdfKey{};
 
 	BsdfQueryContext() = default;
 	explicit BsdfQueryContext(SurfaceElemental elemental);
