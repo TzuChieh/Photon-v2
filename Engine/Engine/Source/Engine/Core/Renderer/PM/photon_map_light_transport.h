@@ -66,6 +66,7 @@ of the total energy (in equilibrium).
 @param viewPathThroughput Current view path throughput.
 @param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
 @param scene The scene that is being rendered.
+@param bsdfContext Context for BSDF query.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
 @return The energy that is lost, properly weighted by `viewPathThroughput`.
@@ -77,6 +78,7 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	const math::Spectrum&         viewPathThroughput,
 	const TPhotonMapInfo<Photon>& photonMapInfo,
 	const Scene*                  scene,
+	const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
 	const std::size_t             minFullPathLength = 1,
 	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
 {
@@ -112,6 +114,7 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
 	{
 		BsdfSampleQuery bsdfSample;
+		bsdfSample.context = bsdfContext;
 		bsdfSample.inputs.set(X, -X.getIncidentRay().getDir());
 
 		math::Spectrum viewRadiance;
@@ -139,6 +142,7 @@ of the total energy (in equilibrium).
 @param viewPathThroughput Current view path throughput.
 @param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
 @param scene The scene that is being rendered.
+@param bsdfContext Context for BSDF query.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
 @return The energy that is lost, properly weighted by `viewPathThroughput`.
@@ -150,6 +154,7 @@ inline math::Spectrum estimate_lost_energy_for_extending(
 	const math::Spectrum&         viewPathThroughput,
 	const TPhotonMapInfo<Photon>& photonMapInfo,
 	const Scene*                  scene,
+	//const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
 	const std::size_t             minFullPathLength = 1,
 	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
 {
@@ -202,6 +207,7 @@ of the total energy (in equilibrium).
 @param viewPathThroughput Current view path throughput.
 @param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
 @param scene The scene that is being rendered.
+@param bsdfContext Context for BSDF query.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
 @return The energy that is lost, properly weighted by `viewPathThroughput`.
@@ -213,6 +219,7 @@ inline math::Spectrum estimate_lost_energy_for_merging(
 	const math::Spectrum&         viewPathThroughput,
 	const TPhotonMapInfo<Photon>& photonMapInfo,
 	const Scene*                  scene,
+	//const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
 	const std::size_t             minFullPathLength = 1,
 	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
 {

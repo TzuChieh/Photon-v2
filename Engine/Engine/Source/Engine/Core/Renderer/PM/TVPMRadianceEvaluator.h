@@ -159,6 +159,7 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		pathThroughput,
 		m_photonMap->getInfo(),
 		m_scene,
+		BsdfQueryContext{},// TODO
 		m_minFullPathLength,
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
@@ -184,10 +185,9 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		}
 	}*/
 
-	const auto phenomena = optics.getAllPhenomena();
 	const bool isSufficientlyDiffuse = 
 		phenomena.hasNone(ESurfacePhenomenon::Delta) &&
-		(pathLength >= m_glossyMergeBeginLength ? phenomena.hasAny(smoothEnoughPhenomena) : phenomena.hasExactly(ESurfacePhenomenon::Diffuse));
+		(pathLength >= m_glossyMergeBeginLength ? phenomena.hasAny(smoothEnoughPhenomena) : phenomena.hasExactly(smoothPhenomena));
 
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 	   isSufficientlyDiffuse)
