@@ -62,7 +62,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 	constexpr auto transport = lta::ETransport::Importance;
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 	const lta::RussianRoulette rr{};
 
@@ -147,6 +147,8 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			{
 				break;
 			}
+
+			bsdfContext.key = BsdfKey::makeRandom();
 
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			Ray sampledRay;

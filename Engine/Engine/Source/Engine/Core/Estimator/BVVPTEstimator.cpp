@@ -42,7 +42,10 @@ void BVVPTEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation)
 {
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
 	// Transport tools
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
@@ -56,6 +59,8 @@ void BVVPTEstimator::estimate(
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
+	BsdfQueryContext bsdfContext{sidednessPolicy};
+	bsdfContext.key = BsdfKey::makeRandom();
 	lta::VolumeTracker volumeTracker{};
 
 	SurfaceHit X;
@@ -65,7 +70,7 @@ void BVVPTEstimator::estimate(
 	{
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, volumeTracker, &X))
+			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, volumeTracker, &X))
 			{
 				break;
 			}
@@ -78,7 +83,7 @@ void BVVPTEstimator::estimate(
 		else 
 		{
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				X, tracingRay, BsdfQueryContext{}.sidedness, volumeTracker, &X))
+				X, tracingRay, sidedness, volumeTracker, &X))
 			{
 				break;
 			}
@@ -104,7 +109,7 @@ void BVVPTEstimator::estimate(
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
 		const math::Vector3R N = X.getShadingNormal();
 
-		BsdfSampleQuery bsdfSample;
+		BsdfSampleQuery bsdfSample{bsdfContext};
 		bsdfSample.inputs.set(X, V);
 		Ray nextRay;
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &nextRay))
@@ -136,7 +141,7 @@ void BVVPTEstimator::estimate(
 			break;
 		}
 
-		if(BsdfQueryContext{}.sidedness.isOppositeHemisphere(X, V, L))
+		if(sidedness.isOppositeHemisphere(X, V, L))
 		{
 			if(N.dot(V) > 0)
 			{
@@ -154,7 +159,7 @@ void BVVPTEstimator::estimate(
 		if(volumeOptics)
 		{
 			foundNextX = surfaceTracer.traceNextSurfaceFrom(
-				X, nextRay, BsdfQueryContext{}.sidedness, volumeTracker, &nextX);
+				X, nextRay, sidedness, volumeTracker, &nextX);
 			if(!foundNextX)
 			{
 				break;
@@ -187,7 +192,9 @@ void BVVPTEstimator::estimate(
 			}
 		}
 
+		// Will extend the path, update states for next bounce
 		tracingRay = nextRay;
+		bsdfContext.key = bsdfContext.key.makeRandom();
 	}// end while
 
 	out_estimation[getPathEnergyIndex()] = pathEnergy;

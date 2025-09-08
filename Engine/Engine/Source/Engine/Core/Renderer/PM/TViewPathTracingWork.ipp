@@ -125,13 +125,14 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 	const lta::RussianRoulette rr{};
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
 
 	while(true)
 	{
 		SurfaceHit X;
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, &X))
+			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
 			{
 				break;
 			}
@@ -139,7 +140,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		else
 		{
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				prevHit, tracingRay, BsdfQueryContext{}.sidedness, &X))
+				prevHit, tracingRay, sidedness, &X))
 			{
 				break;
 			}
@@ -158,7 +159,10 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
-			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), transport, sidednessPolicy));
+			BsdfQueryContext bsdfContext(policy.getTargetElemental(), transport, sidednessPolicy);
+			bsdfContext.key = BsdfKey::makeRandom();
+
+			BsdfSampleQuery bsdfSample(bsdfContext);
 			bsdfSample.inputs.set(X, V);
 
 			Ray sampledRay;
@@ -233,7 +237,10 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		BsdfSampleQuery elementalSample(BsdfQueryContext(i, transport, sidednessPolicy));
+		BsdfQueryContext bsdfContext(i, transport, sidednessPolicy);
+		bsdfContext.key = BsdfKey::makeRandom();
+
+		BsdfSampleQuery elementalSample(bsdfContext);
 		elementalSample.inputs.set(X, V);
 
 		Ray sampledRay;

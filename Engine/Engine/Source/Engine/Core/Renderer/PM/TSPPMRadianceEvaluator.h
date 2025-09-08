@@ -250,6 +250,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
 	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	bsdfContext.key = BsdfKey::makeRandom();
 
 	math::Spectrum tauM(0);
 	BsdfEvalQuery  bsdfEval(bsdfContext);

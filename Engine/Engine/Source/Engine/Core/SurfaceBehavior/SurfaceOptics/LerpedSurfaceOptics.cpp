@@ -18,6 +18,24 @@
 namespace ph
 {
 
+namespace
+{
+
+inline std::pair<BsdfQueryContext, BsdfQueryContext> make_derived_contexts(const BsdfQueryContext& ctx)
+{
+	BsdfQueryContext ctx0 = ctx;
+	BsdfQueryContext ctx1 = ctx;
+
+	// We need distinct keys in two optics to avoid correlation. Key generation must be
+	// consistent across different BSDF methods. Hash targets are randomly chosen.
+	ctx0.key = ctx.key.getNext(0xEF6B9D3A);
+	ctx1.key = ctx.key.getNext(0x91E5F1FE);
+
+	return {ctx0, ctx1};
+}
+
+}// end namespace
+
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const SurfaceOptics* optics0,
 	const SurfaceOptics* optics1)
@@ -88,12 +106,7 @@ void LerpedSurfaceOptics::calcElementalBsdf(
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
 		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
-
-		const BsdfQueryContext& ctx0 = ctx;
-
-		// We need distinct keys in two optics to avoid correlation
-		BsdfQueryContext ctx1 = ctx;
-		ctx1.key = ctx0.key.getNext(numElementals());
+		const auto [ctx0, ctx1] = make_derived_contexts(ctx);
 
 		BsdfEvalOutput eval0, eval1;
 		m_optics0->calcElementalBsdf(ctx0, in, eval0);
@@ -160,11 +173,7 @@ void LerpedSurfaceOptics::genElementalBsdfSample(
 			sampledProb = 1.0_r - sampledProb;
 		}
 
-		const BsdfQueryContext& sampledCtx = ctx;
-
-		// We need distinct keys in two optics to avoid correlation
-		BsdfQueryContext anotherCtx = ctx;
-		anotherCtx.key = sampledCtx.key.getNext(numElementals());
+		const auto [sampledCtx, anotherCtx] = make_derived_contexts(ctx);
 
 		BsdfSampleQuery::Output sampleOutputs;
 		sampledOptics->genElementalBsdfSample(sampledCtx, in, sampleFlow, sampleOutputs);
@@ -259,12 +268,7 @@ void LerpedSurfaceOptics::calcElementalBsdfPdf(
 	{
 		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 		const real prob0 = probabilityOfPickingOptics0(ratio);
-
-		const BsdfQueryContext& ctx0 = ctx;
-
-		// We need distinct keys in two optics to avoid correlation
-		BsdfQueryContext ctx1 = ctx;
-		ctx1.key = ctx0.key.getNext(numElementals());
+		const auto [ctx0, ctx1] = make_derived_contexts(ctx);
 
 		BsdfPdfQuery::Output query0, query1;
 		m_optics0->calcElementalBsdfPdf(ctx0, in, query0);

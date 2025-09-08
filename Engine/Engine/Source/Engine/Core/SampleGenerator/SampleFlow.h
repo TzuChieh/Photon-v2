@@ -76,13 +76,13 @@ public:
 	bool unflowedRandomPick(real pickProbability);
 
 private:
+	bool hasMoreToRead() const;
+	real load1D();
+
 	const real*         m_savedDims;
 	std::size_t         m_numSavedDims;
 	std::size_t         m_numReadDims;
 	std::optional<real> m_partiallyUsedDim;
-
-	bool hasMoreToRead() const;
-	real load1D();
 };
 
 // In-header Implementations:

@@ -1,4 +1,4 @@
-#include "Engine/Core/LTA/TDirectLightEstimator.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/World/Scene.h"
 #include "Engine/Core/Emitter/Emitter.h"
 #include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
@@ -28,15 +28,17 @@
 namespace ph::lta
 {
 
-template<ESidednessPolicy POLICY>
-inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const scene)
+inline DirectLightEstimator::DirectLightEstimator(
+	const Scene* const scene,
+	const SidednessAgreement& defaultSidedness)
+
 	: m_scene(scene)
+	, m_defaultSidedness(defaultSidedness)
 {
 	PH_ASSERT(scene);
 }
 
-template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfaceEmission(
+inline bool DirectLightEstimator::bsdfSampleSurfaceEmission(
 	BsdfSampleQuery&                 bsdfSample,
 	SampleFlow&                      sampleFlow,
 	math::Spectrum* const            out_Le,
@@ -68,20 +70,18 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfaceEmission(
 	return true;
 }
 
-template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::neeSampleSurfaceEmission(
+inline bool DirectLightEstimator::neeSampleSurfaceEmission(
 	DirectEnergySampleQuery&  directSample,
 	SampleFlow&               sampleFlow,
 	SurfaceHit* const         out_Xe) const
 {
 	PH_ASSERT(isNeeSamplable(directSample.inputs.getX()));
 
-	const SidednessAgreement sidedness{POLICY};
 	const SurfaceHit& X = directSample.inputs.getX();
 
 	HitProbe probe;
 	getScene().genDirectSample(directSample, sampleFlow, probe);
-	if(!directSample.outputs || !sidedness.isSidednessAgreed(X, directSample.getTargetToEmit()))
+	if(!directSample.outputs || !m_defaultSidedness.isSidednessAgreed(X, directSample.getTargetToEmit()))
 	{
 		return false;
 	}
@@ -102,8 +102,7 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleSurfaceEmission(
 	return true;
 }
 
-template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
+inline bool DirectLightEstimator::bsdfSampleSurfacePathWithNee(
 	BsdfSampleQuery&                 bsdfSample,
 	SampleFlow&                      sampleFlow,
 	math::Spectrum* const            out_Lo,
@@ -172,9 +171,11 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 	// NEE
 	if(isNeeSamplable(X))
 	{
+		const DirectLightEstimator estimator{m_scene, bsdfSample.context.sidedness};
+
 		DirectEnergySampleQuery directSample;
 		directSample.inputs.set(bsdfSample.inputs.getX());
-		if(neeSampleSurfaceEmission(directSample, sampleFlow) &&
+		if(estimator.neeSampleSurfaceEmission(directSample, sampleFlow) &&
 		   directSample.outputs)
 		{
 			// Always do MIS. If NEE can sample a light from `X`, then BSDF light sample should have
@@ -214,8 +215,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleSurfacePathWithNee(
 	return true;
 }
 
-template<ESidednessPolicy POLICY>
-inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
+inline real DirectLightEstimator::neeSamplePdfWUnoccluded(
 	const SurfaceHit&     X,
 	const SurfaceHit&     Xe) const
 {
@@ -228,15 +228,13 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 	return pdfQuery.outputs ? pdfQuery.outputs.getPdfW() : 0;
 }
 
-template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::isNeeSamplable(const SurfaceHit& X) const
+inline bool DirectLightEstimator::isNeeSamplable(const SurfaceHit& X) const
 {
 	const SurfaceOptics& optics = X.getSurfaceOptics();
 	return optics.getAllPhenomena().hasNone(ESurfacePhenomenon::Delta);
 }
 
-template<ESidednessPolicy POLICY>
-inline const Scene& TDirectLightEstimator<POLICY>::getScene() const
+inline const Scene& DirectLightEstimator::getScene() const
 {
 	PH_ASSERT(m_scene);
 

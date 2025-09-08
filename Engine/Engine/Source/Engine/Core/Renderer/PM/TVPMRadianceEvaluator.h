@@ -151,15 +151,18 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 	const math::Spectrum&   pathThroughput)
 -> ViewPathTracingPolicy
 {
+	const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMap->getInfo()};
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 
-	const auto unaccountedEnergy = estimate_certainly_lost_energy(
+	BsdfQueryContext residualContext{
+		ALL_SURFACE_ELEMENTALS, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
+	residualContext.key = BsdfKey::makeRandom();
+
+	const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
 		pathLength,
 		surfaceHit,
+		residualContext,
 		pathThroughput,
-		m_photonMap->getInfo(),
-		m_scene,
-		BsdfQueryContext{},// TODO
 		m_minFullPathLength,
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
@@ -192,21 +195,21 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 	   isSufficientlyDiffuse)
 	{
-		const BsdfQueryContext bsdfContext(
-			ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict);
+		BsdfQueryContext photonMapContext{
+			ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
+		photonMapContext.key = residualContext.key;
 
 		// For path length = N, we can construct light transport path lengths with photon map,
 		// all at once, for the range [N_min, N_max] = 
 		// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
 		m_sampledRadiance += estimateRadianceWithPhotonMap(
-			surfaceHit, bsdfContext, pathThroughput);
+			surfaceHit, photonMapContext, pathThroughput);
 
-		const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+		const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
 			pathLength,
 			surfaceHit,
+			residualContext,
 			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene,
 			m_minFullPathLength,
 			m_maxFullPathLength);
 		m_sampledRadiance += unaccountedEnergy;
@@ -215,12 +218,11 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 	}
 	else
 	{
-		const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+		const auto unaccountedEnergy = residualEnergy.lostEnergyForExtending(
 			pathLength,
 			surfaceHit,
+			residualContext,
 			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene,
 			m_minFullPathLength,
 			m_maxFullPathLength);
 		m_sampledRadiance += unaccountedEnergy;
@@ -273,7 +275,10 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 	const math::Vector3R Ns = X.getShadingNormal();
 	const math::Vector3R Ng = X.getGeometryNormal();
 
-	BsdfEvalQuery  bsdfEval(bsdfContext);
+	// If the key selects different BSDF components stochastically, radiance estimation is still
+	// valid. See `TPPMRadianceEvaluationWork::doWork()` for comment on a similar situation.
+	BsdfEvalQuery bsdfEval(bsdfContext);
+
 	math::Spectrum radiance(0);
 	for(const auto& photon : m_photonCache)
 	{

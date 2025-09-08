@@ -144,13 +144,14 @@ void OrenNayar::genElementalBsdfSample(
 		L.mulLocal(-1.0_r);
 	}
 
-	BsdfEvalQuery eval;
-	eval.inputs.set(in.getX(), L, in.getV());
-	OrenNayar::calcElementalBsdf(ctx, eval.inputs, eval.outputs);
+	BsdfEvalInput evalIn;
+	BsdfEvalOutput evalOut;
+	evalIn.set(in.getX(), L, in.getV());
+	OrenNayar::calcElementalBsdf(ctx, evalIn, evalOut);
 
 	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
-		eval.outputs.isContributable() ? eval.outputs.getBsdf() : math::Spectrum(0);
+		evalOut.isContributable() ? evalOut.getBsdf() : math::Spectrum(0);
 
 	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 	out.setL(L);

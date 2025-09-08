@@ -5,8 +5,8 @@
 #include "Engine/Core/Renderer/PM/PMCommonParams.h"
 #include "Engine/Core/LTA/SidednessAgreement.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
-#include "Engine/Core/LTA/TDirectLightEstimator.h"
-#include "Engine/Core/LTA/TIndirectLightEstimator.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
+#include "Engine/Core/LTA/IndirectLightEstimator.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -57,218 +57,237 @@ inline bool accept_photon_by_surface_topology(
 	return true;
 }
 
-/*! @brief Estimate the energy that can never be obtained by utilizing a photon map.
-The estimation is for the current hit point only. To account for lost energy along a path
-with multiple hit points, call this function for each hit point and sum the results.
-@param viewPathLength Current view path length. Each path length calculates an independent component
-of the total energy (in equilibrium).
-@param X Current hit point.
-@param viewPathThroughput Current view path throughput.
-@param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
-@param scene The scene that is being rendered.
-@param bsdfContext Context for BSDF query.
-@param minFullPathLength The minimum length of the full light transport path to consider.
-@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
-@return The energy that is lost, properly weighted by `viewPathThroughput`.
-*/
 template<CPhoton Photon>
-inline math::Spectrum estimate_certainly_lost_energy(
-	const std::size_t             viewPathLength,
-	const SurfaceHit&             X,
-	const math::Spectrum&         viewPathThroughput,
-	const TPhotonMapInfo<Photon>& photonMapInfo,
-	const Scene*                  scene,
-	const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
-	const std::size_t             minFullPathLength = 1,
-	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
+class TPhotonMapResidualEnergyEstimator final
 {
-	using DirectLight = lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict>;
+public:
+	/*!
+	@param scene The scene that is being rendered.
+	@param photonMapInfo Information of the photon map that is being involved in the energy estimation process.
+	*/
+	inline explicit TPhotonMapResidualEnergyEstimator(
+		const Scene* scene,
+		const TPhotonMapInfo<Photon>& photonMapInfo)
 
-	math::Spectrum lostEnergy(0);
-
-	PH_ASSERT_GE(viewPathLength, 1);
-	PH_ASSERT_GE(minFullPathLength, 1);
-	PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
-
-	// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
-	// at least path length = 2 (can be even longer depending on the settings)
-	
-	// Never contain 0-bounce photons
-	PH_ASSERT_GE(photonMapInfo.minPathLength, 1);
-
-	// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
-	if(viewPathLength == 1 && X.getMetadata().getSurface().isEmissive() && minFullPathLength == 1)
+		: m_scene(scene)
+		, m_photonMapInfo(photonMapInfo)
 	{
-		PH_ASSERT_IN_RANGE_INCLUSIVE(viewPathLength, minFullPathLength, maxFullPathLength);
-
-		math::Spectrum viewRadiance;
-		X.getSurfaceEmitter().evalEmittedEnergy(X, &viewRadiance);
-		lostEnergy += viewPathThroughput * viewRadiance;
+		PH_ASSERT(m_scene);
 	}
 
-	// +1 as when we merge view path with photon path, path length is at least increased by 1
-	const auto minPathLengthWithPhotonMap = photonMapInfo.minPathLength + 1;
-
-	// If we can **never** construct the path length from photon map, use path tracing
-	if(viewPathLength + 1 < minPathLengthWithPhotonMap && 
-	   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
+	/*! @brief Estimate the energy that can never be obtained by utilizing a photon map.
+	The estimation is for the current hit point only. To account for lost energy along a path
+	with multiple hit points, call this function for each hit point and sum the results.
+	@param viewPathLength Current view path length. Each path length calculates an independent component
+	of the total energy (in equilibrium).
+	@param X Current hit point.
+	@param bsdfContext Context for BSDF query.
+	@param viewPathThroughput Current view path throughput.
+	@param minFullPathLength The minimum length of the full light transport path to consider.
+	@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+	@return The energy that is lost, properly weighted by `viewPathThroughput`.
+	*/
+	[[nodiscard]]
+	inline math::Spectrum certainlyLostEnergy(
+		const std::size_t       viewPathLength,
+		const SurfaceHit&       X,
+		const BsdfQueryContext& bsdfContext,
+		const math::Spectrum&   viewPathThroughput,
+		const std::size_t       minFullPathLength = 1,
+		const std::size_t       maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH) const
 	{
-		BsdfSampleQuery bsdfSample;
-		bsdfSample.context = bsdfContext;
-		bsdfSample.inputs.set(X, -X.getIncidentRay().getDir());
+		const lta::DirectLightEstimator directLight{m_scene, bsdfContext.sidedness};
 
-		math::Spectrum viewRadiance;
-		SampleFlow randomFlow;
-		if(DirectLight{scene}.bsdfSampleSurfacePathWithNee(
-			bsdfSample,
-			randomFlow,
-			&viewRadiance))
+		math::Spectrum lostEnergy(0);
+
+		PH_ASSERT_GE(viewPathLength, 1);
+		PH_ASSERT_GE(minFullPathLength, 1);
+		PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
+
+		// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
+		// at least path length = 2 (can be even longer depending on the settings)
+	
+		// Never contain 0-bounce photons
+		PH_ASSERT_GE(m_photonMapInfo.minPathLength, 1);
+
+		// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
+		if(viewPathLength == 1 && X.getMetadata().getSurface().isEmissive() && minFullPathLength == 1)
 		{
+			PH_ASSERT_IN_RANGE_INCLUSIVE(viewPathLength, minFullPathLength, maxFullPathLength);
+
+			math::Spectrum viewRadiance;
+			X.getSurfaceEmitter().evalEmittedEnergy(X, &viewRadiance);
 			lostEnergy += viewPathThroughput * viewRadiance;
 		}
+
+		// +1 as when we merge view path with photon path, path length is at least increased by 1
+		const auto minPathLengthWithPhotonMap = m_photonMapInfo.minPathLength + 1;
+
+		// If we can **never** construct the path length from photon map, use path tracing
+		if(viewPathLength + 1 < minPathLengthWithPhotonMap && 
+		   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
+		{
+			BsdfSampleQuery bsdfSample;
+			bsdfSample.context = bsdfContext;
+			bsdfSample.inputs.set(X, -X.getIncidentRay().getDir());
+
+			math::Spectrum viewRadiance;
+			SampleFlow randomFlow;// can be exposed for better quality
+			if(directLight.bsdfSampleSurfacePathWithNee(
+				bsdfSample,
+				randomFlow,
+				&viewRadiance))
+			{
+				lostEnergy += viewPathThroughput * viewRadiance;
+			}
+		}
+
+		return lostEnergy;
 	}
 
-	return lostEnergy;
-}
+	/*! @brief Estimate the energy that is otherwise lost forever if the path is extended.
+	The estimation is for the current hit point only. To account for lost energy along an extended path
+	with multiple hit points, call this function for each hit point and sum the results. For a hit point,
+	only one of `estimate_lost_energy_for_extending()` and `estimate_lost_energy_for_merging()`
+	can be called.
+	@param viewPathLength Current view path length. Each path length calculates an independent component
+	of the total energy (in equilibrium).
+	@param X Current hit point.
+	@param bsdfContext Context for BSDF query.
+	@param viewPathThroughput Current view path throughput.
+	@param minFullPathLength The minimum length of the full light transport path to consider.
+	@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+	@return The energy that is lost, properly weighted by `viewPathThroughput`.
+	*/
+	[[nodiscard]]
+	inline math::Spectrum lostEnergyForExtending(
+		const std::size_t       viewPathLength,
+		const SurfaceHit&       X,
+		const BsdfQueryContext& bsdfContext,
+		const math::Spectrum&   viewPathThroughput,
+		const std::size_t       minFullPathLength = 1,
+		const std::size_t       maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH) const
+	{
+		const lta::IndirectLightEstimator indirectLight{
+			m_scene,
+			ALL_SURFACE_PHENOMENA,
+			ALL_SURFACE_PHENOMENA,
+			lta::RussianRoulette{},
+			1};// `X` is likely a delta or glossy surface, delay RR slightly
 
-/*! @brief Estimate the energy that is otherwise lost forever if the path is extended.
-The estimation is for the current hit point only. To account for lost energy along an extended path
-with multiple hit points, call this function for each hit point and sum the results. For a hit point,
-only one of `estimate_lost_energy_for_extending()` and `estimate_lost_energy_for_merging()`
-can be called.
-@param viewPathLength Current view path length. Each path length calculates an independent component
-of the total energy (in equilibrium).
-@param X Current hit point.
-@param viewPathThroughput Current view path throughput.
-@param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
-@param scene The scene that is being rendered.
-@param bsdfContext Context for BSDF query.
-@param minFullPathLength The minimum length of the full light transport path to consider.
-@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
-@return The energy that is lost, properly weighted by `viewPathThroughput`.
-*/
-template<CPhoton Photon>
-inline math::Spectrum estimate_lost_energy_for_extending(
-	const std::size_t             viewPathLength,
-	const SurfaceHit&             X,
-	const math::Spectrum&         viewPathThroughput,
-	const TPhotonMapInfo<Photon>& photonMapInfo,
-	const Scene*                  scene,
-	//const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
-	const std::size_t             minFullPathLength = 1,
-	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
-{
-	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
+		math::Spectrum lostEnergy(0);
 
-	math::Spectrum lostEnergy(0);
+		PH_ASSERT_GE(viewPathLength, 1);
+		PH_ASSERT_GE(minFullPathLength, 1);
+		PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
 
-	PH_ASSERT_GE(viewPathLength, 1);
-	PH_ASSERT_GE(minFullPathLength, 1);
-	PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
-
-	// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
-	// at least path length = 2 (can be even longer depending on the settings)
+		// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
+		// at least path length = 2 (can be even longer depending on the settings)
 	
-	// Never contain 0-bounce photons
-	PH_ASSERT_GE(photonMapInfo.minPathLength, 1);
+		// Never contain 0-bounce photons
+		PH_ASSERT_GE(m_photonMapInfo.minPathLength, 1);
 
-	// If we extend the view path length from N (current) to N + 1, this means we are not using photon
-	// map to approximate lighting for path length = N' = `N + photonMapInfo.minPathLength`.
-	// We will lose energy for path length = N' if we do nothing. Here we use path tracing to
-	// find the energy that would otherwise be lost.
-	if(minFullPathLength <= viewPathLength + photonMapInfo.minPathLength &&
-	   viewPathLength + photonMapInfo.minPathLength <= maxFullPathLength)
-	{
-		math::Spectrum viewRadiance;
-		SampleFlow randomFlow;
-		if(IndirectLight{scene}.bsdfSampleSurfacePathWithNee(
-			X, 
-			randomFlow,
-			photonMapInfo.minPathLength,// we are already on view path of length N
-			lta::RussianRoulette{},
-			&viewRadiance,
-			1,// `X` is likely a delta or glossy surface, delay RR slightly
-			viewPathThroughput))
+		// If we extend the view path length from N (current) to N + 1, this means we are not using photon
+		// map to approximate lighting for path length = N' = `N + m_photonMapInfo.minPathLength`.
+		// We will lose energy for path length = N' if we do nothing. Here we use path tracing to
+		// find the energy that would otherwise be lost.
+		if(minFullPathLength <= viewPathLength + m_photonMapInfo.minPathLength &&
+		   viewPathLength + m_photonMapInfo.minPathLength <= maxFullPathLength)
 		{
-			lostEnergy += viewRadiance;
+			math::Spectrum viewRadiance;
+			SampleFlow randomFlow;// can be exposed for better quality
+			if(indirectLight.bsdfSampleSurfacePathWithNee(
+				X, 
+				bsdfContext,
+				randomFlow,
+				m_photonMapInfo.minPathLength,// we are already on view path of length N
+				&viewRadiance,
+				viewPathThroughput))
+			{
+				lostEnergy += viewRadiance;
+			}
 		}
+
+		return lostEnergy;
 	}
 
-	return lostEnergy;
-}
-
-/*! @brief Estimate the energy that is otherwise lost forever if the path is merged.
-The estimation is for the current hit point only and is expected to be called when
-the path ended (merged). For a hit point, only one of `estimate_lost_energy_for_extending()`
-and `estimate_lost_energy_for_merging()` can be called.
-@param viewPathLength Current view path length. This function calculates an independent component
-of the total energy (in equilibrium).
-@param X Current hit point.
-@param viewPathThroughput Current view path throughput.
-@param photonMapInfo Information of the photon map that is being involved in the energy evaluation process.
-@param scene The scene that is being rendered.
-@param bsdfContext Context for BSDF query.
-@param minFullPathLength The minimum length of the full light transport path to consider.
-@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
-@return The energy that is lost, properly weighted by `viewPathThroughput`.
-*/
-template<CPhoton Photon>
-inline math::Spectrum estimate_lost_energy_for_merging(
-	const std::size_t             viewPathLength,
-	const SurfaceHit&             X,
-	const math::Spectrum&         viewPathThroughput,
-	const TPhotonMapInfo<Photon>& photonMapInfo,
-	const Scene*                  scene,
-	//const BsdfQueryContext&       bsdfContext = BsdfQueryContext{},
-	const std::size_t             minFullPathLength = 1,
-	const std::size_t             maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH)
-{
-	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
-
-	math::Spectrum lostEnergy(0);
-
-	PH_ASSERT_GE(viewPathLength, 1);
-	PH_ASSERT_GE(minFullPathLength, 1);
-	PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
-
-	// Never contain 0-bounce photons
-	PH_ASSERT_GE(photonMapInfo.minPathLength, 1);
-
-	// For path length = N (current), we can construct light transport path lengths with photon map,
-	// all at once, for the range [N_min, N_max] = 
-	// [`N + photonMapInfo.minPathLength`, `N + photonMapInfo.maxPathLength`].
-	// For path lengths < N_min, they should be accounted for by `estimate_lost_energy_for_extend()`
-	// already. For all path lengths > N_max, use path tracing, which is done below:
-
-	const auto minLostFullPathLength = viewPathLength + photonMapInfo.maxPathLength + 1;
-
-	// Will also skip this if it is practically infinite number of bounces already
-	const bool isAlreadyEnoughBounces = 
-		minLostFullPathLength > PMCommonParams::DEFAULT_MAX_PATH_LENGTH;
-
-	if(!isAlreadyEnoughBounces && minLostFullPathLength <= maxFullPathLength)
+	/*! @brief Estimate the energy that is otherwise lost forever if the path is merged.
+	The estimation is for the current hit point only and is expected to be called when
+	the path ended (merged). For a hit point, only one of `estimate_lost_energy_for_extending()`
+	and `estimate_lost_energy_for_merging()` can be called.
+	@param viewPathLength Current view path length. This function calculates an independent component
+	of the total energy (in equilibrium).
+	@param X Current hit point.
+	@param bsdfContext Context for BSDF query.
+	@param viewPathThroughput Current view path throughput.
+	@param minFullPathLength The minimum length of the full light transport path to consider.
+	@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+	@return The energy that is lost, properly weighted by `viewPathThroughput`.
+	*/
+	[[nodiscard]]
+	inline math::Spectrum lostEnergyForMerging(
+		const std::size_t       viewPathLength,
+		const SurfaceHit&       X,
+		const BsdfQueryContext& bsdfContext,
+		const math::Spectrum&   viewPathThroughput,
+		const std::size_t       minFullPathLength = 1,
+		const std::size_t       maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH) const
 	{
-		const auto minLostFullPathLengthClipped = std::max(
-			minFullPathLength, minLostFullPathLength);
-		PH_ASSERT_GE(minLostFullPathLengthClipped, viewPathLength);
-
-		math::Spectrum viewRadiance;
-		SampleFlow randomFlow;
-		if(IndirectLight{scene}.bsdfSampleSurfacePathWithNee(
-			X, 
-			randomFlow,
-			minLostFullPathLengthClipped - viewPathLength,// we are already on view path of length N
-			std::numeric_limits<std::size_t>::max(),
+		const lta::IndirectLightEstimator indirectLight{
+			m_scene,
+			ALL_SURFACE_PHENOMENA,
+			ALL_SURFACE_PHENOMENA,
 			lta::RussianRoulette{},
-			&viewRadiance,
-			0,// the path length is likely long already, do RR immediately
-			viewPathThroughput))
+			0};// the path length is likely long already, do RR immediately
+
+		math::Spectrum lostEnergy(0);
+
+		PH_ASSERT_GE(viewPathLength, 1);
+		PH_ASSERT_GE(minFullPathLength, 1);
+		PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
+
+		// Never contain 0-bounce photons
+		PH_ASSERT_GE(m_photonMapInfo.minPathLength, 1);
+
+		// For path length = N (current), we can construct light transport path lengths with photon map,
+		// all at once, for the range [N_min, N_max] = 
+		// [`N + m_photonMapInfo.minPathLength`, `N + m_photonMapInfo->maxPathLength`].
+		// For path lengths < N_min, they should be accounted for by `lostEnergyForExtending()`
+		// already. For all path lengths > N_max, use path tracing, which is done below:
+
+		const auto minLostFullPathLength = viewPathLength + m_photonMapInfo.maxPathLength + 1;
+
+		// Will also skip this if it is practically infinite number of bounces already
+		const bool isAlreadyEnoughBounces = 
+			minLostFullPathLength > PMCommonParams::DEFAULT_MAX_PATH_LENGTH;
+
+		if(!isAlreadyEnoughBounces && minLostFullPathLength <= maxFullPathLength)
 		{
-			lostEnergy += viewRadiance;
+			const auto minLostFullPathLengthClipped = std::max(
+				minFullPathLength, minLostFullPathLength);
+			PH_ASSERT_GE(minLostFullPathLengthClipped, viewPathLength);
+
+			math::Spectrum viewRadiance;
+			SampleFlow randomFlow;// can be exposed for better quality
+			if(indirectLight.bsdfSampleSurfacePathWithNee(
+				X, 
+				bsdfContext,
+				randomFlow,
+				minLostFullPathLengthClipped - viewPathLength,// we are already on view path of length N
+				std::numeric_limits<std::size_t>::max(),
+				&viewRadiance,
+				viewPathThroughput))
+			{
+				lostEnergy += viewRadiance;
+			}
 		}
+
+		return lostEnergy;
 	}
 
-	return lostEnergy;
-}
+private:
+	const Scene* m_scene;
+	TPhotonMapInfo<Photon> m_photonMapInfo;
+};
 
 }// end namespace ph

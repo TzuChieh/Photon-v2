@@ -61,7 +61,14 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	constexpr auto transport = lta::ETransport::Importance;
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+
+	// Share key across viewpoints. If the key selects different BSDF components stochastically,
+	// PPM radiance evaluation is still valid as the tau summation can be reordered and
+	// is effectively doing multiple PPM radiance evaluations at the same time. The variance will,
+	// of course, increase accordingly.
+	bsdfContext.key = BsdfKey::makeRandom();
+
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	// For each viewpoint, evaluate radiance using collected data. If the viewpoint is for

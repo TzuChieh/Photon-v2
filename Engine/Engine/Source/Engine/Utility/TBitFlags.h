@@ -55,7 +55,10 @@ public:
 
 	/*! @brief Intersects this instance with the specified flags.
 	*/
+	///@{
 	constexpr TBitFlags& intersectWith(const FlagsSet& flagsSet);
+	constexpr TBitFlags& intersectWith(const TBitFlags& flags);
+	///@}
 	
 	/*! @brief Enable/disable specified flags.
 	*/

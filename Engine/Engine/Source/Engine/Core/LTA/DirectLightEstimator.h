@@ -24,13 +24,16 @@ namespace ph::lta
 This is a lightweight helper type for estimating direct lighting. Do not think "direct light" as
 lighting from a directional light source, it means the first-bounce lighting for any surface point,
 and the surface point can be the N-th one in a path.
-@tparam POLICY The default sidedness policy to use if none can be inferred from the inputs.
 */
-template<ESidednessPolicy POLICY>
-class TDirectLightEstimator final
+class DirectLightEstimator final
 {
 public:
-	explicit TDirectLightEstimator(const Scene* scene);
+	/*!
+	@param defaultSidedness Default sidedness agreement to use when none is specified.
+	*/
+	explicit DirectLightEstimator(
+		const Scene* scene,
+		const SidednessAgreement& defaultSidedness = SidednessAgreement{ESidednessPolicy::Strict});
 
 	/*! @brief Sample surface lighting using BSDF's suggestion.
 	A light sampling technique that is always usable.
@@ -100,8 +103,9 @@ private:
 	const Scene& getScene() const;
 
 	const Scene* m_scene;
+	SidednessAgreement m_defaultSidedness;
 };
 
 }// end namespace ph::lta
 
-#include "Engine/Core/LTA/TDirectLightEstimator.ipp"
+#include "Engine/Core/LTA/DirectLightEstimator.ipp"

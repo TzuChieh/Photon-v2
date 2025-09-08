@@ -45,7 +45,15 @@ inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::unionWith(con
 template<typename Value, typename Input>
 inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::intersectWith(const FlagsSet& flagsSet)
 {
-	m_bits &= collectFlags(flagsSet);
+	TBitFlags flags;
+	flags.m_bits = collectFlags(flagsSet);
+	return intersectWith(flags);
+}
+
+template<typename Value, typename Input>
+inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::intersectWith(const TBitFlags& flags)
+{
+	m_bits &= flags.m_bits;
 
 	return *this;
 }

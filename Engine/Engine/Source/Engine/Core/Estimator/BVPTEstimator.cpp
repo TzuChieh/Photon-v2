@@ -53,7 +53,10 @@ void BVPTEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation)
 {
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
 	// Transport tools
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
@@ -67,12 +70,15 @@ void BVPTEstimator::estimate(
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
+	BsdfQueryContext bsdfContext{sidednessPolicy};
+	bsdfContext.key = BsdfKey::makeRandom();
+
 	SurfaceHit surfaceHit;
 	while(pathLength <= getPTParams().maxPathLength)
 	{
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &surfaceHit))
 			{
 				break;
 			}
@@ -80,7 +86,7 @@ void BVPTEstimator::estimate(
 		else
 		{
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				surfaceHit, tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+				surfaceHit, tracingRay, sidedness, &surfaceHit))
 			{
 				break;
 			}
@@ -105,7 +111,7 @@ void BVPTEstimator::estimate(
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
-		BsdfSampleQuery bsdfSample;
+		BsdfSampleQuery bsdfSample{bsdfContext};
 		bsdfSample.inputs.set(surfaceHit, V);
 		Ray nextRay;
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &nextRay))
@@ -136,7 +142,9 @@ void BVPTEstimator::estimate(
 			break;
 		}
 
+		// Will extend the path, update states for next bounce
 		tracingRay = nextRay;
+		bsdfContext.key = bsdfContext.key.makeRandom();
 	}// end while
 
 	out_estimation[getPathEnergyIndex()] = pathEnergy;

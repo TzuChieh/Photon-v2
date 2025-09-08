@@ -10,6 +10,13 @@
 namespace ph
 {
 
+namespace
+{
+
+inline constexpr uint32 bsdf_hash_target = 0x46BFAB04;
+
+}// end namespace
+
 SurfaceOptics::SurfaceOptics() : 
 	m_phenomena(),
 	m_numElementals(1)
@@ -102,7 +109,7 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	eCtx.key = ctx.key.getNext(numElementals());
+	eCtx.key = ctx.key.getNext(bsdf_hash_target);
 
 	BsdfEvalInput eIn;
 	eIn.set(in.getX(), in.getL(), in.getV());
@@ -138,7 +145,7 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	eCtx.key = ctx.key.getNext(numElementals());
+	eCtx.key = ctx.key.getNext(bsdf_hash_target);
 
 	BsdfSampleInput eIn;
 	eIn.set(in.getX(), in.getV());
@@ -174,7 +181,7 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	eCtx.elemental = *optElemental;
 
 	// Update key as we consumed one for selecting elemental
-	eCtx.key = ctx.key.getNext(numElementals());
+	eCtx.key = ctx.key.getNext(bsdf_hash_target);
 
 	BsdfPdfInput eIn;
 	eIn.set(in.getX(), in.getL(), in.getV());

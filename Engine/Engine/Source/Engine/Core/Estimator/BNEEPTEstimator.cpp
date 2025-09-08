@@ -15,7 +15,7 @@
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/LTA/TMIS.h"
-#include "Engine/Core/LTA/TDirectLightEstimator.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
 #include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
@@ -57,14 +57,13 @@ void BNEEPTEstimator::estimate(
 	PH_SCOPED_TIMER(FullEstimation);
 
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
-	const BsdfQueryContext bsdfContext{sidednessPolicy};
 
 	// Transport tools
-	const lta::TDirectLightEstimator<sidednessPolicy> directLight{&integrand.getScene()};
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
+	const lta::DirectLightEstimator directLight{&integrand.getScene(), sidedness};
 	const lta::TMIS<lta::EMISStyle::Power> mis{};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&integrand.getScene()};
-	const lta::SidednessAgreement sidedness{sidednessPolicy};
 
 	// Common variables
 	math::Spectrum pathEnergy(0);
@@ -92,6 +91,9 @@ void BNEEPTEstimator::estimate(
 			pathEnergy.addLocal(radianceLe);
 		}
 	}
+
+	BsdfQueryContext bsdfContext{sidednessPolicy};
+	bsdfContext.key = BsdfKey::makeRandom();
 
 	// Ray bouncing around the scene (1 ~ N bounces)
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
@@ -204,7 +206,7 @@ void BNEEPTEstimator::estimate(
 					// still works. No need to test occlusion again as we already done that.
 					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(X, nextX);
 
-					BsdfPdfQuery bsdfPdfQuery;
+					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
 					bsdfPdfQuery.inputs.set(bsdfSample);
 					surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
 
@@ -261,7 +263,9 @@ void BNEEPTEstimator::estimate(
 				break;
 			}
 
+			// Will extend the path, update states for next bounce
 			X = nextX;
+			bsdfContext.key = bsdfContext.key.makeRandom();
 		}
 	}// end for each bounces
 

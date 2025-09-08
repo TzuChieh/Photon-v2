@@ -37,10 +37,14 @@ void BVPTDLEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation)
 {
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
+	// Transport tools
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
 	math::Spectrum& accuRadiance = out_estimation[getPathEnergyIndex()].setColorValues(0);
-	math::Spectrum  accuPathWeight(1);
+	math::Spectrum accuPathWeight(1);
 	
 	// 0-bounce
 	Ray        firstRay;
@@ -50,7 +54,7 @@ void BVPTDLEstimator::estimate(
 		firstRay = Ray(ray).reverse();
 		firstRay.setRange(0, std::numeric_limits<real>::max());
 
-		if(!surfaceTracer.traceNextSurface(firstRay, BsdfQueryContext{}.sidedness, &firstHit))
+		if(!surfaceTracer.traceNextSurface(firstRay, sidedness, &firstHit))
 		{
 			return;
 		}
@@ -77,7 +81,10 @@ void BVPTDLEstimator::estimate(
 		const math::Vector3R V = firstRay.getDir().mul(-1.0f);
 		const math::Vector3R N = firstHit.getShadingNormal();
 
-		BsdfSampleQuery bsdfSample;
+		BsdfQueryContext bsdfContext{sidednessPolicy};
+		bsdfContext.key = BsdfKey::makeRandom();
+
+		BsdfSampleQuery bsdfSample{bsdfContext};
 		bsdfSample.inputs.set(firstHit, V);
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &secondRay))
 		{
