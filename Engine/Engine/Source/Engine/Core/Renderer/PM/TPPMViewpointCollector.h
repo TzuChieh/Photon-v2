@@ -137,18 +137,22 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
+	PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
+
+	const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMapInfo};
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
 
-	PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
+	BsdfQueryContext residualContext{
+		ALL_SURFACE_ELEMENTALS, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
+	residualContext.key = BsdfKey::makeRandom();
 
 	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
-		const auto unaccountedEnergy = estimate_certainly_lost_energy(
+		const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
 			pathLength,
 			surfaceHit,
-			pathThroughput,
-			m_photonMapInfo,
-			m_scene);
+			residualContext,
+			pathThroughput);
 		m_viewRadiance += unaccountedEnergy;
 	}
 
@@ -165,12 +169,11 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
-			const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
 				pathLength,
 				surfaceHit,
-				pathThroughput,
-				m_photonMapInfo,
-				m_scene);
+				residualContext,
+				pathThroughput);
 			m_viewRadiance += unaccountedEnergy;
 		}
 
@@ -189,12 +192,11 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
-			const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForExtending(
 				pathLength,
 				surfaceHit,
-				pathThroughput,
-				m_photonMapInfo,
-				m_scene);
+				residualContext,
+				pathThroughput);
 			m_viewRadiance += unaccountedEnergy;
 		}
 

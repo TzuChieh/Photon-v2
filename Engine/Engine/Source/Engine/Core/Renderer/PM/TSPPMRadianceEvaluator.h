@@ -148,16 +148,20 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceHit&       surfaceHit,
 	const math::Spectrum&   pathThroughput) -> ViewPathTracingPolicy
 {
+	const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMap->getInfo()};
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
+
+	BsdfQueryContext residualContext{
+		ALL_SURFACE_ELEMENTALS, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
+	residualContext.key = BsdfKey::makeRandom();
 
 	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
-		const auto unaccountedEnergy = estimate_certainly_lost_energy(
+		const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
 			pathLength,
 			surfaceHit,
-			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene);
+			residualContext,
+			pathThroughput);
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 	}
 
@@ -189,12 +193,11 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
-			const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
 				pathLength,
 				surfaceHit,
-				pathThroughput,
-				m_photonMap->getInfo(),
-				m_scene);
+				residualContext,
+				pathThroughput);
 			addViewRadiance(*m_viewpoint, unaccountedEnergy);
 		}
 
@@ -204,12 +207,11 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
-			const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForExtending(
 				pathLength,
 				surfaceHit,
-				pathThroughput,
-				m_photonMap->getInfo(),
-				m_scene);
+				residualContext,
+				pathThroughput);
 			addViewRadiance(*m_viewpoint, unaccountedEnergy);
 		}
 
@@ -249,7 +251,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 	bsdfContext.key = BsdfKey::makeRandom();
 
 	math::Spectrum tauM(0);
