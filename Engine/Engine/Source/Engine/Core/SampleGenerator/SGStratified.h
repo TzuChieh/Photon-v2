@@ -10,8 +10,6 @@
 namespace ph
 {
 
-// TODO: >= 3-D sample is straightforward
-
 class SGStratified : public SampleGenerator
 {
 public:
@@ -31,6 +29,8 @@ private:
 		const SampleContext& context,
 		const SampleStage&   stage,
 		SamplesND            out_samples) override;
+
+	// TODO: >= 3-D sample is straightforward
 
 	void reviseSampleStage(SampleStageReviser reviser) override;
 

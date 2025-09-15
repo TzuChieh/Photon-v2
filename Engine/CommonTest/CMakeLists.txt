@@ -12,7 +12,6 @@ add_executable(CommonTest ${COMMON_LIB_TEST_HEADER_FILES} ${COMMON_LIB_TEST_SOUR
 add_dependencies(CommonTest Common)
 
 target_include_directories(CommonTest
-	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
 	PRIVATE "${COMMON_LIB_TEST_DIR}/Source")
 
 target_link_libraries(CommonTest PRIVATE Common)

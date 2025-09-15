@@ -443,6 +443,7 @@ endif()
 if(PH_BUILD_TESTS)
     add_subdirectory("./Engine/CommonTest/")
     add_subdirectory("./Engine/EngineTest/")
+    add_subdirectory("./Engine/EngineDeepTest/")
 
     if(PH_BUILD_EDITOR)
         add_subdirectory("./Editor/EditorLibTest/")

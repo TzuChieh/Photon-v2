@@ -15,8 +15,7 @@ add_dependencies(${TARGET_NAME} EditorLib)
 
 target_include_directories(${TARGET_NAME}
 	PRIVATE "${EDITOR_TEST_DIR}/Source"
-	PRIVATE ${EDITOR_LIB_CPP_API_INCLUDE_DIRS}
-	PRIVATE ${GOOGLETEST_INCLUDE_DIR})
+	PRIVATE ${EDITOR_LIB_CPP_API_INCLUDE_DIRS})
 
 target_link_libraries(${TARGET_NAME} PRIVATE EditorLib)
 

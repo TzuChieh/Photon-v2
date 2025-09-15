@@ -1,20 +1,20 @@
-# Photon unit tests for engine.
+# Photon integration tests for engine.
 
-get_filename_component(ENGINE_TEST_DIR "./" ABSOLUTE)
+get_filename_component(ENGINE_DEEP_TEST_DIR "./" ABSOLUTE)
 
-set(TARGET_NAME "EngineTest")
+set(TARGET_NAME "EngineDeepTest")
 
-file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES "${ENGINE_TEST_DIR}/Source/*.h")
-file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES "${ENGINE_TEST_DIR}/Source/*.cpp")
+file(GLOB_RECURSE ENGINE_DEEP_TEST_HEADER_FILES "${ENGINE_DEEP_TEST_DIR}/Source/*.h")
+file(GLOB_RECURSE ENGINE_DEEP_TEST_SOURCE_FILES "${ENGINE_DEEP_TEST_DIR}/Source/*.cpp")
 
 # Explicitly mark them as headers
-set_source_files_properties(${ENGINE_TEST_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
+set_source_files_properties(${ENGINE_DEEP_TEST_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
-add_executable(${TARGET_NAME} ${ENGINE_TEST_HEADER_FILES} ${ENGINE_TEST_SOURCE_FILES})
+add_executable(${TARGET_NAME} ${ENGINE_DEEP_TEST_HEADER_FILES} ${ENGINE_DEEP_TEST_SOURCE_FILES})
 add_dependencies(${TARGET_NAME} Engine)
 
 target_include_directories(${TARGET_NAME}
-	PRIVATE "${ENGINE_TEST_DIR}/Source"
+	PRIVATE "${ENGINE_DEEP_TEST_DIR}/Source"
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(${TARGET_NAME} PRIVATE Engine)
@@ -38,15 +38,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	endforeach()
 endif()
 
-#add_custom_command(TARGET ${TARGET_NAME}
-#	POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy_directory
-#		"${PROJECT_SOURCE_DIR}/Resource/Test/" 
-#		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
-#)
-
 set_target_properties(${TARGET_NAME} PROPERTIES 
 	VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_HEADER_FILES})
-source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_SOURCE_FILES})
+source_group(TREE ${ENGINE_DEEP_TEST_DIR} FILES ${ENGINE_DEEP_TEST_HEADER_FILES})
+source_group(TREE ${ENGINE_DEEP_TEST_DIR} FILES ${ENGINE_DEEP_TEST_SOURCE_FILES})
