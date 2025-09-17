@@ -104,12 +104,20 @@ public:
 	math::Vector3R getGeometryNormal() const;
 	bool hasFullHitDetail() const;
 
+	/*!
+	@return The primitive that is hit.
+	*/
 	const Primitive& getPrimitive() const;
+
+	/*! @brief Helpers to retrieve information about the hit primitive.
+	*/
+	///@{
 	const PrimitiveMetadata& getMetadata() const;
 	const SurfaceEmitter& getSurfaceEmitter() const;
 	const SurfaceOptics& getSurfaceOptics() const;
 	const VolumeOptics* getInteriorOptics() const;
 	const VolumeOptics* getExteriorOptics() const;
+	///@}
 
 private:
 	Ray              m_ray;

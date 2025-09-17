@@ -4,9 +4,6 @@
 namespace ph
 {
 
-void SGUniformRandom::onRebirth()
-{}
-
 void SGUniformRandom::genSamples1D(
 	const SampleContext& context,
 	const SampleStage&   stage,

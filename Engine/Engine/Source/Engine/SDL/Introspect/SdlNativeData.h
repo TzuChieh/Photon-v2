@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Common/Utility/TFunction.h"
 #include "Engine/SDL/ESdlDataFormat.h"
 #include "Engine/SDL/ESdlDataType.h"
-#include "Engine/Utility/TFunction.h"
 #include "Engine/Math/Color/spectrum_fwd.h"
 #include "Engine/SDL/TSdlAnyInstance.h"
 #include "Engine/Utility/TAnyPtr.h"

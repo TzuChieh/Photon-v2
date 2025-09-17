@@ -13,14 +13,6 @@
 namespace ph
 {
 
-SGStratified::SGStratified(const std::size_t numSamples)
-	//SampleGenerator(numSamples, numSamples)
-	: SampleGenerator(numSamples, 4)// HARDCODE
-{}
-
-void SGStratified::onRebirth()
-{}
-
 void SGStratified::genSamples1D(
 	const SampleContext& context,
 	const SampleStage&   stage,

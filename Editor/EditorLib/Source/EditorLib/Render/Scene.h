@@ -9,10 +9,10 @@
 #include "EditorLib/Render/Content/Texture.h"
 
 #include <Common/assertion.h>
+#include <Common/Utility/TFunction.h>
 #include <Engine/Utility/TUniquePtrVector.h>
 #include <Engine/Utility/INoCopyAndMove.h>
 #include <Engine/Utility/TSortedVector.h>
-#include <Engine/Utility/TFunction.h>
 
 #include <memory>
 #include <vector>

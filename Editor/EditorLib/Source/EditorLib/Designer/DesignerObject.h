@@ -4,11 +4,11 @@
 #include "EditorLib/Designer/designer_fwd.h"
 
 #include <Common/primitive_type.h>
+#include <Common/Utility/TFunction.h>
 #include <Engine/Utility/TSpan.h>
 #include <Engine/SDL/sdl_interface.h>
 #include <Engine/Math/math_fwd.h>
 #include <Engine/Math/TDecomposedTransform.h>
-#include <Engine/Utility/TFunction.h>
 
 #include <string>
 #include <memory>

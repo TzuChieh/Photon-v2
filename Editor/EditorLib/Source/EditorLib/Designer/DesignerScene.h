@@ -8,6 +8,7 @@
 
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
+#include <Common/Utility/TFunction.h>
 #include <Engine/Utility/TUniquePtrVector.h>
 #include <Engine/Utility/TSpan.h>
 #include <Engine/SDL/Object.h>
@@ -16,7 +17,6 @@
 #include <Engine/Utility/IMoveOnly.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/DataIO/FileSystem/ResourceIdentifier.h>
-#include <Engine/Utility/TFunction.h>
 
 #include <vector>
 #include <memory>

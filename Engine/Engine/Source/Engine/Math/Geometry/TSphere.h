@@ -99,10 +99,12 @@ public:
 	TVector3<T> latLong01ToSurface(const TVector2<T>& latLong01) const;
 
 	/*! @brief Map Cartesian to spherical coordinates on the surface of the sphere.
+	@return Spherical coordinates, with @f$ \phi @f$ in @f$ [0, 2\pi] @f$ and @f$ \theta @f$ in @f$ [0, \pi] @f$.
 	*/
 	TVector2<T> surfaceToPhiTheta(const TVector3<T>& surface) const;
 
 	/*! @brief Map spherical to Cartesian coordinates on the surface of the sphere.
+	@param phiTheta Spherical coordinates with unrestricted range.
 	*/
 	TVector3<T> phiThetaToSurface(const TVector2<T>& phiTheta) const;
 

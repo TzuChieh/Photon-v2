@@ -96,10 +96,6 @@ public:
 	bool hasMoreBatches() const;
 
 private:
-	/*! @brief Called after `rebirth()` is called.
-	*/
-	virtual void onRebirth() = 0;
-
 	virtual void genSamples1D(
 		const SampleContext& context,
 		const SampleStage&   stage, 
@@ -118,6 +114,10 @@ private:
 		SamplesND            out_samples);
 
 	virtual void reviseSampleStage(SampleStageReviser reviser);
+
+	/*! @brief Called after `rebirth()` is called.
+	*/
+	virtual void onRebirth();
 
 private:
 	void allocSampleBuffer();
@@ -139,6 +139,9 @@ private:
 };
 
 // In-header Implementations:
+
+inline void SampleGenerator::onRebirth()
+{}
 
 inline std::size_t SampleGenerator::numSampleBatches() const
 {
