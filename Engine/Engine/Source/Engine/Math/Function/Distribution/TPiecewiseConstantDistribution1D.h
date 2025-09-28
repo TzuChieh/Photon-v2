@@ -20,7 +20,7 @@ class TPiecewiseConstantDistribution1D final
 
 public:
 	/*! @brief Constructs a distribution.
-	The range of the distribution is [`min`, `max`]; and corresponding sample
+	The domain of the distribution is [`min`, `max`]; and corresponding sample
 	weight of each column is specified via `weights`.
 	*/
 	///@{
@@ -28,7 +28,7 @@ public:
 	TPiecewiseConstantDistribution1D(T min, T max, const std::vector<T>& weights);
 	///@}
 
-	/*! @brief Constructs a distribution with range [0, 1].
+	/*! @brief Constructs a distribution with domain [0, 1].
 	*/
 	explicit TPiecewiseConstantDistribution1D(const std::vector<T>& weights);
 
@@ -77,7 +77,7 @@ public:
 	std::size_t numColumns() const;
 
 private:
-	// Range of the distribution
+	// Domain of the distribution
 	T m_min, m_max;
 
 	// Size of each interval

@@ -79,14 +79,14 @@ public:
 	*/
 	///@{
 	/*!
-	The mapped positions are weighted according to the cosine of the zenith angle.
+	The mapped positions are weighted according to the absolute cosine of the zenith angle.
 	@param sample Uniform 2-D sample in [0, 1].
 	@return The sampled surface position.
 	*/
 	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample) const;
 
 	/*!
-	An overload with PDF.
+	An overload of `sampleToSurfaceAbsCosThetaWeighted()` with PDF.
 	@param[out] out_pdfA Area domain PDF of sampling this surface position.
 	*/
 	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample, T* out_pdfA) const;

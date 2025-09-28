@@ -74,6 +74,18 @@ public:
 		SurfaceHitReason reason,
 		bool             hasFullHitDetail);
 
+	SurfaceHit(
+		const Ray&        ray,
+		const HitProbe&   probe,
+		ESurfaceHitReason reason);
+
+	SurfaceHit(
+		const Ray&        ray,
+		const HitProbe&   probe,
+		const HitDetail&  detail,
+		ESurfaceHitReason reason,
+		bool              hasFullHitDetail);
+
 	SurfaceHit switchChannel(uint32 newChannel) const;
 
 	/*! @brief Intersect the intersected object again with a different ray.
@@ -166,6 +178,24 @@ inline SurfaceHit::SurfaceHit(
 	, m_detail          {detail}
 	, m_reason          {reason}
 	, m_hasFullHitDetail{hasFullHitDetail}
+{}
+
+inline SurfaceHit::SurfaceHit(
+	const Ray&              ray,
+	const HitProbe&         probe,
+	const ESurfaceHitReason reason)
+
+	: SurfaceHit(ray, probe, SurfaceHitReason(reason))
+{}
+
+inline SurfaceHit::SurfaceHit(
+	const Ray&              ray,
+	const HitProbe&         probe,
+	const HitDetail&        detail,
+	const ESurfaceHitReason reason,
+	const bool              hasFullHitDetail)
+
+	: SurfaceHit(ray, probe, detail, SurfaceHitReason(reason), hasFullHitDetail)
 {}
 
 inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const

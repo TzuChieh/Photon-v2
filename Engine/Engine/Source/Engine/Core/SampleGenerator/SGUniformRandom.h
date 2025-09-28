@@ -13,8 +13,6 @@ public:
 	std::unique_ptr<SampleGenerator> makeNewborn(std::size_t numSampleBatches) const override;
 
 private:
-	void onRebirth() override;
-
 	void genSamples1D(
 		const SampleContext& context,
 		const SampleStage&   stage, 

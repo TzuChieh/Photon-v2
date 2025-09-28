@@ -15,11 +15,18 @@ template<typename T>
 class TPiecewiseConstantDistribution2D final
 {
 public:
+	/*!
+	@param weights 2D array stored in row-major order.
+	@param numWeights Stores `{numRows, numCols}`.
+	*/
 	TPiecewiseConstantDistribution2D(
-		const TAABB2D<T>&            range, 
+		const TAABB2D<T>&            domain, 
 		const T*                     weights, 
 		const TVector2<std::size_t>& numWeights);
 
+	/*!
+	Unit-domain overload.
+	*/
 	TPiecewiseConstantDistribution2D(
 		const T*                     weights,
 		const TVector2<std::size_t>& numWeights);

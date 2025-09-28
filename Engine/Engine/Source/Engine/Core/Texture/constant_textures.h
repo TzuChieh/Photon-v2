@@ -17,7 +17,7 @@ namespace ph
 This texture provides only a constant value. Input color usages are ignored.
 For color-related constants, consider using @p TConstantTristimulusTexture or 
 @p TConstantSpectralTexture; otherwise, it is recommended to bake color-related
-side effects (e.g., color usages) into the constant.
+side effects (e.g., color usages) into the constant @p value.
 */
 template<typename OutputType>
 class TConstantTexture : public TTexture<OutputType>

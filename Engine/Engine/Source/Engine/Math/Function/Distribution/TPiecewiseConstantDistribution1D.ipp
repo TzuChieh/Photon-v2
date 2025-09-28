@@ -196,7 +196,7 @@ inline T TPiecewiseConstantDistribution1D<T>::continuouslySampleValue(const T sa
 	}
 	PH_ASSERT(0 <= overshoot && overshoot <= 1);
 
-	// NOTE: <sampledValue> may have value straddling neighbor column's range 
+	// NOTE: <sampledValue> may have value straddling neighbor column's domain 
 	// due to numerical error. Currently this is considered acceptable since 
 	// continuous sample does not require precise result.
 	const T sampledValue = m_delta * (overshoot + static_cast<T>(straddledColumn));

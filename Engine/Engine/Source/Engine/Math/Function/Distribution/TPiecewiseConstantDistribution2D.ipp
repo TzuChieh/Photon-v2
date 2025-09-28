@@ -9,7 +9,7 @@ namespace ph::math
 
 template<typename T>
 inline TPiecewiseConstantDistribution2D<T>::TPiecewiseConstantDistribution2D(
-	const TAABB2D<T>&            range,
+	const TAABB2D<T>&            domain,
 	const T* const               weights,
 	const TVector2<std::size_t>& numWeights) : 
 
@@ -29,16 +29,16 @@ inline TPiecewiseConstantDistribution2D<T>::TPiecewiseConstantDistribution2D(
 		}
 
 		m_conditionalXs[y] = TPiecewiseConstantDistribution1D<T>(
-			range.getMinVertex().x(),
-			range.getMaxVertex().x(),
+			domain.getMinVertex().x(),
+			domain.getMaxVertex().x(),
 			&(weights[baseIndex]),
 			numWeights.x());
 	}
 
 	// initialize marginal distribution for each row
 	m_marginalYs = TPiecewiseConstantDistribution1D<T>(
-		range.getMinVertex().y(),
-		range.getMaxVertex().y(),
+		domain.getMinVertex().y(),
+		domain.getMaxVertex().y(),
 		rowSums);
 }
 
