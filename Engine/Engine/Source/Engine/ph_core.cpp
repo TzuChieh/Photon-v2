@@ -346,6 +346,11 @@ Path get_resource_directory(const EEngineProject project)
 	return Path(PH_RENDERER_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
+Path get_intermediate_directory(EEngineProject project)
+{
+	return Path(PH_INTERMEDIATE_DIRECTORY).append(to_string(project));
+}
+
 Path get_script_directory(const EEngineProject project)
 {
 	return Path(PH_SCRIPT_DIRECTORY).append(to_string(project));

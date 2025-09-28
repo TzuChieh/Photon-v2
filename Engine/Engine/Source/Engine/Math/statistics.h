@@ -22,7 +22,10 @@ with a standard significance level of 0.05, the probability of getting at least 
 result will be much higher than 5%. Sidak's correction account for this by adjusting the original
 significance level such that the overall significance level remains at the desired level.
 See https://en.wikipedia.org/wiki/%C5%A0id%C3%A1k_correction for a formal description and a concise
-mathematical derivation.
+mathematical derivation. This correction is exact for independent tests.
+@param desiredProb Desired overall significance level.
+@param numTests Number of tests.
+@return Adjusted significance level for each individual test.
 */
 template<std::floating_point T, std::integral IntType>
 inline T sidak_correction(T desiredProb, IntType numTests)

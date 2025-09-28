@@ -1,3 +1,14 @@
+/*!
+Chi^2 test for BSDF sampling.
+
+H0: There is no statistically significant difference between the observed frequencies
+(`make_freq_table()`) and the expected frequencies (`make_integrated_freq_table()`).
+HA: There is a statistically significant difference between the observed frequencies and
+the expected frequencies.
+
+`significance_level` controls the strictness of the test. A smaller value means a stricter test.
+*/
+
 #include "engine_deep_test_config.h"
 
 #include <Common/assertion.h>
@@ -18,6 +29,10 @@
 #include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
 #include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
 #include <Engine/Core/Texture/constant_textures.h>
+#include <Engine/ph_core.h>
+#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
 
 #include <gtest/gtest.h>
 
@@ -26,13 +41,15 @@
 #include <cmath>
 #include <memory>
 #include <utility>
+#include <format>
 
 using namespace ph;
 
 namespace
 {
 
-inline constexpr auto num_chi2_tests_per_suite = 5;
+inline constexpr auto significance_level = 0.01;
+inline constexpr auto num_chi2_tests_per_suite = 1;
 inline constexpr auto theta_res = 90;
 inline constexpr auto phi_res = theta_res * 2;
 
@@ -132,7 +149,7 @@ inline std::vector<double> make_freq_table(
 
 			const auto phiTheta = math::TSphere<real>::makeUnit().surfaceToPhiTheta(bsdfSample.outputs.getL());
 			
-			math::Vector2S phiThetaIdx{phiTheta.x() * phiThetaRes.x(), phiTheta.y() * phiThetaRes.y()};
+			math::Vector2S phiThetaIdx{phiTheta * math::Vector2R{phiThetaRes}};
 			phiThetaIdx.clampLocal({0, 0}, phiThetaRes - 1);
 
 			const auto binIdx = phiThetaIdx.y() * phiThetaRes.x() + phiThetaIdx.x();
@@ -227,7 +244,7 @@ inline std::vector<double> make_integrated_freq_table(
 			const math::Vector2R phiTheta = pdfDistribution.sampleContinuous(math::Random::sampleND<2>(), &pdfSample);
 			const math::Vector3R L = math::TSphere<real>::makeUnit().phiThetaToSurface(phiTheta);
 
-			math::Vector2S phiThetaIdx{phiTheta.x() * phiThetaRes.x(), phiTheta.y() * phiThetaRes.y()};
+			math::Vector2S phiThetaIdx{phiTheta * math::Vector2R{phiThetaRes}};
 			phiThetaIdx.clampLocal({0, 0}, phiThetaRes - 1);
 			const auto binIdx = phiThetaIdx.y() * phiThetaRes.x() + phiThetaIdx.x();
 			PH_ASSERT_LT(binIdx, freqTable.size());
@@ -251,6 +268,105 @@ inline std::vector<double> make_integrated_freq_table(
 	}
 
 	return freqTable;
+}
+
+inline void write_report(
+	const std::string& testName,
+	const std::string& testInfo,
+	const std::vector<double>& observedFreq,
+	const std::vector<double>& expectedFreq)
+{
+	PH_ASSERT_EQ(observedFreq.size(), expectedFreq.size());
+
+	const Path reportDir = get_intermediate_directory(EEngineProject::EngineDeepTest) / "bsdf_sampling_chi2";
+	Filesystem::createDirectories(reportDir);
+
+	FormattedTextOutputStream out(reportDir / (testName + ".html"));
+
+	out.writeString(R"(
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8">
+<title>{}</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<div id="heatmap" style="width:95vw; height:95vh;"></div>
+<script>
+)", testInfo);
+
+	out.writeString("const W = {};\n", phi_res);
+	out.writeString("const H = {};\n", theta_res);
+
+	// `observed` array in JS
+	out.writeString("const observed = \n[\n");
+	for(std::size_t y = 0; y < theta_res; ++y)
+	{
+		out.writeString("\t[");
+		for(std::size_t x = 0; x < phi_res; ++x)
+		{
+			auto idx = static_cast<std::size_t>(y) * phi_res + x;
+			out.writeString("{}", observedFreq[idx]);
+			if(x != phi_res - 1)
+			{
+				out.writeString(", ");
+			}
+		}
+		out.writeString("]");
+		if(y != theta_res - 1)
+		{
+			out.writeString(",");
+		}
+		out.writeNewLine();
+	}
+	out.writeString("];\n");
+
+	// `expected` array in JS
+	out.writeString("const expected = \n[\n");
+	for(std::size_t y = 0; y < theta_res; ++y)
+	{
+		out.writeString("\t[");
+		for(std::size_t x = 0; x < phi_res; ++x)
+		{
+			auto idx = static_cast<std::size_t>(y) * phi_res + x;
+			out.writeString("{}", expectedFreq[idx]);
+			if(x != phi_res - 1)
+			{
+				out.writeString(", ");
+			}
+		}
+		out.writeString("]");
+		if(y != theta_res - 1)
+		{
+			out.writeString(",");
+		}
+		out.writeNewLine();
+	}
+	out.writeString("];\n");
+
+	// `diff = observed - expected`
+	out.writeString("const diff = observed.map((row,y)=>row.map((v,x)=>v-expected[y][x]));\n");
+
+	// JS code for subplots
+	out.writeString(R"(
+const data =
+[
+	{{ z: observed, type: 'heatmap', colorscale: 'Viridis', colorbar: {{ title: 'Observed' }}, xaxis: 'x', yaxis: 'y' }},
+	{{ z: expected, type: 'heatmap', colorscale: 'Viridis', colorbar: {{ title: 'Expected' }}, xaxis: 'x2', yaxis: 'y2' }},
+	{{ z: diff,     type: 'heatmap', colorscale: 'RdBu',   colorbar: {{ title: 'Diff' }}, xaxis: 'x3', yaxis: 'y3' }}
+];
+
+const layout =
+{{
+	title: {{ text: '{}', x:0.5 }},
+	grid: {{ rows: 1, columns: 3, pattern: 'independent' }},
+	margin: {{ t:50 }}
+}};
+
+Plotly.newPlot('heatmap', data, layout);
+)", testInfo);
+
+	out.writeString("</script>\n</body></html>");
 }
 
 inline void test_bsdf(
@@ -290,7 +406,25 @@ inline void test_bsdf(
 			1e-5 * numSamples * phi_res * theta_res,// small freq tolerance
 			poolingBuffer);
 		const double pValue = math::chi2_p_value(x, dof);
+		const double alpha = math::sidak_correction(significance_level, num_chi2_tests_per_suite);
+		
+		std::string testInfo;
+		if(pValue < alpha || !std::isfinite(pValue) || !std::isfinite(alpha))
+		{
+			testInfo += std::format("Rejected H0 with p={}, significance={}. ", pValue, alpha);
+		}
+		else
+		{
+			testInfo += "Accepted H0. ";
+		}
 
+		write_report(
+			"ttt",
+			testInfo,
+			freqTable,
+			integratedFreqTable);
+
+		// TODO: write test report
 		// TODO
 	}
 
@@ -303,7 +437,9 @@ inline void test_bsdf(
 
 TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 {
-	/*test_bsdf(
+	test_bsdf(
 		std::make_unique<LambertianReflector>(
-			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})));*/
+			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})),
+		3,
+		true);
 }

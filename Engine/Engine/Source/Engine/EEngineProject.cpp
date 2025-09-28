@@ -11,6 +11,7 @@ std::string_view to_string(const EEngineProject project)
 	{
 	case EEngineProject::Engine:         return "Engine";
 	case EEngineProject::EngineTest:     return "EngineTest";
+	case EEngineProject::EngineDeepTest: return "EngineDeepTest";
 	case EEngineProject::SDLGen:         return "SDLGen";
 	case EEngineProject::SDLGenCLI:      return "SDLGenCLI";
 	case EEngineProject::PhotonCLI:      return "PhotonCLI";

@@ -9,13 +9,14 @@ enum class EEngineProject
 {
 	Engine,
 	EngineTest,
+	EngineDeepTest,
 	SDLGen,
 	SDLGenCLI,
 	PhotonCLI,
 	Editor,
 	EditorLib,
 	EditorTest,
-	IntersectError
+	IntersectError,
 };
 
 std::string_view to_string(EEngineProject project);
