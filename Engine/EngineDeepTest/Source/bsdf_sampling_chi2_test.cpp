@@ -6,6 +6,7 @@
 #include <Engine/Math/TVector3.h>
 #include <Engine/Math/Geometry/TSphere.h>
 #include <Engine/Math/Geometry/THemisphere.h>
+#include <Engine/Math/statistics.h>
 #include <Engine/Math/Random/Random.h>
 #include <Engine/Math/Function/Distribution/TPiecewiseConstantDistribution2D.h>
 #include <Engine/Core/SampleGenerator/SGStratified.h>
@@ -252,17 +253,6 @@ inline std::vector<double> make_integrated_freq_table(
 	return freqTable;
 }
 
-inline void chi2_test(
-	const std::vector<double>& observedFreqTable,
-	const std::vector<double>& expectedFreqTable)
-{
-	PH_ASSERT_EQ(observedFreqTable.size(), expectedFreqTable.size());
-
-
-
-	// TODO
-}
-
 inline void test_bsdf(
 	std::unique_ptr<SurfaceOptics> targetOptics,
 	const uint64 numSamples,
@@ -271,6 +261,7 @@ inline void test_bsdf(
 	FictionalScene scene = make_scene(std::move(targetOptics));
 
 	const bool isDelta = scene.optics->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
+	PH_ASSERT(!isDelta);
 
 	for(std::size_t ti = 0; ti < num_chi2_tests_per_suite; ++ti)
 	{
@@ -292,7 +283,15 @@ inline void test_bsdf(
 			V,
 			isUpperHemisphereOnly);
 
-		chi2_test(freqTable, integratedFreqTable);
+		std::vector<std::size_t> poolingBuffer(freqTable.size());
+		const auto [x, dof] = math::chi2<double, std::size_t>(
+			freqTable,
+			integratedFreqTable,
+			1e-5 * numSamples * phi_res * theta_res,// small freq tolerance
+			poolingBuffer);
+		const double pValue = math::chi2_p_value(x, dof);
+
+		// TODO
 	}
 
 	// TODO

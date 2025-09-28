@@ -2,56 +2,105 @@
 
 #include <gtest/gtest.h>
 
+#include <vector>
+
 using namespace ph::math;
+
+TEST(StatisticsTest, SidakCorrection)
+{
+	constexpr double smallError = 1e-9;
+
+	// Single test should have no correction
+	EXPECT_NEAR(sidak_correction(0.05, 1), 0.05, smallError);
+
+	// Common statistical scenario
+	EXPECT_NEAR(sidak_correction(0.05, 5), 0.010206218313011494736, smallError);
+
+	// Stricter alpha
+	EXPECT_NEAR(sidak_correction(0.01, 10), 0.0010045287082499632092, smallError);
+
+	// Large number of tests
+	EXPECT_NEAR(sidak_correction(0.05, 100), 0.00051280141626230957286, smallError);
+}
 
 TEST(StatisticsTest, Chi2Cdf)
 {
-	// Testing by calling R's `qchisq` function as follows
+	// Testing by calling R's `qchisq()` as follows
 	// `print(qchisq(p, dof, lower.tail=FALSE), d=22)`
 
 	constexpr double smallError = 1e-12;
 	constexpr double mediumError = 1e-9;
 	constexpr double largeError = 1e-4;
 
-	EXPECT_NEAR(chi2_CDF(3.841458820694125808615, 1), 1 - 0.05, smallError);
-	EXPECT_NEAR(chi2_CDF(2.705543454095415523142, 1), 1 - 0.10, smallError);
-	EXPECT_NEAR(chi2_CDF(0.1484718618325455152807, 1), 1 - 0.70, smallError);
-	EXPECT_NEAR(chi2_CDF(0.00393214000001953015162, 1), 1 - 0.95, smallError);
+	EXPECT_NEAR(chi2_p_value(3.841458820694125808615, 1), 0.05, smallError);
+	EXPECT_NEAR(chi2_p_value(2.705543454095415523142, 1), 0.10, smallError);
+	EXPECT_NEAR(chi2_p_value(0.1484718618325455152807, 1), 0.70, smallError);
+	EXPECT_NEAR(chi2_p_value(0.00393214000001953015162, 1), 0.95, smallError);
 
-	EXPECT_NEAR(chi2_CDF(5.991464547107979043972, 2), 1 - 0.05, smallError);
-	EXPECT_NEAR(chi2_CDF(4.605170185988091802187, 2), 1 - 0.10, smallError);
-	EXPECT_NEAR(chi2_CDF(0.713349887877464894359, 2), 1 - 0.70, smallError);
-	EXPECT_NEAR(chi2_CDF(0.1025865887751011562568, 2), 1 - 0.95, smallError);
+	EXPECT_NEAR(chi2_p_value(5.991464547107979043972, 2), 0.05, smallError);
+	EXPECT_NEAR(chi2_p_value(4.605170185988091802187, 2), 0.10, smallError);
+	EXPECT_NEAR(chi2_p_value(0.713349887877464894359, 2), 0.70, smallError);
+	EXPECT_NEAR(chi2_p_value(0.1025865887751011562568, 2), 0.95, smallError);
 
-	EXPECT_NEAR(chi2_CDF(19.02074334820110479427, 10), 1 - 0.04, smallError);
-	EXPECT_NEAR(chi2_CDF(9.341817765591969191519, 10), 1 - 0.5, smallError);
-	EXPECT_NEAR(chi2_CDF(3.696541444956689570489, 10), 1 - 0.96, smallError);
+	EXPECT_NEAR(chi2_p_value(19.02074334820110479427, 10), 0.04, smallError);
+	EXPECT_NEAR(chi2_p_value(9.341817765591969191519, 10), 0.5, smallError);
+	EXPECT_NEAR(chi2_p_value(3.696541444956689570489, 10), 0.96, smallError);
 
-	EXPECT_NEAR(chi2_CDF(68.80386402631833675514, 50), 1 - 0.04, smallError);
-	EXPECT_NEAR(chi2_CDF(49.33493673397684631254, 50), 1 - 0.5, smallError);
-	EXPECT_NEAR(chi2_CDF(33.94258999717953173558, 50), 1 - 0.96, smallError);
+	EXPECT_NEAR(chi2_p_value(68.80386402631833675514, 50), 0.04, smallError);
+	EXPECT_NEAR(chi2_p_value(49.33493673397684631254, 50), 0.5, smallError);
+	EXPECT_NEAR(chi2_p_value(33.94258999717953173558, 50), 0.96, smallError);
 
-	EXPECT_NEAR(chi2_CDF(232.0003307125071216888, 200), 1 - 0.06, smallError);
-	EXPECT_NEAR(chi2_CDF(189.0485987177614788379, 200), 1 - 0.7, smallError);
-	EXPECT_NEAR(chi2_CDF(171.3086735204458932458, 200), 1 - 0.93, smallError);
+	EXPECT_NEAR(chi2_p_value(232.0003307125071216888, 200), 0.06, smallError);
+	EXPECT_NEAR(chi2_p_value(189.0485987177614788379, 200), 0.7, smallError);
+	EXPECT_NEAR(chi2_p_value(171.3086735204458932458, 200), 0.93, smallError);
 
-	EXPECT_NEAR(chi2_CDF(1070.458677799041197432, 1000), 1 - 0.06, smallError);
-	EXPECT_NEAR(chi2_CDF(976.07359125777418285, 1000), 1 - 0.7, smallError);
-	EXPECT_NEAR(chi2_CDF(934.8035378152002294883, 1000), 1 - 0.93, smallError);
+	EXPECT_NEAR(chi2_p_value(1070.458677799041197432, 1000), 0.06, smallError);
+	EXPECT_NEAR(chi2_p_value(976.07359125777418285, 1000), 0.7, smallError);
+	EXPECT_NEAR(chi2_p_value(934.8035378152002294883, 1000), 0.93, smallError);
 
-	EXPECT_NEAR(chi2_CDF(10233.74889767793683859, 10000), 1 - 0.05, mediumError);
-	EXPECT_NEAR(chi2_CDF(10073.67533170680508192, 10000), 1 - 0.3, mediumError);
-	EXPECT_NEAR(chi2_CDF(9768.525135667536233086, 10000), 1 - 0.95, mediumError);
+	EXPECT_NEAR(chi2_p_value(10233.74889767793683859, 10000), 0.05, mediumError);
+	EXPECT_NEAR(chi2_p_value(10073.67533170680508192, 10000), 0.3, mediumError);
+	EXPECT_NEAR(chi2_p_value(9768.525135667536233086, 10000), 0.95, mediumError);
 
-	EXPECT_NEAR(chi2_CDF(100736.7361773190059466, 100000), 1 - 0.05, mediumError);
-	EXPECT_NEAR(chi2_CDF(100234.0348271952680079, 100000), 1 - 0.3, mediumError);
-	EXPECT_NEAR(chi2_CDF(99265.53787816064141225, 100000), 1 - 0.95, mediumError);
+	EXPECT_NEAR(chi2_p_value(100736.7361773190059466, 100000), 0.05, mediumError);
+	EXPECT_NEAR(chi2_p_value(100234.0348271952680079, 100000), 0.3, mediumError);
+	EXPECT_NEAR(chi2_p_value(99265.53787816064141225, 100000), 0.95, mediumError);
 
-	EXPECT_NEAR(chi2_CDF(5005202.620659505017102, 5000000), 1 - 0.05, mediumError);
-	EXPECT_NEAR(chi2_CDF(5001657.816566350869834, 5000000), 1 - 0.3, mediumError);
-	EXPECT_NEAR(chi2_CDF(4994799.653398384340107, 5000000), 1 - 0.95, mediumError);
+	EXPECT_NEAR(chi2_p_value(5005202.620659505017102, 5000000), 0.05, mediumError);
+	EXPECT_NEAR(chi2_p_value(5001657.816566350869834, 5000000), 0.3, mediumError);
+	EXPECT_NEAR(chi2_p_value(4994799.653398384340107, 5000000), 0.95, mediumError);
 
-	EXPECT_NEAR(chi2_CDF(50000520149.52490234375, 50000000000), 1 - 0.05, largeError);
-	EXPECT_NEAR(chi2_CDF(50000165829.51929473877, 50000000000), 1 - 0.3, largeError);
-	EXPECT_NEAR(chi2_CDF(49999479852.74915313721, 50000000000), 1 - 0.95, largeError);
+	EXPECT_NEAR(chi2_p_value(50000520149.52490234375, 50000000000), 0.05, largeError);
+	EXPECT_NEAR(chi2_p_value(50000165829.51929473877, 50000000000), 0.3, largeError);
+	EXPECT_NEAR(chi2_p_value(49999479852.74915313721, 50000000000), 0.95, largeError);
+}
+
+TEST(StatisticsTest, Chi2)
+{
+	// Same observed and expected frequencies should yield chi^2 = 0
+	{
+		const std::vector<float> of = {1, 1};
+		const std::vector<float> ef = {1, 1};
+		const auto [x, dof] = chi2<float, int>(of, ef);
+		EXPECT_EQ(x, 0);
+		EXPECT_EQ(dof, 2 - 1);
+	}
+
+	// Same observed and expected frequencies should yield chi^2 = 0
+	{
+		const std::vector<float> of = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		const std::vector<float> ef = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		const auto [x, dof] = chi2<float, int>(of, ef);
+		EXPECT_EQ(x, 0);
+		EXPECT_EQ(dof, 10 - 1);
+	}
+	
+	// A simple non-zero case
+	{
+		const std::vector<float> of = {2, 2};
+		const std::vector<float> ef = {1, 1};
+		const auto [x, dof] = chi2<float, int>(of, ef);
+		EXPECT_EQ(x, 1 + 1);
+		EXPECT_EQ(dof, 2 - 1);
+	}
 }
