@@ -147,9 +147,9 @@ inline std::vector<double> make_freq_table(
 				continue;
 			}
 
-			const auto phiTheta = math::TSphere<real>::makeUnit().surfaceToPhiTheta(bsdfSample.outputs.getL());
+			const auto uv = math::TSphere<real>::makeUnit().surfaceToLatLong01(bsdfSample.outputs.getL());
 			
-			math::Vector2S phiThetaIdx{phiTheta * math::Vector2R{phiThetaRes}};
+			math::Vector2S phiThetaIdx{uv * math::Vector2R{phiThetaRes}};
 			phiThetaIdx.clampLocal({0, 0}, phiThetaRes - 1);
 
 			const auto binIdx = phiThetaIdx.y() * phiThetaRes.x() + phiThetaIdx.x();
@@ -170,41 +170,38 @@ inline math::TPiecewiseConstantDistribution2D<real> make_PDF_distribution(
 	const bool isUpperHemisphereOnly)
 {
 	const SurfaceHit X = make_hit(scene);
-	const real dTheta = math::constant::pi<real> / phiThetaRes.y();
 
 	std::vector<real> sampleWeights(phiThetaRes.product(), 0.0_r);
 	for(std::size_t thetaIdx = 0; thetaIdx < phiThetaRes.y(); ++thetaIdx)
 	{
-		if(isUpperHemisphereOnly && thetaIdx >= phiThetaRes.y() / 2)
+		if(isUpperHemisphereOnly && thetaIdx < phiThetaRes.y() / 2)
 		{
-			break;
+			continue;
 		}
 
 		for(std::size_t phiIdx = 0; phiIdx < phiThetaRes.x(); ++phiIdx)
 		{
+			const auto binIdx = thetaIdx * phiThetaRes.x() + phiIdx;
+
 			// Sample this bin multiple times
 			for(uint64 si = 0; si < numSamplesPerBin; ++si)
 			{
-				auto [phi, theta] = math::Random::sampleND<2>();
-				theta = (thetaIdx + theta) * (math::constant::pi<real> / phiThetaRes.y());
-				phi = (phiIdx + phi) * (math::constant::two_pi<real> * std::sin(theta) / phiThetaRes.x());
-
-				const auto L = math::TSphere<real>::makeUnit().phiThetaToSurface({phi, theta});
+				const auto [dU, dV] = math::Random::sampleND<2>();
+				const auto phiTheta = math::TSphere<real>::makeUnit().latLong01ToPhiTheta(
+					{(phiIdx + dU) / phiThetaRes.x(), (thetaIdx + dV) / phiThetaRes.y()});
+				const auto L = math::TSphere<real>::makeUnit().phiThetaToSurface(phiTheta);
 
 				BsdfPdfQuery pdfQuery{make_query_ctx()};
 				pdfQuery.inputs.set(X, L, V);
 				scene.optics->calcBsdfPdf(pdfQuery);
 
 				const real funcValue = pdfQuery.outputs ? pdfQuery.outputs.getSampleDirPdf().value : 0.0_r;
-				sampleWeights[thetaIdx * phiThetaRes.x() + phiIdx] += funcValue * std::sin(theta);
+				sampleWeights[binIdx] += funcValue * std::sin(phiTheta.y()) / numSamplesPerBin;
 			}
 		}
 	}
 
-	math::TPiecewiseConstantDistribution2D<real> distribution{
-		math::TAABB2D<real>{{0, 0}, {math::constant::two_pi<real>, math::constant::pi<real>}},
-		sampleWeights.data(),
-		phiThetaRes};
+	math::TPiecewiseConstantDistribution2D<real> distribution{sampleWeights.data(), phiThetaRes};
 	return distribution;
 }
 
@@ -222,9 +219,9 @@ inline std::vector<double> make_integrated_freq_table(
 	SGStratified sampleGen{numSamplesPerBin};
 	const auto sampleHandle = sampleGen.declareStageND(2, phiThetaRes.product(), phiThetaRes.toVector());
 
-	const math::TPiecewiseConstantDistribution2D<real> pdfDistribution = make_PDF_distribution(
+	const math::TPiecewiseConstantDistribution2D<real> funcDistribution = make_PDF_distribution(
 		scene,
-		numSamplesPerBin,
+		numSamplesPerBin * 4,// for better quality table
 		phiThetaRes,
 		V,
 		isUpperHemisphereOnly);
@@ -240,11 +237,16 @@ inline std::vector<double> make_integrated_freq_table(
 		{
 			auto sampleFlow = sampleStream.readSampleAsFlow();
 
-			real pdfSample;
-			const math::Vector2R phiTheta = pdfDistribution.sampleContinuous(math::Random::sampleND<2>(), &pdfSample);
-			const math::Vector3R L = math::TSphere<real>::makeUnit().phiThetaToSurface(phiTheta);
+			real uvSamplePdf;
+			const auto uv = funcDistribution.sampleContinuous(sampleFlow.flow2D(), &uvSamplePdf);
+			const auto L = math::TSphere<real>::makeUnit().latLong01ToSurface(uv);
+			const auto phiTheta = math::TSphere<real>::makeUnit().latLong01ToPhiTheta(uv);
 
-			math::Vector2S phiThetaIdx{phiTheta * math::Vector2R{phiThetaRes}};
+			// UV PDF to solid angle PDF
+			const real detJacobian = 2.0_r * math::constant::pi2<real> * std::sin(phiTheta.y());
+			const real wSamplePdf = uvSamplePdf / detJacobian;
+
+			math::Vector2S phiThetaIdx{uv * math::Vector2R{phiThetaRes}};
 			phiThetaIdx.clampLocal({0, 0}, phiThetaRes - 1);
 			const auto binIdx = phiThetaIdx.y() * phiThetaRes.x() + phiThetaIdx.x();
 			PH_ASSERT_LT(binIdx, freqTable.size());
@@ -253,17 +255,18 @@ inline std::vector<double> make_integrated_freq_table(
 			pdfQuery.inputs.set(X, L, V);
 			scene.optics->calcBsdfPdf(pdfQuery);
 
-			// Splitted sums for integrating PDF over the bin's solid angle
+			// Sum for integrating PDF over the bin's solid angle
 			const double funcSample = pdfQuery.outputs ? pdfQuery.outputs.getSampleDirPdf().value : 0.0_r;
-			freqTable[binIdx] += 1.0;
-			funcSampleSum[binIdx] += funcSample / pdfSample;
+			funcSampleSum[binIdx] += funcSample / wSamplePdf;
 		}
 	}
 
+	const auto totalSamples = phiThetaRes.product() * numSamplesPerBin;
 	for(std::size_t bi = 0; bi < freqTable.size(); ++bi)
 	{
-		const double binProbability = funcSampleSum[bi] / freqTable[bi];
-		const double estimatedFreq = binProbability * phiThetaRes.product() * numSamplesPerBin;
+		// `totalSamples` actually canceled out; we keep it to show how probability is estimated
+		const double binProbability = funcSampleSum[bi] / totalSamples;
+		const double estimatedFreq = binProbability * totalSamples;
 		freqTable[bi] = std::isfinite(estimatedFreq) ? estimatedFreq : 0.0;
 	}
 
@@ -288,7 +291,7 @@ inline void write_report(
 <html lang="en">
 <head><meta charset="utf-8">
 <title>{}</title>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
 </head>
 <body>
 <div id="heatmap" style="width:95vw; height:95vh;"></div>
@@ -298,73 +301,137 @@ inline void write_report(
 	out.writeString("const W = {};\n", phi_res);
 	out.writeString("const H = {};\n", theta_res);
 
-	// `observed` array in JS
-	out.writeString("const observed = \n[\n");
-	for(std::size_t y = 0; y < theta_res; ++y)
+	auto toJsArrayStr = [](const std::vector<double>& data)
 	{
-		out.writeString("\t[");
-		for(std::size_t x = 0; x < phi_res; ++x)
+		std::string str = "[\n";
+		for(std::size_t y = 0; y < theta_res; ++y)
 		{
-			auto idx = static_cast<std::size_t>(y) * phi_res + x;
-			out.writeString("{}", observedFreq[idx]);
-			if(x != phi_res - 1)
+			str += "\t[";
+			for(std::size_t x = 0; x < phi_res; ++x)
 			{
-				out.writeString(", ");
+				auto idx = static_cast<std::size_t>(y) * phi_res + x;
+				str += std::to_string(data[idx]);
+				if(x != phi_res - 1)
+				{
+					str += ", ";
+				}
 			}
+			str += "]";
+			if(y != theta_res - 1)
+			{
+				str += ",";
+			}
+			str += "\n";
 		}
-		out.writeString("]");
-		if(y != theta_res - 1)
-		{
-			out.writeString(",");
-		}
-		out.writeNewLine();
+		str += "]";
+		return str;
+	};
+
+	// Avoid outliers ruining the color scale by using the 95 percentile value as max
+	double robustLegendMax = 0.0;
+	{
+		std::vector<double> allValues = observedFreq;
+		allValues.insert(allValues.end(), expectedFreq.begin(), expectedFreq.end());
+
+		const auto nthIdx = allValues.size() * 95 / 100;
+		std::nth_element(allValues.begin(), allValues.begin() + nthIdx, allValues.end());
+		robustLegendMax = allValues[nthIdx];
 	}
-	out.writeString("];\n");
+
+	// `observed` array in JS
+	out.writeString("const observed = \n{};\n", toJsArrayStr(observedFreq));
 
 	// `expected` array in JS
-	out.writeString("const expected = \n[\n");
-	for(std::size_t y = 0; y < theta_res; ++y)
-	{
-		out.writeString("\t[");
-		for(std::size_t x = 0; x < phi_res; ++x)
-		{
-			auto idx = static_cast<std::size_t>(y) * phi_res + x;
-			out.writeString("{}", expectedFreq[idx]);
-			if(x != phi_res - 1)
-			{
-				out.writeString(", ");
-			}
-		}
-		out.writeString("]");
-		if(y != theta_res - 1)
-		{
-			out.writeString(",");
-		}
-		out.writeNewLine();
-	}
-	out.writeString("];\n");
+	out.writeString("const expected = \n{};\n", toJsArrayStr(expectedFreq));
 
 	// `diff = observed - expected`
 	out.writeString("const diff = observed.map((row,y)=>row.map((v,x)=>v-expected[y][x]));\n");
 
 	// JS code for subplots
 	out.writeString(R"(
-const data =
+// Compute max absolute value for diff
+let maxAbs = 0;
+for (let y = 0; y < H; ++y)
+{{
+	for (let x = 0; x < W; ++x)
+	{{
+		const v = Math.abs(diff[y][x]);
+		if (v > maxAbs) maxAbs = v;
+	}}
+}}
+
+const data = 
 [
-	{{ z: observed, type: 'heatmap', colorscale: 'Viridis', colorbar: {{ title: 'Observed' }}, xaxis: 'x', yaxis: 'y' }},
-	{{ z: expected, type: 'heatmap', colorscale: 'Viridis', colorbar: {{ title: 'Expected' }}, xaxis: 'x2', yaxis: 'y2' }},
-	{{ z: diff,     type: 'heatmap', colorscale: 'RdBu',   colorbar: {{ title: 'Diff' }}, xaxis: 'x3', yaxis: 'y3' }}
+	{{
+		name: 'Observed',
+		z: observed,
+		type: 'heatmap',
+		colorscale: 'Viridis',
+		zmin: 0,
+		zmax: {},  // robustMax
+		visible: true,
+		colorbar: {{ x: 1.02, y: 0.5 }}
+	}},
+	{{
+		name: 'Expected',
+		z: expected,
+		type: 'heatmap',
+		colorscale: 'Viridis',
+		zmin: 0,
+		zmax: {},  // robustMax
+		visible: false,
+		colorbar: {{ x: 1.02, y: 0.5 }}
+	}},
+	{{
+		name: 'Diff',
+		z: diff,
+		type: 'heatmap',
+		colorscale: 'RdBu',
+		zmin: -maxAbs,
+		zmax: maxAbs,
+		visible: false,
+		colorbar: {{ x: 1.02, y: 0.5 }}
+	}}
 ];
 
-const layout =
+const layout = 
 {{
-	title: {{ text: '{}', x:0.5 }},
-	grid: {{ rows: 1, columns: 3, pattern: 'independent' }},
-	margin: {{ t:50 }}
+	title: {{ text: '{}', x: 0.5 }},
+	margin: {{ t: 140, b: 60, l: 60, r: 140 }},
+	yaxis: {{ scaleanchor: 'x' }},
+	updatemenus: [
+		{{
+			type: 'buttons',
+			x: 0.5,
+			y: 1.08,  // below title
+			xanchor: 'center',
+			yanchor: 'top',
+			showactive: true,
+			direction: 'left',
+			pad: {{ l: 10, r: 10, t: 10, b: 10 }},
+			buttons: [
+				{{
+					label: 'Observed',
+					method: 'update',
+					args: [{{ visible: [true, false, false] }}]
+				}},
+				{{
+					label: 'Expected',
+					method: 'update',
+					args: [{{ visible: [false, true, false] }}]
+				}},
+				{{
+					label: 'Diff',
+					method: 'update',
+					args: [{{ visible: [false, false, true] }}]
+				}}
+			]
+		}}
+	]
 }};
 
 Plotly.newPlot('heatmap', data, layout);
-)", testInfo);
+)", robustLegendMax, robustLegendMax, testInfo);
 
 	out.writeString("</script>\n</body></html>");
 }
@@ -411,12 +478,13 @@ inline void test_bsdf(
 		std::string testInfo;
 		if(pValue < alpha || !std::isfinite(pValue) || !std::isfinite(alpha))
 		{
-			testInfo += std::format("Rejected H0 with p={}, significance={}. ", pValue, alpha);
+			testInfo += "Rejected H0";
 		}
 		else
 		{
-			testInfo += "Accepted H0. ";
+			testInfo += "Accepted H0";
 		}
+		testInfo += std::format(" (p={}, significance={}, SPP={})", pValue, alpha, numSamples);
 
 		write_report(
 			"ttt",
@@ -440,6 +508,6 @@ TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 	test_bsdf(
 		std::make_unique<LambertianReflector>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})),
-		3,
+		16,
 		true);
 }
