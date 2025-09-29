@@ -52,6 +52,7 @@ inline constexpr auto significance_level = 0.01;
 inline constexpr auto num_chi2_tests_per_suite = 1;
 inline constexpr auto theta_res = 90;
 inline constexpr auto phi_res = theta_res * 2;
+inline constexpr auto expected_freq_sample_count_multiplier = 16;
 
 struct FictionalScene
 {
@@ -216,13 +217,13 @@ inline std::vector<double> make_integrated_freq_table(
 	const SurfaceHit X = make_hit(scene);
 
 	// Stratify with table resolution
-	SGStratified sampleGen{numSamplesPerBin};
+	SGStratified sampleGen{numSamplesPerBin * expected_freq_sample_count_multiplier};
 	const auto sampleHandle = sampleGen.declareStageND(2, phiThetaRes.product(), phiThetaRes.toVector());
 
 	const math::TPiecewiseConstantDistribution2D<real> funcDistribution = make_PDF_distribution(
 		scene,
-		numSamplesPerBin * 4,// for better quality table
-		phiThetaRes,
+		numSamplesPerBin * expected_freq_sample_count_multiplier,// for better quality table
+		phiThetaRes * 4,                                         //
 		V,
 		isUpperHemisphereOnly);
 
@@ -265,7 +266,7 @@ inline std::vector<double> make_integrated_freq_table(
 	for(std::size_t bi = 0; bi < freqTable.size(); ++bi)
 	{
 		// `totalSamples` actually canceled out; we keep it to show how probability is estimated
-		const double binProbability = funcSampleSum[bi] / totalSamples;
+		const double binProbability = funcSampleSum[bi] / (totalSamples * expected_freq_sample_count_multiplier);
 		const double estimatedFreq = binProbability * totalSamples;
 		freqTable[bi] = std::isfinite(estimatedFreq) ? estimatedFreq : 0.0;
 	}
@@ -484,7 +485,9 @@ inline void test_bsdf(
 		{
 			testInfo += "Accepted H0";
 		}
-		testInfo += std::format(" (p={}, significance={}, SPP={})", pValue, alpha, numSamples);
+		testInfo += std::format(
+			" (p={}, significance={}, chi^2={}, DoF={}, SPP={})",
+			pValue, alpha, x, dof, numSamples);
 
 		write_report(
 			"ttt",

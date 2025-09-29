@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <limits>
 
 using namespace ph::math;
 
@@ -73,6 +74,22 @@ TEST(StatisticsTest, Chi2Cdf)
 	EXPECT_NEAR(chi2_p_value(50000520149.52490234375, 50000000000), 0.05, largeError);
 	EXPECT_NEAR(chi2_p_value(50000165829.51929473877, 50000000000), 0.3, largeError);
 	EXPECT_NEAR(chi2_p_value(49999479852.74915313721, 50000000000), 0.95, largeError);
+
+	// Edge case: chi^2 = 0 should yield p = 1
+	EXPECT_NEAR(chi2_p_value(0.0, 0), 1, smallError);
+	EXPECT_NEAR(chi2_p_value(0.0, 1), 1, smallError);
+
+	// Edge case: chi^2 = Inf (or very large) should yield p = 0
+	if constexpr(std::numeric_limits<double>::has_infinity)
+	{
+		EXPECT_NEAR(chi2_p_value(std::numeric_limits<double>::infinity(), 0), 0, smallError);
+		EXPECT_NEAR(chi2_p_value(std::numeric_limits<double>::infinity(), 1), 0, smallError);
+	}
+	else
+	{
+		EXPECT_NEAR(chi2_p_value(std::numeric_limits<double>::max(), 0), 0, smallError);
+		EXPECT_NEAR(chi2_p_value(std::numeric_limits<double>::max(), 1), 0, smallError);
+	}
 }
 
 TEST(StatisticsTest, Chi2)

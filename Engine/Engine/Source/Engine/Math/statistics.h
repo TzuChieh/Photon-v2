@@ -43,7 +43,8 @@ template<std::floating_point T>
 inline T regularized_lower_incomplete_gamma(const T a, const T x)
 {
 	// The following implementation is from pbrt-v4: https://github.com/mmp/pbrt-v4/blob/f140d7cba5dc7b941f9346d6b7d1476a05c28c37/src/pbrt/bsdfs_test.cpp#L56
-	// Some changes are made to fit our style. it still computes in `double` no matter what `T` is.
+	// Some changes are made to fit our style and correct some edge cases.
+	// Currently it computes in `double` no matter what `T` is.
 
 	constexpr double epsilon = 0.000000000000001;
 	constexpr double big     = 4503599627370496.0;
@@ -57,6 +58,10 @@ inline T regularized_lower_incomplete_gamma(const T a, const T x)
 	if(x == 0)
 	{
 		return 0;
+	}
+	else if(!std::isfinite(x))
+	{
+		return 1;
 	}
 
 	double ax = (a * std::log(x)) - x - std::lgamma(a);
@@ -139,7 +144,11 @@ inline T regularized_lower_incomplete_gamma(const T a, const T x)
 template<std::floating_point T, std::integral DofType>
 inline T chi2_CDF(T x, DofType dof)
 {
-	if(dof < 1 || x < 0)
+	if(!std::isfinite(x))
+	{
+		return 1;
+	}
+	else if(dof < 1 || x < 0)
 	{
 		return 0;
 	}
