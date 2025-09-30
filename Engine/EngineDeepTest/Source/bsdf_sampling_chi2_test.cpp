@@ -178,19 +178,13 @@ inline math::TPiecewiseConstantDistribution2D<real> make_PDF_distribution(
 	const FictionalScene& scene,
 	const uint64 numSamplesPerBin,
 	const math::Vector2S& phiThetaRes,
-	const math::Vector3R& V,
-	const bool isUpperHemisphereOnly)
+	const math::Vector3R& V)
 {
 	const SurfaceHit X = make_hit(scene);
 
 	std::vector<real> sampleWeights(phiThetaRes.product(), 0.0_r);
 	for(std::size_t thetaIdx = 0; thetaIdx < phiThetaRes.y(); ++thetaIdx)
 	{
-		if(isUpperHemisphereOnly && thetaIdx < phiThetaRes.y() / 2)
-		{
-			continue;
-		}
-
 		for(std::size_t phiIdx = 0; phiIdx < phiThetaRes.x(); ++phiIdx)
 		{
 			const auto binIdx = thetaIdx * phiThetaRes.x() + phiIdx;
@@ -222,8 +216,7 @@ inline std::vector<double> make_integrated_freq_table(
 	const FictionalScene& scene,
 	const uint64 numSamplesPerBin,
 	const math::Vector2S& phiThetaRes,
-	const math::Vector3R& V,
-	const bool isUpperHemisphereOnly)
+	const math::Vector3R& V)
 {
 	const SurfaceHit X = make_hit(scene);
 
@@ -235,8 +228,7 @@ inline std::vector<double> make_integrated_freq_table(
 		scene,
 		numSamplesPerBin * expected_freq_sample_count_multiplier,// for better quality table
 		phiThetaRes * 4,                                         //
-		V,
-		isUpperHemisphereOnly);
+		V);
 
 	std::vector<double> freqTable(phiThetaRes.product(), 0.0);
 	std::vector<double> funcSampleSum(phiThetaRes.product(), 0.0);
@@ -454,7 +446,7 @@ inline void test_bsdf(
 	const std::string& testName,
 	std::unique_ptr<SurfaceOptics> targetOptics,
 	const uint64 numSamples,
-	const bool isUpperHemisphereOnly)
+	const bool viewFromUpperHemisphereOnly)
 {
 	FictionalScene scene = make_scene(std::move(targetOptics));
 
@@ -463,7 +455,7 @@ inline void test_bsdf(
 
 	for(std::size_t ti = 0; ti < num_chi2_tests_per_suite; ++ti)
 	{
-		math::Vector3R V = isUpperHemisphereOnly
+		math::Vector3R V = viewFromUpperHemisphereOnly
 			? math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(math::Random::sampleND<2>())
 			: math::TSphere<real>::makeUnit().sampleToSurfaceAbsCosThetaWeighted(math::Random::sampleND<2>());
 		V.normalizeLocal();
@@ -478,8 +470,7 @@ inline void test_bsdf(
 			scene,
 			numSamples,
 			{phi_res, theta_res},
-			V,
-			isUpperHemisphereOnly);
+			V);
 
 		std::vector<std::size_t> poolingBuffer(freqTable.size());
 		const auto [x, dof] = math::chi2<double, std::size_t>(
