@@ -25,14 +25,19 @@ the expected frequencies.
 #include <Engine/Core/Intersection/PTriangle.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
 #include <Engine/Core/Intersection/TMetaInjectionPrimitive.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
-#include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
-#include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
 #include <Engine/Core/Texture/constant_textures.h>
 #include <Engine/ph_core.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
 #include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
+
+// Optics to test
+#include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
+#include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
+#include <Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h>
+#include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 
 #include <gtest/gtest.h>
 
@@ -50,9 +55,15 @@ namespace
 
 inline constexpr auto significance_level = 0.01;
 inline constexpr auto num_chi2_tests_per_suite = 1;
+
+// Bins used for theta and phi axes
 inline constexpr auto theta_res = 90;
 inline constexpr auto phi_res = theta_res * 2;
+
+// Extra computation spent on making better expected frequency
 inline constexpr auto expected_freq_sample_count_multiplier = 16;
+
+inline constexpr bool report_accepted_tests = true;
 
 struct FictionalScene
 {
@@ -275,8 +286,9 @@ inline std::vector<double> make_integrated_freq_table(
 }
 
 inline void write_report(
-	const std::string& testName,
-	const std::string& testInfo,
+	const std::string& reportName,
+	const std::string& plotTitle,
+	const std::string& plotInfo,
 	const std::vector<double>& observedFreq,
 	const std::vector<double>& expectedFreq)
 {
@@ -285,8 +297,9 @@ inline void write_report(
 	const Path reportDir = get_intermediate_directory(EEngineProject::EngineDeepTest) / "bsdf_sampling_chi2";
 	Filesystem::createDirectories(reportDir);
 
-	FormattedTextOutputStream out(reportDir / (testName + ".html"));
+	FormattedTextOutputStream out{reportDir / (reportName + ".html")};
 
+	// Use plotly.js for interactive plots
 	out.writeString(R"(
 <!doctype html>
 <html lang="en">
@@ -297,7 +310,7 @@ inline void write_report(
 <body>
 <div id="heatmap" style="width:95vw; height:95vh;"></div>
 <script>
-)", testInfo);
+)", reportName);
 
 	out.writeString("const W = {};\n", phi_res);
 	out.writeString("const H = {};\n", theta_res);
@@ -310,7 +323,7 @@ inline void write_report(
 			str += "\t[";
 			for(std::size_t x = 0; x < phi_res; ++x)
 			{
-				auto idx = static_cast<std::size_t>(y) * phi_res + x;
+				auto idx = y * phi_res + x;
 				str += std::to_string(data[idx]);
 				if(x != phi_res - 1)
 				{
@@ -397,8 +410,8 @@ const data =
 
 const layout = 
 {{
-	title: {{ text: '{}', x: 0.5 }},
-	margin: {{ t: 140, b: 60, l: 60, r: 140 }},
+	title: {{ text: '{}<br><sub>{}</sub>', x: 0.5 }},
+	margin: {{ t: 160, b: 60, l: 60, r: 140 }},
 	yaxis: {{ scaleanchor: 'x' }},
 	updatemenus: [
 		{{
@@ -432,12 +445,13 @@ const layout =
 }};
 
 Plotly.newPlot('heatmap', data, layout);
-)", robustLegendMax, robustLegendMax, testInfo);
+)", robustLegendMax, robustLegendMax, plotTitle, plotInfo);
 
 	out.writeString("</script>\n</body></html>");
 }
 
 inline void test_bsdf(
+	const std::string& testName,
 	std::unique_ptr<SurfaceOptics> targetOptics,
 	const uint64 numSamples,
 	const bool isUpperHemisphereOnly)
@@ -476,32 +490,36 @@ inline void test_bsdf(
 		const double pValue = math::chi2_p_value(x, dof);
 		const double alpha = math::sidak_correction(significance_level, num_chi2_tests_per_suite);
 		
-		std::string testInfo;
+		bool isAccepted = false;
+		bool needReport = false;
 		if(pValue < alpha || !std::isfinite(pValue) || !std::isfinite(alpha))
 		{
-			testInfo += "Rejected H0";
+			isAccepted = false;
+			needReport = true;
 		}
 		else
 		{
-			testInfo += "Accepted H0";
+			isAccepted = true;
+			needReport = false;
 		}
-		testInfo += std::format(
-			" (p={}, significance={}, chi^2={}, DoF={}, SPP={})",
-			pValue, alpha, x, dof, numSamples);
+		needReport = needReport || report_accepted_tests;
 
-		write_report(
-			"ttt",
-			testInfo,
-			freqTable,
-			integratedFreqTable);
+		if(needReport)
+		{
+			std::string testInfo = std::format(
+				"p={}, significance={}, chi^2={}, DoF={}, SPP={}, V={}",
+				pValue, alpha, x, dof, numSamples, V);
 
-		// TODO: write test report
-		// TODO
+			write_report(
+				testName + "_" + std::to_string(ti),
+				testName + " (" + (isAccepted ? "Accepted H0" : "Rejected H0") + ")",
+				testInfo,
+				freqTable,
+				integratedFreqTable);
+		}
+
+		EXPECT_TRUE(isAccepted);
 	}
-
-	// TODO
-
-	//return result;
 }
 
 }// end namespace
@@ -509,8 +527,20 @@ inline void test_bsdf(
 TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 {
 	test_bsdf(
+		"ConstantLambertianReflector",
 		std::make_unique<LambertianReflector>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})),
+		16,
+		true);
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorReflector)
+{
+	test_bsdf(
+		"ConstantGgxSchlickConductorReflector r=0p5",
+		std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
+			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
 		16,
 		true);
 }
