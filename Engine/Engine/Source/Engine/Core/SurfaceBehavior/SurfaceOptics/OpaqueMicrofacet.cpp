@@ -110,6 +110,14 @@ void OpaqueMicrofacet::genElementalBsdfSample(
 
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalize();
 
+	// Ensure L & V lies on the same side of the surface. L going under the surface means it may
+	// need a second microfacet bounce to go back up, which is not supported by this model.
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
+	{
+		out.setContributability(false);
+		return;
+	}
+
 	const real NoV = N.dot(in.getV());
 	const real HoL = H.dot(L);
 	const real dotTerms = std::abs(HoL / NoV);

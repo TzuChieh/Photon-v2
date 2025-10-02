@@ -525,13 +525,35 @@ TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 		true);
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorReflector)
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorSmoothReflector)
 {
 	test_bsdf(
-		"ConstantGgxSchlickConductorReflector r=0p5",
+		"ConstantGgxSchlickConductorSmoothReflector",
+		std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
+			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
+		16,
+		true);
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorGlossyReflector)
+{
+	test_bsdf(
+		"ConstantGgxSchlickConductorGlossyReflector",
 		std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
+		16,
+		true);
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRoughReflector)
+{
+	test_bsdf(
+		"ConstantGgxSchlickConductorRoughReflector",
+		std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
+			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
 		16,
 		true);
 }
