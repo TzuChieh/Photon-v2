@@ -50,7 +50,10 @@ public:
 		clazz.addField(albedo);
 
 		TSdlReference<Image, OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
-		sigmaDegrees.description("Roughness in standard deviation of surface orientation (unit: degrees).");
+		sigmaDegrees.description(
+			"Roughness in standard deviation of surface orientation (unit: degrees). "
+			"If the sigma is 0, it is equivalent to Lambertian diffuse as all facets are on the "
+			"same macrosurface plane.");
 		sigmaDegrees.optional();
 		clazz.addField(sigmaDegrees);
 

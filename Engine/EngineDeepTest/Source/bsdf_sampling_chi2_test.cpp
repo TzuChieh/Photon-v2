@@ -38,6 +38,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 
@@ -71,6 +72,14 @@ struct FictionalScene
 {
 	std::unique_ptr<Primitive> unitObj;
 	std::unique_ptr<SurfaceOptics> optics;
+};
+
+struct BsdfTestInput
+{
+	std::string testName = "";
+	std::unique_ptr<SurfaceOptics> targetOptics;
+	uint64 numSamples = 16;
+	bool viewFromUpperHemisphereOnly = true;
 };
 
 inline FictionalScene make_scene(std::unique_ptr<SurfaceOptics> targetOptics)
@@ -494,33 +503,29 @@ buttons.forEach((label, i) => {{
 	out.writeString("</script>\n</body></html>");
 }
 
-inline void test_bsdf(
-	const std::string& testName,
-	std::unique_ptr<SurfaceOptics> targetOptics,
-	const uint64 numSamples,
-	const bool viewFromUpperHemisphereOnly)
+inline void test_bsdf(BsdfTestInput p)
 {
-	FictionalScene scene = make_scene(std::move(targetOptics));
+	FictionalScene scene = make_scene(std::move(p.targetOptics));
 
 	const bool isDelta = scene.optics->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
 	PH_ASSERT(!isDelta);
 
 	for(std::size_t ti = 0; ti < num_chi2_tests_per_suite; ++ti)
 	{
-		math::Vector3R V = viewFromUpperHemisphereOnly
+		math::Vector3R V = p.viewFromUpperHemisphereOnly
 			? math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(math::Random::sampleND<2>())
 			: math::TSphere<real>::makeUnit().sampleToSurfaceAbsCosThetaWeighted(math::Random::sampleND<2>());
 		V.normalizeLocal();
 
 		const std::vector<double> freqTable = make_freq_table(
 			scene,
-			numSamples,
+			p.numSamples,
 			{phi_res, theta_res},
 			V);
 
 		const std::vector<double> integratedFreqTable = make_integrated_freq_table(
 			scene,
-			numSamples,
+			p.numSamples,
 			{phi_res, theta_res},
 			V);
 
@@ -528,7 +533,7 @@ inline void test_bsdf(
 		const auto [x, dof] = math::chi2<double, std::size_t>(
 			freqTable,
 			integratedFreqTable,
-			1e-5 * numSamples * phi_res * theta_res,// small freq tolerance
+			1e-5 * p.numSamples * phi_res * theta_res,// small freq tolerance
 			poolingBuffer);
 		const double pValue = math::chi2_p_value(x, dof);
 		const double alpha = math::sidak_correction(significance_level, num_chi2_tests_per_suite);
@@ -551,11 +556,11 @@ inline void test_bsdf(
 		{
 			std::string testInfo = std::format(
 				"p={}, significance={}, chi^2={}, DoF={}, SPP={}, V={}",
-				pValue, alpha, x, dof, numSamples, V);
+				pValue, alpha, x, dof, p.numSamples, V);
 
 			write_report(
-				testName + "_" + std::to_string(ti),
-				testName + " (" + (isAccepted ? "Accepted H0" : "Rejected H0") + ")",
+				p.testName + "_" + std::to_string(ti),
+				p.testName + " (" + (isAccepted ? "Accepted H0" : "Rejected H0") + ")",
 				testInfo,
 				freqTable,
 				integratedFreqTable);
@@ -569,65 +574,164 @@ inline void test_bsdf(
 
 TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 {
-	test_bsdf(
-		"ConstantLambertianReflector",
-		std::make_unique<LambertianReflector>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantLambertianReflector",
+		.targetOptics = std::make_unique<LambertianReflector>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})),
-		16,
-		true);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
 }
 
 TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorSmoothReflector)
 {
-	test_bsdf(
-		"ConstantGgxSchlickConductorSmoothReflector",
-		std::make_unique<OpaqueMicrofacet>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickConductorSmoothReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
-		16,
-		true);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
 }
 
 TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorGlossyReflector)
 {
-	test_bsdf(
-		"ConstantGgxSchlickConductorGlossyReflector",
-		std::make_unique<OpaqueMicrofacet>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickConductorGlossyReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
-		16,
-		true);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
 }
 
 TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRoughReflector)
 {
-	test_bsdf(
-		"ConstantGgxSchlickConductorRoughReflector",
-		std::make_unique<OpaqueMicrofacet>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickConductorRoughReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
-		16,
-		true);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
 }
 
 TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRougherReflector)
 {
-	test_bsdf(
-		"ConstantGgxSchlickConductorRougherReflector",
-		std::make_unique<OpaqueMicrofacet>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickConductorRougherReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
-		16,
-		true);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickSmoothDielectric)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickSmoothDielectric",
+		.targetOptics = std::make_unique<TranslucentMicrofacet>(
+			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = false
+	};
+
+	test_bsdf(std::move(p));
 }
 
 TEST(BsdfSamplingChi2Test, ConstantGgxSchlickGlossyDielectric)
 {
-	test_bsdf(
-		"ConstantGgxSchlickGlossyDielectric",
-		std::make_unique<TranslucentMicrofacet>(
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickGlossyDielectric",
+		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
-		16,
-		false);
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = false
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRoughDielectric)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickRoughDielectric",
+		.targetOptics = std::make_unique<TranslucentMicrofacet>(
+			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = false
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRougherDielectric)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantGgxSchlickRougherDielectric",
+		.targetOptics = std::make_unique<TranslucentMicrofacet>(
+			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = false
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, ConstantOrenNayarZeroSigma)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantOrenNayarZeroSigma",
+		.targetOptics = std::make_unique<OrenNayar>(
+			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
+			0.0_r),// 0 sigma is effectively Lambertian
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, ConstantOrenNayar60Degrees)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantOrenNayar60Degrees",
+		.targetOptics = std::make_unique<OrenNayar>(
+			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
+			60.0_r),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
 }
