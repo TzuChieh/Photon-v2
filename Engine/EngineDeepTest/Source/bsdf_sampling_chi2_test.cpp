@@ -35,9 +35,11 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
 #include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h>
+#include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 
 #include <gtest/gtest.h>
 
@@ -291,18 +293,59 @@ inline void write_report(
 
 	FormattedTextOutputStream out{reportDir / (reportName + ".html")};
 
-	// Use plotly.js for interactive plots
-	out.writeString(R"(
+	// Use plotly.js for interactive plots, with buttons for mode switching
+	out.writeString(R"html(
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8">
 <title>{}</title>
 <script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
+<style>
+	body {{
+		margin: 0;
+		background-color: #111;
+		color: #eee;
+		font-family: "Segoe UI", Roboto, sans-serif;
+		text-align: center;
+	}}
+	#button-bar {{
+		margin: 12px 0;
+	}}
+	#button-bar button {{
+		padding: 8px 18px;
+		margin: 0 8px;
+		font-size: 15px;
+		cursor: pointer;
+		border: 1px solid #444;
+		border-radius: 6px;
+		background: #222;
+		color: #aaa;
+		transition: all 0.2s ease;
+	}}
+	#button-bar button:hover {{
+		background: #333;
+		color: #fff;
+	}}
+	#button-bar button.active {{
+		background: #06a;
+		color: #fff;
+		border-color: #06a;
+	}}
+	#heatmap {{
+		width: 95vw;
+		height: 88vh;
+		margin: auto;
+		border-radius: 8px;
+		box-shadow: 0 0 16px rgba(0,0,0,0.6);
+		background: #111;
+	}}
+</style>
 </head>
 <body>
-<div id="heatmap" style="width:95vw; height:95vh;"></div>
+<div id="button-bar"></div>
+<div id="heatmap"></div>
 <script>
-)", reportName);
+)html", reportName);
 
 	out.writeString("const W = {};\n", phi_res);
 	out.writeString("const H = {};\n", theta_res);
@@ -354,7 +397,7 @@ inline void write_report(
 	out.writeString("const diff = observed.map((row,y)=>row.map((v,x)=>v-expected[y][x]));\n");
 
 	// JS code for subplots
-	out.writeString(R"(
+	out.writeString(R"html(
 // Compute max absolute value for diff
 let maxAbs = 0;
 for (let y = 0; y < H; ++y)
@@ -376,7 +419,8 @@ const data =
 		zmin: 0,
 		zmax: {},  // robustMax
 		visible: true,
-		colorbar: {{ x: 1.02, y: 0.5 }}
+		colorbar: {{ x: 1.02, y: 0.5 }},
+		hovertemplate: '<span style="font-family: monospace">x     = %{{x}}<br>y     = %{{y}}<br>value = %{{z}}</span><extra></extra>'
 	}},
 	{{
 		name: 'Expected',
@@ -386,7 +430,8 @@ const data =
 		zmin: 0,
 		zmax: {},  // robustMax
 		visible: false,
-		colorbar: {{ x: 1.02, y: 0.5 }}
+		colorbar: {{ x: 1.02, y: 0.5 }},
+		hovertemplate: '<span style="font-family: monospace">x     = %{{x}}<br>y     = %{{y}}<br>value = %{{z}}</span><extra></extra>'
 	}},
 	{{
 		name: 'Diff',
@@ -396,48 +441,55 @@ const data =
 		zmin: -maxAbs,
 		zmax: maxAbs,
 		visible: false,
-		colorbar: {{ x: 1.02, y: 0.5 }}
+		colorbar: {{ x: 1.02, y: 0.5 }},
+		hovertemplate: '<span style="font-family: monospace">x     = %{{x}}<br>y     = %{{y}}<br>value = %{{z}}</span><extra></extra>'
 	}}
 ];
 
 const layout = 
 {{
 	title: {{ text: '{}<br><sub>{}</sub>', x: 0.5 }},
-	margin: {{ t: 160, b: 60, l: 60, r: 140 }},
-	yaxis: {{ scaleanchor: 'x' }},
-	updatemenus: [
-		{{
-			type: 'buttons',
-			x: 0.5,
-			y: 1.08,  // below title
-			xanchor: 'center',
-			yanchor: 'top',
-			showactive: true,
-			direction: 'left',
-			pad: {{ l: 10, r: 10, t: 10, b: 10 }},
-			buttons: [
-				{{
-					label: 'Observed',
-					method: 'update',
-					args: [{{ visible: [true, false, false] }}]
-				}},
-				{{
-					label: 'Expected',
-					method: 'update',
-					args: [{{ visible: [false, true, false] }}]
-				}},
-				{{
-					label: 'Diff',
-					method: 'update',
-					args: [{{ visible: [false, false, true] }}]
-				}}
-			]
-		}}
-	]
+	margin: {{ t: 160, b: 80, l: 80, r: 140 }},
+	xaxis: {{
+		title: 'Phi Index',
+		type: 'linear',
+		automargin: true,
+		scaleanchor: 'y'
+	}},
+	yaxis: {{
+		title: 'Theta Index',
+		type: 'linear',
+		automargin: true,
+		scaleanchor: 'x'
+	}}
 }};
 
 Plotly.newPlot('heatmap', data, layout);
-)", robustLegendMax, robustLegendMax, plotTitle, plotInfo);
+
+// === Custom button bar ===
+const buttons = ['Observed', 'Expected', 'Diff'];
+let active = 0;
+const buttonBar = document.getElementById('button-bar');
+
+buttons.forEach((label, i) => {{
+	const btn = document.createElement('button');
+	btn.textContent = label;
+	if (i === active) btn.classList.add('active');
+	btn.onclick = () => {{
+		// Update visibility
+		const vis = [false, false, false];
+		vis[i] = true;
+		Plotly.restyle('heatmap', {{ visible: vis }});
+
+		// Update button styles
+		Array.from(buttonBar.children).forEach((b, j) => {{
+			b.classList.toggle('active', j === i);
+		}});
+		active = i;
+	}};
+	buttonBar.appendChild(btn);
+}});
+)html", robustLegendMax, robustLegendMax, plotTitle, plotInfo);
 
 	out.writeString("</script>\n</body></html>");
 }
@@ -556,4 +608,26 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRoughReflector)
 			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
 		16,
 		true);
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRougherReflector)
+{
+	test_bsdf(
+		"ConstantGgxSchlickConductorRougherReflector",
+		std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
+			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
+		16,
+		true);
+}
+
+TEST(BsdfSamplingChi2Test, ConstantGgxSchlickGlossyDielectric)
+{
+	test_bsdf(
+		"ConstantGgxSchlickGlossyDielectric",
+		std::make_unique<TranslucentMicrofacet>(
+			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
+		16,
+		false);
 }

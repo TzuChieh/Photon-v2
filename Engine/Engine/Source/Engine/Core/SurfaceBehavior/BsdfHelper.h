@@ -12,7 +12,8 @@ class BsdfHelper final
 {
 public:
 	static inline bool makeHalfVector(
-		const math::Vector3R& L, const math::Vector3R& V,
+		const math::Vector3R& L,
+		const math::Vector3R& V,
 		math::Vector3R* const out_H)
 	{
 		PH_ASSERT(out_H);
@@ -29,13 +30,64 @@ public:
 		}
 	}
 
+	static inline bool makeGeneralizedHalfVector(
+		const math::Vector3R& L,
+		const real etaL,
+		const math::Vector3R& V,
+		const real etaV,
+		math::Vector3R* const out_H)
+	{
+		PH_ASSERT(out_H);
+
+		// For the case of refraction, H will point into the medium with higher IoR
+		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
+		*out_H = L.mul(etaL).add(V.mul(etaV));
+
+		if(out_H->isZero())
+		{
+			return false;
+		}
+		else
+		{
+			out_H->normalizeLocal();
+			return true;
+		}
+	}
+
+	/*!
+	@return `false` if the half vector or hemisphere cannot be determined (e.g., `L == -V` or `N.dot(H) == 0`).
+	*/
 	static inline bool makeHalfVectorSameHemisphere(
-		const math::Vector3R& L, const math::Vector3R& V, const math::Vector3R& N,
+		const math::Vector3R& L,
+		const math::Vector3R& V,
+		const math::Vector3R& N,
 		math::Vector3R* const out_H)
 	{
 		PH_ASSERT(out_H);
 
 		if(!makeHalfVector(L, V, out_H))
+		{
+			return false;
+		}
+
+		out_H->mulLocal(static_cast<real>(math::sign(N.dot(*out_H))));
+		return !out_H->isZero();
+	}
+
+	/*!
+	@return `false` if the half vector or hemisphere cannot be determined (e.g., `L == -V` or `N.dot(H) == 0`).
+	*/
+	static inline bool makeGeneralizedHalfVectorSameHemisphere(
+		const math::Vector3R& L,
+		const real etaL,
+		const math::Vector3R& V,
+		const real etaV,
+		const math::Vector3R& N,
+		math::Vector3R* const out_H)
+	{
+		PH_ASSERT(out_H);
+
+		if(!makeGeneralizedHalfVector(L, etaL, V, etaV, out_H))
 		{
 			return false;
 		}

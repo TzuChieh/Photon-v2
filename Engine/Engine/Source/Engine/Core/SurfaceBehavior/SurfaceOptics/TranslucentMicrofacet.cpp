@@ -109,23 +109,16 @@ void TranslucentMicrofacet::calcElementalBsdf(
 			std::swap(etaI, etaT);
 		}
 
-		// H should be on the same hemisphere as N
-		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
-		if(H.isZero())
+		math::Vector3R H;
+		if(!BsdfHelper::makeGeneralizedHalfVectorSameHemisphere(in.getL(), etaI, in.getV(), etaT, N, &H))
 		{
 			out.setContributability(false);
 			return;
 		}
-		H.normalizeLocal();
-		if(N.dot(H) < 0.0_r)
-		{
-			H.mulLocal(-1.0_r);
-		}
 
 		const real HoV = H.dot(in.getV());
-		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.getL());
-
+		const real NoH = N.dot(H);
 		const math::Spectrum F = m_fresnel->calcTransmittance(HoL);
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
@@ -319,32 +312,31 @@ void TranslucentMicrofacet::calcElementalBsdfPdf(
 			std::swap(etaI, etaT);
 		}
 
-		// Here H will point into the medium with lower IoR
-		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
-		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
-		if(H.isZero())
+		math::Vector3R H;
+		if(!BsdfHelper::makeGeneralizedHalfVectorSameHemisphere(in.getL(), etaI, in.getV(), etaT, N, &H))
 		{
 			out.setSampleDirPdf({});
 			return;
 		}
-		H.normalizeLocal();
-
-		// Make H in N's hemisphere
-		if(N.dot(H) < 0.0_r)
-		{
-			H.mulLocal(-1.0_r);
-		}
 
 		const real HoV = H.dot(in.getV());
 		const real HoL = H.dot(in.getL());
+
+		// For refraction, the hemispheres of L and V are opposite w.r.t. N, so does H; otherwise,
+		// we encountered backfacing microfacet and such case is invalid. This kind of microfacet
+		// sidedness agreement is tested in `Microfacet::geometry()` but that term is not included
+		// in the PDF, so we have to test it here.
+		if(HoL * NoL <= 0.0_r || HoV * NoV <= 0.0_r)
+		{
+			out.setSampleDirPdf({});
+			return;
+		}
+
 		const real iorTerm = etaI * HoL + etaT * HoV;
 		const real multiplier = std::abs(etaI * etaI * HoL) / (iorTerm * iorTerm);
-
 		const math::Spectrum F = m_fresnel->calcReflectance(HoL);
 		const real refractProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
-			? 1.0_r - getReflectionProbability(F)
-			: 1.0_r;
-
+			? 1.0_r - getReflectionProbability(F) : 1.0_r;
 		const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
