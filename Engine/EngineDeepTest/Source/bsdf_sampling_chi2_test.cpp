@@ -35,12 +35,15 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
 #include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h>
+#include <Engine/Core/SurfaceBehavior/Property/ExactConductorFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
+#include <Engine/Core/SurfaceBehavior/Property/IsoBeckmann.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
 
 #include <gtest/gtest.h>
 
@@ -706,6 +709,25 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRougherDielectric)
 	test_bsdf(std::move(p));
 }
 
+TEST(BsdfSamplingChi2Test, ConstantBeckmannExactConductorRoughReflector)
+{
+	BsdfTestInput p
+	{
+		.testName = "ConstantBeckmannExactConductorRoughReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<ExactConductorFresnel>(
+				1.0_r,
+				// Aluminum complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
+				math::Spectrum{}.setLinearSRGB({1.34560_r, 0.96521_r, 0.61722_r}, math::EColorUsage::Raw),
+				math::Spectrum{}.setLinearSRGB({7.47460_r, 6.39950_r, 5.30310_r}, math::EColorUsage::Raw)),
+			std::make_shared<IsoBeckmann>(0.4_r, EMaskingShadowing::Separable)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
 TEST(BsdfSamplingChi2Test, ConstantOrenNayarZeroSigma)
 {
 	BsdfTestInput p
@@ -735,3 +757,32 @@ TEST(BsdfSamplingChi2Test, ConstantOrenNayar60Degrees)
 
 	test_bsdf(std::move(p));
 }
+
+TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
+{
+	const auto diffuse = std::make_unique<LambertianReflector>(
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.3_r}));
+	const auto glossy = std::make_unique<OpaqueMicrofacet>(
+		std::make_shared<ExactConductorFresnel>(
+			1.0_r,
+			// Gold complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
+			math::Spectrum{}.setLinearSRGB({0.18299_r, 0.42108_r, 1.37340_r}, math::EColorUsage::Raw),
+			math::Spectrum{}.setLinearSRGB({3.42420_r, 2.34590_r, 1.77040_r}, math::EColorUsage::Raw)),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HeightDirectionCorrelated));
+
+	BsdfTestInput p
+	{
+		.testName = "LerpedDiffuseAndGlossyReflector",
+		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+			diffuse.get(),
+			glossy.get()),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+// TODO: lerped reflector + dielectric
+// TODO: lerped dielectric + dielectric
+// TODO: lerp with delta?
