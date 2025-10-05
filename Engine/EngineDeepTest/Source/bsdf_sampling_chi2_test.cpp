@@ -44,6 +44,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
 
 #include <gtest/gtest.h>
 
@@ -783,6 +784,67 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 	test_bsdf(std::move(p));
 }
 
+TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
+{
+	// Layered parameters from Laurent Belcour's paper
+	// "Efficient rendering of layered materials using an atomic decomposition with statistical operators"
+	// https://dl.acm.org/doi/10.1145/3197517.3201289
+
+	BsdfTestInput p
+	{
+		.testName = "LaurentBelcourLayeredSurfaceReflector",
+		.targetOptics = std::make_unique<LbLayeredSurface>(
+			// IoR N
+			std::vector<math::Spectrum>
+			{
+				math::Spectrum{}.setLinearSRGB({1.4_r, 1.4_r, 1.4_r}, math::EColorUsage::Raw),
+				math::Spectrum{}.setLinearSRGB({1.0_r, 1.0_r, 1.0_r}, math::EColorUsage::Raw)
+			},
+			// IoR K
+			std::vector<math::Spectrum>
+			{
+				math::Spectrum{}.setLinearSRGB({0.0_r, 0.0_r, 0.0_r}, math::EColorUsage::Raw),
+				math::Spectrum{}.setLinearSRGB({0.8_r, 0.9_r, 0.6_r}, math::EColorUsage::Raw)
+			},
+			// alpha
+			std::vector<real>
+			{
+				0.01_r,
+				0.1_r
+			},
+			// depth
+			std::vector<real>
+			{
+				0.0_r,
+				0.0_r
+			},
+			// phase function g
+			std::vector<real>
+			{
+				0.0_r,
+				0.0_r
+			},
+			// sigma A
+			std::vector<math::Spectrum>
+			{
+				math::Spectrum{},
+				math::Spectrum{}
+			},
+			// sigma S
+			std::vector<math::Spectrum>
+			{
+				math::Spectrum{},
+				math::Spectrum{}
+			}),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
 // TODO: lerped reflector + dielectric
 // TODO: lerped dielectric + dielectric
 // TODO: lerp with delta?
+// TODO: custom context like selected phenomena
+// TODO: BSDF/PDF should == BSDF sample weight
