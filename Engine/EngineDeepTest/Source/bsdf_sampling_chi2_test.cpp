@@ -20,7 +20,8 @@ the expected frequencies.
 #include <Engine/Math/statistics.h>
 #include <Engine/Math/Random/Random.h>
 #include <Engine/Math/Function/Distribution/TPiecewiseConstantDistribution2D.h>
-#include <Engine/Core/SampleGenerator/SGStratified.h>
+#include <Engine/Core/SampleGenerator/SGUniformRandom.h>
+#include <Engine/Core/SampleGenerator/SGHalton.h>
 #include <Engine/Core/SurfaceHit.h>
 #include <Engine/Core/Intersection/PTriangle.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
@@ -39,6 +40,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoBeckmann.h>
+#include <Engine/Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
@@ -67,8 +69,9 @@ inline constexpr auto num_chi2_tests_per_suite = 1;
 inline constexpr auto theta_res = 90;
 inline constexpr auto phi_res = theta_res * 2;
 
-// Extra computation spent on making better expected frequency
-inline constexpr auto expected_freq_sample_count_multiplier = 16;
+// Extra computation spent on calculating expected frequency;
+// more frequency samples need better ground truth to verify against
+inline constexpr auto expected_freq_sample_count_multiplier = 32;
 
 inline constexpr bool report_accepted_tests = true;
 
@@ -152,8 +155,7 @@ inline std::vector<double> make_freq_table(
 {
 	const SurfaceHit X = make_hit(scene);
 
-	// Stratify with table resolution
-	SGStratified sampleGen{numSamplesPerBin};
+	SGUniformRandom sampleGen{numSamplesPerBin};
 	const auto sampleHandle = sampleGen.declareStageND(2, phiThetaRes.product(), phiThetaRes.toVector());
 
 	std::vector<double> freqTable(phiThetaRes.product(), 0.0);
@@ -235,8 +237,10 @@ inline std::vector<double> make_integrated_freq_table(
 {
 	const SurfaceHit X = make_hit(scene);
 
-	// Stratify with table resolution
-	SGStratified sampleGen{numSamplesPerBin * expected_freq_sample_count_multiplier};
+	SGHalton sampleGen{
+		numSamplesPerBin * expected_freq_sample_count_multiplier,
+		EHaltonPermutation::Owen,
+		EHaltonSequence::Original};
 	const auto sampleHandle = sampleGen.declareStageND(2, phiThetaRes.product(), phiThetaRes.toVector());
 
 	const math::TPiecewiseConstantDistribution2D<real> funcDistribution = make_PDF_distribution(
@@ -576,11 +580,11 @@ inline void test_bsdf(BsdfTestInput p)
 
 }// end namespace
 
-TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
+TEST(BsdfSamplingChi2Test, LambertianReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantLambertianReflector",
+		.testName = "LambertianReflector",
 		.targetOptics = std::make_unique<LambertianReflector>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.6_r})),
 		.numSamples = 16,
@@ -590,11 +594,11 @@ TEST(BsdfSamplingChi2Test, ConstantLambertianReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorSmoothReflector)
+TEST(BsdfSamplingChi2Test, GgxSchlickConductorSmoothReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickConductorSmoothReflector",
+		.testName = "GgxSchlickConductorSmoothReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
@@ -605,11 +609,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorSmoothReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorGlossyReflector)
+TEST(BsdfSamplingChi2Test, GgxSchlickConductorGlossyReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickConductorGlossyReflector",
+		.testName = "GgxSchlickConductorGlossyReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
@@ -620,11 +624,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorGlossyReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRoughReflector)
+TEST(BsdfSamplingChi2Test, GgxSchlickConductorRoughReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickConductorRoughReflector",
+		.testName = "GgxSchlickConductorRoughReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
@@ -635,11 +639,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRoughReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRougherReflector)
+TEST(BsdfSamplingChi2Test, GgxSchlickConductorRougherReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickConductorRougherReflector",
+		.testName = "GgxSchlickConductorRougherReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
 			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
@@ -650,11 +654,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickConductorRougherReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickSmoothDielectric)
+TEST(BsdfSamplingChi2Test, GgxSchlickSmoothDielectric)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickSmoothDielectric",
+		.testName = "GgxSchlickSmoothDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
@@ -665,11 +669,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickSmoothDielectric)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickGlossyDielectric)
+TEST(BsdfSamplingChi2Test, GgxSchlickGlossyDielectric)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickGlossyDielectric",
+		.testName = "GgxSchlickGlossyDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
 			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
@@ -680,11 +684,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickGlossyDielectric)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRoughDielectric)
+TEST(BsdfSamplingChi2Test, GgxSchlickRoughDielectric)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickRoughDielectric",
+		.testName = "GgxSchlickRoughDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
 			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
@@ -695,11 +699,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRoughDielectric)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRougherDielectric)
+TEST(BsdfSamplingChi2Test, GgxSchlickRougherDielectric)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantGgxSchlickRougherDielectric",
+		.testName = "GgxSchlickRougherDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
 			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
@@ -710,11 +714,11 @@ TEST(BsdfSamplingChi2Test, ConstantGgxSchlickRougherDielectric)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantBeckmannExactConductorRoughReflector)
+TEST(BsdfSamplingChi2Test, BeckmannExactConductorRoughReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantBeckmannExactConductorRoughReflector",
+		.testName = "BeckmannExactConductorRoughReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
 			std::make_shared<ExactConductorFresnel>(
 				1.0_r,
@@ -729,11 +733,30 @@ TEST(BsdfSamplingChi2Test, ConstantBeckmannExactConductorRoughReflector)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantOrenNayarZeroSigma)
+TEST(BsdfSamplingChi2Test, AnisoGgxExactConductorRoughReflector)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantOrenNayarZeroSigma",
+		.testName = "AnisoGgxExactConductorRoughReflector",
+		.targetOptics = std::make_unique<OpaqueMicrofacet>(
+			std::make_shared<ExactConductorFresnel>(
+				1.33_r,
+				// Aluminum complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
+				math::Spectrum{}.setLinearSRGB({1.34560_r, 0.96521_r, 0.61722_r}, math::EColorUsage::Raw),
+				math::Spectrum{}.setLinearSRGB({7.47460_r, 6.39950_r, 5.30310_r}, math::EColorUsage::Raw)),
+			std::make_shared<AnisoTrowbridgeReitz>(0.66_r, 0.03_r, EMaskingShadowing::DirectionCorrelated)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, OrenNayarZeroSigma)
+{
+	BsdfTestInput p
+	{
+		.testName = "OrenNayarZeroSigma",
 		.targetOptics = std::make_unique<OrenNayar>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
 			0.0_r),// 0 sigma is effectively Lambertian
@@ -744,11 +767,11 @@ TEST(BsdfSamplingChi2Test, ConstantOrenNayarZeroSigma)
 	test_bsdf(std::move(p));
 }
 
-TEST(BsdfSamplingChi2Test, ConstantOrenNayar60Degrees)
+TEST(BsdfSamplingChi2Test, OrenNayar60Degrees)
 {
 	BsdfTestInput p
 	{
-		.testName = "ConstantOrenNayar60Degrees",
+		.testName = "OrenNayar60Degrees",
 		.targetOptics = std::make_unique<OrenNayar>(
 			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
 			60.0_r),
