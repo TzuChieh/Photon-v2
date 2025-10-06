@@ -299,36 +299,44 @@ void MicrofacetNormalMapper::genElementalBsdfSample(
 				// Reflect on the tangent facet
 				const auto Lt = Lp.reflect(Nt).safeNormalize(N);
 
-				weight *= G1OfTangentFacet(N, Np, Nt, Lt);
+				// Cannot exit from backface
+				if(Lt.dot(Nt) > 0)
+				{
+					weight *= G1OfTangentFacet(N, Np, Nt, Lt);
 
-				// Case i -> p -> t -> o
-				out.setL(Lt);
-				out.setPdfAppliedBsdfCos(weight, N.absDot(Lt));
+					// Case i -> p -> t -> o
+					out.setL(Lt);
+					out.setPdfAppliedBsdfCos(weight, N.absDot(Lt));
+				}
 			}
 		}
 	}
 	// Sample the tangent facet
 	else
 	{
-		// Reflect on the tangent facet (saved some negation here)
-		const auto Vp = (V).reflect(Nt).safeNormalize(N);
-
-		BsdfSampleInput perturbedIn{};
-		perturbedIn.set(perturbedX, Vp);
-
-		BsdfSampleOutput perturbedOut{};
-		m_target->genElementalBsdfSample(ctx, perturbedIn, sampleFlow, perturbedOut);
-		if(perturbedOut)
+		// Cannot enter from backface
+		if(in.getV().dot(Nt) > 0)
 		{
-			weight *= perturbedOut.getPdfAppliedBsdfCos();
+			// Reflect on the tangent facet (saved some negation here)
+			const auto Vp = (V).reflect(Nt).safeNormalize(N);
 
-			const auto Lp = perturbedOut.getL();
+			BsdfSampleInput perturbedIn{};
+			perturbedIn.set(perturbedX, Vp);
 
-			weight *= G1OfPerturbedFacet(N, Np, Nt, Lp);
+			BsdfSampleOutput perturbedOut{};
+			m_target->genElementalBsdfSample(ctx, perturbedIn, sampleFlow, perturbedOut);
+			if(perturbedOut)
+			{
+				weight *= perturbedOut.getPdfAppliedBsdfCos();
 
-			// Case i -> t -> p -> o
-			out.setL(Lp);
-			out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
+				const auto Lp = perturbedOut.getL();
+
+				weight *= G1OfPerturbedFacet(N, Np, Nt, Lp);
+
+				// Case i -> t -> p -> o
+				out.setL(Lp);
+				out.setPdfAppliedBsdfCos(weight, N.absDot(Lp));
+			}
 		}
 	}
 }

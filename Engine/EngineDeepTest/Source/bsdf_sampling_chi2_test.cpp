@@ -47,6 +47,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h>
 
 #include <gtest/gtest.h>
 
@@ -859,6 +860,53 @@ TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
 				math::Spectrum{},
 				math::Spectrum{}
 			}),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, IdentityMicrofacetNormalMapperWithGgx0p15Reflector)
+{
+	const auto glossy = std::make_unique<OpaqueMicrofacet>(
+		std::make_shared<ExactConductorFresnel>(1.05_r, math::Spectrum{1.45_r}, math::Spectrum{0.0_r}),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.15_r, EMaskingShadowing::HightCorrelated));
+
+	// Always point upward (OpenGL style) and compressed to [0, 1]
+	math::Vector3R zUpConstantNormalMap{0.0_r, 0.0_r, 1.0_r};
+	zUpConstantNormalMap = zUpConstantNormalMap * 0.5_r + 0.5_r;
+
+	BsdfTestInput p
+	{
+		.testName = "IdentityMicrofacetNormalMapperWithGgx0p15Reflector",
+		.targetOptics = std::make_unique<MicrofacetNormalMapper>(
+			glossy.get(),
+			std::make_shared<TConstantTexture<math::Vector3R>>(zUpConstantNormalMap)),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, MicrofacetNormalMapperWithGgx0p15Reflector)
+{
+	const auto glossy = std::make_unique<OpaqueMicrofacet>(
+		std::make_shared<ExactConductorFresnel>(1.05_r, math::Spectrum{1.45_r}, math::Spectrum{0.0_r}),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.15_r, EMaskingShadowing::HightCorrelated));
+
+	// Tilted back-leftward (OpenGL style) and compressed to [0, 1]
+	math::Vector3R tiltedConstantNormalMap{-1.0_r, -1.0_r, 1.0_r};
+	tiltedConstantNormalMap.normalizeLocal();
+	tiltedConstantNormalMap = tiltedConstantNormalMap * 0.5_r + 0.5_r;
+
+	BsdfTestInput p
+	{
+		.testName = "MicrofacetNormalMapperWithGgx0p15Reflector",
+		.targetOptics = std::make_unique<MicrofacetNormalMapper>(
+			glossy.get(),
+			std::make_shared<TConstantTexture<math::Vector3R>>(tiltedConstantNormalMap)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};

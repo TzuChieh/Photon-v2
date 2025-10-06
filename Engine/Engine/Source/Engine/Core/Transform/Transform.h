@@ -98,7 +98,7 @@ public:
 
 	/*!
 	Will only affect world-space hit info. Full hit detail will be automatically calculated if
-	the original hit detail is not full.
+	the original hit detail is full.
 	*/
 	void transform(
 		const SurfaceHit& surfaceHit,
