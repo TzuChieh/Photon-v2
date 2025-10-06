@@ -37,6 +37,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/ExactConductorFresnel.h>
+#include <Engine/Core/SurfaceBehavior/Property/ExactDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
 #include <Engine/Core/SurfaceBehavior/Property/IsoBeckmann.h>
@@ -808,6 +809,50 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 	test_bsdf(std::move(p));
 }
 
+TEST(BsdfSamplingChi2Test, LerpedDiffuseReflectorAndGlossyDielectric)
+{
+	const auto diffuse = std::make_unique<LambertianReflector>(
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
+	const auto glossy = std::make_unique<TranslucentMicrofacet>(
+		std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.3_r, EMaskingShadowing::HightCorrelated));
+
+	BsdfTestInput p
+	{
+		.testName = "LerpedDiffuseReflectorAndGlossyDielectric",
+		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+			diffuse.get(),
+			glossy.get()),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, LerpedDuoGlossyDielectric)
+{
+	const auto glossy1 = std::make_unique<TranslucentMicrofacet>(
+		std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated));
+	const auto glossy2 = std::make_unique<TranslucentMicrofacet>(
+		std::make_shared<ExactDielectricFresnel>(
+			1.0_r, 1.33_r),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HeightDirectionCorrelated));
+
+	BsdfTestInput p
+	{
+		.testName = "LerpedDuoGlossyDielectric",
+		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+			glossy1.get(),
+			glossy2.get()),
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = false
+	};
+
+	test_bsdf(std::move(p));
+}
+
 TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
 {
 	// Layered parameters from Laurent Belcour's paper
@@ -914,8 +959,5 @@ TEST(BsdfSamplingChi2Test, MicrofacetNormalMapperWithGgx0p15Reflector)
 	test_bsdf(std::move(p));
 }
 
-// TODO: lerped reflector + dielectric
-// TODO: lerped dielectric + dielectric
-// TODO: lerp with delta?
 // TODO: custom context like selected phenomena
 // TODO: BSDF/PDF should == BSDF sample weight
