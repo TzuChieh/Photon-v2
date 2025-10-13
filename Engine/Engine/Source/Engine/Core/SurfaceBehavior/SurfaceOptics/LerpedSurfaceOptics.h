@@ -17,6 +17,8 @@ namespace ph
 class LerpedSurfaceOptics : public SurfaceOptics
 {
 public:
+	/*! @brief Computes the final optics as `optics0 * 0.5 + optics1 * 0.5`.
+	*/
 	LerpedSurfaceOptics(
 		const SurfaceOptics* optics0,
 		const SurfaceOptics* optics1);

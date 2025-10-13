@@ -7,7 +7,7 @@
 
 using namespace ph;
 
-TEST(RadicalInverseTest, RadicalInverse)
+TEST(MathRadicalInverseTest, RadicalInverse)
 {
 	// Base-2 radical inverse is effectively a bit reverse plus 
 	// a power-of-two division

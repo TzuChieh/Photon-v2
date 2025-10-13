@@ -197,8 +197,8 @@ public:
 		// Equality
 		bool operator == (const ElementalIterator& rhs) const
 		{
-			// It's user's responsibility to not mix different target phenomena
-			PH_ASSERT(m_target == rhs.m_target);
+			// It's user's responsibility to not mix different target phenomena (but allow empty for shared end)
+			PH_ASSERT(m_target == rhs.m_target || rhs.m_target == SurfacePhenomena{});
 
 			return m_current.elemental == rhs.m_current.elemental && m_optics == rhs.m_optics;
 		}

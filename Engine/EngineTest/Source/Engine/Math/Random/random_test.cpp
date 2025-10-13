@@ -7,7 +7,7 @@ using namespace ph::math;
 
 // TODO: seed with time or other data
 
-TEST(RandomNumberTest, GeneratesRealNumberInExpectedRange)
+TEST(MathRandomTest, GeneratesRealNumberInExpectedRange)
 {
 	for(std::size_t i = 0; i < 512; i++)
 	{
@@ -16,7 +16,7 @@ TEST(RandomNumberTest, GeneratesRealNumberInExpectedRange)
 	}
 }
 
-TEST(RandomNumberTest, GeneratesIndexInExpectedRange)
+TEST(MathRandomTest, GeneratesIndexInExpectedRange)
 {
 	const std::size_t lowerBound = 1234;
 	const std::size_t upperBound = 765432;

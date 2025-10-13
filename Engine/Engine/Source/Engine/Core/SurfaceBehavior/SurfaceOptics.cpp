@@ -217,7 +217,7 @@ std::optional<SurfaceElemental> SurfaceOptics::selectElementalFromKey(
 				return std::nullopt;
 			}
 		},
-		[sample = ctx.key.getValueAsSample()](real probability) mutable
+		[sample = ctx.key.getValueAsSample()](const real probability) mutable
 		{
 			return math::reused_pick(probability, sample);
 		},

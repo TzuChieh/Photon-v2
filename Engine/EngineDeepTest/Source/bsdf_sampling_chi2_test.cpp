@@ -80,23 +80,46 @@ inline constexpr bool report_accepted_tests = true;
 struct FictionalScene
 {
 	std::unique_ptr<Primitive> unitObj;
-	std::unique_ptr<SurfaceOptics> optics;
+	const SurfaceOptics* optics = nullptr;
 };
 
 struct BsdfTestInput
 {
 	std::string testName = "";
+
+	// Optics to test
 	std::unique_ptr<SurfaceOptics> targetOptics;
+
+	// Optics to serve as reference, `targetOptics` will be used if null
+	std::unique_ptr<SurfaceOptics> referenceOptics;
+
 	uint64 numSamples = 16;
+
+	// Should the generated view direction be from upper hemisphere only
 	bool viewFromUpperHemisphereOnly = true;
+
+	// By default queries the full BSDF with radiance transport
+	BsdfQueryContext srcCtx =
+		[]()
+		{
+			BsdfQueryContext queryCtx{
+				ALL_SURFACE_PHENOMENA,
+				lta::ETransport::Radiance,
+				lta::ESidednessPolicy::Strict};
+
+			// Random key as each query is independent
+			queryCtx.key = BsdfKey::makeRandom();
+
+			return queryCtx;
+		}();
 };
 
-inline FictionalScene make_scene(std::unique_ptr<SurfaceOptics> targetOptics)
+inline FictionalScene make_scene(const SurfaceOptics* optics)
 {
-	PH_ASSERT(targetOptics);
+	PH_ASSERT(optics);
 
 	PrimitiveMetadata metadata;
-	metadata.surface().setOptics(targetOptics.get());
+	metadata.surface().setOptics(optics);
 
 	constexpr auto triSize = 1.0_r / 2;
 
@@ -115,7 +138,7 @@ inline FictionalScene make_scene(std::unique_ptr<SurfaceOptics> targetOptics)
 
 	FictionalScene scene;
 	scene.unitObj = std::make_unique<decltype(metaPrimitive)>(metaPrimitive);
-	scene.optics = std::move(targetOptics);
+	scene.optics = optics;
 	return scene;
 }
 
@@ -131,26 +154,14 @@ inline SurfaceHit make_hit(const FictionalScene& scene)
 	PH_ASSERT(hasHit);
 
 	SurfaceHit X{ray, probe, ESurfaceHitReason::IncidentRay};
-	PH_ASSERT(&X.getSurfaceOptics() == scene.optics.get());
+	PH_ASSERT(&X.getSurfaceOptics() == scene.optics);
 	return X;
-}
-
-inline BsdfQueryContext make_query_ctx()
-{
-	BsdfQueryContext queryCtx{
-		ALL_SURFACE_PHENOMENA,
-		lta::ETransport::Radiance,
-		lta::ESidednessPolicy::Strict};
-
-	// Random key as each query is independent
-	queryCtx.key = BsdfKey::makeRandom();
-
-	return queryCtx;
 }
 
 // Count number of sample directions in each bin
 inline std::vector<double> make_freq_table(
 	const FictionalScene& scene,
+	const BsdfQueryContext& srcCtx,
 	const uint64 numSamplesPerBin,
 	const math::Vector2S& phiThetaRes,
 	const math::Vector3R& V)
@@ -170,7 +181,8 @@ inline std::vector<double> make_freq_table(
 		{
 			auto sampleFlow = sampleStream.readSampleAsFlow();
 
-			BsdfSampleQuery bsdfSample{make_query_ctx()};
+			BsdfSampleQuery bsdfSample{srcCtx};
+			bsdfSample.context.key = BsdfKey::makeRandom();
 			bsdfSample.inputs.set(X, V);
 			scene.optics->genBsdfSample(bsdfSample, sampleFlow);
 			if(!bsdfSample.outputs)
@@ -195,6 +207,7 @@ inline std::vector<double> make_freq_table(
 // Make a distribution for better sampling
 inline math::TPiecewiseConstantDistribution2D<real> make_PDF_distribution(
 	const FictionalScene& scene,
+	const BsdfQueryContext& srcCtx,
 	const uint64 numSamplesPerBin,
 	const math::Vector2S& phiThetaRes,
 	const math::Vector3R& V)
@@ -216,7 +229,8 @@ inline math::TPiecewiseConstantDistribution2D<real> make_PDF_distribution(
 					{(phiIdx + dU) / phiThetaRes.x(), (thetaIdx + dV) / phiThetaRes.y()});
 				const auto L = math::TSphere<real>::makeUnit().phiThetaToSurface(phiTheta);
 
-				BsdfPdfQuery pdfQuery{make_query_ctx()};
+				BsdfPdfQuery pdfQuery{srcCtx};
+				pdfQuery.context.key = BsdfKey::makeRandom();
 				pdfQuery.inputs.set(X, L, V);
 				scene.optics->calcBsdfPdf(pdfQuery);
 
@@ -233,6 +247,7 @@ inline math::TPiecewiseConstantDistribution2D<real> make_PDF_distribution(
 // Use Monte Carlo integration to get expected frequencies of each bin
 inline std::vector<double> make_integrated_freq_table(
 	const FictionalScene& scene,
+	const BsdfQueryContext& srcCtx,
 	const uint64 numSamplesPerBin,
 	const math::Vector2S& phiThetaRes,
 	const math::Vector3R& V)
@@ -247,6 +262,7 @@ inline std::vector<double> make_integrated_freq_table(
 
 	const math::TPiecewiseConstantDistribution2D<real> funcDistribution = make_PDF_distribution(
 		scene,
+		srcCtx,
 		numSamplesPerBin * expected_freq_sample_count_multiplier,// for better quality table
 		phiThetaRes * 4,                                         //
 		V);
@@ -276,7 +292,8 @@ inline std::vector<double> make_integrated_freq_table(
 			const auto binIdx = phiThetaIdx.y() * phiThetaRes.x() + phiThetaIdx.x();
 			PH_ASSERT_LT(binIdx, freqTable.size());
 
-			BsdfPdfQuery pdfQuery{make_query_ctx()};
+			BsdfPdfQuery pdfQuery{srcCtx};
+			pdfQuery.context.key = BsdfKey::makeRandom();
 			pdfQuery.inputs.set(X, L, V);
 			scene.optics->calcBsdfPdf(pdfQuery);
 
@@ -515,9 +532,11 @@ buttons.forEach((label, i) => {{
 
 inline void test_bsdf(BsdfTestInput p)
 {
-	FictionalScene scene = make_scene(std::move(p.targetOptics));
+	FictionalScene targetScene = make_scene(p.targetOptics.get());
+	FictionalScene referenceScene = p.referenceOptics
+		? make_scene(p.referenceOptics.get()) : make_scene(p.targetOptics.get());
 
-	const bool isDelta = scene.optics->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
+	const bool isDelta = targetScene.optics->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
 	PH_ASSERT(!isDelta);
 
 	for(std::size_t ti = 0; ti < num_chi2_tests_per_suite; ++ti)
@@ -528,13 +547,15 @@ inline void test_bsdf(BsdfTestInput p)
 		V.normalizeLocal();
 
 		const std::vector<double> freqTable = make_freq_table(
-			scene,
+			targetScene,
+			p.srcCtx,
 			p.numSamples,
 			{phi_res, theta_res},
 			V);
 
 		const std::vector<double> integratedFreqTable = make_integrated_freq_table(
-			scene,
+			referenceScene,
+			p.srcCtx,
 			p.numSamples,
 			{phi_res, theta_res},
 			V);
@@ -955,6 +976,88 @@ TEST(BsdfSamplingChi2Test, MicrofacetNormalMapperWithGgx0p15Reflector)
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
+{
+	using enum ESurfacePhenomenon;
+
+	const auto diffuse = std::make_unique<LambertianReflector>(
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
+	const auto glossy = std::make_unique<TranslucentMicrofacet>(
+		std::make_shared<SchlickApproxDielectricFresnel>(1.3_r, 1.5_r),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HightCorrelated));
+
+	constexpr real diffuseWeight = 0.2_r;
+
+	BsdfTestInput p
+	{
+		.testName = "PickDiffuseReflectorElementalFromLerped",
+		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+			diffuse.get(),
+			glossy.get(),
+			diffuseWeight),
+
+		// Explicitly weighted `diffuse` for reference; this assumes two different optics implementations
+		// have identical frequencies which may not be true. Good to match the Lambertian elemental here
+		// as that means there is no loss of efficiency.
+		.referenceOptics = std::make_unique<LambertianReflector>(
+			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r * diffuseWeight})),
+
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	// 1 for diffuse, 2 for reflect and refract
+	ASSERT_EQ(p.targetOptics->numElementals(), 3);
+
+	// Query diffuse elemental only, this way it should be the same as the reference
+	for(auto ei : p.targetOptics->getElemenalIteratorProxy(SurfacePhenomena{DiffuseReflection}))
+	{
+		p.srcCtx.elemental = ei.elemental;
+		break;
+	}
+	ASSERT_TRUE(p.srcCtx.elemental != ALL_SURFACE_ELEMENTALS);
+	p.srcCtx.targetPhenomena = ALL_SURFACE_PHENOMENA;
+
+	test_bsdf(std::move(p));
+}
+
+TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
+{
+	using enum ESurfacePhenomenon;
+
+	const auto diffuse = std::make_unique<LambertianReflector>(
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
+	const auto glossy = std::make_unique<TranslucentMicrofacet>(
+		std::make_shared<SchlickApproxDielectricFresnel>(1.3_r, 1.5_r),
+		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HightCorrelated));
+
+	constexpr real diffuseWeight = 0.2_r;
+
+	BsdfTestInput p
+	{
+		.testName = "PickDiffusePhenomenonFromLerped",
+		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+			diffuse.get(),
+			glossy.get(),
+			diffuseWeight),
+
+		// Explicitly weighted `diffuse` for reference
+		.referenceOptics = std::make_unique<LambertianReflector>(
+			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r * diffuseWeight})),
+
+		.numSamples = 16,
+		.viewFromUpperHemisphereOnly = true
+	};
+
+	// 1 for diffuse, 2 for reflect and refract
+	ASSERT_EQ(p.targetOptics->numElementals(), 3);
+
+	p.srcCtx.targetPhenomena = SurfacePhenomena{DiffuseReflection};
+	p.srcCtx.elemental = ALL_SURFACE_ELEMENTALS;
 
 	test_bsdf(std::move(p));
 }

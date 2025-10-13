@@ -96,8 +96,10 @@ This function can sample from a stream of indices, and without the need of a con
 The cost is that it performs random selection #indices times.
 @tparam T Type of the probability to feed into `PickFunc`.
 @tparam Index Type of the index.
-@tparam PickFunc Invocable object to perform pick with a certain probability with signature `bool(T)`.
+@tparam PickFunc Invocable object to perform pick with a certain probability with signature `bool(T probability)`.
+Returns `true` if decided to pick, `false` otherwise.
 @tparam IndexFunc Invocable object to get an index with signature `std::optional<Index>(void)`.
+Returns `std::nullopt` if the index stream ends.
 @param out_numIndices If not `nullptr`, returns the number of indices sampled from the index stream.
 Returning an empty index indicates the index stream ends.
 @return The selected index (an `std::optional`).
