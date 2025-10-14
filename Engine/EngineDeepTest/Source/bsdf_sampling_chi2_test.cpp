@@ -1044,11 +1044,6 @@ TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 			diffuse.get(),
 			glossy.get(),
 			diffuseWeight),
-
-		// Explicitly weighted `diffuse` for reference
-		.referenceOptics = std::make_unique<LambertianReflector>(
-			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r * diffuseWeight})),
-
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -1062,5 +1057,4 @@ TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 	test_bsdf(std::move(p));
 }
 
-// TODO: custom context like selected phenomena
 // TODO: BSDF/PDF should == BSDF sample weight

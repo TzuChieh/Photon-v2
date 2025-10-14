@@ -65,7 +65,11 @@ void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlo
 	}
 	else
 	{
-		
+		genPhenomenalBsdfSample(
+			sample.context,
+			sample.inputs,
+			sampleFlow,
+			sample.outputs);
 	}
 
 	if(sample.outputs.isContributable() &&
@@ -85,10 +89,20 @@ void SurfaceOptics::calcBsdfPdf(BsdfPdfQuery& pdfQuery) const
 		return;
 	}
 
-	calcElementalBsdfPdf(
-		pdfQuery.context,
-		pdfQuery.inputs,
-		pdfQuery.outputs);
+	if(pdfQuery.context.targetPhenomena == ALL_SURFACE_PHENOMENA)
+	{
+		calcElementalBsdfPdf(
+			pdfQuery.context,
+			pdfQuery.inputs,
+			pdfQuery.outputs);
+	}
+	else
+	{
+		calcPhenomenalBsdfPdf(
+			pdfQuery.context,
+			pdfQuery.inputs,
+			pdfQuery.outputs);
+	}
 }
 
 void SurfaceOptics::calcPhenomenalBsdf(
