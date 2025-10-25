@@ -42,7 +42,7 @@ public:
 	set of input, the evaluation and PDF calculation for that set of input, deterministically.
 	Implementations do not need to care whether the input or output vectors are in a geometrically
 	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
-	@param ctx The context of the query. It is assumed `BsdfQueryContext::targetPhenomena == ALL_SURFACE_PHENOMENA`
+	@param ctx The context of the query. It is assumed `BsdfQueryContext::phenomena == ALL_SURFACE_PHENOMENA`
 	for elemental-based query.
 	*/
 	virtual void calcElementalBsdf(
@@ -69,7 +69,7 @@ public:
 
 	/*! @brief Generate BSDF sample for all or a subset of phenomena.
 	This is the phenomenon variant of `calcElementalBsdf()`.
-	@param ctx The context of the query. It is assumed `BsdfQueryContext::targetPhenomena != ALL_SURFACE_PHENOMENA`
+	@param ctx The context of the query. It is assumed `BsdfQueryContext::phenomena != ALL_SURFACE_PHENOMENA`
 	for phenomenon-based query.
 	*/
 	virtual void calcPhenomenalBsdf(
@@ -165,7 +165,7 @@ public:
 		reference operator * () const
 		{
 			PH_ASSERT(m_target != SurfacePhenomena{});
-			PH_ASSERT_LT(m_current.elemental, getOptics().numElementals());
+			PH_ASSERT_IN_RANGE(m_current.elemental, 0, getOptics().numElementals());
 			PH_ASSERT(m_current.phenomenon == getOptics().getPhenomenonOf(m_current.elemental));
 			PH_ASSERT(m_target.has(m_current.phenomenon));
 

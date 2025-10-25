@@ -69,6 +69,7 @@ public:
 		std::size_t maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH);
 
 	void setGlossyMergeBeginLength(uint32 glossyMergeBeginLength);
+	void setMergeAggressiveness(uint32 mergeAggressiveness);
 
 private:
 	math::Spectrum estimateRadianceWithPhotonMap(
@@ -87,6 +88,7 @@ private:
 	std::size_t                    m_minFullPathLength;
 	std::size_t                    m_maxFullPathLength;
 	uint32                         m_glossyMergeBeginLength;
+	uint32                         m_mergeAggressiveness;
 
 	math::Vector2D                 m_rasterCoord;
 	math::Spectrum                 m_sampledRadiance;
@@ -102,21 +104,22 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film)
 
-	: m_photonMap                  (photonMap)
-	, m_film                       (film)
-	, m_scene                      (scene)
+	: m_photonMap                    (photonMap)
+	, m_film                         (film)
+	, m_scene                        (scene)
 
-	, m_kernelRadius               ()
-	, m_kernelDensityNormalizer    ()
-	, m_statistics                 ()
-	, m_stochasticSampleBeginLength()
-	, m_minFullPathLength          ()
-	, m_maxFullPathLength          ()
-	, m_glossyMergeBeginLength     ()
+	, m_kernelRadius                 ()
+	, m_kernelDensityNormalizer      ()
+	, m_statistics                   ()
+	, m_stochasticSampleBeginLength  ()
+	, m_minFullPathLength            ()
+	, m_maxFullPathLength            ()
+	, m_glossyMergeBeginLength       ()
+	, m_mergeAggressiveness          ()
 
-	, m_rasterCoord                ()
-	, m_sampledRadiance            ()
-	, m_photonCache                ()
+	, m_rasterCoord                  ()
+	, m_sampledRadiance              ()
+	, m_photonCache                  ()
 {
 	PH_ASSERT(photonMap);
 	PH_ASSERT_GT(photonMap->numPaths, 0);
@@ -128,6 +131,7 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 	setStochasticSampleBeginLength(1);
 	setFullPathLengthRange(1);
 	setGlossyMergeBeginLength(1);
+	setMergeAggressiveness(1);
 }
 
 template<CPhoton Photon, typename PhotonMap>
@@ -153,59 +157,14 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 {
 	const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMap->getInfo()};
 	const SurfaceOptics& optics = surfaceHit.getSurfaceOptics();
+	const auto phenomena = optics.getAllPhenomena();
 
 	BsdfQueryContext residualContext{
 		ALL_SURFACE_ELEMENTALS, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
 	residualContext.key = BsdfKey::makeRandom();
 
-	const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
-		pathLength,
-		surfaceHit,
-		residualContext,
-		pathThroughput,
-		m_minFullPathLength,
-		m_maxFullPathLength);
-	m_sampledRadiance += unaccountedEnergy;
-
-	const auto smoothPhenomena = {
-		ESurfacePhenomenon::Diffuse};
-	const auto smoothEnoughPhenomena = {
-		ESurfacePhenomenon::Diffuse,
-		ESurfacePhenomenon::NearDiffuse};
-	const auto phenomena = optics.getAllPhenomena();
-
-	/*bool shouldExtendPath = true;
-	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength))
 	{
-		const auto mergeTarget = pathLength < m_glossyMergeBeginLength
-			? smoothPhenomena : smoothEnoughPhenomena;
-
-		if(phenomena.hasAny())
-
-		if(phenomena.has(ESurfacePhenomenon::Diffuse))
-		{
-
-		}
-	}*/
-
-	const bool isSufficientlyDiffuse = 
-		phenomena.hasNone(ESurfacePhenomenon::Delta) &&
-		(pathLength >= m_glossyMergeBeginLength ? phenomena.hasAny(smoothEnoughPhenomena) : phenomena.hasExactly(smoothPhenomena));
-
-	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
-	   isSufficientlyDiffuse)
-	{
-		BsdfQueryContext photonMapContext{
-			ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
-		photonMapContext.key = residualContext.key;
-
-		// For path length = N, we can construct light transport path lengths with photon map,
-		// all at once, for the range [N_min, N_max] = 
-		// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
-		m_sampledRadiance += estimateRadianceWithPhotonMap(
-			surfaceHit, photonMapContext, pathThroughput);
-
-		const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
+		const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
 			pathLength,
 			surfaceHit,
 			residualContext,
@@ -213,32 +172,139 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 			m_minFullPathLength,
 			m_maxFullPathLength);
 		m_sampledRadiance += unaccountedEnergy;
-
-		return ViewPathTracingPolicy().kill();
 	}
+
+	// Default merging always merge all BSDF lobes
+	if(m_mergeAggressiveness == 0)
+	{
+		const auto smoothPhenomena = {
+			ESurfacePhenomenon::Diffuse};
+		const auto smoothEnoughPhenomena = {
+			ESurfacePhenomenon::Diffuse,
+			ESurfacePhenomenon::NearDiffuse};
+
+		const bool isSufficientlyDiffuse =
+			phenomena.hasNone(ESurfacePhenomenon::Delta) &&
+			(pathLength >= m_glossyMergeBeginLength ? phenomena.hasAny(smoothEnoughPhenomena) : phenomena.hasExactly(smoothPhenomena));
+
+		if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
+		   isSufficientlyDiffuse)
+		{
+			BsdfQueryContext photonMapContext{
+				ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
+			photonMapContext.key = residualContext.key;
+
+			// For path length = N, we can construct light transport path lengths with photon map,
+			// all at once, for the range [N_min, N_max] = 
+			// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
+			m_sampledRadiance += estimateRadianceWithPhotonMap(
+				surfaceHit, photonMapContext, pathThroughput);
+
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
+				pathLength,
+				surfaceHit,
+				residualContext,
+				pathThroughput,
+				m_minFullPathLength,
+				m_maxFullPathLength);
+			m_sampledRadiance += unaccountedEnergy;
+
+			return ViewPathTracingPolicy().kill();
+		}
+	}
+	// Aggressive merging tries to split BSDF lobes and merge only some of them
 	else
+	{
+		PH_ASSERT_GT(m_mergeAggressiveness, 0);
+
+		auto phenomenaToMerge = SurfacePhenomena{phenomena}.turnOff({ESurfacePhenomenon::Delta});
+		if(pathLength < m_glossyMergeBeginLength)
+		{
+			phenomenaToMerge.turnOff({ESurfacePhenomenon::Glossy});
+			phenomenaToMerge.turnOff({ESurfacePhenomenon::NearDiffuse});
+		}
+
+		if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
+		   !phenomenaToMerge.isEmpty())
+		{
+			BsdfQueryContext photonMapContext{
+				phenomenaToMerge, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
+			photonMapContext.key = residualContext.key;
+
+			// For path length = N, we can construct light transport path lengths with photon map,
+			// all at once, for the range [N_min, N_max] = 
+			// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
+			m_sampledRadiance += estimateRadianceWithPhotonMap(
+				surfaceHit, photonMapContext, pathThroughput);
+
+			// Same as the non-aggressive case if all phenomena are merged
+			if(phenomena.hasNo(ESurfacePhenomenon::Delta) && phenomenaToMerge == phenomena)
+			{
+				const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
+					pathLength,
+					surfaceHit,
+					residualContext,
+					pathThroughput,
+					m_minFullPathLength,
+					m_maxFullPathLength);
+				m_sampledRadiance += unaccountedEnergy;
+
+				return ViewPathTracingPolicy().kill();
+			}
+
+			const auto remainingPhenomena = SurfacePhenomena{phenomena}.turnOff(phenomenaToMerge);
+			PH_ASSERT(!remainingPhenomena.isEmpty());
+			
+			const auto unaccountedEnergy = residualEnergy.lostEnergyForExtending(
+				pathLength,
+				surfaceHit,
+				residualContext,
+				pathThroughput,
+				remainingPhenomena,
+				m_minFullPathLength,
+				m_maxFullPathLength);
+			m_sampledRadiance += unaccountedEnergy;
+
+			if(pathLength < m_stochasticSampleBeginLength)
+			{
+				return ViewPathTracingPolicy().
+					traceBranchedPathFor(remainingPhenomena).
+					useRussianRoulette(false);
+			}
+			else
+			{
+				return ViewPathTracingPolicy().
+					traceSinglePathFor(remainingPhenomena).
+					useRussianRoulette(true);
+			}
+		}
+	}
+
+	// Nothing is merged
+
 	{
 		const auto unaccountedEnergy = residualEnergy.lostEnergyForExtending(
 			pathLength,
 			surfaceHit,
 			residualContext,
 			pathThroughput,
+			ALL_SURFACE_PHENOMENA,
 			m_minFullPathLength,
 			m_maxFullPathLength);
 		m_sampledRadiance += unaccountedEnergy;
+	}
 
-		if(pathLength < m_stochasticSampleBeginLength)
-		{
-			return ViewPathTracingPolicy().
-				traceBranchedPathFor(ALL_SURFACE_PHENOMENA).
-				useRussianRoulette(false);
-		}
-		else
-		{
-			return ViewPathTracingPolicy().
-				traceSinglePathFor(ALL_SURFACE_ELEMENTALS).
-				useRussianRoulette(true);
-		}
+	if(pathLength < m_stochasticSampleBeginLength)
+	{
+		return ViewPathTracingPolicy().
+			traceBranchedPathFor(ALL_SURFACE_PHENOMENA).
+			useRussianRoulette(false);
+	}
+	else
+	{
+		return ViewPathTracingPolicy().
+			traceSinglePathFor(ALL_SURFACE_ELEMENTALS).
+			useRussianRoulette(true);
 	}
 }
 
@@ -354,6 +420,14 @@ inline void TVPMRadianceEvaluator<Photon, PhotonMap>
 	PH_ASSERT_GE(glossyMergeBeginLength, 1);
 
 	m_glossyMergeBeginLength = glossyMergeBeginLength;
+}
+
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setMergeAggressiveness(
+	const uint32 mergeAggressiveness)
+{
+	m_mergeAggressiveness = mergeAggressiveness;
 }
 
 }// end namespace ph

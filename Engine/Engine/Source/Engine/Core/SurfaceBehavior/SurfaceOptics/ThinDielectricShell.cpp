@@ -74,7 +74,7 @@ ThinDielectricShell::ThinDielectricShell(
 
 ESurfacePhenomenon ThinDielectricShell::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT_LT(elemental, 2);
+	PH_ASSERT_IN_RANGE(elemental, 0, 2);
 
 	return elemental == REFLECTION ? ESurfacePhenomenon::DeltaReflection : 
 	                                 ESurfacePhenomenon::DeltaTransmission;

@@ -159,7 +159,15 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
-			BsdfQueryContext bsdfContext(policy.getTargetElemental(), transport, sidednessPolicy);
+			BsdfQueryContext bsdfContext{};
+			if(policy.hasTargetElemental())
+			{
+				bsdfContext = BsdfQueryContext(policy.getTargetElemental(), transport, sidednessPolicy);
+			}
+			else
+			{
+				bsdfContext = BsdfQueryContext(policy.getTargetPhenomena(), transport, sidednessPolicy);
+			}
 			bsdfContext.key = BsdfKey::makeRandom();
 
 			BsdfSampleQuery bsdfSample(bsdfContext);
@@ -237,6 +245,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 			continue;
 		}
 
+		// Within target phenomena, each elemental traces a unique path
 		BsdfQueryContext bsdfContext(i, transport, sidednessPolicy);
 		bsdfContext.key = BsdfKey::makeRandom();
 

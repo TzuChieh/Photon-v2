@@ -64,7 +64,7 @@ inline bool IndirectLightEstimator::bsdfSampleSurfacePathWithNee(
 		}
 
 		const auto phenomenaMask = currentPathLength == 0 ? m_directPhenomenaMask : m_indirectPhenomenaMask;
-		currentCtx.targetPhenomena = SurfacePhenomena{baseContext.targetPhenomena}.intersectWith(phenomenaMask);
+		currentCtx.phenomena = SurfacePhenomena{baseContext.phenomena}.intersectWith(phenomenaMask);
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 
@@ -144,7 +144,7 @@ inline bool IndirectLightEstimator::bsdfSampleSurfacePathWithNee(
 		}
 
 		const auto phenomenaMask = currentPathLength == 0 ? m_directPhenomenaMask : m_indirectPhenomenaMask;
-		currentCtx.targetPhenomena = SurfacePhenomena{baseContext.targetPhenomena}.intersectWith(phenomenaMask);
+		currentCtx.phenomena = SurfacePhenomena{baseContext.phenomena}.intersectWith(phenomenaMask);
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 

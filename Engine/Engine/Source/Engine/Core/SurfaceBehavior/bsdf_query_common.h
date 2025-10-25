@@ -112,7 +112,8 @@ inline uint32 BsdfKey::getValue() const
 
 	default:
 		// Uninitialized!
-		PH_ASSERT_UNREACHABLE_SECTION();
+		PH_ASSERT_MSG(false,
+			"Typically this means some operation requires a BSDF key and you should provide one.");
 		return 0xDEADBEEF;
 	}
 }

@@ -15,11 +15,11 @@ namespace ph
 class BsdfQueryContext final
 {
 public:
-	/*! The elemental in `targetPhenomena` that will be involved. */
+	/*! The elemental that will be involved. */
 	SurfaceElemental elemental = ALL_SURFACE_ELEMENTALS;
 
 	/*! The phenomena that will be involved. */
-	SurfacePhenomena targetPhenomena = ALL_SURFACE_PHENOMENA;
+	SurfacePhenomena phenomena = ALL_SURFACE_PHENOMENA;
 
 	lta::ETransport transport = lta::ETransport::Radiance;
 	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
@@ -40,14 +40,14 @@ public:
 	/*! @brief Creates a phenomenon-based context.
 	*/
 	BsdfQueryContext(
-		SurfacePhenomena targetPhenomena,
+		SurfacePhenomena phenomena,
 		lta::ETransport transport,
 		lta::ESidednessPolicy sidednessPolicy = lta::ESidednessPolicy::Strict);
 
 	/*! @brief Creates a phenomenon-based context.
 	*/
 	BsdfQueryContext(
-		std::initializer_list<ESurfacePhenomenon> targetPhenomena,
+		std::initializer_list<ESurfacePhenomenon> phenomena,
 		lta::ETransport transport,
 		lta::ESidednessPolicy sidednessPolicy = lta::ESidednessPolicy::Strict);
 };
@@ -72,29 +72,29 @@ inline BsdfQueryContext::BsdfQueryContext(
 	lta::ESidednessPolicy sidednessPolicy)
 
 	: elemental(elemental)
-	, targetPhenomena(ALL_SURFACE_PHENOMENA)
+	, phenomena(ALL_SURFACE_PHENOMENA)
 	, transport(transport)
 	, sidedness(sidednessPolicy)
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(
-	SurfacePhenomena targetPhenomena,
+	SurfacePhenomena phenomena,
 	lta::ETransport transport,
 	lta::ESidednessPolicy sidednessPolicy)
 
 	: elemental(ALL_SURFACE_ELEMENTALS)
-	, targetPhenomena(targetPhenomena)
+	, phenomena(phenomena)
 	, transport(transport)
 	, sidedness(sidednessPolicy)
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(
-	std::initializer_list<ESurfacePhenomenon> targetPhenomena,
+	std::initializer_list<ESurfacePhenomenon> phenomena,
 	lta::ETransport transport,
 	lta::ESidednessPolicy sidednessPolicy)
 
 	: BsdfQueryContext(
-		SurfacePhenomena(targetPhenomena),
+		SurfacePhenomena(phenomena),
 		transport,
 		sidednessPolicy)
 {}

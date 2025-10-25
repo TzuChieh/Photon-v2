@@ -44,7 +44,7 @@ OrenNayar::OrenNayar(
 
 ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT_MSG(elemental == ALL_SURFACE_ELEMENTALS || elemental == 0, std::to_string(elemental));
+	PH_ASSERT_MSG(elemental == 0, std::to_string(elemental));
 
 	return ESurfacePhenomenon::NearDiffuseReflection;
 }

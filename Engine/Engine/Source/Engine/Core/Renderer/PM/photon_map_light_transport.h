@@ -78,6 +78,11 @@ public:
 	/*! @brief Estimate the energy that can never be obtained by utilizing a photon map.
 	The estimation is for the current hit point only. To account for lost energy along a path
 	with multiple hit points, call this function for each hit point and sum the results.
+
+	Example: If we are already on the primary hit point (view length = 1) and a photon map stores photons
+	with path lengths >= 1, then we can never use the photon map to estimate lighting for path length = 1.
+	This method can estimate the energy lost in this case.
+
 	@param viewPathLength Current view path length. Each path length calculates an independent component
 	of the total energy (in equilibrium).
 	@param X Current hit point.
@@ -155,6 +160,7 @@ public:
 	@param X Current hit point.
 	@param bsdfContext Context for BSDF query.
 	@param viewPathThroughput Current view path throughput.
+	@param directPhenomenaMask Possibly choke throughput on `X` by mask.
 	@param minFullPathLength The minimum length of the full light transport path to consider.
 	@param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
 	@return The energy that is lost, properly weighted by `viewPathThroughput`.
@@ -165,12 +171,13 @@ public:
 		const SurfaceHit&       X,
 		const BsdfQueryContext& bsdfContext,
 		const math::Spectrum&   viewPathThroughput,
+		const SurfacePhenomena& directPhenomenaMask = ALL_SURFACE_PHENOMENA,
 		const std::size_t       minFullPathLength = 1,
 		const std::size_t       maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH) const
 	{
 		const lta::IndirectLightEstimator indirectLight{
 			m_scene,
-			ALL_SURFACE_PHENOMENA,
+			directPhenomenaMask,
 			ALL_SURFACE_PHENOMENA,
 			lta::RussianRoulette{},
 			1};// `X` is likely a delta or glossy surface, delay RR slightly
@@ -213,8 +220,10 @@ public:
 
 	/*! @brief Estimate the energy that is otherwise lost forever if the path is merged.
 	The estimation is for the current hit point only and is expected to be called when
-	the path ended (merged). For a hit point, only one of `estimate_lost_energy_for_extending()`
-	and `estimate_lost_energy_for_merging()` can be called.
+	the path ended (merged). For a hit point with all phenomena involved, only one of
+	`lostEnergyForExtending()` and `lostEnergyForMerging()` can be called. When not merging
+	all phenomena, the energy lost should be recovered by calling `lostEnergyForExtending()`
+	with a `directPhenomenaMask` for phenomena not accounted.
 	@param viewPathLength Current view path length. This function calculates an independent component
 	of the total energy (in equilibrium).
 	@param X Current hit point.
@@ -250,14 +259,17 @@ public:
 		PH_ASSERT_GE(m_photonMapInfo.minPathLength, 1);
 
 		// For path length = N (current), we can construct light transport path lengths with photon map,
-		// all at once, for the range [N_min, N_max] = 
-		// [`N + m_photonMapInfo.minPathLength`, `N + m_photonMapInfo->maxPathLength`].
-		// For path lengths < N_min, they should be accounted for by `lostEnergyForExtending()`
-		// already. For all path lengths > N_max, use path tracing, which is done below:
+		// all at once, for the range
+		// 
+		// [N_min, N_max] = [`N + m_photonMapInfo.minPathLength`, `N + m_photonMapInfo->maxPathLength`].
+		// 
+		// For path lengths < N_min, they should be accounted for by `certainlyLostEnergy()` and
+		// `lostEnergyForExtending()` already.
+		// For all path lengths > N_max, use path tracing, which is done below:
 
 		const auto minLostFullPathLength = viewPathLength + m_photonMapInfo.maxPathLength + 1;
 
-		// Will also skip this if it is practically infinite number of bounces already
+		// Skip if it is practically infinite number of bounces already
 		const bool isAlreadyEnoughBounces = 
 			minLostFullPathLength > PMCommonParams::DEFAULT_MAX_PATH_LENGTH;
 

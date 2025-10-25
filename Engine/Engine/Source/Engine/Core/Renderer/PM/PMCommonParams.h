@@ -64,6 +64,8 @@ struct PMCommonParams
 	which can result in exponential growth of number of rays.
 	*/
 	uint32 stochasticViewSampleBeginLengthHint = 3;
+
+	uint32 mergeAggressivenessHint : 2 = 1;
 };
 
 }// end namespace ph

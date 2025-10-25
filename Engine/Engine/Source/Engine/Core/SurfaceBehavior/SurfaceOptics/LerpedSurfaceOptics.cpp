@@ -85,7 +85,7 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 
 ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT_LT(elemental, m_optics0->numElementals() + m_optics1->numElementals());
+	PH_ASSERT_IN_RANGE(elemental, 0, m_optics0->numElementals() + m_optics1->numElementals());
 
 	if(elemental < m_optics0->numElementals())
 	{

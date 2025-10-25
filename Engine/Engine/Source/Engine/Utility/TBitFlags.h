@@ -64,40 +64,38 @@ public:
 	*/
 	///@{
 	constexpr TBitFlags& turnOn(const FlagsSet& flagsSet);
+	constexpr TBitFlags& turnOn(const TBitFlags& flags);
 	constexpr TBitFlags& turnOff(const FlagsSet& flagsSet);
+	constexpr TBitFlags& turnOff(const TBitFlags& flags);
 	///@}
 
 	/*! @brief Checks whether this instance contains no specified flags.
 	*/
+	///@{
 	constexpr bool hasNone(const FlagsSet& flagsSet) const;
-
-	/*! @brief Checks whether this instance contains at least one of the specified flags.
-	*/
-	constexpr bool hasAny(const FlagsSet& flagsSet) const;
-
-	/*! @brief Checks whether this instance contains all of the specified flags.
-	*/
-	constexpr bool hasAll(const FlagsSet& flagsSet) const;
-
-	/*! @brief Checks whether this instance contains exactly the specified flags. No more, no less.
-	*/
-	constexpr bool hasExactly(const FlagsSet& flagsSet) const;
-
-	/*! @brief Checks whether this instance contains no specified flags.
-	*/
 	constexpr bool hasNone(Input flagsSet) const;
+	///@}
 
 	/*! @brief Checks whether this instance contains at least one of the specified flags.
 	*/
+	///@{
+	constexpr bool hasAny(const FlagsSet& flagsSet) const;
 	constexpr bool hasAny(Input flagsSet) const;
+	///@}
 
 	/*! @brief Checks whether this instance contains all of the specified flags.
 	*/
+	///@{
+	constexpr bool hasAll(const FlagsSet& flagsSet) const;
 	constexpr bool hasAll(Input flagsSet) const;
-	
+	///@}
+
 	/*! @brief Checks whether this instance contains exactly the specified flags. No more, no less.
 	*/
+	///@{
+	constexpr bool hasExactly(const FlagsSet& flagsSet) const;
 	constexpr bool hasExactly(Input flagsSet) const;
+	///@}
 
 	/*! @brief Checks whether this single flag is fully contained.
 	@param singleFlag The flag to test. If the flag combines multiple flags, this method is

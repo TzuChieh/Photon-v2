@@ -78,9 +78,23 @@ inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOn(const 
 }
 
 template<typename Value, typename Input>
+inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOn(const TBitFlags& flags)
+{
+	return unionWith(flags);
+}
+
+template<typename Value, typename Input>
 inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOff(const FlagsSet& flagsSet)
 {
 	m_bits &= ~(collectFlags(flagsSet));
+
+	return *this;
+}
+
+template<typename Value, typename Input>
+inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOff(const TBitFlags& flags)
+{
+	m_bits &= ~(flags.m_bits);
 
 	return *this;
 }

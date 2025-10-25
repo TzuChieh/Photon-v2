@@ -46,7 +46,7 @@ If you use Photon in your research project, you are hightly encouraged to cite i
 @software{Photon,
 	Title  = {Photon renderer},
 	Author = {Tzu-Chieh Chang},
-	Year   = {2016--2024},
+	Year   = {2016--2025},
 	Note   = {https://github.com/TzuChieh/Photon-v2}
 } 
 ```

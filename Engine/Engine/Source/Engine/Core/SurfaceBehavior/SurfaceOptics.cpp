@@ -31,7 +31,7 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 		return;
 	}
 
-	if(eval.context.targetPhenomena == ALL_SURFACE_PHENOMENA)
+	if(eval.context.phenomena == ALL_SURFACE_PHENOMENA)
 	{
 		calcElementalBsdf(
 			eval.context,
@@ -55,7 +55,7 @@ void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlo
 		return;
 	}
 
-	if(sample.context.targetPhenomena == ALL_SURFACE_PHENOMENA)
+	if(sample.context.phenomena == ALL_SURFACE_PHENOMENA)
 	{
 		genElementalBsdfSample(
 			sample.context,
@@ -89,7 +89,7 @@ void SurfaceOptics::calcBsdfPdf(BsdfPdfQuery& pdfQuery) const
 		return;
 	}
 
-	if(pdfQuery.context.targetPhenomena == ALL_SURFACE_PHENOMENA)
+	if(pdfQuery.context.phenomena == ALL_SURFACE_PHENOMENA)
 	{
 		calcElementalBsdfPdf(
 			pdfQuery.context,
@@ -110,7 +110,7 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+	PH_ASSERT(ctx.phenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
@@ -146,7 +146,7 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+	PH_ASSERT(ctx.phenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
@@ -182,7 +182,7 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	PH_ASSERT(ctx.targetPhenomena != ALL_SURFACE_PHENOMENA);
+	PH_ASSERT(ctx.phenomena != ALL_SURFACE_PHENOMENA);
 
 	real pdf;
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
@@ -219,7 +219,7 @@ std::optional<SurfaceElemental> SurfaceOptics::selectElementalFromKey(
 	// In case not all phenomena are queried, we randomly pick one from the phenomena specified
 	SurfaceElemental numPickableElementals;
 	auto optPickedElemental = math::uniform_pick<real, SurfaceElemental>(
-		[this, ei = beginElementalIteratorFor(ctx.targetPhenomena)]() mutable
+		[this, ei = beginElementalIteratorFor(ctx.phenomena)]() mutable
 		-> std::optional<SurfaceElemental>
 		{
 			if(ei != endElementalIterator())

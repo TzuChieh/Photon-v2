@@ -1020,7 +1020,7 @@ TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
 		break;
 	}
 	ASSERT_TRUE(p.srcCtx.elemental != ALL_SURFACE_ELEMENTALS);
-	p.srcCtx.targetPhenomena = ALL_SURFACE_PHENOMENA;
+	p.srcCtx.phenomena = ALL_SURFACE_PHENOMENA;
 
 	test_bsdf(std::move(p));
 }
@@ -1051,7 +1051,7 @@ TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 	// 1 for diffuse, 2 for reflect and refract
 	ASSERT_EQ(p.targetOptics->numElementals(), 3);
 
-	p.srcCtx.targetPhenomena = SurfacePhenomena{DiffuseReflection};
+	p.srcCtx.phenomena = SurfacePhenomena{DiffuseReflection};
 	p.srcCtx.elemental = ALL_SURFACE_ELEMENTALS;
 
 	test_bsdf(std::move(p));
