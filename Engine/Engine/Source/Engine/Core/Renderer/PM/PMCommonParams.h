@@ -65,7 +65,7 @@ struct PMCommonParams
 	*/
 	uint32 stochasticViewSampleBeginLengthHint = 3;
 
-	uint32 mergeAggressivenessHint : 2 = 1;
+	uint32 mergeAggressivenessHint : 2 = 0;
 };
 
 }// end namespace ph
