@@ -14,7 +14,7 @@ enum class EViewPathSampleMode
 	/*! Keep tracing current path. */
 	SinglePath,
 
-	/*! Trace a different path for each elemental. */
+	/*! Trace an independent path for each elemental. */
 	ElementalBranch
 };
 

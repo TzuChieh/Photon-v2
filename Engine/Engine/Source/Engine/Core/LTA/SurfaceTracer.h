@@ -288,8 +288,11 @@ inline const Scene& SurfaceTracer::getScene() const
 
 inline Ray SurfaceTracer::getRefinedRayOriginatedFrom(const SurfaceHit& X, const Ray& ray) const
 {
-	// `ray` must be originated from `X`
-	PH_ASSERT_MSG(ray.getOrigin() == X.getPos(),
+	constexpr real ALLOWED_ERROR = 1e-4_r;
+
+	// `ray` must be originated from `X`; may be slightly different due to optimiation or numerical error
+	// and anything larger than `ALLOWED_ERROR` will be considered a bug
+	PH_ASSERT_MSG(ray.getOrigin().isNear(X.getPos(), ALLOWED_ERROR),
 		"ray: " + ray.getOrigin().toString() + ", X: " + X.getPos().toString());
 
 	Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
