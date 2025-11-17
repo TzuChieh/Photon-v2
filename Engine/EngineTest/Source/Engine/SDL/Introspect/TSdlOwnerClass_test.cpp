@@ -5,7 +5,7 @@
 #include <Common/primitive_type.h>
 #include <Engine/SDL/Introspect/TSdlReal.h>
 #include <Engine/SDL/Introspect/TSdlString.h>
-#include <Engine/SDL/Introspect/TSdlMethod.h>
+#include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
 #include <Engine/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
@@ -43,7 +43,7 @@ struct TestMethodStruct
 	void operator () (TestResource& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TSdlMethod<TestMethodStruct, TestResource>)
+	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct, TestResource>)
 	{
 		return FunctionType("testMethod");
 	}
@@ -54,7 +54,7 @@ struct TestMethodStruct2
 	void operator () (const TestResource& res) const
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TSdlMethod<TestMethodStruct2, TestResource>)
+	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct2, TestResource>)
 	{
 		return FunctionType("testMethod2");
 	}

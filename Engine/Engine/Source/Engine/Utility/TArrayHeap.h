@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Common/compiler.h>
+
 #include <cstddef>
 #include <array>
 #include <functional>
@@ -59,7 +61,7 @@ private:
 	std::array<T, N> m_data;
 	Index            m_currentIndex;
 
-	[[no_unique_address]] IsLess m_isLess;
+	[[PH_NO_UNIQUE_ADDRESS]] IsLess m_isLess;
 };
 
 }// end namespace ph

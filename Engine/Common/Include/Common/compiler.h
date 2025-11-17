@@ -15,6 +15,11 @@
 Introduces additional attributes for use with the standard C++ attribute syntax.
 
 - `[[PH_ALWAYS_INLINE]]`: Always attempt to inline the target
+- `[[PH_NO_UNIQUE_ADDRESS]]`: Allows overlapping with other data members
+
+## Compiler Features
+
+- `PH_COMPILER_HAS_P2468R2`: Whether the compiler supports P2468R2: "The Equality Operator You Are Looking For"
 */
 
 /* Compiler detection. */
@@ -49,6 +54,16 @@ Introduces additional attributes for use with the standard C++ attribute syntax.
 	#define PH_ALWAYS_INLINE clang::always_inline
 #else
 	#error "Unrecognized compiler: cannot define `PH_ALWAYS_INLINE`"
+#endif
+
+/* Attribute: Allows the data member to be overlapped with other non-static data members or base class subobjects of its class. */
+
+#if PH_COMPILER_IS_MSVC
+	// [[no_unique_address]] is ignored by MSVC even in C++20 mode; instead, [[msvc::no_unique_address]] is provided.
+	// See https://en.cppreference.com/w/cpp/language/attributes/no_unique_address
+	#define PH_NO_UNIQUE_ADDRESS msvc::no_unique_address
+#else
+	#define PH_NO_UNIQUE_ADDRESS no_unique_address
 #endif
 
 /* Feature detection for P2468R2: "The Equality Operator You Are Looking For",

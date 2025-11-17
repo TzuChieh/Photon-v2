@@ -1,6 +1,6 @@
 #include "engine_test_util.h"
 
-#include <Engine/SDL/Introspect/TSdlMethod.h>
+#include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
 #include <Engine/SDL/TSdlResourceBase.h>
 #include <Engine/SDL/Introspect/TSdlString.h>
 #include <Engine/SDL/SdlInputClauses.h>
@@ -39,10 +39,10 @@ struct TestMethodStruct
 
 }
 
-TEST(TSdlMethodTest, DefaultStates)
+TEST(TSdlOwnerMethodTest, DefaultStates)
 {
 	{
-		TSdlMethod<TestMethodStruct, TestResource> method("testMethod");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method("testMethod");
 
 		PH_EXPECT_STRING_EQ(method.getName(), "testMethod");
 		PH_EXPECT_STRING_EQ(method.getDescription(), "");
@@ -56,10 +56,10 @@ TEST(TSdlMethodTest, DefaultStates)
 	}
 }
 
-TEST(TSdlMethodTest, SupplyParameters)
+TEST(TSdlOwnerMethodTest, SupplyParameters)
 {
 	{
-		TSdlMethod<TestMethodStruct, TestResource> method("ttt");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method("ttt");
 		method.addParam(
 			TSdlString<TestMethodStruct>("someValue", &TestMethodStruct::str));
 		EXPECT_EQ(method.numParams(), 1);
@@ -76,10 +76,10 @@ TEST(TSdlMethodTest, SupplyParameters)
 	}
 }
 
-TEST(TSdlMethodTest, CallMethod)
+TEST(TSdlOwnerMethodTest, CallMethod)
 {
 	{
-		TSdlMethod<TestMethodStruct, TestResource> method("setToHello");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method("setToHello");
 		method.addParam(
 			TSdlString<TestMethodStruct>("someParam", &TestMethodStruct::str));
 

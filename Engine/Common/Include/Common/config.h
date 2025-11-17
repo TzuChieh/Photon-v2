@@ -38,7 +38,7 @@ certain microarchitectures, see https://stackoverflow.com/questions/41303780/why
 
 /*! @brief Version of Photon Scene Description Language.
 */
-#define PH_PSDL_VERSION "1.1.0"
+#define PH_PSDL_VERSION "1.2.0"
 
 /*! @brief Enable debug functionalities.
 Assertions will be enabled on debug mode.

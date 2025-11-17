@@ -74,7 +74,7 @@ struct DummySdlMethodStruct
 	void operator () (DummySdlClass& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TSdlMethod<DummySdlMethodStruct, DummySdlClass>)
+	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummySdlMethodStruct, DummySdlClass>)
 	{
 		return FunctionType("dummy");
 	}
@@ -82,7 +82,7 @@ struct DummySdlMethodStruct
 
 struct DummySdlMethodStruct2 : public DummySdlMethodStruct
 {
-	PH_DEFINE_SDL_FUNCTION(TSdlMethod<DummySdlMethodStruct2, DummySdlClass>)
+	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummySdlMethodStruct2, DummySdlClass>)
 	{
 		return FunctionType("dummy2");
 	}

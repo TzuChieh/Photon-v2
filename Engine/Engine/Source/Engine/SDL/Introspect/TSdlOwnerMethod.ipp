@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/SDL/Introspect/TSdlMethod.h"
+#include "Engine/SDL/Introspect/TSdlOwnerMethod.h"
 #include "Engine/SDL/SdlInputClauses.h"
 #include "Engine/SDL/Introspect/SdlInputContext.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
@@ -17,12 +17,12 @@ namespace ph
 {
 
 template<typename MethodStruct, typename TargetType>
-inline TSdlMethod<MethodStruct, TargetType>::TSdlMethod(std::string name) :
-	SdlFunction(std::move(name))
+inline TSdlOwnerMethod<MethodStruct, TargetType>::TSdlOwnerMethod() :
+	SdlFunction()
 {}
 
 template<typename MethodStruct, typename TargetType>
-inline void TSdlMethod<MethodStruct, TargetType>::call(
+inline void TSdlOwnerMethod<MethodStruct, TargetType>::call(
 	ISdlResource*          resource,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -50,7 +50,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::call(
 }
 
 template<typename MethodStruct, typename TargetType>
-inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
+inline void TSdlOwnerMethod<MethodStruct, TargetType>::callMethod(
 	TargetType&            targetType, 
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -71,7 +71,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 }
 
 template<typename MethodStruct, typename TargetType>
-inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
+inline void TSdlOwnerMethod<MethodStruct, TargetType>::loadParameters(
 	MethodStruct&          parameterStruct,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -95,21 +95,21 @@ inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
 }
 
 template<typename MethodStruct, typename TargetType>
-inline std::size_t TSdlMethod<MethodStruct, TargetType>::numParams() const
+inline std::size_t TSdlOwnerMethod<MethodStruct, TargetType>::numParams() const
 {
 	return m_fields.numFields();
 }
 
 template<typename MethodStruct, typename TargetType>
-inline const SdlField* TSdlMethod<MethodStruct, TargetType>::getParam(const std::size_t index) const
+inline const SdlField* TSdlOwnerMethod<MethodStruct, TargetType>::getParam(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
 template<typename MethodStruct, typename TargetType>
 template<typename T>
-inline auto TSdlMethod<MethodStruct, TargetType>::addParam(T sdlField)
-	-> TSdlMethod&
+inline auto TSdlOwnerMethod<MethodStruct, TargetType>::addParam(T sdlField)
+	-> TSdlOwnerMethod&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
@@ -121,8 +121,16 @@ inline auto TSdlMethod<MethodStruct, TargetType>::addParam(T sdlField)
 }
 
 template<typename MethodStruct, typename TargetType>
-inline auto TSdlMethod<MethodStruct, TargetType>::description(std::string descriptionStr)
-	-> TSdlMethod&
+inline auto TSdlOwnerMethod<MethodStruct, TargetType>::name(std::string nameStr)
+-> TSdlOwnerMethod&
+{
+	setName(std::move(nameStr));
+	return *this;
+}
+
+template<typename MethodStruct, typename TargetType>
+inline auto TSdlOwnerMethod<MethodStruct, TargetType>::description(std::string descriptionStr)
+	-> TSdlOwnerMethod&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;

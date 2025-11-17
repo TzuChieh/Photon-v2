@@ -27,7 +27,7 @@ struct DummyMethodStruct
 	void operator () (Actor& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TSdlMethod<DummyMethodStruct, Actor>)
+	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummyMethodStruct, Actor>)
 	{
 		return FunctionType("dummy");
 	}

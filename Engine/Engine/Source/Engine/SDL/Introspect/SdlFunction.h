@@ -17,7 +17,7 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(SdlFunction, SDL);
 class SdlFunction : public ISdlInstantiable
 {
 public:
-	explicit SdlFunction(std::string name);
+	SdlFunction();
 
 	virtual void call(
 		ISdlResource*          resource,
@@ -42,6 +42,7 @@ public:
 	std::string genPrettyName() const;
 
 protected:
+	SdlFunction& setName(std::string name);
 	SdlFunction& setDescription(std::string description);
 
 private:
@@ -51,12 +52,10 @@ private:
 
 // In-header Implementations:
 
-inline SdlFunction::SdlFunction(std::string name) : 
-	m_name       (std::move(name)),
+inline SdlFunction::SdlFunction() : 
+	m_name       (),
 	m_description()
-{
-	PH_ASSERT(!m_name.empty());
-}
+{}
 
 inline std::size_t SdlFunction::numFields() const
 {
@@ -75,12 +74,20 @@ inline std::string_view SdlFunction::getTypeName() const
 
 inline std::string_view SdlFunction::getName() const
 {
+	PH_ASSERT(!m_name.empty());
 	return m_name;
 }
 
 inline std::string_view SdlFunction::getDescription() const
 {
 	return m_description;
+}
+
+inline SdlFunction& SdlFunction::setName(std::string name)
+{
+	m_name = std::move(name);
+
+	return *this;
 }
 
 inline SdlFunction& SdlFunction::setDescription(std::string description)

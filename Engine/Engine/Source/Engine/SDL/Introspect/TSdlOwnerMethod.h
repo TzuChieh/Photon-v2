@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/SdlFunction.h"
+#include "Engine/SDL/Definition/ISdlDefaultFunctionDefinition.h"
 #include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
 
@@ -15,20 +16,34 @@ namespace ph
 For a method to be callable in SDL, it must be defined as a C++ functor that takes 
 an instance of @p TargetType as its only input. Other arguments to the method should
 be accessed via the functor's member variables. Each member variables then can be 
-binded much like the members of a canonical SDL resource.
+binded much like the members of a canonical SDL resource. For example,
+
+```cpp
+struct ExampleMethod
+{
+	int methodParam;
+
+	void operator () (TargetType& target) const
+	{
+		// your implementation here
+	}
+
+	// SDL definition here (i.e., binding `methodParam` and provide docs)
+};
+```
 
 @tparam MethodStruct Type of the functor.
 @tparam TargetType Type that defines the method. May be any C++ class/struct type including
 SDL resource types.
 */
 template<typename MethodStruct, typename TargetType>
-class TSdlMethod : public SdlFunction
+class TSdlOwnerMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
 {
 public:
 	using OwnerType = MethodStruct;
 
 public:
-	explicit TSdlMethod(std::string name);
+	TSdlOwnerMethod();
 
 	void call(
 		ISdlResource*          resource,
@@ -49,9 +64,10 @@ public:
 		const SdlInputContext& ctx) const;
 
 	template<typename T>
-	TSdlMethod& addParam(T sdlField);
+	TSdlOwnerMethod& addParam(T sdlField);
 
-	auto description(std::string descriptionStr) -> TSdlMethod&;
+	auto name(std::string nameStr) -> TSdlOwnerMethod&;
+	auto description(std::string descriptionStr) -> TSdlOwnerMethod&;
 
 	// TODO: support structs?
 
@@ -61,4 +77,4 @@ private:
 
 }// end namespace ph
 
-#include "Engine/SDL/Introspect/TSdlMethod.ipp"
+#include "Engine/SDL/Introspect/TSdlOwnerMethod.ipp"
