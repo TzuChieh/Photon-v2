@@ -81,7 +81,7 @@ public:
 			}
 		}
 
-		PH_DEFINE_SDL_FUNCTION_(func, OwnerMethod)
+		PH_DEFINE_SDL_FUNCTION_(SdlRotate, func)
 		{
 			func.name("rotate");
 			func.description("Rotates the actor along an axis with a specified amount.");

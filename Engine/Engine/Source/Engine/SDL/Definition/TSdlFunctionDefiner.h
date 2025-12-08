@@ -14,10 +14,18 @@ class TSdlFunctionDefiner final
 public:
 	explicit TSdlFunctionDefiner(Def& def);
 
+	/*! @brief Set the name of the function.
+	*/
+	auto name(std::string nameStr) -> TSdlFunctionDefiner&;
+
+	/*! @brief Set the description of the function.
+	*/
+	auto description(std::string desc) -> TSdlFunctionDefiner&;
+
+	/*! @brief Register a parameter to the function.
+	*/
 	template<typename T>
 	auto addParam(T&& param) -> TSdlFunctionDefiner&;
-
-	auto description(std::string desc) -> TSdlFunctionDefiner&;
 
 private:
 	Def& m_def;
@@ -26,4 +34,3 @@ private:
 }// end namespace ph
 
 #include "Engine/SDL/Definition/TSdlFunctionDefiner.ipp"
-// #pragma once

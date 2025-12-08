@@ -107,8 +107,8 @@ private:
 	uint64           m_faceID;
 	uint64           m_globalPrimitiveID;
 	FaceTopology     m_faceTopology;
-	int8			 m_meanDistanceErrorFactorExp2;
-	int8			 m_maxDistanceErrorFactorExp2;
+	int8             m_meanDistanceErrorFactorExp2;
+	int8             m_maxDistanceErrorFactorExp2;
 };
 
 // In-header Implementations:

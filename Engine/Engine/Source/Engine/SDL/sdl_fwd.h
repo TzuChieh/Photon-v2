@@ -51,4 +51,9 @@ enum ESdlClauseValue
 	CachedTargetName
 };
 
+// Concrete introspect types
+
+template<typename MethodStruct, typename TargetType>
+class TSdlOwnerMethod;
+
 }// end namespace ph

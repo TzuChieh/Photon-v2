@@ -21,7 +21,7 @@ if (int(sys.version_info[0]), int(sys.version_info[1])) < (3, 9):
 
 parser = argparse.ArgumentParser(description="Photon Renderer Setup Script")
 parser.add_argument('-d', '--directory', type=str, help="Build directory.")
-parser.add_argument('--skipdl', action=argparse.BooleanOptionalAction, help="Skip all download steps.")
+parser.add_argument('--skip-dl', action=argparse.BooleanOptionalAction, help="Skip all download steps.")
 args = parser.parse_args()
 
 # Read and parse setup config
@@ -40,7 +40,7 @@ build_dir.mkdir(parents=True, exist_ok=True)
 print(f"Using build directory: {build_dir}")
 
 # Download additional data to build directory
-if not args.skipdl:
+if not args.skip_dl:
     library_downloader.download_thirdparty_library(build_dir, setup_config)
     resource_downloader.download_external_resource(build_dir)
 

@@ -17,11 +17,14 @@ public:
 	static auto makeDefinition()
 	{}
 
-	template<typename T>
-	void addParam(T param)
+	void name(std::string nameStr)
 	{}
 
 	void description(std::string desc)
+	{}
+
+	template<typename T>
+	void addParam(T param)
 	{}
 
 // Hide special members as this class is not intended to be used polymorphically.

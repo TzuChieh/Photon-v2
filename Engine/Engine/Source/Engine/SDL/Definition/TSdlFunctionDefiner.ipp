@@ -14,12 +14,11 @@ inline TSdlFunctionDefiner<Def>
 {}
 
 template<typename Def>
-template<typename T>
 inline auto TSdlFunctionDefiner<Def>
-::addParam(T&& param)
+::name(std::string nameStr)
 -> TSdlFunctionDefiner&
 {
-	m_def.addParam(std::forward<T>(param));
+	m_def.name(std::move(nameStr));
 	return *this;
 }
 
@@ -29,6 +28,16 @@ inline auto TSdlFunctionDefiner<Def>
 -> TSdlFunctionDefiner&
 {
 	m_def.description(std::move(desc));
+	return *this;
+}
+
+template<typename Def>
+template<typename T>
+inline auto TSdlFunctionDefiner<Def>
+::addParam(T&& param)
+-> TSdlFunctionDefiner&
+{
+	m_def.addParam(std::forward<T>(param));
 	return *this;
 }
 
