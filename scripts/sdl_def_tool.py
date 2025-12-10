@@ -8,10 +8,12 @@ from pathlib import Path
 
 class GeneratedSource:
     def __init__(self):
-        self.class_name = ""
+        self.owner_class_name = ""
         self.sdl_impl = ""
 
-def generate_source_for(header_source: str):
+def generate_source_for(header_file: Path, source_dir: Path):
+    header_source = (dirpath / filename).read_text()
+    
     macro_name = 'PH_DEFINE_SDL_FUNCTION_'
     macro_prefix = macro_name + '('
 
@@ -23,64 +25,81 @@ def generate_source_for(header_source: str):
 
         tokens = line[len(macro_prefix):].split(',')
 
-        # We need at least `CppOwnerType, funcDef`
+        # For arguments, we need at least `CppOwnerType, funcDef`
         if len(tokens) < 2:
             raise ValueError(f"{macro_name}() requires at least 2 arguments, {len(tokens)} were given")
 
+        owner_class_name = tokens[0].strip()
+
         result = GeneratedSource()
-        result.class_name = tokens[0].strip()
-        result.sdl_impl = ""# TODO
+        result.owner_class_name = owner_class_name
+
+        # Boilerplate for generated C++ source code
+        result.sdl_impl = f"""
+        #include "{header_file.relative_to(source_dir).as_posix()}"
+
+        // For `SdlFunctionType`
+        #include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
+
+        namespace ph
+        {{
+
+        const SdlFunctionType* PrimaryOwnerType::OwnerType::getSdlFunction()
+        {{
+            static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,
+                "PH_DEFINE_SDL_FUNCTION() must return a function derived from SdlFunction.");
+            
+            static const auto sdlFunction =
+                []() -> SdlFunctionType
+                {{
+                    SdlFunctionType def;
+                    TSdlFunctionDefiner<SdlFunctionType> definer(def);
+                    internal_sdl_function_impl<SdlFunctionType>(definer);
+                    return def;
+                }};
+            return &sdlFunction;
+        }}
+
+        }}// end namespace ph
+
+        """
+
+        results.append(result)
 
     return results
-
-    
-    working_dir = Path(doxygen_config).parent
-    doxygen_config_name = Path(doxygen_config).name
-
-    command_args = [Path(doxygen_executable).absolute()]
-    command_args.append(doxygen_config_name)
-
-    # The convention is to run doxygen in the same directory as the config file
-    command_result = subprocess.run(
-        command_args, 
-        cwd=working_dir)
-
-    if command_result.returncode != 0:
-        print("command <%s> ran with error (error code: %s)" % 
-            (", ".join([str(arg) for arg in command_args]), str(command_result.returncode)))
 
 parser = argparse.ArgumentParser(description="PSDL Definition Tool")
 args = parser.parse_args()
 
-# Gather project directories from config
-generated_sources = []
+# Generate source according to definition
 for name, section in config.get_all_projects(config.get_setup_config()):
     project_name = name.removeprefix("Project.")
-    source_dir = Path(section["ProjectDirectory"]) / "Source"
+    project_dir = Path(section['ProjectDirectory'])
+    source_dir = project_dir / 'Source'
+    generated_source_dir = project_dir / 'Generated' / 'SDL'
+
+    generated_sources = []
     for dirpath, dirnames, filenames in source_dir.walk():
         for filename in filenames:
-            if not filename.endswith(".h"):
+            if not filename.endswith('.h'):
                 continue
-            header_source = (dirpath / filename).read_text()
-            generated_sources.extend(generate_source_for(header_source))
 
-        doxygen_config = project_dir / section["DoxygenConfig"]
-        build_doxygen_doc(doxygen_executable, doxygen_config)
-        build_info.append("Generated doc for: %s" % project_name)
-    else:
-        build_info.append("Project \"%s\" has no doxygen config, no doc generated." % project_name)
+            generated_sources.extend(generate_source_for(dirpath / filename, source_dir))
+            
+    if not generated_sources:
+        continue
+
+    print(f"[Project {name}] Generating source for {len(generated_sources)} definitions...")
+
+    # Remove old source
+    for item in generated_source_dir.iterdir():
+        if not item.is_file() or item.suffix != '.cpp':
+            raise ValueError(f"unexpected item found in {generated_source_dir}")
+        
+    # Write new source
+    for generated_source in generated_sources:
+        (generated_source_dir / f"def_{generated_source.owner_class_name}").with_suffix('.cpp').write_text(generated_source.sdl_impl)
+
+    # TODO: generate source for ph_core.cpp and such
     
-# Build doc for PhotonBlend
-photon_blend_project_dir = Path(blender_addon.get_photon_blend_project_dir(setup_config))# FIXME #94: return Path directly
-build_doxygen_doc(doxygen_executable, photon_blend_project_dir / "doxygen.config")
-build_info.append("Generated doc for PhotonBlend")
-
-# Build the primary doc that links all docs
-primary_doxygen_config = setup_config["General"]["PrimaryDoxygenConfig"]
-build_doxygen_doc(doxygen_executable, primary_doxygen_config)
-build_info.append("Primary doc generated.")
-
-# Print info for generated docs
-print("============ Done Building Docs ============")
-for info in build_info:
-    print(info)
+# TODO: indicate CMake reconfigure is required

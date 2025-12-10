@@ -51,6 +51,11 @@ enum ESdlClauseValue
 	CachedTargetName
 };
 
+// Definer types
+
+template<typename Def>
+class TSdlFunctionDefiner;
+
 // Concrete introspect types
 
 template<typename MethodStruct, typename TargetType>

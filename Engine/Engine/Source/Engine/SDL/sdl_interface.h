@@ -127,6 +127,7 @@ Available functionalities after defining the macro:
 	\
 	inline static FunctionType internal_sdl_function_impl()
 
+// TODO: remove include for TSdlOwnerMethod
 #define PH_DEFINE_SDL_FUNCTION_(CppOwnerType, funcDef, ...)\
 	\
 	using SdlFunctionType = TSdlOwnerMethod<CppOwnerType, PrimaryOwnerType>;\
