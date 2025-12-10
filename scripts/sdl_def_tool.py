@@ -91,15 +91,23 @@ for name, section in config.get_all_projects(config.get_setup_config()):
 
     print(f"[Project {name}] Generating source for {len(generated_sources)} definitions...")
 
+    generated_source_dir.mkdir(parents=True, exist_ok=True)
+
     # Remove old source
     for item in generated_source_dir.iterdir():
         if not item.is_file() or item.suffix != '.cpp':
             raise ValueError(f"unexpected item found in {generated_source_dir}")
         
+        item.unlink()
+        
     # Write new source
     for generated_source in generated_sources:
         (generated_source_dir / f"def_{generated_source.owner_class_name}").with_suffix('.cpp').write_text(generated_source.sdl_impl)
 
+    # TODO: remove extra indent
+    # TODO: CMake script to include source for compile
     # TODO: generate source for ph_core.cpp and such
     
 # TODO: indicate CMake reconfigure is required
+
+print(f"All definitions generated.")
