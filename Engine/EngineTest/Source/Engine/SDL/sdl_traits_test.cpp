@@ -76,7 +76,9 @@ struct DummySdlMethodStruct
 
 	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummySdlMethodStruct, DummySdlClass>)
 	{
-		return FunctionType("dummy");
+		FunctionType func;
+		func.name("dummy");
+		return func;
 	}
 };
 
@@ -84,7 +86,9 @@ struct DummySdlMethodStruct2 : public DummySdlMethodStruct
 {
 	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummySdlMethodStruct2, DummySdlClass>)
 	{
-		return FunctionType("dummy2");
+		FunctionType func;
+		func.name("dummy2");
+		return func;
 	}
 };
 

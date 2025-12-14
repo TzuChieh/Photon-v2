@@ -1,12 +1,16 @@
 #pragma once
 
+#include <Common/assertion.h>
+
+#include <cstddef>
 #include <type_traits>
 #include <utility>
-#include <cstddef>
+#include <tuple>
 
 namespace ph
 {
 
+// TODO: move to Common lib
 // TODO: variants that ignores return type
 
 /*! @brief Check if instances of types can be added together.
@@ -126,5 +130,86 @@ The result is also `true` if both types are the same; `false` if one of them is 
 */
 template<typename BaseType, typename DerivedType>
 concept CBase = std::derived_from<DerivedType, BaseType>;
+
+/*! @brief Traits for callable types.
+Useful for introspecting callable/function signatures.
+*/
+///@{
+
+// SFINAE sinkhole
+template<typename T, typename = void>
+struct TCallableTraits
+{
+	PH_STATIC_ASSERT_DEPENDENT_FALSE(T, "Unsupported callable type. Cannot extract traits.");
+};
+
+// Ordinary function
+template<typename R, typename... Args>
+struct TCallableTraits<R(Args...)>
+{
+	using ReturnType = R;
+	using ArgTypes = std::tuple<Args...>;
+
+	template<std::size_t IDX>
+	using ArgTypeAt = std::tuple_element_t<IDX, ArgTypes>;
+};
+
+// Function pointer
+template<typename R, typename... Args>
+struct TCallableTraits<R(*)(Args...)>
+{
+	using ReturnType = R;
+	using ArgTypes = std::tuple<Args...>;
+
+	template<std::size_t IDX>
+	using ArgTypeAt = std::tuple_element_t<IDX, ArgTypes>;
+};
+
+// Pointer to non-const member function
+template<typename R, typename T, typename... Args>
+struct TCallableTraits<R(T::*)(Args...)>
+{
+	using ReturnType = R;
+	using ClassType = T;
+	using ArgTypes = std::tuple<Args...>;
+
+	template<std::size_t IDX>
+	using ArgTypeAt = std::tuple_element_t<IDX, ArgTypes>;
+};
+
+// Pointer to const member function
+template<typename R, typename T, typename... Args>
+struct TCallableTraits<R(T::*)(Args...) const>
+{
+	using ReturnType = R;
+	using ClassType = T;
+	using ArgTypes = std::tuple<Args...>;
+
+	template<std::size_t IDX>
+	using ArgTypeAt = std::tuple_element_t<IDX, ArgTypes>;
+};
+
+// Functor and lambda
+template<typename T>
+struct TCallableTraits
+<
+	T,
+	std::enable_if_t
+	<
+		!std::is_function_v<T> &&
+		!std::is_pointer_v<T> &&
+		!std::is_member_function_pointer_v<T>
+	>
+>
+{
+	using ReturnType = typename TCallableTraits<decltype(&T::operator())>::ReturnType;
+	using ClassType = T;
+	using ArgTypes = typename TCallableTraits<decltype(&T::operator())>::ArgTypes;
+
+	template<std::size_t IDX>
+	using ArgTypeAt = std::tuple_element_t<IDX, ArgTypes>;
+};
+
+///@}
 
 }// end namespace ph

@@ -44,7 +44,8 @@ public:
 
 		PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<SdlTranslate, PhysicalActor>)
 		{
-			FunctionType func("translate");
+			FunctionType func;
+			func.name("translate");
 			func.description("Moves the actor away from the original location with a specified amount.");
 
 			TSdlVector3<OwnerType> amount("amount", &OwnerType::amount);
@@ -111,7 +112,8 @@ public:
 
 		PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<SdlScale, PhysicalActor>)
 		{
-			FunctionType func("scale");
+			FunctionType func;
+			func.name("scale");
 			func.description("Enlarges or shrinks the actor with some specified amount.");
 
 			TSdlVector3<OwnerType> amount("amount", &OwnerType::amount);

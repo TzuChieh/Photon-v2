@@ -4,6 +4,7 @@
 #include "Engine/SDL/ISdlResource.h"
 #include "Engine/SDL/TSdl.h"
 #include "Engine/SDL/Introspect/TSdlEnum.h"
+#include "Engine/Utility/traits.h"
 
 // Definer types
 #include "Engine/SDL/Definition/TSdlFunctionDefiner.h"
@@ -64,9 +65,8 @@ Available functionalities after defining the macro:
 */
 #define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\
 	\
-	using ClassType        = std::remove_cv_t<__VA_ARGS__>;\
-	using OwnerType        = std::remove_cv_t<typename ClassType::OwnerType>;\
-	using PrimaryOwnerType = OwnerType;\
+	using ClassType = std::remove_cv_t<__VA_ARGS__>;\
+	using OwnerType = std::remove_cv_t<typename ClassType::OwnerType>;\
 	\
 	/* A marker so we know the macro has been called. */\
 	using SdlClassDefinitionMarker = OwnerType;\
@@ -128,25 +128,18 @@ Available functionalities after defining the macro:
 	inline static FunctionType internal_sdl_function_impl()
 
 // TODO: remove include for TSdlOwnerMethod
-#define PH_DEFINE_SDL_FUNCTION_(CppOwnerType, funcDef, ...)\
+#define PH_DEFINE_SDL_FUNCTION_(ownerType, funcDef, ...)\
 	\
-	using SdlFunctionType = TSdlOwnerMethod<CppOwnerType, PrimaryOwnerType>;\
-	using OwnerType       = CppOwnerType;\
+	using OwnerType = ownerType;\
 	\
 	/* A marker so we know the macro has been called. */\
 	using SdlFunctionDefinitionMarker = OwnerType;\
 	\
-	inline static const SdlFunctionType* getSdlFunction()\
-	{\
-		static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,\
-			"PH_DEFINE_SDL_FUNCTION() must return a function derived from SdlFunction.");\
-		\
-		static const FunctionType sdlFunction = internal_sdl_function_impl();\
-		return &sdlFunction;\
-	}\
+	static auto getSdlFunction()\
+	-> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*;\
 	\
 	template<typename InternalDef>\
-	inline static void internal_sdl_function_impl(TSdlFunctionDefiner<InternalDef>& funcDef)
+	inline static void internal_sdl_definition_impl(TSdlFunctionDefiner<InternalDef>& funcDef)
 
 /*! @brief Define a SDL enum with function-like syntax.
 

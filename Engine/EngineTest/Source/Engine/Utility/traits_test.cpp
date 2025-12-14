@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <type_traits>
 
 TEST(TraitsTest, CanMultiply)
 {
@@ -112,10 +113,72 @@ TEST(TraitsTest, IsBuildable)
 TEST(TriatsTest, IsDerived)
 {
 	// A class type is its own derived type
-	static_assert(ph::CDerived<std::string, std::string> == true);
+	EXPECT_TRUE((ph::CDerived<std::string, std::string>));
 
 	// Primitive types are never related to derivations
-	static_assert(ph::CDerived<int, int> == false);
-	static_assert(ph::CDerived<int, float> == false);
-	static_assert(ph::CDerived<double, double> == false);
+	EXPECT_FALSE((ph::CDerived<int, int>));
+	EXPECT_FALSE((ph::CDerived<int, float>));
+	EXPECT_FALSE((ph::CDerived<double, double>));
+}
+
+namespace
+{
+
+inline void function_callable()
+{}
+
+inline int function_callable2(float x, unsigned long long y)
+{
+	return 123;
+}
+
+struct MethodCallable
+{
+	inline void nonConstFunc(int x)
+	{}
+
+	inline void constFunc(int x) const
+	{}
+};
+
+struct FunctorCallable
+{
+	inline float operator () (int x, int y, double z) const
+	{
+		return 3.14f;
+	}
+};
+
+inline auto lambdaCallable = [](char ch) -> void
+{};
+
+}// end namespace
+
+TEST(TriatsTest, CallableTraits)
+{
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(function_callable)>::ReturnType, void>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<decltype(function_callable)>::ArgTypes>), 0);
+
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(function_callable2)>::ReturnType, int>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<decltype(function_callable2)>::ArgTypes>), 2);
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(function_callable2)>::ArgTypeAt<0>, float>));
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(function_callable2)>::ArgTypeAt<1>, unsigned long long>));
+
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(&MethodCallable::nonConstFunc)>::ReturnType, void>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<decltype(&MethodCallable::nonConstFunc)>::ArgTypes>), 1);
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(&MethodCallable::nonConstFunc)>::ArgTypeAt<0>, int>));
+
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(&MethodCallable::constFunc)>::ReturnType, void>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<decltype(&MethodCallable::constFunc)>::ArgTypes>), 1);
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(&MethodCallable::constFunc)>::ArgTypeAt<0>, int>));
+
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<FunctorCallable>::ReturnType, float>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<FunctorCallable>::ArgTypes>), 3);
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<FunctorCallable>::ArgTypeAt<0>, int>));
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<FunctorCallable>::ArgTypeAt<1>, int>));
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<FunctorCallable>::ArgTypeAt<2>, double>));
+
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(lambdaCallable)>::ReturnType, void>));
+	EXPECT_EQ((std::tuple_size_v<ph::TCallableTraits<decltype(lambdaCallable)>::ArgTypes>), 1);
+	EXPECT_TRUE((std::is_same_v<ph::TCallableTraits<decltype(lambdaCallable)>::ArgTypeAt<0>, char>));
 }

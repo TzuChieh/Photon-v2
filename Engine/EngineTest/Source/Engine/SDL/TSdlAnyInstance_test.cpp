@@ -29,7 +29,9 @@ struct DummyMethodStruct
 
 	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<DummyMethodStruct, Actor>)
 	{
-		return FunctionType("dummy");
+		FunctionType func;
+		func.name("dummy");
+		return func;
 	}
 };
 

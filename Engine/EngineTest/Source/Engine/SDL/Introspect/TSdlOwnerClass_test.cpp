@@ -45,7 +45,9 @@ struct TestMethodStruct
 
 	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct, TestResource>)
 	{
-		return FunctionType("testMethod");
+		FunctionType func;
+		func.name("testMethod");
+		return func;
 	}
 };
 
@@ -56,7 +58,9 @@ struct TestMethodStruct2
 
 	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct2, TestResource>)
 	{
-		return FunctionType("testMethod2");
+		FunctionType func;
+		func.name("testMethod2");
+		return func;
 	}
 };
 

@@ -4,6 +4,7 @@ import resource_downloader
 import blender_addon
 import render_test
 import content
+import sdl_def_tool
 from utility import config
 from utility import console
 
@@ -115,6 +116,9 @@ for section_name, section in config.get_all_projects(setup_config):
         project_dir,
         section["ProjectName"],
         section_name.removeprefix("Project."))
+    
+# Create SDL definitions
+sdl_def_tool.generate(setup_config)
 
 # Perform miscellaneous operations
 

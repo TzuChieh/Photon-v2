@@ -42,7 +42,8 @@ struct TestMethodStruct
 TEST(TSdlOwnerMethodTest, DefaultStates)
 {
 	{
-		TSdlOwnerMethod<TestMethodStruct, TestResource> method("testMethod");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method;
+		method.name("testMethod");
 
 		PH_EXPECT_STRING_EQ(method.getName(), "testMethod");
 		PH_EXPECT_STRING_EQ(method.getDescription(), "");
@@ -59,7 +60,8 @@ TEST(TSdlOwnerMethodTest, DefaultStates)
 TEST(TSdlOwnerMethodTest, SupplyParameters)
 {
 	{
-		TSdlOwnerMethod<TestMethodStruct, TestResource> method("ttt");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method;
+		method.name("ttt");
 		method.addParam(
 			TSdlString<TestMethodStruct>("someValue", &TestMethodStruct::str));
 		EXPECT_EQ(method.numParams(), 1);
@@ -79,7 +81,8 @@ TEST(TSdlOwnerMethodTest, SupplyParameters)
 TEST(TSdlOwnerMethodTest, CallMethod)
 {
 	{
-		TSdlOwnerMethod<TestMethodStruct, TestResource> method("setToHello");
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method;
+		method.name("setToHello");
 		method.addParam(
 			TSdlString<TestMethodStruct>("someParam", &TestMethodStruct::str));
 
