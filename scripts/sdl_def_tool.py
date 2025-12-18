@@ -4,6 +4,7 @@ import configparser
 import textwrap
 import time
 from pathlib import Path
+from abc import ABC, abstractmethod
 
 
 class GeneratedSource:
@@ -11,29 +12,37 @@ class GeneratedSource:
         self.unique_name = ""
         self.sdl_impl = ""
 
-def _generate_source_for(header_file: Path, source_dir: Path):
-    primary_owner_class_name = header_file.stem
-    header_include_expr = header_file.relative_to(source_dir).as_posix()
+
+class MacroHandler(ABC):
+    def __init__(self):
+        super().__init__()
+
+    @property
+    @abstractmethod
+    def macro_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def generate_source(self, source_file: Path, source_dir: Path, arg_tokens: list[str]) -> str:
+        pass
+
+
+class SdlFunctionHandler(MacroHandler):
+    @property
+    def macro_name(self):
+        return 'PH_DEFINE_SDL_FUNCTION_'
     
-    macro_name = 'PH_DEFINE_SDL_FUNCTION_'
-    macro_prefix = macro_name + '('
-
-    sdl_impl = ""
-    for line in header_file.read_text().splitlines():
-        line = line.strip()
-        if not line.startswith(macro_prefix):
-            continue
-
-        tokens = line[len(macro_prefix):].split(',')
+    def generate_source(self, source_file, source_dir, arg_tokens):
+        primary_owner_class_name = source_file.stem
+        header_include_expr = source_file.relative_to(source_dir).as_posix()
 
         # For arguments, we need at least `CppOwnerType, funcDef`
-        if len(tokens) < 2:
-            raise ValueError(f"{macro_name}() requires at least 2 arguments, {len(tokens)} were given")
+        if len(arg_tokens) < 2:
+            raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
 
-        owner_class_name = tokens[0].strip()
+        owner_class_name = arg_tokens[0].strip()
 
-        # Boilerplate for generated C++ source code
-        sdl_impl += textwrap.dedent(
+        return textwrap.dedent(
             f"""
             #include "{header_include_expr}"
 
@@ -65,15 +74,35 @@ def _generate_source_for(header_file: Path, source_dir: Path):
 
             """)
 
+
+def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[MacroHandler]):
+    sdl_impl = ""
+    for line in source_file.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        for handler in handlers:
+            macro_prefix = handler.macro_name + '('
+            if not line.startswith(macro_prefix):
+                continue
+
+            tokens = line[len(macro_prefix):].split(',')
+            sdl_impl += handler.generate_source(source_file, source_dir, tokens)
+
+            # Handlers are unique, skip the rests if we handled one
+            break
+
     if not sdl_impl:
         return None
 
     result = GeneratedSource()
-    result.unique_name = header_include_expr.replace('/', '_')
+    result.unique_name = source_file.relative_to(source_dir).as_posix().replace('/', '_')
     result.sdl_impl = f"// !!! GENERATED CODE, DO NOT MODIFY !!! ID: {time.time_ns()}\n{sdl_impl}"
     return result
 
 def generate(setup_config: configparser.ConfigParser):
+    handlers = [
+        SdlFunctionHandler()
+        ]
+
     # Generate for each project
     for name, section in config.get_all_projects(setup_config):
         project_name = name.removeprefix("Project.")
@@ -85,17 +114,17 @@ def generate(setup_config: configparser.ConfigParser):
         generated_sources = []
         for dirpath, dirnames, filenames in source_dir.walk():
             for filename in filenames:
-                if not filename.endswith('.h'):
+                if not filename.endswith(('.h', '.cpp', '.ipp', '.tpp')):
                     continue
 
-                generated_source = _generate_source_for(dirpath / filename, source_dir)
+                generated_source = _generate_source_for(dirpath / filename, source_dir, handlers)
                 if generated_source is not None:
                     generated_sources.append(generated_source)
                 
         if not generated_sources:
             continue
 
-        print(f"[Project {name}] Generating source for {len(generated_sources)} definitions...")
+        print(f"[Project {project_name}] Generating source for {len(generated_sources)} definitions...")
 
         generated_source_dir.mkdir(parents=True, exist_ok=True)
 
