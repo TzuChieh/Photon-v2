@@ -18,7 +18,6 @@
 // Owner types
 #include "Engine/SDL/Introspect/TSdlOwnerClass.h"
 #include "Engine/SDL/Introspect/TSdlOwnerStruct.h"
-#include "Engine/SDL/Introspect/TSdlOwnerMethod.h"
 
 // Enum types
 #include "Engine/SDL/Introspect/TSdlGeneralEnum.h"
@@ -108,27 +107,8 @@ Available functionalities after defining the macro:
 	\
 	inline static StructType internal_sdl_struct_impl()
 
-#define PH_DEFINE_SDL_FUNCTION(...)/* variadic args for template types that contain commas */\
-	\
-	using FunctionType = std::remove_cv_t<__VA_ARGS__>;\
-	using OwnerType    = std::remove_cv_t<typename FunctionType::OwnerType>;\
-	\
-	/* A marker so we know the macro has been called. */\
-	using SdlFunctionDefinitionMarker = OwnerType;\
-	\
-	inline static const FunctionType* getSdlFunction()\
-	{\
-		static_assert(std::is_base_of_v<::ph::SdlFunction, FunctionType>,\
-			"PH_DEFINE_SDL_FUNCTION() must return a function derived from SdlFunction.");\
-		\
-		static const FunctionType sdlFunction = internal_sdl_function_impl();\
-		return &sdlFunction;\
-	}\
-	\
-	inline static FunctionType internal_sdl_function_impl()
-
 // TODO: remove include for TSdlOwnerMethod
-#define PH_DEFINE_SDL_FUNCTION_(ownerType, funcDef, ...)\
+#define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)\
 	\
 	using OwnerType = ownerType;\
 	\

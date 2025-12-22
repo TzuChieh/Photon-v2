@@ -92,7 +92,7 @@ for section_name, section in config.get_all_projects(setup_config):
 # Place main configs directly into the installed config directory
 src_dst_dirs.append(("./Main/Config/", dst_config_root))
 
-print("Installing source data")
+print("Installing source data...")
 for src_dir, dst_dir in src_dst_dirs:
     shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True)
 
@@ -118,6 +118,7 @@ for section_name, section in config.get_all_projects(setup_config):
         section_name.removeprefix("Project."))
     
 # Create SDL definitions
+print("Generating SDL definitions...")
 sdl_def_tool.generate(setup_config)
 
 # Perform miscellaneous operations

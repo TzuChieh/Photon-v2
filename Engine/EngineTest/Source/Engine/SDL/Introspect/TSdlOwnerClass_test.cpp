@@ -1,3 +1,4 @@
+#include "Engine/SDL/Introspect/TSdlOwnerClass_test.h"
 #include "engine_test_util.h"
 
 #include <Engine/SDL/Introspect/TSdlOwnerClass.h>
@@ -6,7 +7,6 @@
 #include <Engine/SDL/Introspect/TSdlReal.h>
 #include <Engine/SDL/Introspect/TSdlString.h>
 #include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
-#include <Engine/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 
@@ -15,56 +15,7 @@
 #include <type_traits>
 
 using namespace ph;
-
-namespace
-{
-
-class TestResource : public ISdlResource
-{
-public:
-	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_Geometry;
-
-	real r;
-	std::string str;
-
-	ESdlTypeCategory getDynamicCategory() const override
-	{
-		return CATEGORY;
-	}
-
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TestResource>)
-	{
-		return ClassType("testClass");
-	}
-};
-
-struct TestMethodStruct
-{
-	void operator () (TestResource& res)
-	{}
-
-	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct, TestResource>)
-	{
-		FunctionType func;
-		func.name("testMethod");
-		return func;
-	}
-};
-
-struct TestMethodStruct2
-{
-	void operator () (const TestResource& res) const
-	{}
-
-	PH_DEFINE_SDL_FUNCTION(TSdlOwnerMethod<TestMethodStruct2, TestResource>)
-	{
-		FunctionType func;
-		func.name("testMethod2");
-		return func;
-	}
-};
-
-}// end anonymous namespace
+using namespace ph::TSdlOwnerClass_test;
 
 TEST(TSdlOwnerClassTest, RequiredProperties)
 {
