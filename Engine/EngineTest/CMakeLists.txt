@@ -4,8 +4,11 @@ get_filename_component(ENGINE_TEST_DIR "./" ABSOLUTE)
 
 set(TARGET_NAME "EngineTest")
 
-file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES "${ENGINE_TEST_DIR}/Source/*.h")
-file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES "${ENGINE_TEST_DIR}/Source/*.cpp")
+file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES
+	"${ENGINE_TEST_DIR}/Source/*.h")
+file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES
+	"${ENGINE_TEST_DIR}/Source/*.cpp"
+	"${ENGINE_TEST_DIR}/Generated/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${ENGINE_TEST_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)

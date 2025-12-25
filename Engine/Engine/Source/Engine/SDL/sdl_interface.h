@@ -18,6 +18,7 @@
 // Owner types
 #include "Engine/SDL/Introspect/TSdlOwnerClass.h"
 #include "Engine/SDL/Introspect/TSdlOwnerStruct.h"
+#include "Engine/SDL/Introspect/TSdlOwnerMethod.h"
 
 // Enum types
 #include "Engine/SDL/Introspect/TSdlGeneralEnum.h"
@@ -107,7 +108,6 @@ Available functionalities after defining the macro:
 	\
 	inline static StructType internal_sdl_struct_impl()
 
-// TODO: remove include for TSdlOwnerMethod
 #define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)\
 	\
 	using OwnerType = ownerType;\

@@ -1,39 +1,12 @@
+#include "Engine/SDL/TSdlAnyInstance_test.h"
+
 #include <Engine/SDL/TSdlAnyInstance.h>
-#include <Engine/SDL/sdl_interface.h>
 #include <Engine/SDL/sdl_traits.h>
-#include <Engine/Actor/Actor.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
-
-namespace
-{
-
-struct DummyStruct
-{
-	int x = 0;
-
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummyStruct>)
-	{
-		return StructType("dummy");
-	}
-};
-
-struct DummyMethodStruct
-{
-	int p = 0;
-
-	void operator () (Actor& res)
-	{}
-
-	PH_DEFINE_SDL_FUNCTION(DummyMethodStruct, f)
-	{
-		f.name("dummy");
-	}
-};
-
-}// end anonymous namespace
+using namespace ph::TSdlAnyInstance_test;
 
 static_assert(CDerived<Actor, ISdlResource> == true);
 static_assert(CHasSdlClassDefinition<Actor> == true);

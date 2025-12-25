@@ -2,7 +2,8 @@ from utility import config
 
 import configparser
 import textwrap
-import time
+import uuid
+import re
 from pathlib import Path
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -79,11 +80,10 @@ class MacroHandler(ABC):
         @return Extracted value of the specified named argument. `None` if the argument is not found.
         """
         for token in arg_tokens:
-            token = token.lstrip()
             if token.startswith(arg_name):
                 token = token[len(arg_name):].lstrip()
                 if token.startswith('='):
-                    return token[1:].strip()
+                    return token[1:].lstrip()
                 else:
                     return ""
         return None
@@ -104,7 +104,7 @@ class FunctionHandler(MacroHandler):
 
         outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
         header_include_expr = source_file.relative_to(source_dir).as_posix()
-        owner_class_name = arg_tokens[0].strip()
+        owner_class_name = arg_tokens[0]
 
         src = SourceFragment()
         src.macro_type = EMacro.DefineFunction
@@ -202,11 +202,17 @@ def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[Mac
     for line in source_file.read_text(encoding='utf-8').splitlines():
         line = line.lstrip()
         for handler in handlers:
-            macro_prefix = handler.macro_name + '('
-            if not line.startswith(macro_prefix):
+            # This rejects most cases; we want to scan as fast as possible
+            if not line.startswith(handler.macro_name):
                 continue
 
-            tokens = line[len(macro_prefix):].split(',')
+            # If a macro name is recognized, extract the args within parentheses
+            line_matches = re.search(r'\((.*?)\)', line)
+            if line_matches is None:
+                continue
+
+            str_within_parentheses = line_matches.group(1)
+            tokens = [token.strip() for token in str_within_parentheses.split(',')]
             sdl_frags.append(handler.generate_source(source_file, source_dir, tokens))
 
             # Handlers are unique, skip the rests if we handled one
@@ -218,7 +224,7 @@ def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[Mac
     unit = CompilationUnit()
     unit.unique_name = source_file.relative_to(source_dir).with_suffix('').as_posix().replace('/', '_')
     unit.sdl_frags = sdl_frags
-    unit.version_id = time.time_ns()
+    unit.version_id = uuid.uuid4()
     return unit
 
 def generate(setup_config: configparser.ConfigParser):

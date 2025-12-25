@@ -98,7 +98,7 @@ TEST(TSdlOwnerClassTest, AddAndGetFunctions)
 
 		const auto func = sdlClass.getFunction(0);
 		ASSERT_TRUE(func != nullptr);
-		PH_EXPECT_STRING_EQ(func->getName(), "testMethod");
+		PH_EXPECT_STRING_EQ(func->getName(), "TSdlOwnerClass_test::testMethod");
 
 		// Add one more function
 
@@ -107,7 +107,7 @@ TEST(TSdlOwnerClassTest, AddAndGetFunctions)
 
 		const auto func1 = sdlClass.getFunction(1);
 		ASSERT_TRUE(func1 != nullptr);
-		PH_EXPECT_STRING_EQ(func1->getName(), "testMethod2");
+		PH_EXPECT_STRING_EQ(func1->getName(), "TSdlOwnerClass_test::testMethod2");
 
 		// Getting out-of-bound functions is allowed
 		for(std::size_t i = 2; i < 1000; ++i)
