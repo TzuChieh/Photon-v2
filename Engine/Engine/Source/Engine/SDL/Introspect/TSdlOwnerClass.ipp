@@ -3,7 +3,7 @@
 #include "Engine/SDL/Introspect/TSdlOwnerClass.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
 #include "Engine/SDL/Introspect/SdlStruct.h"
-#include "Engine/SDL/Introspect/SdlStructFieldStump.h"
+#include "Engine/SDL/Introspect/TSdlStructFieldStump.h"
 #include "Engine/SDL/sdl_exceptions.h"
 #include "Engine/SDL/Introspect/SdlFunction.h"
 #include "Engine/SDL/sdl_helpers.h"
@@ -211,14 +211,14 @@ template<typename StructType>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(StructType Owner::* const structObjPtr)
 	-> TSdlOwnerClass&
 {
-	return addStruct(structObjPtr, SdlStructFieldStump());
+	return addStruct(structObjPtr, TSdlStructFieldStump<Owner>{});
 }
 
 template<typename Owner, typename FieldSet>
 template<typename StructType>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
-	StructType Owner::* const  structObjPtr,
-	const SdlStructFieldStump& structFieldStump)
+	StructType Owner::* const structObjPtr,
+	const TSdlStructFieldStump<Owner>& structFieldStump)
 
 	-> TSdlOwnerClass&
 {

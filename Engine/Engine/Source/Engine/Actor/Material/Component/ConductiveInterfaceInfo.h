@@ -46,9 +46,9 @@ private:
 	std::optional<math::Spectrum> m_iorInnerK;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<ConductiveInterfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(ConductiveInterfaceInfo, ztruct)
 	{
-		StructType ztruct("conductive-interface");
+		ztruct.typeName("conductive-interface");
 		ztruct.description("Data describing the effects when light hits an conductive interface.");
 
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
@@ -80,8 +80,6 @@ public:
 		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::Raw, &OwnerType::m_iorInnerK);
 		iorInnerK.description("The complex index of refraction (imaginary part) inside of this interface.");
 		ztruct.addField(iorInnerK);
-
-		return ztruct;
 	}
 };
 

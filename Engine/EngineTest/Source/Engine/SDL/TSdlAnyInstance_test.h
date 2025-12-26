@@ -10,9 +10,9 @@ struct DummyStruct
 {
 	int x = 0;
 
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummyStruct>)
+	PH_DEFINE_SDL_STRUCT(DummyStruct, ztruct, outerScope=TSdlAnyInstance_test)
 	{
-		return StructType("TSdlAnyInstance_test::dummy");
+		ztruct.typeName("TSdlAnyInstance_test::dummy");
 	}
 };
 

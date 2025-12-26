@@ -40,9 +40,9 @@ private:
 	real              m_iorInner;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DielectricInterfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(DielectricInterfaceInfo, ztruct)
 	{
-		StructType ztruct("dielectric-interface");
+		ztruct.typeName("dielectric-interface");
 		ztruct.description("Data describing the effects when light hits an dielectric interface.");
 
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
@@ -62,8 +62,6 @@ public:
 		iorInner.niceToHave();
 		iorInner.defaultTo(1.5_r);
 		ztruct.addField(iorInner);
-
-		return ztruct;
 	}
 };
 

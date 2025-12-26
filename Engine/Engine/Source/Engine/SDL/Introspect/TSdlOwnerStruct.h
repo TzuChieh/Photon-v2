@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/SdlStruct.h"
+#include "Engine/SDL/Definition/ISdlDefaultStructDefinition.h"
 #include "Engine/SDL/sdl_fwd.h"
 #include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
@@ -14,13 +15,13 @@ namespace ph
 /*! @brief SDL binding type for a typical C++ struct.
 */
 template<typename StructType>
-class TSdlOwnerStruct : public SdlStruct
+class TSdlOwnerStruct : public SdlStruct, public ISdlDefaultStructDefinition
 {
 public:
 	using OwnerType = StructType;
 
 public:
-	explicit TSdlOwnerStruct(std::string name);
+	TSdlOwnerStruct();
 
 	void initObject(
 		AnyNonConstPtr         obj,
@@ -54,10 +55,11 @@ public:
 	template<typename StructObjType>
 	TSdlOwnerStruct& addStruct(
 		StructObjType StructType::* structObjPtr,
-		const SdlStructFieldStump&  structFieldStump);
+		const TSdlStructFieldStump<StructType>& structFieldStump);
 
 	auto getFields() const -> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&;
 
+	auto typeName(std::string nameStr) -> TSdlOwnerStruct&;
 	TSdlOwnerStruct& description(std::string descriptionStr);
 
 private:

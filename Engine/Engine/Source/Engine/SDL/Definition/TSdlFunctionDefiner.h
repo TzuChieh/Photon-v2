@@ -24,8 +24,8 @@ public:
 
 	/*! @brief Register a parameter to the function.
 	*/
-	template<typename T>
-	auto addParam(T&& param) -> TSdlFunctionDefiner&;
+	template<typename ParamType>
+	auto addParam(ParamType&& param) -> TSdlFunctionDefiner&;
 
 private:
 	Def& m_def;

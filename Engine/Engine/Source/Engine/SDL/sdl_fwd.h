@@ -6,10 +6,12 @@ namespace ph
 class ISdlInstantiable;
 class SdlClass;
 class SdlStruct;
-class SdlStructFieldStump;
 class SdlField;
 class SdlFunction;
 class SdlEnum;
+
+template<typename Owner>
+class TSdlStructFieldStump;
 
 template<typename EnumType>
 class TSdlEnum;
@@ -54,9 +56,15 @@ enum ESdlClauseValue
 // Definer types
 
 template<typename Def>
+class TSdlStructDefiner;
+
+template<typename Def>
 class TSdlFunctionDefiner;
 
 // Concrete introspect types
+
+template<typename StructType>
+class TSdlOwnerStruct;
 
 template<typename MethodStruct, typename TargetType>
 class TSdlOwnerMethod;

@@ -37,9 +37,9 @@ private:
 	EMaskingShadowing      m_maskingShadowing;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<MicrosurfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(MicrosurfaceInfo, ztruct)
 	{
-		StructType ztruct("microsurface");
+		ztruct.typeName("microsurface");
 		ztruct.description("Describing microsurface structure of the material.");
 
 		TSdlEnumField<OwnerType, EInterfaceMicrosurface> microsurface("microsurface", &OwnerType::m_microsurface);
@@ -75,8 +75,6 @@ public:
 		maskingShadowing.optional();
 		maskingShadowing.defaultTo(EMaskingShadowing::HightCorrelated);
 		ztruct.addField(maskingShadowing);
-
-		return ztruct;
 	}
 };
 

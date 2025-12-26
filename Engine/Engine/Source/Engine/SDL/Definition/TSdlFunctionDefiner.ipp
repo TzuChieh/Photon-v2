@@ -32,12 +32,12 @@ inline auto TSdlFunctionDefiner<Def>
 }
 
 template<typename Def>
-template<typename T>
+template<typename ParamType>
 inline auto TSdlFunctionDefiner<Def>
-::addParam(T&& param)
+::addParam(ParamType&& param)
 -> TSdlFunctionDefiner&
 {
-	m_def.addParam(std::forward<T>(param));
+	m_def.addParam(std::forward<ParamType>(param));
 	return *this;
 }
 

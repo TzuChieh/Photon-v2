@@ -24,7 +24,7 @@ member functions for efficiency and ease of reuse.
 class SdlStruct : public ISdlInstantiable
 {
 public:
-	explicit SdlStruct(std::string typeName);
+	SdlStruct();
 
 	/*! @brief Initialize a struct object from value clauses.
 	How the object will be initialized depends on the struct's SDL definition.
@@ -60,6 +60,7 @@ public:
 	std::string_view getDescription() const override;
 
 protected:
+	SdlStruct& setTypeName(std::string name);
 	SdlStruct& setDescription(std::string description);
 
 private:

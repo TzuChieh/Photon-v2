@@ -84,8 +84,8 @@ public:
 
 	template<typename StructType>
 	TSdlOwnerClass& addStruct(
-		StructType Owner::*        structObjPtr,
-		const SdlStructFieldStump& structFieldStump);
+		StructType Owner::* structObjPtr,
+		const TSdlStructFieldStump<Owner>& structFieldStump);
 
 	/*! @brief Adds a function that can later be called.
 	*/

@@ -89,6 +89,61 @@ class MacroHandler(ABC):
         return None
 
 
+class StructHandler(MacroHandler):
+    @property
+    def macro_name(self):
+        return 'PH_DEFINE_SDL_STRUCT'
+    
+    def generate_source(self, source_file, source_dir, arg_tokens):
+        if source_file.suffix != '.h':
+            raise ValueError(f"SDL struct definition is only allowed in header (offending file: {source_file})")
+
+        # For arguments, we need at least `CppOwnerType, structDef`
+        if len(arg_tokens) < 2:
+            raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
+
+        outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+        header_include_expr = source_file.relative_to(source_dir).as_posix()
+        owner_class_name = arg_tokens[0]
+
+        src = SourceFragment()
+        src.macro_type = EMacro.DefineStruct
+        src.macro_header = source_file
+        src.owner_class = owner_class_name
+        src.sdl_impl = textwrap.dedent(
+            f"""
+            #include "{header_include_expr}"
+
+            // For `SdlStructType`
+            #include <Engine/SDL/Introspect/TSdlOwnerStruct.h>
+
+            namespace ph
+            {{
+
+            auto {outer_scope_expr}{owner_class_name}::getSdlStruct()
+            -> const TSdlOwnerStruct<OwnerType>*
+            {{
+                using SdlStructType = TSdlOwnerStruct<OwnerType>;
+                static_assert(std::is_base_of_v<::ph::SdlStruct, SdlStructType>,
+                    "getSdlStruct() must return a struct derived from SdlStruct.");
+                
+                static const auto sdlStruct =
+                    []() -> SdlStructType
+                    {{
+                        SdlStructType def;
+                        TSdlStructDefiner<SdlStructType> definer(def);
+                        internal_sdlStructDefinition<SdlStructType>(definer);
+                        return def;
+                    }}();
+                return &sdlStruct;
+            }}
+
+            }}// end namespace ph
+
+            """)
+        return src
+
+
 class FunctionHandler(MacroHandler):
     @property
     def macro_name(self):
@@ -132,7 +187,7 @@ class FunctionHandler(MacroHandler):
                     {{
                         SdlFunctionType def;
                         TSdlFunctionDefiner<SdlFunctionType> definer(def);
-                        internal_sdl_definition_impl<SdlFunctionType>(definer);
+                        internal_sdlFunctionDefinition<SdlFunctionType>(definer);
                         return def;
                     }}();
                 return &sdlFunction;
@@ -229,6 +284,7 @@ def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[Mac
 
 def generate(setup_config: configparser.ConfigParser):
     handlers = [
+        StructHandler(),
         FunctionHandler()
         ]
 

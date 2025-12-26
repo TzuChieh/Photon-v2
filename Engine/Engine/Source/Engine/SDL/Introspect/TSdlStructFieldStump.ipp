@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/SDL/Introspect/SdlStructFieldStump.h"
+#include "Engine/SDL/Introspect/TSdlStructFieldStump.h"
 #include "Engine/SDL/Introspect/TSdlNestedField.h"
 #include "Engine/SDL/Introspect/SdlStruct.h"
 
@@ -13,9 +13,10 @@
 namespace ph
 {
 
-template<typename StructType, typename Owner>
-inline auto SdlStructFieldStump::genFieldSet(StructType Owner::* const structObjPtr) const
-	-> TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>
+template<typename Owner>
+template<typename StructType>
+inline auto TSdlStructFieldStump<Owner>::genFieldSet(StructType Owner::* const structObjPtr) const
+-> TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>
 {
 	// TODO: require StructType has getSdlFunction()
 

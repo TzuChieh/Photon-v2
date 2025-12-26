@@ -33,9 +33,9 @@ private:
 	math::Spectrum m_sigmaS;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<SurfaceLayerInfo>)
+	PH_DEFINE_SDL_STRUCT(SurfaceLayerInfo, ztruct)
 	{
-		StructType ztruct("surface-layer-info");
+		ztruct.typeName("surface-layer-info");
 		ztruct.description("Data for layered material construction.");
 
 		TSdlReal<OwnerType> roughness("roughness", &OwnerType::m_roughness);
@@ -79,8 +79,6 @@ public:
 		sigmaS.defaultTo(math::Spectrum(0));
 		sigmaS.optional();
 		ztruct.addField(sigmaS);
-
-		return ztruct;
 	}
 };
 

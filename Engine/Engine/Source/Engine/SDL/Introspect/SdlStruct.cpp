@@ -7,11 +7,16 @@
 namespace ph
 {
 
-SdlStruct::SdlStruct(std::string typeName) :
-	m_typeName   (std::move(typeName)),
+SdlStruct::SdlStruct() :
+	m_typeName   (),
 	m_description()
+{}
+
+SdlStruct& SdlStruct::setTypeName(std::string name)
 {
-	PH_ASSERT(!m_typeName.empty());
+	m_typeName = std::move(name);
+
+	return *this;
 }
 
 SdlStruct& SdlStruct::setDescription(std::string description)

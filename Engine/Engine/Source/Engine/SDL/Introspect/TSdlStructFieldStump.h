@@ -6,12 +6,13 @@
 namespace ph
 {
 
-// Information required for adding the struct members to another struct
-
-class SdlStructFieldStump final
+/*! @brief Information required for adding struct members to another struct-like type.
+*/
+template<typename Owner>
+class TSdlStructFieldStump final
 {
 public:
-	template<typename StructType, typename Owner>
+	template<typename StructType>
 	auto genFieldSet(StructType Owner::* structObjPtr) const
 		-> TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>;
 
@@ -21,4 +22,4 @@ public:
 
 }// end namespace ph
 
-#include "Engine/SDL/Introspect/SdlStructFieldStump.ipp"
+#include "Engine/SDL/Introspect/TSdlStructFieldStump.ipp"

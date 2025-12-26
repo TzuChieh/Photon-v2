@@ -2,7 +2,7 @@
 
 #include "Engine/SDL/Introspect/TSdlOwnerStruct.h"
 #include "Engine/SDL/Introspect/SdlField.h"
-#include "Engine/SDL/Introspect/SdlStructFieldStump.h"
+#include "Engine/SDL/Introspect/TSdlStructFieldStump.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
 #include "Engine/SDL/sdl_exceptions.h"
 
@@ -16,9 +16,9 @@ namespace ph
 {
 
 template<typename StructType>
-inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct(std::string name)
+inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct()
 
-	: SdlStruct(std::move(name))
+	: SdlStruct()
 
 	, m_fields()
 {}
@@ -102,7 +102,7 @@ inline void TSdlOwnerStruct<StructType>::referencedResources(
 template<typename StructType>
 template<typename T>
 inline auto TSdlOwnerStruct<StructType>::addField(T sdlField)
-	-> TSdlOwnerStruct&
+-> TSdlOwnerStruct&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
@@ -116,26 +116,17 @@ inline auto TSdlOwnerStruct<StructType>::addField(T sdlField)
 template<typename StructType>
 template<typename StructObjType>
 inline auto TSdlOwnerStruct<StructType>::addStruct(StructObjType StructType::* const structObjPtr)
-	-> TSdlOwnerStruct&
+-> TSdlOwnerStruct&
 {
-	// More restrictions on StructObjType may be imposed by FieldSet
-	static_assert(std::is_base_of_v<SdlStruct, StructObjType>,
-		"StructObjType is not a SdlStruct thus cannot be added.");
-
-	PH_ASSERT(structObjPtr);
-
-	m_fields.addFields(SdlStructFieldStump().genFieldSet(structObjPtr));
-
-	return *this;
+	return addStruct(structObjPtr, TSdlStructFieldStump<StructType>{});
 }
 
 template<typename StructType>
 template<typename StructObjType>
 inline auto TSdlOwnerStruct<StructType>::addStruct(
 	StructObjType StructType::* const structObjPtr,
-	const SdlStructFieldStump&        structFieldStump)
-
-	-> TSdlOwnerStruct&
+	const TSdlStructFieldStump<StructType>& structFieldStump)
+-> TSdlOwnerStruct&
 {
 	// More restrictions on StructObjType may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlStruct, StructObjType>,
@@ -168,14 +159,22 @@ inline const SdlField* TSdlOwnerStruct<StructType>::getField(const std::size_t i
 
 template<typename StructType>
 inline auto TSdlOwnerStruct<StructType>::getFields() const
-	-> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&
+-> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&
 {
 	return m_fields;
 }
 
 template<typename StructType>
+inline auto TSdlOwnerStruct<StructType>::typeName(std::string nameStr)
+-> TSdlOwnerStruct&
+{
+	setTypeName(std::move(nameStr));
+	return *this;
+}
+
+template<typename StructType>
 inline auto TSdlOwnerStruct<StructType>::description(std::string descriptionStr)
-	-> TSdlOwnerStruct&
+-> TSdlOwnerStruct&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;

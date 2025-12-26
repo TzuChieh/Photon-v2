@@ -43,19 +43,17 @@ struct NonSdlDummyStruct
 
 struct DummyStruct
 {
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummyStruct>)
+	PH_DEFINE_SDL_STRUCT(DummyStruct, ztruct, outerScope=sdl_traits_test)
 	{
-		StructType ztruct("sdl_traits_test::dummy");
-		return ztruct;
+		ztruct.typeName("sdl_traits_test::dummy");
 	}
 };
 
 struct DummyStruct2 : public DummyStruct
 {
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummyStruct2>)
+	PH_DEFINE_SDL_STRUCT(DummyStruct2, ztruct, outerScope=sdl_traits_test)
 	{
-		StructType ztruct("sdl_traits_test::dummy2");
-		return ztruct;
+		ztruct.typeName("sdl_traits_test::dummy2");
 	}
 };
 

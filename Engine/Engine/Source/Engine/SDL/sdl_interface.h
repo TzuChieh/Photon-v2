@@ -7,6 +7,7 @@
 #include "Engine/Utility/traits.h"
 
 // Definer types
+#include "Engine/SDL/Definition/TSdlStructDefiner.h"
 #include "Engine/SDL/Definition/TSdlFunctionDefiner.h"
 
 // Base types
@@ -89,24 +90,18 @@ Available functionalities after defining the macro:
 	\
 	inline static ClassType internal_sdl_class_impl()
 
-#define PH_DEFINE_SDL_STRUCT(...)/* variadic args for template types that contain commas */\
+#define PH_DEFINE_SDL_STRUCT(ownerType, structDef, ...)\
 	\
-	using StructType = std::remove_cv_t<__VA_ARGS__>;\
-	using OwnerType  = std::remove_cv_t<typename StructType::OwnerType>;\
+	using OwnerType  = ownerType;\
 	\
 	/* A marker so we know the macro has been called. */\
 	using SdlStructDefinitionMarker = OwnerType;\
 	\
-	inline static const StructType* getSdlStruct()\
-	{\
-		static_assert(std::is_base_of_v<::ph::SdlStruct, StructType>,\
-			"PH_DEFINE_SDL_STRUCT() must return a struct derived from SdlStruct.");\
-		\
-		static const StructType sdlStruct = internal_sdl_struct_impl();\
-		return &sdlStruct;\
-	}\
+	static auto getSdlStruct()\
+	-> const TSdlOwnerStruct<OwnerType>*;\
 	\
-	inline static StructType internal_sdl_struct_impl()
+	template<typename InternalDef>\
+	inline static void internal_sdlStructDefinition(TSdlStructDefiner<InternalDef>& structDef)
 
 #define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)\
 	\
@@ -119,7 +114,7 @@ Available functionalities after defining the macro:
 	-> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*;\
 	\
 	template<typename InternalDef>\
-	inline static void internal_sdl_definition_impl(TSdlFunctionDefiner<InternalDef>& funcDef)
+	inline static void internal_sdlFunctionDefinition(TSdlFunctionDefiner<InternalDef>& funcDef)
 
 /*! @brief Define a SDL enum with function-like syntax.
 

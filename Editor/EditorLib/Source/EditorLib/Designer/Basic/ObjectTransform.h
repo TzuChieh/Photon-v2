@@ -48,9 +48,9 @@ private:
 	math::Vector3R m_scale;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<ObjectTransform>)
+	PH_DEFINE_SDL_STRUCT(ObjectTransform, ztruct, outerScope=editor)
 	{
-		StructType ztruct("obj-transform");
+		ztruct.typeName("obj-transform");
 		ztruct.description("Data structure describing placement of an object in the virtual world.");
 
 		TSdlVector3<OwnerType> pos("pos", &OwnerType::m_pos);
@@ -70,8 +70,6 @@ public:
 		scale.optional();
 		scale.defaultTo({1, 1, 1});
 		ztruct.addField(scale);
-
-		return ztruct;
 	}
 };
 

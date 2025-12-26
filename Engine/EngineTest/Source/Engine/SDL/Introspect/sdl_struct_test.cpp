@@ -6,8 +6,10 @@ using namespace ph;
 
 namespace
 {
-	struct EmptyStruct
-	{};
+
+struct EmptyStruct
+{};
+
 }
 
 // It is known that compiling TSdlOwnerStruct with EmptyStruct in 
@@ -21,7 +23,8 @@ namespace
 TEST(SdlStructTest, DefaultStates)
 {
 	{
-		TSdlOwnerStruct<EmptyStruct> sdlStruct("test-struct");
+		TSdlOwnerStruct<EmptyStruct> sdlStruct;
+		sdlStruct.typeName("test-struct");
 		EXPECT_EQ(sdlStruct.numFields(), 0);
 		EXPECT_EQ(sdlStruct.getFields().numFields(), 0);
 
