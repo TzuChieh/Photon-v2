@@ -20,9 +20,9 @@ private:
 	real m_height;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ARectangleLight>)
+	PH_DEFINE_SDL_CLASS(ARectangleLight, clazz)
 	{
-		ClassType clazz("rectangle-light");
+		clazz.typeName("rectangle-light");
 		clazz.docName("Rectangular Light Actor");
 		clazz.description(
 			"This type of light emits energy from a rectangular shape. Note that energy "
@@ -40,8 +40,6 @@ public:
 		height.defaultTo(1);
 		height.required();
 		clazz.addField(height);
-
-		return clazz;
 	}
 };
 

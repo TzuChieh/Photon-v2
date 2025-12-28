@@ -23,9 +23,9 @@ private:
 	std::vector<SurfaceLayerInfo> m_layers;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<LayeredSurface>)
+	PH_DEFINE_SDL_CLASS(LayeredSurface, clazz)
 	{
-		ClassType clazz("layered-surface");
+		clazz.typeName("layered-surface");
 		clazz.docName("Layered Surface");
 		clazz.description("Model a surface as having multiple coating layers.");
 		clazz.baseOn<SurfaceMaterial>();
@@ -34,8 +34,6 @@ public:
 		layers.description("Physical properties of each layer.");
 		layers.required();
 		clazz.addField(layers);
-
-		return clazz;
 	}
 };
 

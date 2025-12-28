@@ -18,9 +18,9 @@ public:
 		return CATEGORY;
 	}
 
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TestResource>)
+	PH_DEFINE_SDL_CLASS(TestResource, clazz, outerScope=TSdlOwnerClass_test)
 	{
-		return ClassType("TSdlOwnerClass_test::testClass");
+		clazz.typeName("TSdlOwnerClass_test::testClass");
 	}
 };
 

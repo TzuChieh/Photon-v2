@@ -20,17 +20,15 @@ private:
 	MicrosurfaceInfo        m_microsurfaceInfo;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AbradedOpaque>)
+	PH_DEFINE_SDL_CLASS(AbradedOpaque, clazz)
 	{
-		ClassType clazz("abraded-opaque");
+		clazz.typeName("abraded-opaque");
 		clazz.docName("Abraded Opaque Material");
 		clazz.description("Able to model surfaces ranging from nearly specular to extremely rough appearances.");
 		clazz.baseOn<SurfaceMaterial>();
 
 		clazz.addStruct(&OwnerType::m_interfaceInfo);
 		clazz.addStruct(&OwnerType::m_microsurfaceInfo);
-
-		return clazz;
 	}
 };
 

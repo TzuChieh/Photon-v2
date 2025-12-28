@@ -34,16 +34,14 @@ private:
 	ObjectTransform m_agentTransform;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RenderAgent>)
+	PH_DEFINE_SDL_CLASS(RenderAgent, clazz, outerScope=editor)
 	{
-		ClassType clazz("render-agent");
+		clazz.typeName("render-agent");
 		clazz.docName("Render Agent");
 		clazz.description("Controls rendering.");
 		clazz.baseOn<FlatDesignerObject>();
 
 		clazz.addStruct(&OwnerType::m_agentTransform);
-
-		return clazz;
 	}
 };
 

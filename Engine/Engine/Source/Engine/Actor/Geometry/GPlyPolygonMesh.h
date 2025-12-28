@@ -26,9 +26,9 @@ private:
 	IndexedTriangleBuffer loadTriangleBuffer() const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GPlyPolygonMesh>)
+	PH_DEFINE_SDL_CLASS(GPlyPolygonMesh, clazz)
 	{
-		ClassType clazz("ply");
+		clazz.typeName("ply");
 		clazz.docName("PLY Polygon Mesh");
 		clazz.description("Polygon mesh stored as a .ply file.");
 		clazz.baseOn<Geometry>();
@@ -38,8 +38,6 @@ public:
 			"The .ply file that stores the polygon mesh.");
 		plyFile.required();
 		clazz.addField(plyFile);
-
-		return clazz;
 	}
 };
 

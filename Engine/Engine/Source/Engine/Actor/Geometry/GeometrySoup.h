@@ -31,9 +31,9 @@ private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GeometrySoup>)
+	PH_DEFINE_SDL_CLASS(GeometrySoup, clazz)
 	{
-		ClassType clazz("geometry-soup");
+		clazz.typeName("geometry-soup");
 		clazz.docName("Geometry Soup");
 		clazz.description("A collection of random geometries.");
 		clazz.baseOn<Geometry>();
@@ -41,8 +41,6 @@ public:
 		TSdlReferenceArray<Geometry, GeometrySoup> geometries("geometries", &OwnerType::m_geometries);
 		geometries.description("Array of references to the geometries in the soup.");
 		clazz.addField(geometries);
-
-		return clazz;
 	}
 };
 

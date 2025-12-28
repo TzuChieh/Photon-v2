@@ -57,9 +57,9 @@ private:
 	math::Vector3R m_nC;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GTriangle>)
+	PH_DEFINE_SDL_CLASS(GTriangle, clazz)
 	{
-		ClassType clazz("triangle");
+		clazz.typeName("triangle");
 		clazz.docName("Triangle Geometry");
 		clazz.description(
 			"A single triangle-shaped surface. Please note that using this type of triangle for "
@@ -117,8 +117,6 @@ public:
 		nC.defaultTo({0, 0, 0});
 		nC.optional();
 		clazz.addField(nC);
-
-		return clazz;
 	}
 };
 

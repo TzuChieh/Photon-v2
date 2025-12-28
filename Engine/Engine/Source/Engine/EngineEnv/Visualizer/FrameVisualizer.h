@@ -34,9 +34,9 @@ private:
 	int64         m_cropWindowHPx;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FrameVisualizer>)
+	PH_DEFINE_SDL_CLASS(FrameVisualizer, clazz)
 	{
-		ClassType clazz("frame");
+		clazz.typeName("frame");
 		clazz.docName("Frame Visualizer");
 		clazz.description("A visualizer that produces frames, a typical example is an image.");
 		clazz.baseOn<Visualizer>();
@@ -71,8 +71,6 @@ public:
 		cropWindowHPx.defaultTo(0);
 		cropWindowHPx.optional();
 		clazz.addField(cropWindowHPx);
-
-		return clazz;
 	}
 };
 

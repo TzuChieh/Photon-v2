@@ -45,14 +45,13 @@ public:
 	// TODO: may need a new method for cache generation (request this stage from precook?)
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Actor>)
+	PH_DEFINE_SDL_CLASS(Actor, clazz)
 	{
-		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
+		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Actor");
 		clazz.description(
 			"Represents an entity in the scene. "
 			"Every entity that participates in a scene is an actor.");
-		return clazz;
 	}
 };
 

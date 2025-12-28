@@ -17,12 +17,11 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SampleSource>)
+	PH_DEFINE_SDL_CLASS(SampleSource, clazz)
 	{
-		ClassType clazz("sample-source");
+		clazz.typeName("sample-source");
 		clazz.docName("Sample Source");
 		clazz.description("Engine component for generating sample values.");
-		return clazz;
 	}
 };
 

@@ -34,9 +34,9 @@ private:
 	ERayEnergyEstimator m_estimator;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PathTracingVisualizer>)
+	PH_DEFINE_SDL_CLASS(PathTracingVisualizer, clazz)
 	{
-		ClassType clazz("path-tracing");
+		clazz.typeName("path-tracing");
 		clazz.docName("Path Tracing Visualizer");
 		clazz.description("Render frames with common path tracing methods.");
 		clazz.baseOn<FrameVisualizer>();
@@ -52,8 +52,6 @@ public:
 		estimator.defaultTo(ERayEnergyEstimator::BNEEPT);
 		estimator.optional();
 		clazz.addField(estimator);
-
-		return clazz;
 	}
 };
 

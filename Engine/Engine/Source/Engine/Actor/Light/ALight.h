@@ -16,14 +16,12 @@ public:
 	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override = 0;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ALight>)
+	PH_DEFINE_SDL_CLASS(ALight, clazz)
 	{
-		ClassType clazz("light");
+		clazz.typeName("light");
 		clazz.docName("Light Actor");
 		clazz.description("The source of all energy emitting entity in the scene.");
 		clazz.baseOn<PhysicalActor>();
-
-		return clazz;
 	}
 };
 

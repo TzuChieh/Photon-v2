@@ -12,13 +12,12 @@ public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<StratifiedSampleSource>)
+	PH_DEFINE_SDL_CLASS(StratifiedSampleSource, clazz)
 	{
-		ClassType clazz("stratified");
+		clazz.typeName("stratified");
 		clazz.docName("Stratified Sample Source");
 		clazz.description("Generating samples based on engine provided dimensional hints.");
 		clazz.baseOn<RuntimeSampleSource>();
-		return clazz;
 	}
 };
 

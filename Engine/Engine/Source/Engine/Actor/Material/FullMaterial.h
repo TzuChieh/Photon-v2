@@ -1,15 +1,14 @@
 #pragma once
 
 #include "Engine/Actor/Material/Material.h"
+#include "Engine/Actor/Material/SurfaceMaterial.h"
+#include "Engine/Actor/Material/VolumeMaterial.h"
 #include "Engine/SDL/sdl_interface.h"
 
 #include <memory>
 
 namespace ph
 {
-
-class SurfaceMaterial;
-class VolumeMaterial;
 
 class FullMaterial : public Material
 {
@@ -26,9 +25,9 @@ private:
 	std::shared_ptr<VolumeMaterial>  m_exteriorMaterial;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FullMaterial>)
+	PH_DEFINE_SDL_CLASS(FullMaterial, clazz)
 	{
-		ClassType clazz("full");
+		clazz.typeName("full");
 		clazz.docName("Full Material");
 		clazz.description("A material model that combines surface and volume properties.");
 		clazz.baseOn<Material>();
@@ -47,8 +46,6 @@ public:
 		exteriorMaterial.description("A volume material describing the outside of the surface.");
 		exteriorMaterial.optional();
 		clazz.addField(exteriorMaterial);
-
-		return clazz;
 	}
 };
 

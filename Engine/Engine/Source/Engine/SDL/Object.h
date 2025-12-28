@@ -20,12 +20,11 @@ protected:
 	Object& operator = (Object&& rhs) noexcept;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Object>)
+	PH_DEFINE_SDL_CLASS(Object, clazz)
 	{
-		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
+		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Object");
 		clazz.description("General object that may refer to any type.");
-		return clazz;
 	}
 };
 

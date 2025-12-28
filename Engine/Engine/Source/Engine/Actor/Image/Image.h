@@ -54,12 +54,11 @@ public:
 	///@}
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Image>)
+	PH_DEFINE_SDL_CLASS(Image, clazz)
 	{
-		ClassType clazz("image");
+		clazz.typeName("image");
 		clazz.docName("Image");
 		clazz.description("A block of data.");
-		return clazz;
 	}
 };
 

@@ -357,9 +357,9 @@ public:
 ///@}
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerScene>)
+	PH_DEFINE_SDL_CLASS(DesignerScene, clazz, outerScope=editor)
 	{
-		ClassType clazz("dscene");
+		clazz.typeName("dscene");
 		clazz.docName("Designer Scene");
 		clazz.description("Designer scene. The main container of designer objects.");
 
@@ -377,8 +377,6 @@ public:
 		renderDescriptionLink.description("Storage location of the associated scene description.");
 		renderDescriptionLink.defaultTo(ResourceIdentifier());
 		clazz.addField(renderDescriptionLink);
-
-		return clazz;
 	}
 };
 

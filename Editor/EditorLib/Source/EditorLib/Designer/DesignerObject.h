@@ -171,9 +171,9 @@ private:
 	std::string m_name;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerObject>)
+	PH_DEFINE_SDL_CLASS(DesignerObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("dobj");
+		clazz.typeName("dobj");
 		clazz.docName("Designer Object");
 		clazz.description("Main base class of designer object.");
 
@@ -186,8 +186,6 @@ public:
 		name.description("Name of the designer object.");
 		name.noDefault();// we are supplying custom default name in ctor
 		clazz.addField(name);
-
-		return clazz;
 	}
 };
 

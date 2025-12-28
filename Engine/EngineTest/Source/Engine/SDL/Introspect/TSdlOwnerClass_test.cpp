@@ -35,7 +35,8 @@ TEST(TSdlOwnerClassTest, RequiredProperties)
 TEST(TSdlOwnerClassTest, DefaultStates)
 {
 	{
-		TSdlOwnerClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass;
+		sdlClass.typeName("testName");
 
 		EXPECT_EQ(sdlClass.numFields(), 0);
 		EXPECT_EQ(sdlClass.numFunctions(), 0);
@@ -59,7 +60,8 @@ TEST(TSdlOwnerClassTest, DefaultStates)
 TEST(TSdlOwnerClassTest, AddAndGetFields)
 {
 	{
-		TSdlOwnerClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass;
+		sdlClass.typeName("testName");
 		sdlClass.addField(TSdlReal<TestResource>("testReal", &TestResource::r));
 		EXPECT_EQ(sdlClass.numFields(), 1);
 
@@ -92,7 +94,8 @@ TEST(TSdlOwnerClassTest, AddAndGetFields)
 TEST(TSdlOwnerClassTest, AddAndGetFunctions)
 {
 	{
-		TSdlOwnerClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass;
+		sdlClass.typeName("testName");
 		sdlClass.addFunction<TestMethodStruct>();
 		EXPECT_EQ(sdlClass.numFunctions(), 1);
 

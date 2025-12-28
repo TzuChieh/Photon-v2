@@ -37,9 +37,9 @@ private:
 	uint32 m_stochasticViewSampleBeginLengthHint;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhotonMappingVisualizer>)
+	PH_DEFINE_SDL_CLASS(PhotonMappingVisualizer, clazz)
 	{
-		ClassType clazz("photon-mapping");
+		clazz.typeName("photon-mapping");
 		clazz.docName("Photon Mapping Visualizer");
 		clazz.description("Render frames with common photon mapping methods.");
 		clazz.baseOn<FrameVisualizer>();
@@ -104,8 +104,6 @@ public:
 		stochasticViewSampleBeginLengthHint.defaultTo(commonParams.stochasticViewSampleBeginLengthHint);
 		stochasticViewSampleBeginLengthHint.optional();
 		clazz.addField(stochasticViewSampleBeginLengthHint);
-
-		return clazz;
 	}
 };
 

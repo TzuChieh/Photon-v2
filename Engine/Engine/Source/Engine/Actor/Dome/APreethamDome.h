@@ -40,9 +40,9 @@ private:
 	std::optional<math::Vector2R> m_sunPhiThetaDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<APreethamDome>)
+	PH_DEFINE_SDL_CLASS(APreethamDome, clazz)
 	{
-		ClassType clazz("preetham-dome");
+		clazz.typeName("preetham-dome");
 		clazz.docName("Preetham Dome Actor");
 		clazz.description(
 			"Using Preetham model to generate absolute energy from sky.");
@@ -92,8 +92,6 @@ public:
 			"may not be physically correct since not every position in the sky is possible for the sun "
 			"given a location on Earth.");
 		clazz.addField(sunPhiThetaDegrees);
-
-		return clazz;
 	}
 };
 

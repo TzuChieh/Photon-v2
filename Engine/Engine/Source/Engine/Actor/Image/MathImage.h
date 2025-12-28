@@ -65,9 +65,9 @@ private:
 	std::shared_ptr<Image> m_imageInput1;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<MathImage>)
+	PH_DEFINE_SDL_CLASS(MathImage, clazz)
 	{
-		ClassType clazz("math");
+		clazz.typeName("math");
 		clazz.docName("Math Image");
 		clazz.description(
 			"This image applies mathematical modifications on other images, such as addition and "
@@ -112,8 +112,6 @@ public:
 		imageInput1.description("Second input for the specified mathematical operation.");
 		imageInput1.optional();
 		clazz.addField(imageInput1);
-
-		return clazz;
 	}
 };
 

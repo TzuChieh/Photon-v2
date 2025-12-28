@@ -19,9 +19,9 @@ private:
 	real m_radius;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ASphereLight>)
+	PH_DEFINE_SDL_CLASS(ASphereLight, clazz)
 	{
-		ClassType clazz("sphere-light");
+		clazz.typeName("sphere-light");
 		clazz.docName("Spherical Light Actor");
 		clazz.description(
 			"This type of light emits energy from a spherical shape.");
@@ -32,8 +32,6 @@ public:
 		radius.defaultTo(1);
 		radius.required();
 		clazz.addField(radius);
-
-		return clazz;
 	}
 };
 

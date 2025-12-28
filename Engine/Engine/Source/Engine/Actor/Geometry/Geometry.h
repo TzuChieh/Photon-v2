@@ -36,12 +36,11 @@ public:
 	CookedGeometry* createCooked(const CookingContext& ctx) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Geometry>)
+	PH_DEFINE_SDL_CLASS(Geometry, clazz)
 	{
-		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
+		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Geometry");
 		clazz.description("Defining the shape of scene elements.");
-		return clazz;
 	}
 };
 

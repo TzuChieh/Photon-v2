@@ -13,10 +13,6 @@ Shadow the default methods in the derived class to provide actual functionality.
 class ISdlDefaultFunctionDefinition
 {
 public:
-	template<typename Functor, typename FunctorCallInput>
-	static auto makeDefinition()
-	{}
-
 	void name(std::string nameStr)
 	{}
 

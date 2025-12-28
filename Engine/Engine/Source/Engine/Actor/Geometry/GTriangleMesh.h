@@ -40,9 +40,9 @@ private:
 	std::vector<math::Vector3R> m_normals;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GTriangleMesh>)
+	PH_DEFINE_SDL_CLASS(GTriangleMesh, clazz)
 	{
-		ClassType clazz("triangle-mesh");
+		clazz.typeName("triangle-mesh");
 		clazz.docName("Triangle Mesh");
 		clazz.description("A cluster of triangles forming a singe shape in 3-D space.");
 		clazz.baseOn<Geometry>();
@@ -65,8 +65,6 @@ public:
 			"Similar to positions, except that the array stores normal vectors for each triangle.");
 		normals.optional();
 		clazz.addField(normals);
-
-		return clazz;
 	}
 };
 

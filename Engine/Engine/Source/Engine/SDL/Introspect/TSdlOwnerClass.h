@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/SdlClass.h"
+#include "Engine/SDL/Definition/ISdlDefaultClassDefinition.h"
 #include "Engine/SDL/sdl_fwd.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
 #include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
@@ -19,13 +20,13 @@ namespace ph
 /*! @brief SDL binding type for a canonical SDL resource class.
 */
 template<typename Owner, typename FieldSet = TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>>
-class TSdlOwnerClass : public SdlClass
+class TSdlOwnerClass : public SdlClass, public ISdlDefaultClassDefinition
 {
 public:
 	using OwnerType = Owner;
 
 public:
-	explicit TSdlOwnerClass(std::string displayName);
+	TSdlOwnerClass();
 
 	std::shared_ptr<ISdlResource> createResource() const override;
 
@@ -91,6 +92,8 @@ public:
 	*/
 	template<typename T>
 	TSdlOwnerClass& addFunction();
+
+	auto typeName(std::string nameStr) -> TSdlOwnerClass&;
 
 	auto description(std::string descriptionStr) -> TSdlOwnerClass&;
 

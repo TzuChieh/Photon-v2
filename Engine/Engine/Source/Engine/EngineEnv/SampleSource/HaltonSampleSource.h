@@ -17,9 +17,9 @@ private:
 	EHaltonSequence m_sequence;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<HaltonSampleSource>)
+	PH_DEFINE_SDL_CLASS(HaltonSampleSource, clazz)
 	{
-		ClassType clazz("halton");
+		clazz.typeName("halton");
 		clazz.docName("Halton Sample Source");
 		clazz.description(
 			"Generating samples based on the Halton sequence. The samples generated are somewhat "
@@ -41,8 +41,6 @@ public:
 		sequence.defaultTo(EHaltonSequence::Original);
 		sequence.optional();
 		clazz.addField(sequence);
-
-		return clazz;
 	}
 };
 

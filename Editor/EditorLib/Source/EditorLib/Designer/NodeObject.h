@@ -20,16 +20,14 @@ private:
 	ObjectTransform m_nodeTransform;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NodeObject>)
+	PH_DEFINE_SDL_CLASS(NodeObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("node-dobj");
+		clazz.typeName("node-dobj");
 		clazz.docName("Node Designer Object");
 		clazz.description("Node that connects objects to form a hierarchy.");
 		clazz.baseOn<HierarchicalDesignerObject>();
 
 		clazz.addStruct(&OwnerType::m_nodeTransform);
-
-		return clazz;
 	}
 };
 

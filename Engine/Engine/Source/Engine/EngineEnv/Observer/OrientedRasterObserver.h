@@ -39,9 +39,9 @@ private:
 	static math::QuaternionD makeRotFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<OrientedRasterObserver>)
+	PH_DEFINE_SDL_CLASS(OrientedRasterObserver, clazz)
 	{
-		ClassType clazz("oriented-raster");
+		clazz.typeName("oriented-raster");
 		clazz.docName("Oriented Raster Observer");
 		clazz.description(
 			"Observers that work by projecting incoming energy in certain ways. "
@@ -70,8 +70,6 @@ public:
 		TSdlOptionalVector3<OwnerType> upAxis("up-axis", &OwnerType::m_upAxis);
 		upAxis.description("The direction vector that this observer consider as upward. No need to be normalized.");
 		clazz.addField(upAxis);
-
-		return clazz;
 	}
 };
 

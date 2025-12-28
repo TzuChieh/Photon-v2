@@ -30,9 +30,9 @@ private:
 	bool m_isBackFaceEmit;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AModelLight>)
+	PH_DEFINE_SDL_CLASS(AModelLight, clazz)
 	{
-		ClassType clazz("model-light");
+		clazz.typeName("model-light");
 		clazz.docName("Model Light Actor");
 		clazz.description(
 			"A light source that emits energy from the surface of an arbitrary geometry. This type "
@@ -61,8 +61,6 @@ public:
 		isBackFaceEmit.defaultTo(false);
 		isBackFaceEmit.optional();
 		clazz.addField(isBackFaceEmit);
-
-		return clazz;
 	}
 };
 

@@ -13,7 +13,8 @@ namespace ph
 class ISdlResource;
 
 /*! @brief A value that points to a SDL resource.
-@tparam T Type of the referenced SDL resource.
+@tparam T Type of the referenced SDL resource. Definition is required when using this template
+(i.e., include its header).
 @tparam Owner Owner type of @p T. Note that Owner can be any type (not necessarily a SDL resource).
 */
 template<typename T, typename Owner>

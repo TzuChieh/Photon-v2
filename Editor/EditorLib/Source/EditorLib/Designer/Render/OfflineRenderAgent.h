@@ -33,9 +33,9 @@ private:
 	bool m_enablePeekingFrame;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<OfflineRenderAgent>)
+	PH_DEFINE_SDL_CLASS(OfflineRenderAgent, clazz, outerScope=editor)
 	{
-		ClassType clazz("offline-render-agent");
+		clazz.typeName("offline-render-agent");
 		clazz.docName("Offline Render Agent");
 		clazz.description("Controls offline rendering.");
 		clazz.baseOn<RenderAgent>();
@@ -62,8 +62,6 @@ public:
 			"Whether to enable the retrieval of intermediate rendering result.");
 		enablePeekingFrame.defaultTo(true);
 		clazz.addField(enablePeekingFrame);
-
-		return clazz;
 	}
 };
 

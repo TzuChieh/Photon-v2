@@ -1,7 +1,5 @@
 #include "Engine/Actor/Material/FullMaterial.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Actor/Material/SurfaceMaterial.h"
-#include "Engine/Actor/Material/VolumeMaterial.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"

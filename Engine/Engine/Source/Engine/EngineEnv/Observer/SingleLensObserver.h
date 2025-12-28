@@ -41,9 +41,9 @@ private:
 	std::optional<real> m_fovDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SingleLensObserver>)
+	PH_DEFINE_SDL_CLASS(SingleLensObserver, clazz)
 	{
-		ClassType clazz("single-lens");
+		clazz.typeName("single-lens");
 		clazz.docName("Single-Lens Observer");
 		clazz.description(
 			"As its name suggests, the lens system in this observer is assumed to have "
@@ -85,8 +85,6 @@ public:
 			"Field of view of this observer in degrees. If provided, it will be used to "
 			"adjust sensor offset such that the desired FoV is reached.");
 		clazz.addField(fovDegrees);
-
-		return clazz;
 	}
 };
 

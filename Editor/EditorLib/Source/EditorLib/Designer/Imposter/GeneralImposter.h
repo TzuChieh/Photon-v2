@@ -30,9 +30,9 @@ private:
 	ObjectTransform m_imposterTransform;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GeneralImposter>)
+	PH_DEFINE_SDL_CLASS(GeneralImposter, clazz, outerScope=editor)
 	{
-		ClassType clazz("general-imposter");
+		clazz.typeName("general-imposter");
 		clazz.docName("General Imposter");
 		clazz.description(
 			"An object that can represent any render description resource. This is a good fallback "
@@ -40,8 +40,6 @@ public:
 		clazz.baseOn<ImposterObject>();
 
 		clazz.addStruct(&OwnerType::m_imposterTransform);
-
-		return clazz;
 	}
 };
 

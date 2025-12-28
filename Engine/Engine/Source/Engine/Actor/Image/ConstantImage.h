@@ -48,9 +48,9 @@ private:
 	math::EColorSpace m_colorSpace;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ConstantImage>)
+	PH_DEFINE_SDL_CLASS(ConstantImage, clazz)
 	{
-		ClassType clazz("constant");
+		clazz.typeName("constant");
 		clazz.docName("Constant Image");
 		clazz.description(
 			"An image that stores constant values. It can be a single scalar, a vector or a color. "
@@ -71,8 +71,6 @@ public:
 		colorSpace.defaultTo(math::EColorSpace::Unspecified);
 		colorSpace.optional();
 		clazz.addField(colorSpace);
-
-		return clazz;
 	}
 };
 

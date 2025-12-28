@@ -38,9 +38,9 @@ private:
 	std::shared_ptr<Image> m_sigmaDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<MatteOpaque>)
+	PH_DEFINE_SDL_CLASS(MatteOpaque, clazz)
 	{
-		ClassType clazz("matte-opaque");
+		clazz.typeName("matte-opaque");
 		clazz.docName("Matte Opaque Material");
 		clazz.description("A material model for surfaces with matte look, such as chalk and moon.");
 		clazz.baseOn<SurfaceMaterial>();
@@ -56,8 +56,6 @@ public:
 			"same macrosurface plane.");
 		sigmaDegrees.optional();
 		clazz.addField(sigmaDegrees);
-
-		return clazz;
 	}
 };
 

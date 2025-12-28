@@ -29,9 +29,9 @@ private:
 	ResourceIdentifier m_iesFile;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AIesAttenuatedLight>)
+	PH_DEFINE_SDL_CLASS(AIesAttenuatedLight, clazz)
 	{
-		ClassType clazz("ies-attenuated-light");
+		clazz.typeName("ies-attenuated-light");
 		clazz.docName("IES-Attenuated Light Actor");
 		clazz.description(
 			"Attenuating energy emitting strength of a light with an IES profile.");
@@ -46,8 +46,6 @@ public:
 		iesFile.description("The IES file.");
 		iesFile.required();
 		clazz.addField(iesFile);
-
-		return clazz;
 	}
 };
 

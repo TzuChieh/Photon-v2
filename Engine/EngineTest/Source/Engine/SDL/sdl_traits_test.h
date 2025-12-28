@@ -18,20 +18,18 @@ public:
 		return CATEGORY;
 	}
 
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DummyClass>)
+	PH_DEFINE_SDL_CLASS(DummyClass, clazz, outerScope=sdl_traits_test)
 	{
-		ClassType clazz("sdl_traits_test::dummy");
-		return clazz;
+		clazz.typeName("sdl_traits_test::dummy");
 	}
 };
 
 class DummyClass2 : public DummyClass
 {
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DummyClass2>)
+	PH_DEFINE_SDL_CLASS(DummyClass2, clazz, outerScope=sdl_traits_test)
 	{
-		ClassType clazz("sdl_traits_test::dummy2");
-		return clazz;
+		clazz.typeName("sdl_traits_test::dummy2");
 	}
 };
 

@@ -47,9 +47,9 @@ private:
 	std::shared_ptr<Image> m_factor;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<BinaryMixedSurfaceMaterial>)
+	PH_DEFINE_SDL_CLASS(BinaryMixedSurfaceMaterial, clazz)
 	{
-		ClassType clazz("binary-mixed-surface");
+		clazz.typeName("binary-mixed-surface");
 		clazz.docName("Binary Mixed Surface");
 		clazz.description("Mixing two surface materials in various ways.");
 		clazz.baseOn<SurfaceMaterial>();
@@ -76,8 +76,6 @@ public:
 			"would be \"material-0 * factor + material-1 * (1 - factor)\".");
 		factor.optional();// some operation might not need a factor; check factor at cook time
 		clazz.addField(factor);
-
-		return clazz;
 	}
 };
 

@@ -32,9 +32,9 @@ private:
 	real m_numWatts;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AAreaLight>)
+	PH_DEFINE_SDL_CLASS(AAreaLight, clazz)
 	{
-		ClassType clazz("area-light");
+		clazz.typeName("area-light");
 		clazz.docName("Area Light Actor");
 		clazz.description(
 			"This type of light source has a finite area, with various simplifications on the "
@@ -52,8 +52,6 @@ public:
 		numWatts.description("Energy emitted by this light source, in watts.");
 		numWatts.defaultTo(100);
 		clazz.addField(numWatts);
-
-		return clazz;
 	}
 };
 

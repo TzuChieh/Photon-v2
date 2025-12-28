@@ -36,9 +36,9 @@ private:
 	real m_energyScale;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ADome>)
+	PH_DEFINE_SDL_CLASS(ADome, clazz)
 	{
-		ClassType clazz("dome");
+		clazz.typeName("dome");
 		clazz.docName("Dome Actor");
 		clazz.description("A large energy emitting source encompassing the whole scene.");
 		clazz.baseOn<PhysicalActor>();
@@ -48,8 +48,6 @@ public:
 		energyScale.defaultTo(1);
 		energyScale.optional();
 		clazz.addField(energyScale);
-
-		return clazz;
 	}
 };
 

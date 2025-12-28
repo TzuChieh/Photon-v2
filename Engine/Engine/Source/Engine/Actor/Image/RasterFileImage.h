@@ -44,9 +44,9 @@ private:
 	bool               m_isColor;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RasterFileImage>)
+	PH_DEFINE_SDL_CLASS(RasterFileImage, clazz)
 	{
-		ClassType clazz("raster-file");
+		clazz.typeName("raster-file");
 		clazz.docName("Raster File Image");
 		clazz.description(
 			"Raster-based image file (most common image file formats belongs to this category).");
@@ -79,8 +79,6 @@ public:
 		isColor.defaultTo(true);
 		isColor.optional();
 		clazz.addField(isColor);
-
-		return clazz;
 	}
 };
 

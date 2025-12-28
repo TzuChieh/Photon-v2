@@ -18,9 +18,9 @@ namespace ph
 {
 
 template<typename Owner, typename FieldSet>
-inline TSdlOwnerClass<Owner, FieldSet>::TSdlOwnerClass(std::string displayName)
+inline TSdlOwnerClass<Owner, FieldSet>::TSdlOwnerClass()
 
-	: SdlClass(sdl::category_of<Owner>(), std::move(displayName))
+	: SdlClass()
 
 	, m_fields()
 	, m_functions()
@@ -313,6 +313,14 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 		sdl::save_field_id(&field, clause);
 		field.toSdl(owner, clause, ctx);
 	}
+}
+
+template<typename Owner, typename FieldSet>
+inline auto TSdlOwnerClass<Owner, FieldSet>::typeName(std::string nameStr)
+-> TSdlOwnerClass&
+{
+	setTypeInfo(sdl::category_of<Owner>(), std::move(nameStr));
+	return *this;
 }
 
 template<typename Owner, typename FieldSet>

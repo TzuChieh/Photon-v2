@@ -47,9 +47,9 @@ private:
 	static math::Vector4R makeNormalizedFaceUV();
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GCuboid>)
+	PH_DEFINE_SDL_CLASS(GCuboid, clazz)
 	{
-		ClassType clazz("cuboid");
+		clazz.typeName("cuboid");
 		clazz.docName("Cuboid Geometry");
 		clazz.description(
 			"A shape that is similar to cube but may contain rectangular faces. "
@@ -108,8 +108,6 @@ public:
 		nzFaceUV.defaultTo(makeNormalizedFaceUV());
 		nzFaceUV.optional();
 		clazz.addField(nzFaceUV);
-
-		return clazz;
 	}
 };
 

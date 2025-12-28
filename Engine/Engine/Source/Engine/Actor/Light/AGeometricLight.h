@@ -63,9 +63,9 @@ protected:
 	bool m_useEmissionSample;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AGeometricLight>)
+	PH_DEFINE_SDL_CLASS(AGeometricLight, clazz)
 	{
-		ClassType clazz("geometric-light");
+		clazz.typeName("geometric-light");
 		clazz.docName("Geometric Light Actor");
 		clazz.description(
 			"Energy emitters that come with a physical geometry. Please be aware that changing "
@@ -105,8 +105,6 @@ public:
 		emissionSample.defaultTo(true);
 		emissionSample.optional();
 		clazz.addField(emissionSample);
-
-		return clazz;
 	}
 };
 

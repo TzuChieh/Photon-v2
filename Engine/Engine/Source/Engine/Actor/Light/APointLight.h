@@ -15,16 +15,14 @@ protected:
 	EmitterFeatureSet getEmitterFeatureSet() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<APointLight>)
+	PH_DEFINE_SDL_CLASS(APointLight, clazz)
 	{
-		ClassType clazz("point-light");
+		clazz.typeName("point-light");
 		clazz.docName("Point Light Actor");
 		clazz.description(
 			"Power emitting source from a small but not infinitesimal region. Resembling "
 			"a small light bulb.");
 		clazz.baseOn<AAreaLight>();
-
-		return clazz;
 	}
 };
 

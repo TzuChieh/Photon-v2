@@ -24,9 +24,9 @@ private:
 	ResourceIdentifier m_imageFile;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AImageDome>)
+	PH_DEFINE_SDL_CLASS(AImageDome, clazz)
 	{
-		ClassType clazz("image-dome");
+		clazz.typeName("image-dome");
 		clazz.docName("Image Dome Actor");
 		clazz.description("Using a background image to represent the energy emitted from far away.");
 		clazz.baseOn<ADome>();
@@ -35,8 +35,6 @@ public:
 		imageFile.description("An image describing the energy distribution.");
 		imageFile.required();
 		clazz.addField(imageFile);
-
-		return clazz;
 	}
 };
 

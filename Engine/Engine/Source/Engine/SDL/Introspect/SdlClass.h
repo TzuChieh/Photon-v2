@@ -24,7 +24,7 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(SdlClass, SDL);
 class SdlClass : public ISdlInstantiable
 {
 public:
-	SdlClass(ESdlTypeCategory category, const std::string& typeName);
+	SdlClass();
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
@@ -104,6 +104,8 @@ public:
 	bool hasFunction() const;
 
 protected:
+	SdlClass& setTypeInfo(ESdlTypeCategory category, std::string typeName);
+
 	SdlClass& setDescription(std::string description);
 
 	SdlClass& setDocName(std::string docName);

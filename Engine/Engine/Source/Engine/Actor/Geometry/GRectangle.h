@@ -35,9 +35,9 @@ private:
 	static bool checkData(real width, real height);
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GRectangle>)
+	PH_DEFINE_SDL_CLASS(GRectangle, clazz)
 	{
-		ClassType clazz("rectangle");
+		clazz.typeName("rectangle");
 		clazz.docName("Rectangular Geometry");
 		clazz.description("A rectangular shape on xy-plane. It is centered around origin.");
 		clazz.baseOn<Geometry>();
@@ -57,8 +57,6 @@ public:
 		texCoordScale.defaultTo(1);
 		texCoordScale.optional();
 		clazz.addField(texCoordScale);
-
-		return clazz;
 	}
 };
 

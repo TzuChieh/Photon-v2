@@ -37,9 +37,9 @@ private:
 	EImageWrapMode         m_verticalWrapMode;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RasterImageBase>)
+	PH_DEFINE_SDL_CLASS(RasterImageBase, clazz)
 	{
-		ClassType clazz("raster-base");
+		clazz.typeName("raster-base");
 		clazz.docName("Base of Raster Image");
 		clazz.description("Common information for raster-based images.");
 		clazz.baseOn<Image>();
@@ -63,8 +63,6 @@ public:
 		verticalWrapMode.defaultTo(EImageWrapMode::Unspecified);
 		verticalWrapMode.optional();
 		clazz.addField(verticalWrapMode);
-
-		return clazz;
 	}
 };
 

@@ -58,9 +58,9 @@ private:
 	std::optional<math::Spectrum> m_iorInnerK;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<IdealSubstance>)
+	PH_DEFINE_SDL_CLASS(IdealSubstance, clazz)
 	{
-		ClassType clazz("ideal-substance");
+		clazz.typeName("ideal-substance");
 		clazz.description("Models a perfectly smooth surface with various physical properties.");
 		clazz.docName("Ideal Substance Material");
 		clazz.baseOn<SurfaceMaterial>();
@@ -122,8 +122,6 @@ public:
 		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::Raw, &OwnerType::m_iorInnerK);
 		iorInnerK.description("The complex index of refraction (imaginary part) inside the metallic interface.");
 		clazz.addField(iorInnerK);
-
-		return clazz;
 	}
 };
 

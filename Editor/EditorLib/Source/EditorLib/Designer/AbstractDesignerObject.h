@@ -43,13 +43,12 @@ private:
 	void setSceneStorageIndex(uint64 storageIndex);
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AbstractDesignerObject>)
+	PH_DEFINE_SDL_CLASS(AbstractDesignerObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("abstract-dobj");
+		clazz.typeName("abstract-dobj");
 		clazz.docName("Abstract Designer Object");
 		clazz.description("A common base for designer-related object classes.");
 		clazz.baseOn<Object>();
-		return clazz;
 	}
 };
 

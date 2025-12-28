@@ -30,9 +30,9 @@ private:
 	std::shared_ptr<MotionSource> m_motionSource;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AModel>)
+	PH_DEFINE_SDL_CLASS(AModel, clazz)
 	{
-		ClassType clazz("model");
+		clazz.typeName("model");
 		clazz.docName("Model Actor");
 		clazz.description("An actor that has a certain 3-D shape in the scene.");
 		clazz.baseOn<PhysicalActor>();
@@ -51,8 +51,6 @@ public:
 		motion.description("Movement of this actor.");
 		motion.optional();
 		clazz.addField(motion);
-
-		return clazz;
 	}
 };
 

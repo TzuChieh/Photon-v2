@@ -31,9 +31,9 @@ private:
 	math::EColorSpace m_numericColorSpace;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<BlackBodyRadiationImage>)
+	PH_DEFINE_SDL_CLASS(BlackBodyRadiationImage, clazz)
 	{
-		ClassType clazz("black-body");
+		clazz.typeName("black-body");
 		clazz.docName("Black-body Radiation Image");
 		clazz.description(
 			"An image outputs the value of black-body radiation.");
@@ -69,8 +69,6 @@ public:
 		numericColorSpace.defaultTo(math::EColorSpace::Unspecified);
 		numericColorSpace.optional();
 		clazz.addField(numericColorSpace);
-
-		return clazz;
 	}
 };
 

@@ -19,9 +19,9 @@ private:
 	uint16 m_overlapPriority;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<VolumeMaterial>)
+	PH_DEFINE_SDL_CLASS(VolumeMaterial, clazz)
 	{
-		ClassType clazz("volume-material");
+		clazz.typeName("volume-material");
 		clazz.docName("Volume Material");
 		clazz.baseOn<Material>();
 
@@ -34,8 +34,6 @@ public:
 		priority.defaultTo(1);
 		priority.optional();
 		clazz.addField(priority);
-
-		return clazz;
 	}
 };
 

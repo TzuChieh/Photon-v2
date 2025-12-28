@@ -21,9 +21,9 @@ private:
 	std::shared_ptr<Image> m_map;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SurfaceNormalMap>)
+	PH_DEFINE_SDL_CLASS(SurfaceNormalMap, clazz)
 	{
-		ClassType clazz("surface-normal-map");
+		clazz.typeName("surface-normal-map");
 		clazz.docName("Surface Normal Map");
 		clazz.description("Normal mapping for a surface material.");
 		clazz.baseOn<SurfaceMaterial>();
@@ -38,8 +38,6 @@ public:
 			"A map that records the perturbed orientation of surface normal.");
 		material.required();
 		clazz.addField(map);
-
-		return clazz;
 	}
 };
 

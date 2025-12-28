@@ -34,9 +34,9 @@ private:
 	real                   m_numTilesV;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<CheckerboardImage>)
+	PH_DEFINE_SDL_CLASS(CheckerboardImage, clazz)
 	{
-		ClassType clazz("checkerboard");
+		clazz.typeName("checkerboard");
 		clazz.docName("Checkerboard Image");
 		clazz.description(
 			"A procedural image that divides its parametric domain into rectangular tiles. Each tile "
@@ -69,8 +69,6 @@ public:
 		vTiles.defaultTo(2.0_r);
 		vTiles.optional();
 		clazz.addField(vTiles);
-
-		return clazz;
 	}
 };
 

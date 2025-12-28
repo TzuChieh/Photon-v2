@@ -1,10 +1,8 @@
+#include "Engine/SDL/Introspect/TSdlOwnerMethod_test.h"
 #include "engine_test_util.h"
 
-#include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
-#include <Engine/SDL/TSdlResourceBase.h>
 #include <Engine/SDL/Introspect/TSdlString.h>
 #include <Engine/SDL/SdlInputClauses.h>
-#include <Engine/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 
@@ -12,32 +10,7 @@
 #include <cstddef>
 
 using namespace ph;
-
-namespace
-{
-
-class TestResource : public TSdlResourceBase<ESdlTypeCategory::Ref_Option>
-{
-public:
-	std::string str;
-
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TestResource>)
-	{
-		return ClassType("dummy");
-	}
-};
-
-struct TestMethodStruct
-{
-	std::string str;
-
-	void operator () (TestResource& res)
-	{
-		res.str = str;
-	}
-};
-
-}
+using namespace ph::TSdlOwnerMethod_test;
 
 TEST(TSdlOwnerMethodTest, DefaultStates)
 {

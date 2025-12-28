@@ -119,9 +119,9 @@ public:
 		}
 	};
 
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhysicalActor>)
+	PH_DEFINE_SDL_CLASS(PhysicalActor, clazz)
 	{
-		ClassType clazz("physical");
+		clazz.typeName("physical");
 		clazz.docName("Physical Actor");
 		clazz.description("An actor that is visible and can be transformed.");
 		clazz.baseOn<Actor>();
@@ -131,8 +131,6 @@ public:
 		clazz.addFunction<SdlTranslate>();
 		clazz.addFunction<SdlRotate>();
 		clazz.addFunction<SdlScale>();
-
-		return clazz;
 	}
 };
 

@@ -25,9 +25,9 @@ private:
 	std::shared_ptr<Image>  m_transmissionScale;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ThinDielectricSurface>)
+	PH_DEFINE_SDL_CLASS(ThinDielectricSurface, clazz)
 	{
-		ClassType clazz("thin-dielectric-surface");
+		clazz.typeName("thin-dielectric-surface");
 		clazz.description(
 			"Treating a single interface as a solid material with a near-negligible thickness.");
 		clazz.docName("Thin Surface Material");
@@ -62,8 +62,6 @@ public:
 			"for artistic control and is not physically correct.");
 		transmissionScale.optional();
 		clazz.addField(transmissionScale);
-
-		return clazz;
 	}
 };
 

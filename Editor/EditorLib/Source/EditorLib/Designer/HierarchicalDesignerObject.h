@@ -32,13 +32,12 @@ private:
 	std::vector<DesignerObject*> m_children;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<HierarchicalDesignerObject>)
+	PH_DEFINE_SDL_CLASS(HierarchicalDesignerObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("hierarchical-dobj");
+		clazz.typeName("hierarchical-dobj");
 		clazz.docName("Hierarchical Designer Object");
 		clazz.description("A designer object that allow children.");
 		clazz.baseOn<DesignerObject>();
-		return clazz;
 	}
 };
 

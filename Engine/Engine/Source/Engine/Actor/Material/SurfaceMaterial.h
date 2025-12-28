@@ -6,9 +6,6 @@
 namespace ph
 {
 
-class SurfaceOptics;
-class SurfaceBehavior;
-
 class SurfaceMaterial : public Material
 {
 public:
@@ -17,12 +14,11 @@ public:
 		const CookingContext& ctx) const override = 0;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SurfaceMaterial>)
+	PH_DEFINE_SDL_CLASS(SurfaceMaterial, clazz)
 	{
-		ClassType clazz("surface-material");
+		clazz.typeName("surface-material");
 		clazz.docName("Surface Material");
 		clazz.baseOn<Material>();
-		return clazz;
 	}
 };
 

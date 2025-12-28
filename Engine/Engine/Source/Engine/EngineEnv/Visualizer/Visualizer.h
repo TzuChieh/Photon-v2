@@ -17,12 +17,11 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Visualizer>)
+	PH_DEFINE_SDL_CLASS(Visualizer, clazz)
 	{
-		ClassType clazz("visualizer");
+		clazz.typeName("visualizer");
 		clazz.docName("Visualizer");
 		clazz.description("The main engine component for producing visual content.");
-		return clazz;
 	}
 };
 

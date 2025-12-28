@@ -21,12 +21,11 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Observer>)
+	PH_DEFINE_SDL_CLASS(Observer, clazz)
 	{
-		ClassType clazz("observer");
+		clazz.typeName("observer");
 		clazz.docName("Observer");
 		clazz.description("A tool for observing the incoming energy of the scene.");
-		return clazz;
 	}
 };
 

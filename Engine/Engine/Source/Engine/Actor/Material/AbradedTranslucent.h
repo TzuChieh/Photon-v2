@@ -20,17 +20,15 @@ private:
 	MicrosurfaceInfo        m_microsurfaceInfo;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AbradedTranslucent>)
+	PH_DEFINE_SDL_CLASS(AbradedTranslucent, clazz)
 	{
-		ClassType clazz("abraded-translucent");
+		clazz.typeName("abraded-translucent");
 		clazz.docName("Abraded Translucent Material");
 		clazz.description("Able to model translucent surfaces with variable roughnesses. Such as frosted glass.");
 		clazz.baseOn<SurfaceMaterial>();
 
 		clazz.addStruct(&OwnerType::m_interfaceInfo);
 		clazz.addStruct(&OwnerType::m_microsurfaceInfo);
-
-		return clazz;
 	}
 };
 

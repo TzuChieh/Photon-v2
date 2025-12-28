@@ -56,12 +56,18 @@ enum ESdlClauseValue
 // Definer types
 
 template<typename Def>
+class TSdlClassDefiner;
+
+template<typename Def>
 class TSdlStructDefiner;
 
 template<typename Def>
 class TSdlFunctionDefiner;
 
 // Concrete introspect types
+
+template<typename ClassType, typename FieldSet>
+class TSdlOwnerClass;
 
 template<typename StructType>
 class TSdlOwnerStruct;

@@ -16,9 +16,9 @@ public:
 	float imageZoomSensitivity;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<EditorSettings>)
+	PH_DEFINE_SDL_CLASS(EditorSettings, clazz, outerScope=editor)
 	{
-		ClassType clazz("editor-settings");
+		clazz.typeName("editor-settings");
 		clazz.docName("Editor Settings");
 		clazz.description("Settings for editor.");
 		clazz.baseOn<Option>();
@@ -46,8 +46,6 @@ public:
 			"Amount of increment/decrement of a single step when zooming image.");
 		imageZoomSensitivity.defaultTo(1.0f);
 		clazz.addField(imageZoomSensitivity);
-
-		return clazz;
 	}
 };
 

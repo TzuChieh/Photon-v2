@@ -33,9 +33,9 @@ private:
 	EAccelerator           m_topLevelAcceleratorType;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SingleFrameRenderSession>)
+	PH_DEFINE_SDL_CLASS(SingleFrameRenderSession, clazz)
 	{
-		ClassType clazz("single-frame-render-session");
+		clazz.typeName("single-frame-render-session");
 		clazz.docName("Single Frame Render Session");
 		clazz.description("Information regarding the rendering process of a single frame.");
 		clazz.baseOn<RenderSession>();
@@ -65,8 +65,6 @@ public:
 		topLevelAcceleratorType.defaultTo(EAccelerator::BVH);
 		topLevelAcceleratorType.optional();
 		clazz.addField(topLevelAcceleratorType);
-
-		return clazz;
 	}
 };
 

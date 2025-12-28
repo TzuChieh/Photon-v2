@@ -14,13 +14,12 @@ public:
 	inline Option() = default;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Option>)
+	PH_DEFINE_SDL_CLASS(Option, clazz)
 	{
-		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
+		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Option");
 		clazz.description(
 			"Options that control engine runtime behavior.");
-		return clazz;
 	}
 };
 

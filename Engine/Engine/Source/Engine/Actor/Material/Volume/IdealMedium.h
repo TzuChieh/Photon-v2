@@ -34,9 +34,9 @@ private:
 	math::Spectrum m_absorptionCoeff;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<IdealMedium>)
+	PH_DEFINE_SDL_CLASS(IdealMedium, clazz)
 	{
-		ClassType clazz("ideal-medium");
+		clazz.typeName("ideal-medium");
 		clazz.docName("Ideal Medium Material");
 		clazz.description(
 			"A material model for volumes with a uniform distribution of medium. Medium properties "
@@ -50,8 +50,6 @@ public:
 		absorptionCoeff.defaultTo(math::Spectrum(0.5_r));
 		absorptionCoeff.optional();
 		clazz.addField(absorptionCoeff);
-
-		return clazz;
 	}
 };
 

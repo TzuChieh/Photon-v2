@@ -33,9 +33,9 @@ private:
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GSphere>)
+	PH_DEFINE_SDL_CLASS(GSphere, clazz)
 	{
-		ClassType clazz("sphere");
+		clazz.typeName("sphere");
 		clazz.docName("Spherical Geometry");
 		clazz.description("A perfectly round shape centering around origin.");
 		clazz.baseOn<Geometry>();
@@ -44,8 +44,6 @@ public:
 		radius.description("Size of the sphere.");
 		radius.defaultTo(1);
 		clazz.addField(radius);
-
-		return clazz;
 	}
 };
 

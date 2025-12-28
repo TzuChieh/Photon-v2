@@ -35,9 +35,9 @@ private:
 	TSpanView<const char*> m_cmdArgs;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AppSettings>)
+	PH_DEFINE_SDL_CLASS(AppSettings, clazz, outerScope=editor)
 	{
-		ClassType clazz("app-settings");
+		clazz.typeName("app-settings");
 		clazz.docName("Application Settings");
 		clazz.description("Settings for the application.");
 		clazz.baseOn<Option>();
@@ -72,8 +72,6 @@ public:
 			"introduce extra overhead during runtime.");
 		useDebugModeGHI.defaultTo(false);
 		clazz.addField(useDebugModeGHI);
-
-		return clazz;
 	}
 };
 

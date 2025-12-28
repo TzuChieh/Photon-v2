@@ -32,9 +32,9 @@ private:
 	std::string m_descName;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ImposterObject>)
+	PH_DEFINE_SDL_CLASS(ImposterObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("imposter");
+		clazz.typeName("imposter");
 		clazz.docName("Imposter Object");
 		clazz.description(
 			"Base of all imporster objects. Imposters are designer objects representing some render "
@@ -44,8 +44,6 @@ public:
 		TSdlString<OwnerType> descName("desc-name", &OwnerType::m_descName);
 		descName.description("Name of the render description resource this object is representing.");
 		clazz.addField(descName);
-
-		return clazz;
 	}
 };
 

@@ -215,7 +215,7 @@ inline std::pair<T, DofType> chi2(
 	T pooledObservedFreq = 0;
 	T pooledExpectedFreq = 0;
 	T chi2 = 0;
-	std::size_t dof = 0;
+	DofType dof = 0;
 
 	if(numPooledBins)
 	{
@@ -282,10 +282,12 @@ inline std::pair<T, DofType> chi2(
 		++dof;
 	}
 
-	if(dof <= 0)
+	if(dof == 0)
 	{
 		return {invalidChi2, 0};
 	}
+
+	PH_ASSERT_GE(dof, 1);
 	dof -= 1;
 
 	return {chi2, dof};

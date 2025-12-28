@@ -27,13 +27,12 @@ private:
 	bool removeChild(DesignerObject* childObj) override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FlatDesignerObject>)
+	PH_DEFINE_SDL_CLASS(FlatDesignerObject, clazz, outerScope=editor)
 	{
-		ClassType clazz("flat-dobj");
+		clazz.typeName("flat-dobj");
 		clazz.docName("Flat Designer Object");
 		clazz.description("A designer object that does not allow any children.");
 		clazz.baseOn<DesignerObject>();
-		return clazz;
 	}
 };
 

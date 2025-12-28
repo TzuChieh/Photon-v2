@@ -18,9 +18,9 @@ private:
 	ResourceIdentifier m_meshFile;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GIndexedTriangleMesh>)
+	PH_DEFINE_SDL_CLASS(GIndexedTriangleMesh, clazz)
 	{
-		ClassType clazz("indexed-triangle-mesh");
+		clazz.typeName("indexed-triangle-mesh");
 		clazz.docName("Indexed Triangle Mesh");
 		clazz.description(
 			"A cluster of triangles forming a singe shape in 3-D space. Unlike basic `Triangle Mesh`, "
@@ -32,8 +32,6 @@ public:
 		meshFile.description("File that stores the triangle mesh.");
 		meshFile.required();
 		clazz.addField(meshFile);
-
-		return clazz;
 	}
 };
 

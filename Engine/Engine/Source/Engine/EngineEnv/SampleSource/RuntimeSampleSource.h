@@ -24,9 +24,9 @@ private:
 	std::size_t m_numSamples;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RuntimeSampleSource>)
+	PH_DEFINE_SDL_CLASS(RuntimeSampleSource, clazz)
 	{
-		ClassType clazz("runtime");
+		clazz.typeName("runtime");
 		clazz.docName("Runtime Sample Source");
 		clazz.description(
 			"Sample sources that generate samples during render engine execution time.");
@@ -39,8 +39,6 @@ public:
 		numSamples.defaultTo(1);
 		numSamples.required();
 		clazz.addField(numSamples);
-
-		return clazz;
 	}
 };
 

@@ -41,9 +41,9 @@ private:
 	uint32      m_numWorkers;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RenderSession>)
+	PH_DEFINE_SDL_CLASS(RenderSession, clazz)
 	{
-		ClassType clazz("render-session");
+		clazz.typeName("render-session");
 		clazz.docName("Render Session");
 		clazz.description("Settings for how to perform a render operation.");
 		clazz.baseOn<Option>();
@@ -59,8 +59,6 @@ public:
 		numWorkers.defaultTo(1);
 		numWorkers.optional();
 		clazz.addField(numWorkers);
-
-		return clazz;
 	}
 };
 

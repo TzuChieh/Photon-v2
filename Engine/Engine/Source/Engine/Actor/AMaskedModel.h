@@ -24,9 +24,9 @@ private:
 	std::shared_ptr<Image> m_mask;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AMaskedModel>)
+	PH_DEFINE_SDL_CLASS(AMaskedModel, clazz)
 	{
-		ClassType clazz("masked-model");
+		clazz.typeName("masked-model");
 		clazz.docName("Masked Model Actor");
 		clazz.description("Masks another model actor.");
 		clazz.baseOn<Actor>();
@@ -43,8 +43,6 @@ public:
 			"pattern recorded on the image.");
 		mask.required();
 		clazz.addField(mask);
-
-		return clazz;
 	}
 };
 

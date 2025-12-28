@@ -30,9 +30,9 @@ private:
 		std::vector<GCuboid>& cubes) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GMengerSponge>)
+	PH_DEFINE_SDL_CLASS(GMengerSponge, clazz)
 	{
-		ClassType clazz("menger-sponge");
+		clazz.typeName("menger-sponge");
 		clazz.docName("Menger Sponge Geometry");
 		clazz.description("A fractal geometry.");
 		clazz.baseOn<Geometry>();
@@ -41,8 +41,6 @@ public:
 		numIteration.description("Number of recursive iterations on the fractal surface detail.");
 		numIteration.defaultTo(3);
 		clazz.addField(numIteration);
-
-		return clazz;
 	}
 };
 

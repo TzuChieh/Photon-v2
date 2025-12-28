@@ -7,6 +7,7 @@
 #include "Engine/Utility/traits.h"
 
 // Definer types
+#include "Engine/SDL/Definition/TSdlClassDefiner.h"
 #include "Engine/SDL/Definition/TSdlStructDefiner.h"
 #include "Engine/SDL/Definition/TSdlFunctionDefiner.h"
 
@@ -57,39 +58,39 @@ to return the SDL class instance.
 Available functionalities after defining the macro:
 
 * `const ClassType* getSdlClass()`
-  - A static method for accessing the static SDL class.
+  - A static method for accessing the SDL class static type.
 
 * `const SdlClass* getDynamicSdlClass() const`
   - A virtual method for accessing SDL class in runtime, through an instance to resource. The returned
     class will be the one defined for the actual type of the resource.
 
 */
-#define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\
+#define PH_DEFINE_SDL_CLASS(ownerType, classDef, ...)\
 	\
-	using ClassType = std::remove_cv_t<__VA_ARGS__>;\
-	using OwnerType = std::remove_cv_t<typename ClassType::OwnerType>;\
+	using OwnerType = ownerType;\
 	\
 	/* A marker so we know the macro has been called. */\
 	using SdlClassDefinitionMarker = OwnerType;\
 	\
-	inline static const ClassType* getSdlClass()\
-	{\
-		static_assert(std::is_base_of_v<::ph::ISdlResource, OwnerType>,\
-			"PH_DEFINE_SDL_CLASS() can only be defined for SDL resource.");\
-		static_assert(std::is_base_of_v<::ph::SdlClass, ClassType>,\
-			"PH_DEFINE_SDL_CLASS() must return a class derived from SdlClass.");\
-		\
-		static const ClassType sdlClass = internal_sdl_class_impl();\
-		return &sdlClass;\
-	}\
+	static auto getSdlClass()\
+	-> const TSdlOwnerClass<OwnerType>*;\
 	\
 	inline const ::ph::SdlClass* getDynamicSdlClass() const override\
 	{\
 		return getSdlClass();\
 	}\
 	\
-	inline static ClassType internal_sdl_class_impl()
+	template<typename InternalDef>\
+	inline static void internal_sdlClassDefinition(TSdlClassDefiner<InternalDef>& classDef)
 
+/*! @brief Define a SDL struct with function-like syntax.
+
+Available functionalities after defining the macro:
+
+* `const StructType* getSdlStruct()`
+  - A static method for accessing the SDL struct static type.
+
+*/
 #define PH_DEFINE_SDL_STRUCT(ownerType, structDef, ...)\
 	\
 	using OwnerType  = ownerType;\
@@ -103,6 +104,14 @@ Available functionalities after defining the macro:
 	template<typename InternalDef>\
 	inline static void internal_sdlStructDefinition(TSdlStructDefiner<InternalDef>& structDef)
 
+/*! @brief Define a SDL function with function-like syntax.
+
+Available functionalities after defining the macro:
+
+* `const FunctionType* getSdlFunction()`
+  - A static method for accessing the SDL function static type.
+
+*/
 #define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)\
 	\
 	using OwnerType = ownerType;\

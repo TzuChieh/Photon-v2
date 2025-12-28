@@ -50,9 +50,9 @@ private:
 	std::string m_swizzleSubscripts;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SwizzledImage>)
+	PH_DEFINE_SDL_CLASS(SwizzledImage, clazz)
 	{
-		ClassType clazz("swizzled-image");
+		clazz.typeName("swizzled-image");
 		clazz.docName("Swizzled Image");
 		clazz.description(
 			"An image whose primary purpose is to swizzle the output of a source image.");
@@ -71,8 +71,6 @@ public:
 			"4. Hex-based subscripts (for wide vector types) \"0123456789ABCDEF\".");
 		swizzleSubscripts.optional();
 		clazz.addField(swizzleSubscripts);
-
-		return clazz;
 	}
 };
 
