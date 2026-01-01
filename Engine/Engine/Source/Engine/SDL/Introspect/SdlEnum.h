@@ -5,7 +5,6 @@
 #include <string>
 #include <string_view>
 #include <cstddef>
-#include <utility>
 #include <vector>
 
 namespace ph
@@ -38,7 +37,7 @@ public:
 
 	using Entry = TEntry<int64>;
 
-	explicit SdlEnum(std::string name);
+	SdlEnum();
 
 	virtual Entry getEntry(std::size_t entryIndex) const = 0;
 	virtual std::size_t numEntries() const = 0;
@@ -48,6 +47,7 @@ public:
 	std::string getEntryDescription(std::size_t entryIndex) const;
 
 protected:
+	SdlEnum& setName(std::string name);
 	SdlEnum& setDescription(std::string description);
 	SdlEnum& setEntryDescription(std::size_t entryIndex, std::string description);
 
@@ -58,33 +58,6 @@ private:
 };
 
 // In-header Implementations:
-
-inline SdlEnum::SdlEnum(std::string name) : 
-	m_name(std::move(name))
-{
-	PH_ASSERT(!m_name.empty());
-}
-
-inline SdlEnum& SdlEnum::setDescription(std::string description)
-{
-	m_description = std::move(description);
-
-	return *this;
-}
-
-inline SdlEnum& SdlEnum::setEntryDescription(const std::size_t entryIndex, std::string description)
-{
-	// Allocate more storage for entry descriptions if required
-	if(entryIndex >= m_entryDescriptions.size())
-	{
-		m_entryDescriptions.resize(entryIndex + 1);
-	}
-
-	PH_ASSERT_LT(entryIndex, m_entryDescriptions.size());
-	m_entryDescriptions[entryIndex] = std::move(description);
-
-	return *this;
-}
 
 inline const std::string& SdlEnum::getName() const
 {

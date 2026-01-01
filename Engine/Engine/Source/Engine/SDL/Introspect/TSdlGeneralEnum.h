@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/SdlEnum.h"
+#include "Engine/SDL/Definition/ISdlDefaultEnumDefinition.h"
 #include "Engine/Utility/TArrayVector.h"
 #include "Engine/SDL/sdl_exceptions.h"
 #include "Engine/Utility/utility.h"
@@ -22,7 +23,7 @@ with identical value or name, which is useful for giving the user more tolerance
 (e.g., case inconsistency). See `getTypedEntry()` for more details.
 */
 template<typename InEnumType, std::size_t MAX_ENTRIES = 64>
-class TSdlGeneralEnum : public SdlEnum
+class TSdlGeneralEnum : public SdlEnum, public ISdlDefaultEnumDefinition
 {
 	// TODO: how the mapping is done should be a template param
 	// TODO: can have other kinds of enum such as TSdlFlagEnum
@@ -33,9 +34,9 @@ public:
 		"EnumType must be a C++ enum. Currently it is not.");
 
 public:
-	inline explicit TSdlGeneralEnum(std::string name) :
+	inline TSdlGeneralEnum() :
 
-		SdlEnum(std::move(name)),
+		SdlEnum(),
 
 		m_nameBuffer(),
 		m_entries()
@@ -126,6 +127,12 @@ public:
 		}
 
 		throw SdlLoadError("use of invalid enum value: " + enum_to_string(enumValue));
+	}
+
+	inline TSdlGeneralEnum& name(std::string nameStr)
+	{
+		setName(std::move(nameStr));
+		return *this;
 	}
 
 	inline TSdlGeneralEnum& description(std::string descriptionStr)

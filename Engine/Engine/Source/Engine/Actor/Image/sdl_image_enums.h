@@ -14,17 +14,15 @@ enum class EImageSampleMode
 	Trilinear
 };
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EImageSampleMode>)
+PH_DEFINE_SDL_ENUM(EImageSampleMode, e)
 {
-	SdlEnumType sdlEnum("sample-mode");
-	sdlEnum.description("Controls how the image will be sampled.");
+	e.name("sample-mode");
+	e.description("Controls how the image will be sampled.");
 
-	sdlEnum.addEntry(EnumType::Unspecified, "");
-	sdlEnum.addEntry(EnumType::Nearest,     "nearest");
-	sdlEnum.addEntry(EnumType::Bilinear,    "bilinear");
-	sdlEnum.addEntry(EnumType::Trilinear,   "trilinear");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Unspecified, "");
+	e.addEntry(EnumType::Nearest,     "nearest");
+	e.addEntry(EnumType::Bilinear,    "bilinear");
+	e.addEntry(EnumType::Trilinear,   "trilinear");
 }
 
 enum class EImageWrapMode
@@ -36,18 +34,16 @@ enum class EImageWrapMode
 	FlippedClampToEdge
 };
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EImageWrapMode>)
+PH_DEFINE_SDL_ENUM(EImageWrapMode, e)
 {
-	SdlEnumType sdlEnum("wrap-mode");
-	sdlEnum.description(
+	e.name("wrap-mode");
+	e.description(
 		"Controls how the image will be sampled when texture coordinates is not within the range [0, 1].");
 
-	sdlEnum.addEntry(EnumType::Unspecified,        "");
-	sdlEnum.addEntry(EnumType::Repeat,             "repeat");
-	sdlEnum.addEntry(EnumType::ClampToEdge,        "clamp-to-edge");
-	sdlEnum.addEntry(EnumType::FlippedClampToEdge, "flipped-clamp-to-edge");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Unspecified,        "");
+	e.addEntry(EnumType::Repeat,             "repeat");
+	e.addEntry(EnumType::ClampToEdge,        "clamp-to-edge");
+	e.addEntry(EnumType::FlippedClampToEdge, "flipped-clamp-to-edge");
 }
 
 }// end namespace ph

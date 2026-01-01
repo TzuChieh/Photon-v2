@@ -17,7 +17,8 @@ class EMacro(Enum):
     DefineClass = 1
     DefineStruct = 2
     DefineFunction = 3
-    DeclareMeta = 4
+    DefineEnum = 4
+    DeclareMeta = 100
 
 
 class SourceFragment:
@@ -27,7 +28,16 @@ class SourceFragment:
         self.macro_header = None
         
         self.macro_type = EMacro.Other
-        self.owner_class = ""
+
+        # The main class type specified as macro argument. `None` if unapplicable.
+        self.owner_class_type = None
+
+        # TODO
+        self.qualified_owner_class_type = None
+
+        # The enum type specified as macro argument. `None` if unapplicable.
+        self.enum_type = None
+
         self.sdl_impl = ""
 
 
@@ -59,15 +69,30 @@ class MacroHandler(ABC):
     def macro_name(self) -> str:
         pass
 
-    @abstractmethod
     def generate_source(self, source_file: Path, source_dir: Path, arg_tokens: list[str]) -> SourceFragment:
-        pass
+        """
+        Generate source code (fragment) for a single file.
+        @return `None` if nothing is generated.
+        """
+        return None
+
+    def post_generate_source(self, frags: list[SourceFragment]) -> SourceFragment:
+        """
+        Generate source code (fragment) after all source files are scanned. Have access to extra info.
+        @return `None` if nothing is generated.
+        """
+        return None
 
     def _get_outer_scope_expr(self, source_file: Path, arg_tokens: list[str]) -> str:
         outer_scope = self._get_outer_scope(source_file, arg_tokens)
         return "" if not outer_scope else f"{outer_scope}::"
 
     def _get_outer_scope(self, source_file: Path, arg_tokens: list[str]) -> str:
+        """
+        @return The scope as specified by `outerScope`. For `outerScope=` or `outerScope=void`,
+        the scope is treated as no scope. If `outerScope` is not even present in arguments,
+        filename is used as the scope.
+        """
         outer_scope = self._get_value('outerScope', arg_tokens)
         if outer_scope is None:
             outer_scope = source_file.stem
@@ -104,12 +129,12 @@ class ClassHandler(MacroHandler):
 
         outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
         header_include_expr = source_file.relative_to(source_dir).as_posix()
-        owner_class_name = arg_tokens[0]
+        owner_class_type = arg_tokens[0]
 
         src = SourceFragment()
         src.macro_type = EMacro.DefineClass
         src.macro_header = source_file
-        src.owner_class = owner_class_name
+        src.owner_class_type = owner_class_type
         src.sdl_impl = textwrap.dedent(
             f"""
             #include "{header_include_expr}"
@@ -120,7 +145,7 @@ class ClassHandler(MacroHandler):
             namespace ph
             {{
 
-            auto {outer_scope_expr}{owner_class_name}::getSdlClass()
+            auto {outer_scope_expr}{owner_class_type}::getSdlClass()
             -> const TSdlOwnerClass<OwnerType>*
             {{
                 static_assert(std::is_base_of_v<::ph::ISdlResource, OwnerType>,
@@ -162,12 +187,12 @@ class StructHandler(MacroHandler):
 
         outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
         header_include_expr = source_file.relative_to(source_dir).as_posix()
-        owner_class_name = arg_tokens[0]
+        owner_class_type = arg_tokens[0]
 
         src = SourceFragment()
         src.macro_type = EMacro.DefineStruct
         src.macro_header = source_file
-        src.owner_class = owner_class_name
+        src.owner_class_type = owner_class_type
         src.sdl_impl = textwrap.dedent(
             f"""
             #include "{header_include_expr}"
@@ -178,7 +203,7 @@ class StructHandler(MacroHandler):
             namespace ph
             {{
 
-            auto {outer_scope_expr}{owner_class_name}::getSdlStruct()
+            auto {outer_scope_expr}{owner_class_type}::getSdlStruct()
             -> const TSdlOwnerStruct<OwnerType>*
             {{
                 using SdlStructType = TSdlOwnerStruct<OwnerType>;
@@ -217,12 +242,12 @@ class FunctionHandler(MacroHandler):
 
         outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
         header_include_expr = source_file.relative_to(source_dir).as_posix()
-        owner_class_name = arg_tokens[0]
+        owner_class_type = arg_tokens[0]
 
         src = SourceFragment()
         src.macro_type = EMacro.DefineFunction
         src.macro_header = source_file
-        src.owner_class = owner_class_name
+        src.owner_class_type = owner_class_type
         src.sdl_impl = textwrap.dedent(
             f"""
             #include "{header_include_expr}"
@@ -233,7 +258,7 @@ class FunctionHandler(MacroHandler):
             namespace ph
             {{
 
-            auto {outer_scope_expr}{owner_class_name}::getSdlFunction()
+            auto {outer_scope_expr}{owner_class_type}::getSdlFunction()
             -> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*
             {{
                 using SdlFunctionType = TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>;
@@ -257,60 +282,192 @@ class FunctionHandler(MacroHandler):
         return src
 
 
-# class MetaGetterForAllSdlClassesHandler(MacroHandler):
-#     def __init__(self, ):
-#         super().__init__()
-
-
-
-#     @property
-#     def macro_name(self):
-#         return 'PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES'
+class EnumHandler(MacroHandler):
+    @property
+    def macro_name(self):
+        return 'PH_DEFINE_SDL_ENUM'
     
-#     def generate_source(self, source_file, source_dir, arg_tokens):
-#         primary_owner_class_name = source_file.stem
-#         header_include_expr = source_file.relative_to(source_dir).as_posix()
+    def generate_source(self, source_file, source_dir, arg_tokens):
+        if source_file.suffix != '.h':
+            raise ValueError(f"SDL enum definition is only allowed in header (offending file: {source_file})")
 
-#         # For arguments, we need at least `getterFuncName`
-#         if len(arg_tokens) < 1:
-#             raise ValueError(f"{self.macro_name}() requires at least 1 argument, {len(arg_tokens)} were given")
+        # For arguments, we need at least `enumType`, `enumDef`
+        if len(arg_tokens) < 2:
+            raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
 
-#         getter_func_name = arg_tokens[0].strip()
+        outer_scope = self._get_value('outerScope', arg_tokens)
+        if outer_scope is not None:
+            print(f"warning: for {self.macro_name}(), outerScope is ignored (file: {source_file})")
 
-#         return textwrap.dedent(
-#             f"""
-#             #include "{header_include_expr}"
+        header_include_expr = source_file.relative_to(source_dir).as_posix()
+        enum_type = arg_tokens[0]
 
-#             // For `SdlFunctionType`
-#             #include <Engine/SDL/Introspect/TSdlOwnerMethod.h>
+        src = SourceFragment()
+        src.macro_type = EMacro.DefineEnum
+        src.macro_header = source_file
+        src.enum_type = enum_type
+        src.sdl_impl = textwrap.dedent(
+            f"""
+            #include "{header_include_expr}"
 
-#             namespace ph
-#             {{
+            // For `SdlEnumType`
+            #include <Engine/SDL/Introspect/TSdlGeneralEnum.h>
 
-#             auto {primary_owner_class_name}::{owner_class_name}::getSdlFunction()
-#             -> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*
-#             {{
-#                 using SdlFunctionType = TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>;
-#                 static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,
-#                     "getSdlFunction() must return a function derived from SdlFunction.");
+            namespace ph
+            {{
+
+            auto TSdlEnum<std::remove_cv_t<typename {enum_type}>>::getSdlEnum()
+            -> const SdlEnumType*
+            {{
+                static_assert(std::is_base_of_v<::ph::SdlEnum, SdlEnumType>,
+                    "getSdlEnum() must return an enum derived from SdlEnum.");
                 
-#                 static const auto sdlFunction =
-#                     []() -> SdlFunctionType
-#                     {{
-#                         SdlFunctionType def;
-#                         TSdlFunctionDefiner<SdlFunctionType> definer(def);
-#                         internal_sdl_definition_impl<SdlFunctionType>(definer);
-#                         return def;
-#                     }}();
-#                 return &sdlFunction;
-#             }}
+                static const auto sdlEnum =
+                    []() -> SdlEnumType
+                    {{
+                        SdlEnumType def;
+                        TSdlEnumDefiner<SdlEnumType> definer(def);
+                        internal_sdlEnumDefinition<SdlEnumType>(definer);
+                        return def;
+                    }}();
+                return &sdlEnum;
+            }}
 
-#             }}// end namespace ph
+            }}// end namespace ph
 
-#             """)
+            """)
+        return src
+
+
+class MetaGetterForAllSdlClassesHandler(MacroHandler):
+    def __init__(self):
+        super().__init__()
+
+        self.generate_source_args = []
+
+    @property
+    def macro_name(self):
+        return 'PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES'
     
+    def generate_source(self, source_file, source_dir, arg_tokens):
+        # This macro can be used anywhere; store required info for post generation later
+        self.generate_source_args.append((source_file, source_dir, arg_tokens))
+        return None
+    
+    def post_generate_source(self, frags):
+        src = SourceFragment()
+        src.macro_type = EMacro.DeclareMeta
+
+        owner_class_defs = [f for f in frags if f.macro_type == EMacro.DefineClass]
+        for source_file, source_dir, arg_tokens in self.generate_source_args:
+            # For arguments, we need at least `getterFuncName`
+            if len(arg_tokens) < 1:
+                raise ValueError(f"{self.macro_name}() requires at least 1 arguments, {len(arg_tokens)} were given")
+
+            sdl_classes = "\n"
+            sdl_class_includes = "\n"
+            for owner_class_def in owner_class_defs:
+                sdl_classes += f"{owner_class_def.owner_class_type}::getSdlClass(),\n"
+
+                header_include_expr = owner_class_def.macro_header.relative_to(source_dir).as_posix()
+                sdl_class_includes += f"#include \"{header_include_expr}\"\n"
+            
+            # Just for aesthetic 
+            sdl_classes = textwrap.indent(sdl_classes, "                        ")
+            sdl_class_includes = textwrap.indent(sdl_class_includes, "                ")
+
+            getter_name = arg_tokens[0]
+            outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+            src.sdl_impl += textwrap.dedent(
+                f"""
+                {sdl_class_includes}
+
+                #include <vector>
+
+                namespace ph
+                {{
+
+                std::vector<const SdlClass*> {outer_scope_expr}{getter_name}()
+                {{
+                    return
+                    {{
+                        {sdl_classes}
+                    }};
+                }}
+
+                }}// end namespace ph
+
+                """)
+        return src if src.sdl_impl else None
+    
+
+class MetaGetterForAllSdlEnumsHandler(MacroHandler):
+    def __init__(self):
+        super().__init__()
+
+        self.generate_source_args = []
+
+    @property
+    def macro_name(self):
+        return 'PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS'
+    
+    def generate_source(self, source_file, source_dir, arg_tokens):
+        # This macro can be used anywhere; store required info for post generation later
+        self.generate_source_args.append((source_file, source_dir, arg_tokens))
+        return None
+    
+    def post_generate_source(self, frags):
+        src = SourceFragment()
+        src.macro_type = EMacro.DeclareMeta
+
+        enum_defs = [f for f in frags if f.macro_type == EMacro.DefineEnum]
+        for source_file, source_dir, arg_tokens in self.generate_source_args:
+            # For arguments, we need at least `getterFuncName`
+            if len(arg_tokens) < 1:
+                raise ValueError(f"{self.macro_name}() requires at least 1 arguments, {len(arg_tokens)} were given")
+
+            sdl_enums = "\n"
+            sdl_enum_includes = "\n"
+            for enum_def in enum_defs:
+                sdl_enums += f"TSdlEnum<typename {enum_def.enum_type}>::getSdlEnum(),\n"
+
+                header_include_expr = enum_def.macro_header.relative_to(source_dir).as_posix()
+                sdl_enum_includes += f"#include \"{header_include_expr}\"\n"
+            
+            # Just for aesthetic 
+            sdl_enums = textwrap.indent(sdl_enums, "                        ")
+            sdl_enum_includes = textwrap.indent(sdl_enum_includes, "                ")
+
+            getter_name = arg_tokens[0]
+            outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+            src.sdl_impl += textwrap.dedent(
+                f"""
+                {sdl_enum_includes}
+
+                #include <vector>
+
+                namespace ph
+                {{
+
+                std::vector<const SdlEnum*> {outer_scope_expr}{getter_name}()
+                {{
+                    return
+                    {{
+                        {sdl_enums}
+                    }};
+                }}
+
+                }}// end namespace ph
+
+                """)
+        return src if src.sdl_impl else None
+
 
 def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[MacroHandler]):
+    """
+    Generate source code for a single file.
+    @return A single compilation unit (`CompilationUnit`). `None` if nothing is generated.
+    """
     sdl_frags = []
     for line in source_file.read_text(encoding='utf-8').splitlines():
         line = line.lstrip()
@@ -326,7 +483,9 @@ def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[Mac
 
             str_within_parentheses = line_matches.group(1)
             tokens = [token.strip() for token in str_within_parentheses.split(',')]
-            sdl_frags.append(handler.generate_source(source_file, source_dir, tokens))
+            frag = handler.generate_source(source_file, source_dir, tokens)
+            if frag:
+                sdl_frags.append(frag)
 
             # Handlers are unique, skip the rests if we handled one
             break
@@ -340,15 +499,42 @@ def _generate_source_for(source_file: Path, source_dir: Path, handlers: list[Mac
     unit.version_id = uuid.uuid4()
     return unit
 
-def generate(setup_config: configparser.ConfigParser):
-    handlers = [
+def _post_generate_source_for(units: list[CompilationUnit], handlers: list[MacroHandler]):
+    """
+    Post generate source code for each compilation unit.
+    @param[in,out] units Compilation units to process. They can also be modified during the process.
+    @return A list if compilation units (`list[CompilationUnit]`) generated additionally.
+    """
+    frags = [f for unit in units for f in unit.sdl_frags]
+
+    post_units = []
+    for handler in handlers:
+        post_frag = handler.post_generate_source(frags)
+        if post_frag:
+            post_unit = CompilationUnit()
+            post_unit.unique_name = f"post_{handler.macro_name}"
+            post_unit.sdl_frags = [post_frag]
+            post_unit.version_id = uuid.uuid4()
+            post_units.append(post_unit)
+
+    return post_units
+
+
+def _init_macro_handlers() -> list[MacroHandler]:
+    return [
         ClassHandler(),
         StructHandler(),
-        FunctionHandler()
+        FunctionHandler(),
+        EnumHandler(),
+        MetaGetterForAllSdlClassesHandler(),
+        MetaGetterForAllSdlEnumsHandler(),
         ]
 
+
+def generate(setup_config: configparser.ConfigParser):
     # Generate for each project
     for name, section in config.get_all_projects(setup_config):
+        handlers = _init_macro_handlers()
         project_dir = Path(section['ProjectDirectory'])
         source_dir = project_dir / 'Source'
         generated_source_dir = project_dir / 'Generated' / 'SDL'
@@ -369,12 +555,7 @@ def generate(setup_config: configparser.ConfigParser):
                 
         print(f"{log_name} Processed {num_source_files} source files")
 
-        if not units:
-            continue
-
-        print(f"{log_name} Writing source for {len(units)} definitions...")
-
-        generated_source_dir.mkdir(parents=True, exist_ok=True)
+        units.extend(_post_generate_source_for(units, handlers))
 
         # Remove old source
         for item in generated_source_dir.iterdir():
@@ -382,15 +563,19 @@ def generate(setup_config: configparser.ConfigParser):
                 raise ValueError(f"unexpected item found in {generated_source_dir}")
             
             item.unlink()
+
+        if not units:
+            continue
+
+        print(f"{log_name} Writing {len(units)} compilation unit(s)...")
+
+        generated_source_dir.mkdir(parents=True, exist_ok=True)
             
         # Write new source
         for unit in units:
             (generated_source_dir / f"def_{unit.unique_name}").with_suffix('.cpp').write_text(unit.generate_source_code())
 
-        # TODO: remove extra indent
-        # TODO: CMake script to include source for compile
         # TODO: generate source for ph_core.cpp and such
-        # TODO: outerType=? option for test
         
     # TODO: indicate CMake reconfigure is required
 

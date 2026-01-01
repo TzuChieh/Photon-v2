@@ -10,6 +10,7 @@
 #include "Engine/SDL/Definition/TSdlClassDefiner.h"
 #include "Engine/SDL/Definition/TSdlStructDefiner.h"
 #include "Engine/SDL/Definition/TSdlFunctionDefiner.h"
+#include "Engine/SDL/Definition/TSdlEnumDefiner.h"
 
 // Base types
 #include "Engine/SDL/Introspect/SdlClass.h"
@@ -140,14 +141,14 @@ specializing `TSdlEnum`, the resulting type should still be unique.)
 For a enum `EnumType`, after the definition is done by calling this macro, you can use methods in
 `TSdlEnum<EnumType>` to access functionalities. See `TSdlEnum` for what methods are available. 
 */
-#define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
+#define PH_DEFINE_SDL_ENUM(enumType, enumDef, ...)\
 	template<>\
-	class TSdlEnum<std::remove_cv_t<typename __VA_ARGS__::EnumType>> final\
+	class TSdlEnum<std::remove_cv_t<typename enumType>> final\
 	{\
 	public:\
 	\
-		using SdlEnumType = std::remove_cv_t<__VA_ARGS__>;\
-		using EnumType    = std::remove_cv_t<typename SdlEnumType::EnumType>;\
+		using SdlEnumType = std::remove_cv_t<::ph::TSdlGeneralEnum<typename enumType>>;\
+		using EnumType    = std::remove_cv_t<typename enumType>;\
 	\
 		static_assert(std::is_enum_v<EnumType>,\
 			"EnumType must be an enum. Currently it is not.");\
@@ -168,19 +169,15 @@ For a enum `EnumType`, after the definition is done by calling this macro, you c
 			return entry.name;\
 		}\
 	\
-		inline static const SdlEnumType* getSdlEnum()\
-		{\
-			static_assert(std::is_base_of_v<::ph::SdlEnum, SdlEnumType>,\
-				"PH_DEFINE_SDL_ENUM() must return an enum derived from SdlEnum.");\
-			\
-			static const SdlEnumType sdlEnum = internal_sdl_enum_impl();\
-			return &sdlEnum;\
-		}\
+		static auto getSdlEnum()\
+		-> const SdlEnumType*;\
 	\
 	private:\
-		static SdlEnumType internal_sdl_enum_impl();\
+		template<typename InternalDef>\
+		static void internal_sdlEnumDefinition(TSdlEnumDefiner<InternalDef>& enumDef);\
 	};\
 	\
 	/* In-header Implementations: */\
 	\
-	inline __VA_ARGS__ TSdlEnum<std::remove_cv_t<typename __VA_ARGS__::EnumType>>::internal_sdl_enum_impl()
+	template<typename InternalDef>\
+	inline void TSdlEnum<std::remove_cv_t<typename enumType>>::internal_sdlEnumDefinition(TSdlEnumDefiner<InternalDef>& enumDef)

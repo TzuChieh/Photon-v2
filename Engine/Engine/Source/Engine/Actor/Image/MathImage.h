@@ -22,20 +22,18 @@ enum class EMathImageOp
 	Clamp
 };
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
+PH_DEFINE_SDL_ENUM(EMathImageOp, e)
 {
-	SdlEnumType sdlEnum("math-image-op");
-	sdlEnum.description("The mathematical operation used on images.");
+	e.name("math-image-op");
+	e.description("The mathematical operation used on images.");
 
-	sdlEnum.addEntry(EnumType::Add,      "add");
-	sdlEnum.addEntry(EnumType::Subtract, "sub");
-	sdlEnum.addEntry(EnumType::Multiply, "mul");
-	sdlEnum.addEntry(EnumType::Divide,   "div");
-	sdlEnum.addEntry(EnumType::Power,    "pow");
-	sdlEnum.addEntry(EnumType::Absolute, "abs");
-	sdlEnum.addEntry(EnumType::Clamp,    "clamp");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Add,      "add");
+	e.addEntry(EnumType::Subtract, "sub");
+	e.addEntry(EnumType::Multiply, "mul");
+	e.addEntry(EnumType::Divide,   "div");
+	e.addEntry(EnumType::Power,    "pow");
+	e.addEntry(EnumType::Absolute, "abs");
+	e.addEntry(EnumType::Clamp,    "clamp");
 }
 
 class MathImage : public Image

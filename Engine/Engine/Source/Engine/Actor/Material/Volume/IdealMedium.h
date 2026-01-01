@@ -13,14 +13,12 @@ enum class EIdealMedium
 	AbsorbtionOnly = 0,
 };
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EIdealMedium>)
+PH_DEFINE_SDL_ENUM(EIdealMedium, e)
 {
-	SdlEnumType sdlEnum("ideal-medium");
-	sdlEnum.description("Type of the physical behavior of a constant and uniform medium.");
+	e.name("ideal-medium");
+	e.description("Type of the physical behavior of a constant and uniform medium.");
 
-	sdlEnum.addEntry(EnumType::AbsorbtionOnly, "absorption-only");
-
-	return sdlEnum;
+	e.addEntry(EnumType::AbsorbtionOnly, "absorption-only");
 }
 
 class IdealMedium : public VolumeMaterial

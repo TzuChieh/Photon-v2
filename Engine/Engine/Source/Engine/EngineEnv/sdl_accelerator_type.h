@@ -6,20 +6,18 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EAccelerator>)
+PH_DEFINE_SDL_ENUM(EAccelerator, e)
 {
-	SdlEnumType sdlEnum("accelerator");
-	sdlEnum.description("Denotes acceleration structure types.");
+	e.name("accelerator");
+	e.description("Denotes acceleration structure types.");
 
-	sdlEnum.addEntry(EnumType::Unspecified,   "");
-	sdlEnum.addEntry(EnumType::BruteForce,    "brute-force");
-	sdlEnum.addEntry(EnumType::BVH,           "bvh");
-	sdlEnum.addEntry(EnumType::BVH4,          "bvh4");
-	sdlEnum.addEntry(EnumType::BVH8,          "bvh8");
-	sdlEnum.addEntry(EnumType::Kdtree,        "kd-tree");
-	sdlEnum.addEntry(EnumType::IndexedKdtree, "indexed-kd-tree");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Unspecified,   "");
+	e.addEntry(EnumType::BruteForce,    "brute-force");
+	e.addEntry(EnumType::BVH,           "bvh");
+	e.addEntry(EnumType::BVH4,          "bvh4");
+	e.addEntry(EnumType::BVH8,          "bvh8");
+	e.addEntry(EnumType::Kdtree,        "kd-tree");
+	e.addEntry(EnumType::IndexedKdtree, "indexed-kd-tree");
 }
 
 }// end namespace ph

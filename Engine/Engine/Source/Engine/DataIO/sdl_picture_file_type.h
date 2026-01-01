@@ -6,32 +6,30 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EPictureFile>)
+PH_DEFINE_SDL_ENUM(EPictureFile, e)
 {
-	SdlEnumType sdlEnum("picture-file");
-	sdlEnum.description("File format of picture files.");
+	e.name("picture-file");
+	e.description("File format of picture files.");
 
-	sdlEnum.addEntry(EnumType::Unknown, "");
-	sdlEnum.addEntry(EnumType::PNG, "PNG");
-	sdlEnum.addEntry(EnumType::JPG, "JPG");
-	sdlEnum.addEntry(EnumType::BMP, "BMP");
-	sdlEnum.addEntry(EnumType::TGA, "TGA");
-	sdlEnum.addEntry(EnumType::HDR, "HDR");
-	sdlEnum.addEntry(EnumType::EXR, "EXR");
-	sdlEnum.addEntry(EnumType::HighPrecisionEXR, "EXR-high-precision");
-	sdlEnum.addEntry(EnumType::PFM, "PFM");
+	e.addEntry(EnumType::Unknown, "");
+	e.addEntry(EnumType::PNG, "PNG");
+	e.addEntry(EnumType::JPG, "JPG");
+	e.addEntry(EnumType::BMP, "BMP");
+	e.addEntry(EnumType::TGA, "TGA");
+	e.addEntry(EnumType::HDR, "HDR");
+	e.addEntry(EnumType::EXR, "EXR");
+	e.addEntry(EnumType::HighPrecisionEXR, "EXR-high-precision");
+	e.addEntry(EnumType::PFM, "PFM");
 
 	// Aliases
-	sdlEnum.addEntry(EnumType::PNG, "png");
-	sdlEnum.addEntry(EnumType::JPG, "jpg");
-	sdlEnum.addEntry(EnumType::BMP, "bmp");
-	sdlEnum.addEntry(EnumType::TGA, "tga");
-	sdlEnum.addEntry(EnumType::HDR, "hdr");
-	sdlEnum.addEntry(EnumType::EXR, "exr");
-	sdlEnum.addEntry(EnumType::HighPrecisionEXR, "exr-high-precision");
-	sdlEnum.addEntry(EnumType::PFM, "pfm");
-
-	return sdlEnum;
+	e.addEntry(EnumType::PNG, "png");
+	e.addEntry(EnumType::JPG, "jpg");
+	e.addEntry(EnumType::BMP, "bmp");
+	e.addEntry(EnumType::TGA, "tga");
+	e.addEntry(EnumType::HDR, "hdr");
+	e.addEntry(EnumType::EXR, "exr");
+	e.addEntry(EnumType::HighPrecisionEXR, "exr-high-precision");
+	e.addEntry(EnumType::PFM, "pfm");
 }
 
 }// end namespace ph

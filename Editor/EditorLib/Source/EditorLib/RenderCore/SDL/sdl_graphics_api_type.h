@@ -7,15 +7,13 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<editor::ghi::EGraphicsAPI>)
+PH_DEFINE_SDL_ENUM(editor::ghi::EGraphicsAPI, e)
 {
-	SdlEnumType sdlEnum("graphics-api");
-	sdlEnum.description("Type of the hardware rendering API.");
+	e.name("graphics-api");
+	e.description("Type of the hardware rendering API.");
 
-	sdlEnum.addEntry(EnumType::Unknown,   "");
-	sdlEnum.addEntry(EnumType::OpenGL,    "OPENGL");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Unknown, "");
+	e.addEntry(EnumType::OpenGL,  "OPENGL");
 }
 
 }// end namespace ph

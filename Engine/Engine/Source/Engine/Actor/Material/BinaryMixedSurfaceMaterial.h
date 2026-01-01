@@ -14,14 +14,12 @@ enum class ESurfaceMaterialMixMode
 	Lerp = 0
 };
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ESurfaceMaterialMixMode>)
+PH_DEFINE_SDL_ENUM(ESurfaceMaterialMixMode, e)
 {
-	SdlEnumType sdlEnum("surface-material-mix-mode");
-	sdlEnum.description("Specify how surface materials are mixed.");
+	e.name("surface-material-mix-mode");
+	e.description("Specify how surface materials are mixed.");
 
-	sdlEnum.addEntry(EnumType::Lerp, "lerp");
-
-	return sdlEnum;
+	e.addEntry(EnumType::Lerp, "lerp");
 }
 
 class BinaryMixedSurfaceMaterial : public SurfaceMaterial

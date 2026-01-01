@@ -94,10 +94,9 @@ enum class EDummy
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<sdl_traits_test::EDummy>)
+PH_DEFINE_SDL_ENUM(sdl_traits_test::EDummy, e)
 {
-	SdlEnumType sdlEnum("sdl_traits_test::dummy");
-	return sdlEnum;
+	e.name("sdl_traits_test::dummy");
 }
 
 }// end namespace ph
