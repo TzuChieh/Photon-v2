@@ -7,40 +7,22 @@
 #include "EditorLib/Render/EditorDebug/EditorDebugRenderModule.h"
 #include "EditorLib/Render/Imgui/Editor/ImguiEditorLog.h"
 
-// Designer Scenes
-#include "EditorLib/Designer/DesignerScene.h"
-
-// General Designer Objects
-#include "EditorLib/Designer/DesignerObject.h"
-#include "EditorLib/Designer/AbstractDesignerObject.h"
-#include "EditorLib/Designer/FlatDesignerObject.h"
-#include "EditorLib/Designer/HierarchicalDesignerObject.h"
-#include "EditorLib/Designer/TextualNoteObject.h"
-#include "EditorLib/Designer/NodeObject.h"
-
-// Rendering
-#include "EditorLib/Designer/Render/RenderAgent.h"
-#include "EditorLib/Designer/Render/OfflineRenderAgent.h"
-
-// Imposters
-#include "EditorLib/Designer/Imposter/ImposterObject.h"
-#include "EditorLib/Designer/Imposter/GeneralImposter.h"
-
-// Enums
-#include "EditorLib/RenderCore/SDL/sdl_graphics_api_type.h"
-
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Common/exceptions.h>
 #include <Engine/ph_core.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/Utility/traits.h>
+#include <Engine/SDL/sdl_meta.h>
 
 #include <cstdlib>
 #include <vector>
 
 namespace ph::editor
 {
+
+PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES(gather_all_editor_SDL_classes, outerScope=editor);
+PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(gather_all_editor_SDL_enums, outerScope=editor);
 
 namespace
 {
@@ -54,64 +36,6 @@ inline EngineInitSettings get_editor_engine_init_settings()
 	auto settings = EngineInitSettings::loadStandardConfig();
 	settings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
 	return settings;
-}
-
-template<typename SdlClassType>
-inline const SdlClass* register_editor_sdl_class()
-{
-	const SdlClass* const clazz = SdlClassType::getSdlClass();
-
-	// Register for dynamic designer object creation
-	if constexpr(CDerived<SdlClassType, DesignerObject>)
-	{
-		DesignerScene::registerObjectType<SdlClassType>();
-	}
-
-	return clazz;
-}
-
-template<typename EnumType>
-inline const SdlEnum* register_editor_sdl_enum()
-{
-	return TSdlEnum<EnumType>::getSdlEnum();
-}
-
-/* The following section registeres SDL classes and enums to the editor. Please note that SDL
-interface definition and reflection do not need registration to work, this simply provide an
-interface to available classes and enums so some functionalities can benefit from it.
-*/
-
-inline std::vector<const SdlClass*> register_editor_classes()
-{
-	return
-	{
-		// Designer Scenes
-		register_editor_sdl_class<DesignerScene>(),
-
-		// General Designer Objects
-		register_editor_sdl_class<AbstractDesignerObject>(),
-		register_editor_sdl_class<DesignerObject>(),
-		register_editor_sdl_class<FlatDesignerObject>(),
-		register_editor_sdl_class<HierarchicalDesignerObject>(),
-		register_editor_sdl_class<TextualNoteObject>(),
-		register_editor_sdl_class<NodeObject>(),
-
-		// Rendering
-		register_editor_sdl_class<RenderAgent>(),
-		register_editor_sdl_class<OfflineRenderAgent>(),
-
-		// Imposters
-		register_editor_sdl_class<ImposterObject>(),
-		register_editor_sdl_class<GeneralImposter>(),
-	};
-}
-
-inline std::vector<const SdlEnum*> register_editor_enums()
-{
-	return
-	{
-		register_editor_sdl_enum<ghi::EGraphicsAPI>(),
-	};
 }
 
 }// end anonymous namespace
@@ -185,13 +109,21 @@ int imgui_demo_entry_point(int argc, char* argv[])
 
 std::span<const SdlClass* const> get_registered_editor_classes()
 {
-	static std::vector<const SdlClass*> classes = register_editor_classes();
+	/* The following section registeres SDL classes and enums to the editor. Please note that SDL
+	interface definition and reflection do not need registration to work, this simply provide an
+	interface to available classes and enums so some functionalities can benefit from it.
+	*/
+	static std::vector<const SdlClass*> classes = gather_all_editor_SDL_classes();
 	return classes;
 }
 
 std::span<const SdlEnum* const> get_registered_editor_enums()
 {
-	static std::vector<const SdlEnum*> enums = register_editor_enums();
+	/* The following section registeres SDL classes and enums to the editor. Please note that SDL
+	interface definition and reflection do not need registration to work, this simply provide an
+	interface to available classes and enums so some functionalities can benefit from it.
+	*/
+	static std::vector<const SdlEnum*> enums = gather_all_editor_SDL_enums();
 	return enums;
 }
 

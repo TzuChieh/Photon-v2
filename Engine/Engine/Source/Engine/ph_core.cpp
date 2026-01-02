@@ -17,7 +17,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
 
 PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES(gather_all_engine_SDL_classes, outerScope=void);
-PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(gather_all_engine_enums, outerScope=void);
+PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(gather_all_engine_SDL_enums, outerScope=void);
 
 bool init_render_engine(std::optional<EngineInitSettings> settings)
 {
@@ -109,7 +109,7 @@ std::span<const SdlEnum* const> get_registered_engine_enums()
 	interface definition and reflection system do not need registration to work, this simply provide an
 	interface to available classes and enums so some functionalities can benefit from it.
 	*/
-	static std::vector<const SdlEnum*> enums = gather_all_engine_enums();
+	static std::vector<const SdlEnum*> enums = gather_all_engine_SDL_enums();
 	return enums;
 }
 

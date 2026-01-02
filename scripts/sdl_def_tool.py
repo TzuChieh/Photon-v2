@@ -64,6 +64,8 @@ class MacroHandler(ABC):
     def __init__(self):
         super().__init__()
 
+        self.project_name = ""
+
     @property
     @abstractmethod
     def macro_name(self) -> str:
@@ -82,10 +84,9 @@ class MacroHandler(ABC):
         @return `None` if nothing is generated.
         """
         return None
-
-    def _get_outer_scope_expr(self, source_file: Path, arg_tokens: list[str]) -> str:
-        outer_scope = self._get_outer_scope(source_file, arg_tokens)
-        return "" if not outer_scope else f"{outer_scope}::"
+    
+    def set_project_name(self, name):
+        self.project_name = name
 
     def _get_outer_scope(self, source_file: Path, arg_tokens: list[str]) -> str:
         """
@@ -127,7 +128,8 @@ class ClassHandler(MacroHandler):
         if len(arg_tokens) < 2:
             raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
 
-        outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+        outer_scope = self._get_outer_scope(source_file, arg_tokens)
+        outer_scope_expr = f"{outer_scope}::" if outer_scope else ""
         header_include_expr = source_file.relative_to(source_dir).as_posix()
         owner_class_type = arg_tokens[0]
 
@@ -185,7 +187,8 @@ class StructHandler(MacroHandler):
         if len(arg_tokens) < 2:
             raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
 
-        outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+        outer_scope = self._get_outer_scope(source_file, arg_tokens)
+        outer_scope_expr = f"{outer_scope}::" if outer_scope else ""
         header_include_expr = source_file.relative_to(source_dir).as_posix()
         owner_class_type = arg_tokens[0]
 
@@ -240,7 +243,8 @@ class FunctionHandler(MacroHandler):
         if len(arg_tokens) < 2:
             raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(arg_tokens)} were given")
 
-        outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+        outer_scope = self._get_outer_scope(source_file, arg_tokens)
+        outer_scope_expr = f"{outer_scope}::" if outer_scope else ""
         header_include_expr = source_file.relative_to(source_dir).as_posix()
         owner_class_type = arg_tokens[0]
 
@@ -364,30 +368,60 @@ class MetaGetterForAllSdlClassesHandler(MacroHandler):
             if len(arg_tokens) < 1:
                 raise ValueError(f"{self.macro_name}() requires at least 1 arguments, {len(arg_tokens)} were given")
 
+            getter_name = arg_tokens[0]
+            register_func_name = f"register_sdl_class_for_{getter_name}"
+
             sdl_classes = "\n"
             sdl_class_includes = "\n"
             for owner_class_def in owner_class_defs:
-                sdl_classes += f"{owner_class_def.owner_class_type}::getSdlClass(),\n"
+                sdl_classes += f"{register_func_name}<{owner_class_def.owner_class_type}>(),\n"
 
                 header_include_expr = owner_class_def.macro_header.relative_to(source_dir).as_posix()
                 sdl_class_includes += f"#include \"{header_include_expr}\"\n"
             
-            # Just for aesthetic 
+            designer_obj_register = "\n"
+            if self.project_name == 'EditorLib':
+                designer_obj_register = textwrap.dedent(
+                    f"""
+                    // Register for dynamic designer object creation
+                    if constexpr(CDerived<SdlClassType, DesignerObject>)
+                    {{
+                        DesignerScene::registerObjectType<SdlClassType>();
+                    }}
+                    """)
+
+            # Just for aesthetics of generated code
             sdl_classes = textwrap.indent(sdl_classes, "                        ")
             sdl_class_includes = textwrap.indent(sdl_class_includes, "                ")
+            designer_obj_register = textwrap.indent(designer_obj_register, "                    ")
 
-            getter_name = arg_tokens[0]
-            outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+            # Supports namespace scope only--we are not including function declaration so
+            # specifying scope on function name will cause "namespace has no such member" error
+            outer_scope = self._get_outer_scope(source_file, arg_tokens)
+            outer_scope_expr = f"::{outer_scope}" if outer_scope else ""
+
             src.sdl_impl += textwrap.dedent(
                 f"""
                 {sdl_class_includes}
 
+                #include <Engine/Utility/traits.h>
+
                 #include <vector>
 
-                namespace ph
+                namespace ph{outer_scope_expr}
                 {{
+                
+                template<typename SdlClassType>
+                inline const SdlClass* {register_func_name}()
+                {{
+                    const SdlClass* const clazz = SdlClassType::getSdlClass();
 
-                std::vector<const SdlClass*> {outer_scope_expr}{getter_name}()
+                    {designer_obj_register}
+
+                    return clazz;
+                }}
+
+                std::vector<const SdlClass*> {getter_name}()
                 {{
                     return
                     {{
@@ -395,7 +429,7 @@ class MetaGetterForAllSdlClassesHandler(MacroHandler):
                     }};
                 }}
 
-                }}// end namespace ph
+                }}// end namespace ph{outer_scope_expr}
 
                 """)
         return src if src.sdl_impl else None
@@ -434,22 +468,27 @@ class MetaGetterForAllSdlEnumsHandler(MacroHandler):
                 header_include_expr = enum_def.macro_header.relative_to(source_dir).as_posix()
                 sdl_enum_includes += f"#include \"{header_include_expr}\"\n"
             
-            # Just for aesthetic 
+            # Just for aesthetics of generated code
             sdl_enums = textwrap.indent(sdl_enums, "                        ")
             sdl_enum_includes = textwrap.indent(sdl_enum_includes, "                ")
 
             getter_name = arg_tokens[0]
-            outer_scope_expr = self._get_outer_scope_expr(source_file, arg_tokens)
+
+            # Supports namespace scope only--we are not including function declaration so
+            # specifying scope on function name will cause "namespace has no such member" error
+            outer_scope = self._get_outer_scope(source_file, arg_tokens)
+            outer_scope_expr = f"::{outer_scope}" if outer_scope else ""
+
             src.sdl_impl += textwrap.dedent(
                 f"""
                 {sdl_enum_includes}
 
                 #include <vector>
 
-                namespace ph
+                namespace ph{outer_scope_expr}
                 {{
 
-                std::vector<const SdlEnum*> {outer_scope_expr}{getter_name}()
+                std::vector<const SdlEnum*> {getter_name}()
                 {{
                     return
                     {{
@@ -457,7 +496,7 @@ class MetaGetterForAllSdlEnumsHandler(MacroHandler):
                     }};
                 }}
 
-                }}// end namespace ph
+                }}// end namespace ph{outer_scope_expr}
 
                 """)
         return src if src.sdl_impl else None
@@ -520,8 +559,8 @@ def _post_generate_source_for(units: list[CompilationUnit], handlers: list[Macro
     return post_units
 
 
-def _init_macro_handlers() -> list[MacroHandler]:
-    return [
+def _init_macro_handlers(project_name) -> list[MacroHandler]:
+    handlers = [
         ClassHandler(),
         StructHandler(),
         FunctionHandler(),
@@ -529,16 +568,22 @@ def _init_macro_handlers() -> list[MacroHandler]:
         MetaGetterForAllSdlClassesHandler(),
         MetaGetterForAllSdlEnumsHandler(),
         ]
+    
+    for handler in handlers:
+        handler.set_project_name(project_name)
+    
+    return handlers
 
 
 def generate(setup_config: configparser.ConfigParser):
     # Generate for each project
     for name, section in config.get_all_projects(setup_config):
-        handlers = _init_macro_handlers()
+        project_name = name.removeprefix("Project.")
+        handlers = _init_macro_handlers(project_name)
         project_dir = Path(section['ProjectDirectory'])
         source_dir = project_dir / 'Source'
         generated_source_dir = project_dir / 'Generated' / 'SDL'
-        log_name = f"[Project {name.removeprefix("Project.")}]"
+        log_name = f"[Project {project_name}]"
 
         # Generate for each header file
         units = []
