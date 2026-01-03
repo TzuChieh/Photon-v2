@@ -5,9 +5,10 @@ import sys
 import os
 
 
-# Download external resources for the renderer
 def download_external_resource(dst_directory):
-
+    """
+    Download external resources for the renderer.
+    """
     final_folder_path = os.path.join(dst_directory, "Photon-v2-Resource")
 
     # Delete old resource folder first if it exists (basically a clean install)

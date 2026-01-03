@@ -12,7 +12,7 @@ This page contains an overview of the project's structure for you to quickly fin
   - [Documentation](../../PhotonCLI/html/index.html)
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/PhotonCLI)
 * SDLGenCLI: Command-line interface for generating Photon Scene Description Language (PSDL) bindings
-  - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/SDLGenerator/SDLGenCLI)
+  - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/SDLInterface/SDLGenCLI)
 * FilmMerger: Combine the output from multiple rendering sessions
   - [Documentation](../../FilmMerger/html/index.html)
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/Tool/FilmMerger)
@@ -40,7 +40,7 @@ This page contains an overview of the project's structure for you to quickly fin
   - [Documentation](../../EditorLib/html/index.html)
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/Editor/EditorLib)
 * SDLGen: Core of SDLGenCLI
-  - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/SDLGenerator/SDLGen)
+  - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/SDLInterface/SDLGen)
 
 ## Tests
 

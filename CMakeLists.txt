@@ -4,7 +4,7 @@
 # General Settings                                                            #
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 cmake_policy(SET CMP0054 NEW)
 
@@ -102,12 +102,13 @@ if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(PH_BUILD_SDL_GEN        "Build SDL automation tool."               ${BUILD_SDL_GEN_DEFAULT})
-option(PH_BUILD_PHOTON_CLI     "Build command-line application."          ${BUILD_PHOTON_CLI_DEFAULT})
-option(PH_BUILD_EDITOR         "Build editor application."                ${BUILD_EDITOR_DEFAULT})
-option(PH_BUILD_TESTS          "Build unit tests for the project."        ${BUILD_TESTS_DEFAULT})
-option(PH_BUILD_EDITOR_JNI     "Build JNI for GUI."                       ${BUILD_EDITOR_JNI_DEFAULT})
-option(PH_BUILD_OPTIONAL_TOOLS "Build additional tools for the renderer." ${BUILD_OPTIONAL_TOOLS_DEFAULT})
+option(PH_BUILD_SDL_GEN         "Build SDL automation tool."               ${BUILD_SDL_GEN_DEFAULT})
+option(PH_BUILD_PHOTON_CLI      "Build command-line application."          ${BUILD_PHOTON_CLI_DEFAULT})
+option(PH_BUILD_EDITOR          "Build editor application."                ${BUILD_EDITOR_DEFAULT})
+option(PH_BUILD_TESTS           "Build unit tests for the project."        ${BUILD_TESTS_DEFAULT})
+option(PH_BUILD_EDITOR_JNI      "Build JNI for GUI."                       ${BUILD_EDITOR_JNI_DEFAULT})
+option(PH_BUILD_OPTIONAL_TOOLS  "Build additional tools for the renderer." ${BUILD_OPTIONAL_TOOLS_DEFAULT})
+option(PH_BUILD_PYTHON_BINDINGS "Build Python bindings for the renderer."  ON)
 
 set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
@@ -411,6 +412,30 @@ if(PH_ENABLE_PROFILING)
             "Tracy not loaded. Tracy-related functionalities will not be available.")
     endif()
 endif()
+
+#------------------------------------------------------------------------------
+# nanobind
+#------------------------------------------------------------------------------
+# nanobind is designed to be compiled on the fly as stated here https://github.com/wjakob/nanobind/discussions/341#discussioncomment-7396424,
+# and does not like ordinary libraries it seems. So we used the recommended way of integration (via pip).
+if(PH_BUILD_PYTHON_BINDINGS)
+    # See https://nanobind.readthedocs.io/en/latest/building.html
+
+    if(CMAKE_VERSION VERSION_LESS 3.18)
+        set(PYTHON_DEV_MODULE Development)
+    else()
+        set(PYTHON_DEV_MODULE Development.Module)
+    endif()
+
+    find_package(Python 3.9 COMPONENTS Interpreter ${PYTHON_DEV_MODULE} REQUIRED)
+
+    # Detect the installed nanobind package and import it into CMake
+    # (we installed/upgraded it in setup script)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
+    find_package(nanobind CONFIG REQUIRED)
+endif()
    
 ###############################################################################
 # Perform Feature Tests                                                       #
@@ -431,8 +456,8 @@ add_subdirectory("./Engine/Engine/")
 add_subdirectory("./Engine/CEngine/")
 
 if(PH_BUILD_SDL_GEN)
-    add_subdirectory("./SDLGenerator/SDLGen/")
-    add_subdirectory("./SDLGenerator/SDLGenCLI/")
+    add_subdirectory("./SDLInterface/SDLGen/")
+    add_subdirectory("./SDLInterface/SDLGenCLI/")
 endif()
 
 if(PH_BUILD_EDITOR)

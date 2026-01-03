@@ -26,13 +26,13 @@ def run_command_from(working_dir, command_name, *arguments):
 	err_str = command_result.stderr
 
 	if command_result.returncode != 0:
-		print(
+		raise ValueError(
 			f"command <{", ".join([str(arg) for arg in command_args])}> ran with error "
 			f"(error code: {command_result.returncode}), details: {err_str}")
 		
 	return out_str
 
-def run_python(working_dir, *arguments):
+def run_python(*arguments):
 	return run_python_from("./", *arguments)
 
 def run_python_from(working_dir, *arguments):

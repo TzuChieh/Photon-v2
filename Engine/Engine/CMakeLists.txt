@@ -15,7 +15,7 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
 )
 file(GLOB_RECURSE ENGINE_SOURCE_FILES 
 	"${ENGINE_DIR}/Source/*.cpp"
-	"${ENGINE_DIR}/Generated/*.cpp")
+	"${ENGINE_DIR}/Generated/SDL/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)

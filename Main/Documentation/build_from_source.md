@@ -26,6 +26,9 @@ This is not required for building the new C++ based editor. To run the editor, y
 
 Run the setup script (depending on your system, choose either `./setup.bat` or `./setup.sh`), this will download pre-compiled libraries and resources into "./build".
 
+> [!tip]
+> Run setup script with `--help` to see extra options available.
+
 ## Step 2: Compile
 
 For Windows, just use CMake-GUI to generate project files for your favorite IDE.

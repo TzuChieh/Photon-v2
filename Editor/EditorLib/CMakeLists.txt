@@ -19,7 +19,7 @@ file(GLOB_RECURSE EDITOR_LIB_HEADER_FILES
 
 file(GLOB_RECURSE EDITOR_LIB_SOURCE_FILES 
 	"${EDITOR_LIB_DIR}/Source/*.cpp"
-	"${EDITOR_LIB_DIR}/Generated/*.cpp")
+	"${EDITOR_LIB_DIR}/Generated/SDL/*.cpp")
 
 # Explicitly mark them as editor headers
 set_source_files_properties(${EDITOR_LIB_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)

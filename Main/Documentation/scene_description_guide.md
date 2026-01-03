@@ -2,7 +2,7 @@
 
 [TOC]
 
-Here, you will learn about the scene description language used in Photon, sometimes referred to as PSDL (Photon Scene Description Language). It is a special format created for storing scene data as well as controlling the behavior of the render engine. We also have [API generators](https://github.com/TzuChieh/Photon-v2/tree/master/SDLGenerator/SDLGen) for different programming languages, allowing users to programmatically build scene descriptions and output customized formats for various applications. The reference for all engine features exposed as PSDL can be found [here](@ref main_scene_description_reference).
+Here, you will learn about the scene description language used in Photon, sometimes referred to as PSDL (Photon Scene Description Language). It is a special format created for storing scene data as well as controlling the behavior of the render engine. We also have [API generators](https://github.com/TzuChieh/Photon-v2/tree/master/SDLInterface/SDLGen) for different programming languages, allowing users to programmatically build scene descriptions and output customized formats for various applications. The reference for all engine features exposed as PSDL can be found [here](@ref main_scene_description_reference).
 
 ## Introduction {#sdl_introduction}
 

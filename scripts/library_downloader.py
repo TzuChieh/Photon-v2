@@ -5,11 +5,14 @@ from utility import filesystem
 import sys
 import os
 import configparser
+import subprocess
+from pathlib import Path
 
 
-# Download third-party libraries for the engine
-def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
-
+def _download_main_library_bundle(dst_directory, setup_config: configparser.ConfigParser):
+    """
+    Library bundled for Photon (https://github.com/TzuChieh/Photon-v2-ThirdParty/).
+    """
     final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
 
     # Delete old library folder first if it exists (basically a clean install)
@@ -59,3 +62,14 @@ def download_thirdparty_library(dst_directory, setup_config: configparser.Config
         print("Third-party libraries saved to <%s>" % final_folder_path)
     else:
         print("Failed to locate third-party libraries, expected to be <%s>" % final_folder_path, file=sys.stderr)
+
+def _download_nanobind():
+    result = console.run_python("-m",  "pip", "install", "--upgrade", "nanobind")
+    print(f"Setup nanobind: {result}")
+
+def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
+    """
+    Download third-party libraries for the engine.
+    """
+    _download_main_library_bundle(dst_directory, setup_config)
+    _download_nanobind()
