@@ -1,4 +1,4 @@
-# Photon scene description language generation tools.
+# Photon scene description language generation library.
 
 get_filename_component(SDL_GEN_DIR "./" ABSOLUTE)
 

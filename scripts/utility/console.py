@@ -33,11 +33,16 @@ def run_command_from(working_dir, command_name, *arguments):
 	return out_str
 
 def run_python(*arguments):
+	"""
+	Run Python from current working directory. Interpreter will be the one that runs this script.
+	"""
 	return run_python_from("./", *arguments)
 
 def run_python_from(working_dir, *arguments):
-	command_name = 'python'
-	if sys.platform == 'linux':
-		command_name = 'python3'
-
+	"""
+	Run Python from `working_dir`. Interpreter will be the one that runs this script.
+	"""
+	# Use the same interpreter that runs current script. If we simply call `python`,
+	# we may accidently run the system python in virtual environment.
+	command_name = sys.executable
 	return run_command_from(working_dir, command_name, *arguments)

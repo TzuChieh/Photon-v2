@@ -1,5 +1,5 @@
 #!/bin/sh
 
-python3 "./scripts/setup.py" "$@"
+python3 -u "./scripts/setup.py" "$@"
 
 echo "--- Setup Completed ---"

@@ -1,4 +1,4 @@
-# Photon-v2 Command Line Application
+# Photon scene description language generation tool (CLI).
 
 get_filename_component(SDL_GEN_CLI_DIR "./" ABSOLUTE)
 

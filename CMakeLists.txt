@@ -4,7 +4,7 @@
 # General Settings                                                            #
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.26)
 
 cmake_policy(SET CMP0054 NEW)
 
@@ -421,13 +421,9 @@ endif()
 if(PH_BUILD_PYTHON_BINDINGS)
     # See https://nanobind.readthedocs.io/en/latest/building.html
 
-    if(CMAKE_VERSION VERSION_LESS 3.18)
-        set(PYTHON_DEV_MODULE Development)
-    else()
-        set(PYTHON_DEV_MODULE Development.Module)
-    endif()
-
-    find_package(Python 3.9 COMPONENTS Interpreter ${PYTHON_DEV_MODULE} REQUIRED)
+    find_package(Python 3.12 REQUIRED
+        COMPONENTS Interpreter Development.Module
+        OPTIONAL_COMPONENTS Development.SABIModule)
 
     # Detect the installed nanobind package and import it into CMake
     # (we installed/upgraded it in setup script)
@@ -486,4 +482,8 @@ endif()
 if(PH_BUILD_OPTIONAL_TOOLS)
     add_subdirectory("./Tool/FilmMerger/")
     add_subdirectory("./Tool/IntersectError/")
+endif()
+
+if(PH_BUILD_PYTHON_BINDINGS)
+    add_subdirectory("./SDLInterface/SDLPyBind/")
 endif()

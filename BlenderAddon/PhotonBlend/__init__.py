@@ -5,7 +5,7 @@ import datetime
 
 # We are using absolute imports with `PhotonBlend` folder as the root
 root_folder_path = os.path.abspath(os.path.dirname(__file__))
-print("PhotonBlend: using {root_folder_path} as root")
+print(f"PhotonBlend: using {root_folder_path} as root")
 sys.path.append(root_folder_path)
 
 from utility import blender

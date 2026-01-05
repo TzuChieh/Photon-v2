@@ -1,5 +1,5 @@
 @ECHO off
 
-python "./scripts/setup.py" %*
+python -u "./scripts/setup.py" %*
 
 ECHO --- Setup Completed ---
