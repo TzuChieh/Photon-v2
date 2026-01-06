@@ -603,11 +603,12 @@ def generate(setup_config: configparser.ConfigParser):
         units.extend(_post_generate_source_for(units, handlers))
 
         # Remove old source
-        for item in generated_source_dir.iterdir():
-            if not item.is_file() or item.suffix != '.cpp':
-                raise ValueError(f"unexpected item found in {generated_source_dir}")
-            
-            item.unlink()
+        if generated_source_dir.is_dir():
+            for item in generated_source_dir.iterdir():
+                if not item.is_file() or item.suffix != '.cpp':
+                    raise ValueError(f"unexpected item found in {generated_source_dir}")
+                
+                item.unlink()
 
         if not units:
             continue

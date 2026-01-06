@@ -38,6 +38,8 @@ def _prepare_python_env(args, build_dir: Path):
             result = subprocess.run(fwd_args)
             if result.returncode != 0:
                 raise ValueError(f"Version switch failed. Please install Python {version}.")
+            
+            # We are replaced by the subprocess spawned earlier
             sys.exit(result.returncode)
         else:
             print("warning: Version switch is not implemented. Using system Python.")
