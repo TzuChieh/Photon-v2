@@ -32,7 +32,9 @@ target_link_libraries(${TARGET_NAME} PUBLIC Engine)
 # nanobind CMake doc: https://nanobind.readthedocs.io/en/latest/api_cmake.html#lowlevel-cmake
 
 # Build the core parts of nanobind once (-abi3 as we want to target stable Python ABI)
-set(NANOBIND_LIB_NAME "nanobind-abi3")
+#set(NANOBIND_LIB_NAME "nanobind-abi3")
+# FIXME: no success on making abi3 build; stick to version-specific ABI for now
+set(NANOBIND_LIB_NAME "nanobind")
 nanobind_build_library(${NANOBIND_LIB_NAME} SHARED)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${NANOBIND_LIB_NAME})
@@ -70,7 +72,7 @@ nanobind_link_options(${TARGET_NAME})
 # Statically link against libstdc++/libgcc when targeting musllinux
 nanobind_musl_static_libcpp(${TARGET_NAME})
 
-# Put new targets in dedicated filter in Visual Studio
+# Put new targets under dedicated filter in Visual Studio
 set_target_properties(${TARGET_NAME} ${NANOBIND_LIB_NAME}
 	PROPERTIES FOLDER "PythonBindings")
 

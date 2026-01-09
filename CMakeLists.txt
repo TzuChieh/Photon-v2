@@ -421,7 +421,10 @@ endif()
 if(PH_BUILD_PYTHON_BINDINGS)
     # See https://nanobind.readthedocs.io/en/latest/building.html
 
-    find_package(Python 3.12 REQUIRED
+    # Find the one in our virtual environment
+    set(Python_ROOT_DIR ${PROJECT_BINARY_DIR}/ApplicationEnv/)
+    set(Python_FIND_STRATEGY LOCATION)
+    find_package(Python REQUIRED
         COMPONENTS Interpreter Development.Module
         OPTIONAL_COMPONENTS Development.SABIModule)
 

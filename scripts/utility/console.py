@@ -27,7 +27,7 @@ def run_command_from(working_dir, command_name, *arguments):
 
 	if command_result.returncode != 0:
 		raise ValueError(
-			f"command <{", ".join([str(arg) for arg in command_args])}> ran with error "
+			f"command <{', '.join([str(arg) for arg in command_args])}> ran with error "
 			f"(error code: {command_result.returncode}), details: {err_str}")
 		
 	return out_str

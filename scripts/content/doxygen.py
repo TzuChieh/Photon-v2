@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -16,7 +17,10 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
     """
     doxygen_cwd = Path(doxygen_cwd).absolute()
     file_path = Path(dir) / "Base_doxygen.config"
-    common_config_rel_path = common_config_path().relative_to(doxygen_cwd, walk_up=True)
+
+    # We could do `common_config_path().relative_to(doxygen_cwd, walk_up=True)`, but Python 3.9 does not support it
+    common_config_rel_path = Path(os.path.relpath(common_config_path(), doxygen_cwd))
+
     common_config_rel_dir = common_config_rel_path.parent
     output_rel_dir = common_config_rel_dir / "docs" / project_code_name
     header_rel_dir = (common_config_rel_dir / "header").with_suffix('.html')

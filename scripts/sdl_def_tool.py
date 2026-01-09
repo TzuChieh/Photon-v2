@@ -8,6 +8,9 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from enum import Enum
 
+# For Python < 3.10, we cannot use `|`
+from typing import Union
+
 
 class EMacro(Enum):
     """
@@ -101,7 +104,7 @@ class MacroHandler(ABC):
             outer_scope = ""
         return outer_scope
 
-    def _get_value(self, arg_name, arg_tokens: list[str]) -> str | None:
+    def _get_value(self, arg_name, arg_tokens: list[str]) -> Union[str, None]:
         """
         @return Extracted value of the specified named argument. `None` if the argument is not found.
         """
@@ -588,15 +591,17 @@ def generate(setup_config: configparser.ConfigParser):
         # Generate for each header file
         units = []
         num_source_files = 0
-        for dirpath, dirnames, filenames in source_dir.walk():
-            for filename in filenames:
-                num_source_files += 1
-                if not filename.endswith(('.h', '.cpp', '.ipp', '.tpp')):
-                    continue
+        for item_path in source_dir.rglob('*'):
+            if not item_path.is_file():
+                continue
+           
+            num_source_files += 1
+            if not item_path.suffix in ('.h', '.cpp', '.ipp', '.tpp'):
+                continue
 
-                unit = _generate_source_for(dirpath / filename, source_dir, handlers)
-                if unit is not None:
-                    units.append(unit)
+            unit = _generate_source_for(item_path, source_dir, handlers)
+            if unit is not None:
+                units.append(unit)
                 
         print(f"{log_name} Processed {num_source_files} source files")
 
