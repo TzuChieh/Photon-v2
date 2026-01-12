@@ -50,7 +50,12 @@ def _prepare_python_env(args, build_dir: Path):
         print(f"Creating virtual environment at {venv_dir}...")
         if filesystem.delete_folder_with_contents(venv_dir):
             print(f"Removed previous virtual environment at <{venv_dir}>")
-        console.run_python('-m', 'venv', venv_dir)
+        
+        # Make sure previous venv is removed before creating a new one
+        if not venv_dir.exists():
+            console.run_python('-m', 'venv', venv_dir)
+        else:
+            raise ValueError(f"Unable to remove previous virtual environment <{venv_dir}>. Terminate it and run setup again.")
 
         # Skips remaining steps as promised by `--py-env`
         sys.exit(0)

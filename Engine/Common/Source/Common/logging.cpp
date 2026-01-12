@@ -2,6 +2,7 @@
 #include "Common/Log/Logger.h"
 #include "Common/assertion.h"
 #include "Common/Utility/Timestamp.h"
+#include "Common/os.h"
 
 #include <utility>
 #include <mutex>
@@ -84,28 +85,30 @@ void init()
 	PH_ASSERT_MSG(!g_coreLogger.has_value(),
 		"Logger is already initialized.");
 
+	// Hard-coded to installation directory -> Logs
+	const auto logFileDirectory = os::get_executable_path().parent_path().parent_path() / "Logs";
+
 	auto coreLogFilename = Timestamp().toYMDHMS() + "_core_logs.txt";
-	auto coreLogFilePath = std::string(PH_LOG_FILE_DIRECTRY) + coreLogFilename;
 
-	// Replace any ':' in the path with '-' as some OS may not allow it
-	std::replace(coreLogFilePath.begin(), coreLogFilePath.end(), ':', '-');
+	// Replace any ':' in the filename with '-' as some OS may not allow it
+	std::replace(coreLogFilename.begin(), coreLogFilename.end(), ':', '-');
 
-	// Possibly create non-existing directory first otherwise std::ofstream
-	// will result in an error
-	std::filesystem::create_directories(PH_LOG_FILE_DIRECTRY);
+	auto coreLogFilePath = logFileDirectory / coreLogFilename;
+
+	// Possibly create non-existing directory first otherwise `std::ofstream` will result in an error
+	std::filesystem::create_directories(logFileDirectory);
 
 	// A global stream as there should be only one core log file ever created per engine run
 	PH_ASSERT(!g_coreLogStream.is_open());
 	g_coreLogStream = std::ofstream(coreLogFilePath, std::ios_base::out);
 
-	const auto coreLogFileAbsPath = std::filesystem::absolute(coreLogFilePath);
 	if(g_coreLogStream.good())
 	{
-		std::cout << "log file <" << coreLogFileAbsPath << "> created" << '\n';
+		std::cout << "log file <" << coreLogFilePath << "> created" << '\n';
 	}
 	else
 	{
-		std::cerr << "warning: log file <" << coreLogFileAbsPath << "> creation failed" << '\n';
+		std::cerr << "warning: log file <" << coreLogFilePath << "> creation failed" << '\n';
 	}
 
 	g_coreLogger = make_core_logger();

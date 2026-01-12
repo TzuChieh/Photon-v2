@@ -14,8 +14,8 @@ namespace ph
 {
 
 /*! @brief General path representation.
-Does not check whether the target actually exists (e.g., on a filesystem). To check target existence,
-use `Filesystem`.
+Stores a path and provides common operations on it. Does not check whether the target actually
+exists (e.g., existence on actual filesystem). To check target existence, use `Filesystem`.
 */
 class Path final
 {
@@ -66,6 +66,7 @@ public:
 	Path append(std::string_view pathStr) const;
 
 	Path toAbsolute() const;
+	Path toCanonical() const;
 
 	/*! @brief Get a string representation of this path in generic format.
 	*/

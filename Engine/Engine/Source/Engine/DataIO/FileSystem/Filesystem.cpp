@@ -2,9 +2,10 @@
 #include "Engine/DataIO/FileSystem/Path.h"
 
 #include <Common/io_exceptions.h>
+#include <Common/os.h>
 
 #include <filesystem>
-#include <format>
+#include <array>
 
 namespace ph
 {
@@ -95,6 +96,50 @@ void Filesystem::copy(
 Path Filesystem::makeRelative(const Path& src, const Path& base)
 {
 	return Path(std::filesystem::relative(src.toStdPath(), base.toStdPath()));
+}
+
+const Path& Filesystem::getExecutablePath()
+{
+	// Cache this as it will not change during runtime
+	static auto path = Path(os::get_executable_path());
+	return path;
+}
+
+const Path& Filesystem::getInstallationDirectory()
+{
+	// Installation path is the directory outside of "bin"
+	static auto path = getExecutablePath().getParent().getParent().toCanonical();
+	return path;
+}
+
+const Path& Filesystem::getConfigDirectory()
+{
+	static auto path = getInstallationDirectory() / "Config";
+	return path;
+}
+
+const Path& Filesystem::getScriptDirectory()
+{
+	static auto path = getInstallationDirectory() / "Script";
+	return path;
+}
+
+const Path& Filesystem::getIntermediateDirectory()
+{
+	static auto path = getInstallationDirectory() / "Intermediate";
+	return path;
+}
+
+const Path& Filesystem::getInternalResourceDirectory()
+{
+	static auto path = getInstallationDirectory() / "InternalResource";
+	return path;
+}
+
+const Path& Filesystem::getResourceDirectory()
+{
+	static auto path = getInstallationDirectory() / "Resource";
+	return path;
 }
 
 }// end namespace ph

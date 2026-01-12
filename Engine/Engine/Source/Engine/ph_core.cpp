@@ -1,6 +1,7 @@
 #include "Engine/ph_core.h"
 #include "Engine/init_and_exit.h"
 #include "Engine/DataIO/FileSystem/Path.h"
+#include "Engine/DataIO/FileSystem/Filesystem.h"
 #include "Engine/SDL/sdl_meta.h"
 
 #include <Common/config.h>
@@ -115,27 +116,27 @@ std::span<const SdlEnum* const> get_registered_engine_enums()
 
 Path get_config_directory(const EEngineProject project)
 {
-	return Path(PH_CONFIG_DIRECTORY).append(to_string(project));
+	return Filesystem::getConfigDirectory() / to_string(project);
 }
 
 Path get_internal_resource_directory(const EEngineProject project)
 {
-	return Path(PH_INTERNAL_RESOURCE_DIRECTORY).append(to_string(project));
+	return Filesystem::getInternalResourceDirectory() / to_string(project);
 }
 
 Path get_resource_directory(const EEngineProject project)
 {
-	return Path(PH_RENDERER_RESOURCE_DIRECTORY).append(to_string(project));
+	return Filesystem::getResourceDirectory() / to_string(project);
 }
 
 Path get_intermediate_directory(EEngineProject project)
 {
-	return Path(PH_INTERMEDIATE_DIRECTORY).append(to_string(project));
+	return Filesystem::getIntermediateDirectory() / to_string(project);
 }
 
 Path get_script_directory(const EEngineProject project)
 {
-	return Path(PH_SCRIPT_DIRECTORY).append(to_string(project));
+	return Filesystem::getScriptDirectory() / to_string(project);
 }
 
 }// end namespace ph

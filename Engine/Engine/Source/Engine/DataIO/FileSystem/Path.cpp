@@ -120,6 +120,11 @@ Path Path::toAbsolute() const
 	return Path(std::filesystem::absolute(m_path));
 }
 
+Path Path::toCanonical() const
+{
+	return Path(std::filesystem::canonical(m_path));
+}
+
 std::string Path::toString() const
 {
 	return m_path.generic_string();

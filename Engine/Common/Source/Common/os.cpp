@@ -1,21 +1,21 @@
 #include "Common/os.h"
 #include "Common/assertion.h"
+#include "Common/io_exceptions.h"
 
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
-
 #include <stdlib.h>
 #include <Windows.h>
+#endif
 
-#elif PH_OPERATING_SYSTEM_IS_LINUX
-
+#if PH_OPERATING_SYSTEM_IS_LINUX
 #include <stdio.h>
 #include <limits.h>
 #include <unistd.h>
+#endif
 
-#elif PH_OPERATING_SYSTEM_IS_OSX
-
+#if PH_OPERATING_SYSTEM_IS_OSX
 #include <sys/sysctl.h>
-
+#include <mach-o/dyld.h>
 #endif
 
 #include <new>
@@ -201,15 +201,55 @@ std::size_t get_L1_cache_line_size_in_bytes()
 std::filesystem::path get_executable_path()
 {
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
-	std::array<wchar_t, MAX_PATH> buffer{};
-	const DWORD length = GetModuleFileNameW(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
-	return length > 0 ? buffer.data() : L"";
+
+	// Fixed-size buffer for a null-terminated string
+	std::array<wchar_t, 4096> pathBuffer;
+
+	// Return written bytes, indicating if memory was sufficient
+	DWORD pathLen = GetModuleFileNameW(GetModuleHandleA(NULL), pathBuffer.data(), static_cast<DWORD>(pathBuffer.size()));
+	if(pathLen == 0)
+	{
+		// Could be buffer too small or other errors
+		throw FilesystemError("Error retrieving current executable's path.");
+}
+
+	// Resolve to absolute/real path
+	return std::filesystem::canonical(std::filesystem::path(pathBuffer.data()));
+
 #elif PH_OPERATING_SYSTEM_IS_LINUX
-	std::array<char, PATH_MAX> buffer{};
-	const ssize_t numBytes = readlink("/proc/self/exe", buffer.data(), buffer.size());
-	return numBytes > 0 ? buffer.data() : "";
-#else
-	return "";
+
+	try
+	{
+		// Resolve to absolute/real path
+		return std::filesystem::canonical("/proc/self/exe");
+	}
+	catch(const std::filesystem::filesystem_error& e)
+	{
+		throw FilesystemError("Error retrieving current executable's path: " + std::string(e.what()));
+	}
+
+#elif PH_OPERATING_SYSTEM_IS_OSX
+
+	// Fixed-size buffer for a null-terminated string
+	// (assuming 4-byte encoding at max, we may store 4096 characters)
+	std::array<char, 16384> pathBuffer;
+	auto bufferSize = static_cast<uint32_t>(pathBuffer.size());
+
+	// Get the path (may be a symlink or relative)
+	if(_NSGetExecutablePath(bufferSize.data(), &bufferSize) == 0)
+	{
+		// Resolve to absolute/real path
+		return std::filesystem::canonical(std::filesystem::path(pathBuffer.data()));
+	}
+	else
+	{
+		// If buffer was too small, `bufferSize` now contains the required size
+		throw FilesystemError(std::format(
+			"Error retrieving current executable's path, we need buffer size >= {}, {} was given.",
+			bufferSize,
+			pathBuffer.size()));
+	}
+
 #endif
 }
 

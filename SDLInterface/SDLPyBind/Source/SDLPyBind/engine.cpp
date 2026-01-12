@@ -22,6 +22,8 @@ NB_MODULE(PH_PY_BIND_MODULE_NAME, m)
 			return exit_render_engine();
 		},
 		"Exit the render engine.");
+
+	// TODO: submodule for generated SDL bindings
 }
 
 }// end namespace ph::py

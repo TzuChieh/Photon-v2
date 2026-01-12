@@ -1,4 +1,6 @@
 #include "Engine/EngineInitSettings.h"
+#include "Engine/DataIO/FileSystem/Filesystem.h"
+#include "Engine/DataIO/FileSystem/Path.h"
 
 #include <Common/config.h>
 #include <Common/io_exceptions.h>
@@ -12,7 +14,7 @@ namespace ph
 
 EngineInitSettings EngineInitSettings::loadStandardConfig()
 {
-	auto const filePath = PH_CONFIG_DIRECTORY "EngineConfig.ini";
+	const std::string filePath = (Filesystem::getConfigDirectory() / "EngineConfig.ini").toNativeString();
 
 	EngineInitSettings settings;
 	if(!settings.tryLoad(filePath))

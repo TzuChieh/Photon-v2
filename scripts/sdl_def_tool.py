@@ -625,9 +625,8 @@ def generate(setup_config: configparser.ConfigParser):
         # Write new source
         for unit in units:
             (generated_source_dir / f"def_{unit.unique_name}").with_suffix('.cpp').write_text(unit.generate_source_code())
-
-        # TODO: generate source for ph_core.cpp and such
         
-    # TODO: indicate CMake reconfigure is required
+    # TODO: indicate CMake reconfigure is required in doc
+    # TODO: resolve python.exe cannot be deleted issue when deleting previous venv (error no 13)
 
     print(f"All definitions generated.")

@@ -237,13 +237,12 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_manually.cmake")
 #------------------------------------------------------------------------------
 # googletest
 #------------------------------------------------------------------------------
+set(GOOGLETEST_LIB_NAME "GTest")
 if(PH_BUILD_TESTS)
     # Bringing in the target "gtest" is unnecessary as "gmock" depends on "gtest" which should be
     # handled by their build system. However, adding "gtest" will result in runtime error due to
     # not calling `testing::InitGoogleTest()`, which I think is a bug in googletest.
     # See "Photon-v2/EngineTest/Source/main.cpp" for more info.
-    
-    set(GOOGLETEST_LIB_NAME "GTest")
     load_library_via_config(${GOOGLETEST_LIB_NAME} OPTIONAL
         TARGETS      "gmock"
         CONFIG_DIR   "${LIBS_INSTALL_DIR}/googletest/lib/cmake/GTest/"
@@ -418,6 +417,8 @@ endif()
 #------------------------------------------------------------------------------
 # nanobind is designed to be compiled on the fly as stated here https://github.com/wjakob/nanobind/discussions/341#discussioncomment-7396424,
 # and does not like ordinary libraries it seems. So we used the recommended way of integration (via pip).
+
+set(NANOBIND_LIB_NAME "nanobind")
 if(PH_BUILD_PYTHON_BINDINGS)
     # See https://nanobind.readthedocs.io/en/latest/building.html
 
@@ -431,9 +432,9 @@ if(PH_BUILD_PYTHON_BINDINGS)
     # Detect the installed nanobind package and import it into CMake
     # (we installed/upgraded it in setup script)
     execute_process(
-        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
-        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT)
-    find_package(nanobind CONFIG REQUIRED)
+        COMMAND "${Python_EXECUTABLE}" -m ${NANOBIND_LIB_NAME} --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE ${NANOBIND_LIB_NAME}_ROOT)
+    find_package(${NANOBIND_LIB_NAME} CONFIG REQUIRED)
 endif()
    
 ###############################################################################
