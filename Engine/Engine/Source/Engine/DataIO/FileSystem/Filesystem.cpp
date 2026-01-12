@@ -138,7 +138,7 @@ const Path& Filesystem::getInternalResourceDirectory()
 
 const Path& Filesystem::getResourceDirectory()
 {
-	static auto path = getInstallationDirectory() / "Resource";
+	static auto path = getInstallationDirectory() / "Photon-v2-Resource";
 	return path;
 }
 

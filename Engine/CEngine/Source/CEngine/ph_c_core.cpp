@@ -34,13 +34,6 @@ using namespace ph;
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CAPI, Engine);
 
-void phConfigRendererResourceDirectory(const PhChar* const directory)
-{
-	PH_ASSERT(directory);
-
-	Config::RENDERER_RESOURCE_DIRECTORY() = std::string(directory);
-}
-
 PhBool phInit()
 {
 	if(!init_render_engine())

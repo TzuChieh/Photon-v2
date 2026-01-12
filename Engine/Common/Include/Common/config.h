@@ -216,13 +216,4 @@ Note that a byte is not necessarily 8-bit.
 // Miscellaneous                                                             //
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace ph
-{
-
-class Config final
-{
-public:
-	static std::string& RENDERER_RESOURCE_DIRECTORY();
-};
-
-}// end namespace ph
+// nothing here currently

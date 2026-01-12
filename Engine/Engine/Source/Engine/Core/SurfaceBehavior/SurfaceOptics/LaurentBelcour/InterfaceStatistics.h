@@ -4,7 +4,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
-#include "Engine/DataIO/FileSystem/CoreResource.h"
+#include "Engine/DataIO/FileSystem/TProjectResource.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -76,13 +76,13 @@ inline LbLayer InterfaceStatistics::getLastLayer() const
 
 inline const TableFGD& InterfaceStatistics::FGD()
 {
-	static const TableFGD table(CoreResource("LaurentBelcourBsdf/table_FGD.bin").getPath());
+	static const TableFGD table(EngineResource("LaurentBelcourBsdf/table_FGD.bin"));
 	return table;
 }
 
 inline const TableTIR& InterfaceStatistics::TIR()
 {
-	static const TableTIR table(CoreResource("LaurentBelcourBsdf/table_TIR.bin").getPath());
+	static const TableTIR table(EngineResource("LaurentBelcourBsdf/table_TIR.bin"));
 	return table;
 }
 

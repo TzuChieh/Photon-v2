@@ -1,7 +1,5 @@
-#include "engine_test_config.h"
-
 #include <Engine/DataIO/Data/CsvFile.h>
-#include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/TProjectResource.h>
 
 #include <gtest/gtest.h>
 
@@ -13,7 +11,7 @@ TEST(CsvFileTest, LoadFile)
 {
 	// Single row
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/single_row.csv")));
+		CsvFile file(EngineTestResource("CSV/single_row.csv"));
 		EXPECT_EQ(file.numRows(), 1);
 
 		const CsvFileRow& row = file.getRow(0);
@@ -26,7 +24,7 @@ TEST(CsvFileTest, LoadFile)
 
 	// Multi-row
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/multi_row.csv")));
+		CsvFile file(EngineTestResource("CSV/multi_row.csv"));
 		EXPECT_EQ(file.numRows(), 3);
 
 		const CsvFileRow& row0 = file.getRow(0);
@@ -50,7 +48,7 @@ TEST(CsvFileTest, LoadFile)
 
 	// Get numbers (read as numeric values)
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/numbers.csv")));
+		CsvFile file(EngineTestResource("CSV/numbers.csv"));
 		EXPECT_EQ(file.numRows(), 3);
 
 		const CsvFileRow& row0 = file.getRow(0);
@@ -78,7 +76,7 @@ TEST(CsvFileTest, LoadFile)
 
 	// With trailing comma (special case)
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/trailing_comma.csv")));
+		CsvFile file(EngineTestResource("CSV/trailing_comma.csv"));
 		EXPECT_EQ(file.numRows(), 1);
 
 		const CsvFileRow& row = file.getRow(0);
@@ -94,7 +92,7 @@ TEST(CsvFileTest, LoadFile)
 
 	// With trailing empty line (special case)
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/trailing_empty_line.csv")));
+		CsvFile file(EngineTestResource("CSV/trailing_empty_line.csv"));
 
 		// The last line is empty and should not be considered a row (not ended with newline)
 		EXPECT_EQ(file.numRows(), 3);
@@ -114,7 +112,7 @@ TEST(CsvFileTest, LoadFile)
 
 	// With empty rows (special case)
 	{
-		CsvFile file(Path(PH_TEST_RESOURCE_PATH("CSV/empty_rows.csv")));
+		CsvFile file(EngineTestResource("CSV/empty_rows.csv"));
 
 		// Empty lines (ended with newline) should be considered a valid row.
 		// The last line is empty and should not be considered a row (not ended with newline)

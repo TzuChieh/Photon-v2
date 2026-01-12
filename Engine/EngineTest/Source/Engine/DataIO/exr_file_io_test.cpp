@@ -1,8 +1,7 @@
-#include "engine_test_config.h"
-
 #include <Engine/DataIO/EXR/ExrFileReader.h>
 #include <Engine/DataIO/EXR/ExrFileWriter.h>
 #include <Engine/Frame/TFrame.h>
+#include <Engine/DataIO/FileSystem/TProjectResource.h>
 
 #include <gtest/gtest.h>
 
@@ -14,7 +13,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 {
 	// trial 1:
 	{
-		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x1_black_white.exr")));
+		ExrFileReader reader(EngineTestResource("EXR/2x1_black_white.exr"));
 
 		HdrRgbFrame frame;
 		EXPECT_NO_THROW(reader.load(&frame));
@@ -39,7 +38,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 	
 	// trial 2:
 	{
-		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x2_B,(50,100,150),R,G.exr")));
+		ExrFileReader reader(EngineTestResource("EXR/2x2_B,(50,100,150),R,G.exr"));
 
 		HdrRgbFrame frame;
 		EXPECT_NO_THROW(reader.load(&frame));
