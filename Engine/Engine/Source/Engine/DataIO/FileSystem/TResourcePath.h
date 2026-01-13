@@ -13,10 +13,10 @@ namespace ph
 /*! @brief Project resource path wrapper. Implicitly convertible to `Path`.
 */
 template<EEngineProject PROJ>
-class TProjectResource final
+class TResourcePath final
 {
 public:
-	explicit TProjectResource(std::string identifier);
+	explicit TResourcePath(std::string identifier);
 
 	Path getPath() const;
 
@@ -27,23 +27,23 @@ private:
 };
 
 template<EEngineProject PROJ>
-inline TProjectResource<PROJ>::TProjectResource(std::string identifier)
+inline TResourcePath<PROJ>::TResourcePath(std::string identifier)
 	: m_identifier(std::move(identifier))
 {}
 
 template<EEngineProject PROJ>
-inline Path TProjectResource<PROJ>::getPath() const
+inline Path TResourcePath<PROJ>::getPath() const
 {
 	return get_resource_directory(PROJ) / m_identifier;
 }
 
 template<EEngineProject PROJ>
-inline TProjectResource<PROJ>::operator Path () const
+inline TResourcePath<PROJ>::operator Path () const
 {
 	return getPath();
 }
 
-using EngineResource     = TProjectResource<EEngineProject::Engine>;
-using EngineTestResource = TProjectResource<EEngineProject::EngineTest>;
+using EngineResource     = TResourcePath<EEngineProject::Engine>;
+using EngineTestResource = TResourcePath<EEngineProject::EngineTest>;
 
 }// end namespace ph

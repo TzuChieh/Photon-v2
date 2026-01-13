@@ -1,6 +1,5 @@
-#include "engine_test_config.h"
-
 #include <Engine/DataIO/Stream/FormattedTextInputStream.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 #include <Common/os.h>
 
 #include <gtest/gtest.h>
@@ -181,8 +180,8 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 {
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_text.txt"));
 
 		std::string content;
 		ASSERT_NO_THROW(stream.readAllTightly(&content));
@@ -191,8 +190,8 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 	}
 
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_multi_line.txt"));
 
 		std::string content;
 		ASSERT_NO_THROW(stream.readAllTightly(&content));
@@ -204,8 +203,8 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 {
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_text.txt"));
 
 		std::string line;
 
@@ -216,8 +215,8 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 	}
 
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_multi_line.txt"));
 
 		std::string line;
 
@@ -237,8 +236,8 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 {
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_multi_line.txt"));
 
 		std::byte byte;
 		ASSERT_NO_THROW(stream.read(1, &byte));
@@ -256,8 +255,8 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 {
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/simple_multi_line.txt"));
 
 		EXPECT_EQ(stream.tellGet(), 0);
 
@@ -284,8 +283,8 @@ TEST(FormattedTextInputStreamTest, ValidityCheck)
 	}
 
 	{
-		auto stream = FormattedTextInputStream(Path(
-			PH_TEST_RESOURCE_PATH("Text/empty.txt")));
+		auto stream = FormattedTextInputStream(
+			EngineTestResource("Text/empty.txt"));
 		EXPECT_TRUE(stream);
 	}
 }

@@ -16,6 +16,20 @@ import subprocess
 from pathlib import Path
 
 
+class SetupArgumentParser(argparse.ArgumentParser):
+    def exit(self, status=0, message=None):
+        if message:
+            self._print_message(message, sys.stderr)
+        
+        # When --help is called, argparse tries to exit with 0.
+        # We intercept that and return 101 instead so the wrapper batch/shell can detect it.
+        if status == 0:
+            sys.exit(101)
+        
+        # Keep standard behavior for errors (like missing arguments)
+        sys.exit(status)
+
+
 def _prepare_python_env(args, build_dir: Path):
     version = args.py_ver
     runtime_version = (int(sys.version_info[0]), int(sys.version_info[1]))
@@ -63,7 +77,7 @@ def _prepare_python_env(args, build_dir: Path):
 # Read and parse setup config
 setup_config = config.get_setup_config()
 
-parser = argparse.ArgumentParser(description="Photon Renderer Setup Script")
+parser = SetupArgumentParser(description="Photon Renderer Setup Script")
 parser.add_argument('-d', '--directory', type=str, help="Build directory.")
 parser.add_argument('--skip-dl', action=argparse.BooleanOptionalAction, help="Skip all download steps.")
 parser.add_argument('--py-ver', type=str, help="Specify the Python version to use (e.g., 3.10).")

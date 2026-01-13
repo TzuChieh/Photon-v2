@@ -1,5 +1,5 @@
 #include <Engine/DataIO/Data/CsvFile.h>
-#include <Engine/DataIO/FileSystem/TProjectResource.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 
 #include <gtest/gtest.h>
 

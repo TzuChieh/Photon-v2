@@ -1,7 +1,6 @@
-#include "engine_test_config.h"
-
 #include <Engine/DataIO/PlyFile.h>
 #include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 #include <Common/primitive_type.h>
 
 #include <gtest/gtest.h>
@@ -17,7 +16,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		PlyIOConfig config;
 		config.bIgnoreComments = false;
 
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_property.ply")), config);
+		PlyFile file(EngineTestResource("PLY/ascii_property.ply"), config);
 
 		EXPECT_EQ(file.getInputFormat(), EPlyDataFormat::ASCII);
 		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
@@ -84,7 +83,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		PlyIOConfig config;
 		config.bIgnoreComments = false;
 
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_list.ply")), config);
+		PlyFile file(EngineTestResource("PLY/ascii_list.ply"), config);
 
 		EXPECT_EQ(file.getInputFormat(), EPlyDataFormat::ASCII);
 		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
@@ -122,7 +121,7 @@ TEST(PlyFileTest, LoadSimpleAsciiWithHelperClasses)
 {
 	// ASCII property-only
 	{
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_property.ply")));
+		PlyFile file(EngineTestResource("PLY/ascii_property.ply"));
 
 		PlyElement* const element = file.findElement("val");
 		ASSERT_TRUE(element);
@@ -151,7 +150,7 @@ TEST(PlyFileTest, LoadSimpleAsciiWithHelperClasses)
 
 	// ASCII list-only
 	{
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_list.ply")));
+		PlyFile file(EngineTestResource("PLY/ascii_list.ply"));
 
 		PlyElement* const element = file.findElement("myList");
 		ASSERT_TRUE(element);
@@ -180,7 +179,7 @@ TEST(PlyFileTest, LoadSmallAsciiMesh)
 {
 	// quad
 	{
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_quad.ply")));
+		PlyFile file(EngineTestResource("PLY/ascii_quad.ply"));
 
 		PlyElement* const vertexElement = file.findElement("vertex");
 		ASSERT_TRUE(vertexElement);
@@ -262,7 +261,7 @@ TEST(PlyFileTest, LoadSmallBinaryMesh)
 {
 	// the same quad as the one in `LoadSmallAsciiMesh`, in little endian
 	{
-		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/binary_quad.ply")));
+		PlyFile file(EngineTestResource("PLY/binary_quad.ply"));
 
 		PlyElement* const vertexElement = file.findElement("vertex");
 		ASSERT_TRUE(vertexElement);

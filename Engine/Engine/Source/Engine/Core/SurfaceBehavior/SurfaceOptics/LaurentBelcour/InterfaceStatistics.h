@@ -4,7 +4,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
-#include "Engine/DataIO/FileSystem/TProjectResource.h"
+#include "Engine/DataIO/FileSystem/TResourcePath.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>

@@ -1,6 +1,6 @@
 #include <Engine/DataIO/TextFileLoader.h>
 #include <Engine/DataIO/BinaryFileReader.h>
-#include <Engine/DataIO/FileSystem/TProjectResource.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 
 #include <gtest/gtest.h>
 

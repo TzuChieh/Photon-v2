@@ -1,7 +1,7 @@
 #include <Engine/DataIO/EXR/ExrFileReader.h>
 #include <Engine/DataIO/EXR/ExrFileWriter.h>
 #include <Engine/Frame/TFrame.h>
-#include <Engine/DataIO/FileSystem/TProjectResource.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 
 #include <gtest/gtest.h>
 
