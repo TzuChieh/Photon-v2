@@ -20,7 +20,11 @@ Loads .pds (Photon Designer Scene) file.
 class DesignerSceneReader : public SdlCommandParser
 {
 public:
+	/*!
+	With scene working directory set to "./temp_sdl/".
+	*/
 	DesignerSceneReader();
+
 	explicit DesignerSceneReader(const Path& sceneWorkingDirectory);
 
 	/*! @brief Read the entire designer scene.

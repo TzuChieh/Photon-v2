@@ -17,7 +17,11 @@ Writes .pds (Photon Designer Scene) file.
 class DesignerSceneWriter : public SdlCommandGenerator
 {
 public:
+	/*!
+	With scene working directory set to "./temp_sdl/".
+	*/
 	DesignerSceneWriter();
+
 	explicit DesignerSceneWriter(const Path& sceneWorkingDirectory);
 	~DesignerSceneWriter() override;
 

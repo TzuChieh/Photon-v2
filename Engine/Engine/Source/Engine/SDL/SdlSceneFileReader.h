@@ -17,6 +17,9 @@ Loads .p2 (Photon-v2) file.
 class SdlSceneFileReader : public SdlCommandParser
 {
 public:
+	/*!
+	With scene file set to "untitled-scene.p2" and scene working directory set to "./temp_sdl/".
+	*/
 	SdlSceneFileReader();
 
 	/*! @brief Creates reader for all engine classes.

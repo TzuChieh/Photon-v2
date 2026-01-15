@@ -21,8 +21,13 @@ class SemanticVersion;
 class SdlCommandGenerator
 {
 public:
+	/*!
+	With scene working directory set to "./temp_sdl/".
+	*/
 	explicit SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses);
+
 	SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses, const Path& sceneWorkingDirectory);
+
 	virtual ~SdlCommandGenerator();
 
 	// TODO: parameters like binary form? multi-thread?

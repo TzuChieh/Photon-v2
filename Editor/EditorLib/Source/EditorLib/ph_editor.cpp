@@ -12,6 +12,7 @@
 #include <Common/exceptions.h>
 #include <Engine/ph_core.h>
 #include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
 #include <Engine/Utility/traits.h>
 #include <Engine/SDL/sdl_meta.h>
 
@@ -129,7 +130,7 @@ std::span<const SdlEnum* const> get_registered_editor_enums()
 
 Path get_editor_data_directory()
 {
-	return Path("./EditorData/");
+	return Filesystem::getInstallationDirectory() / "EditorData";
 }
 
 }// end namespace ph::editor

@@ -31,7 +31,11 @@ enum class ESdlCommandType
 class SdlCommandParser
 {
 public:
+	/*!
+	With scene working directory set to "./temp_sdl/".
+	*/
 	explicit SdlCommandParser(TSpanView<const SdlClass*> targetClasses);
+
 	SdlCommandParser(TSpanView<const SdlClass*> targetClasses, const Path& sceneWorkingDirectory);
 	virtual ~SdlCommandParser();
 
