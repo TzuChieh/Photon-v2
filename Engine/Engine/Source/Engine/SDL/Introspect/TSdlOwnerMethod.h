@@ -14,7 +14,7 @@ namespace ph
 /*! @brief SDL binding type for a canonical SDL method.
 
 For a method to be callable in SDL, it must be defined as a C++ functor that takes 
-an instance of @p TargetType as its only input. Other arguments to the method should
+an instance of @p Target as its only input. Other arguments to the method should
 be accessed via the functor's member variables. Each member variables then can be 
 binded much like the members of a canonical SDL resource. For example,
 
@@ -23,7 +23,7 @@ struct ExampleMethod
 {
 	int methodParam;
 
-	void operator () (TargetType& target) const
+	void operator () (Target& target) const
 	{
 		// your implementation here
 	}
@@ -33,14 +33,18 @@ struct ExampleMethod
 ```
 
 @tparam MethodStruct Type of the functor.
-@tparam TargetType Type that defines the method. May be any C++ class/struct type including
+@tparam Target Type that defines the method. May be any C++ class/struct type including
 SDL resource types.
 */
-template<typename MethodStruct, typename TargetType>
+template<typename MethodStruct, typename Target>
 class TSdlOwnerMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
 {
 public:
-	using OwnerType = MethodStruct;
+	using OwnerType  = MethodStruct;
+	using TargetType = Target;
+
+	/*! Convenient pointer to the target method. */
+	static constexpr void (MethodStruct::* METHOD_PTR)(Target& target) = &MethodStruct::operator ();
 
 public:
 	TSdlOwnerMethod();
@@ -54,7 +58,7 @@ public:
 	const SdlField* getParam(std::size_t index) const override;
 
 	void callMethod(
-		TargetType&            targetType,
+		Target&                target,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 
@@ -68,6 +72,7 @@ public:
 
 	auto name(std::string nameStr) -> TSdlOwnerMethod&;
 	auto description(std::string descriptionStr) -> TSdlOwnerMethod&;
+	auto userSpec(SdlUserSpec spec) -> TSdlOwnerMethod&;
 
 	// TODO: support structs?
 

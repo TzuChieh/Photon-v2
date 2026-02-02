@@ -29,7 +29,7 @@ struct TestMethodStruct
 	void operator () (TestResource& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TestMethodStruct, f, outerScope=TSdlOwnerClass_test)
+	PH_DEFINE_SDL_METHOD(TestMethodStruct, f, outerScope=TSdlOwnerClass_test)
 	{
 		f.name("TSdlOwnerClass_test::testMethod");
 	}
@@ -40,7 +40,7 @@ struct TestMethodStruct2
 	void operator () (const TestResource& res) const
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(TestMethodStruct2, f, outerScope=TSdlOwnerClass_test)
+	PH_DEFINE_SDL_METHOD(TestMethodStruct2, f, outerScope=TSdlOwnerClass_test)
 	{
 		f.name("TSdlOwnerClass_test::testMethod2");
 	}

@@ -36,7 +36,8 @@
 
 #define PH_DEFINE_SDL_CLASS(ownerType, classDef, ...)
 #define PH_DEFINE_SDL_STRUCT(ownerType, structDef, ...)
-#define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)
+#define PH_DEFINE_SDL_METHOD(ownerType, funcDef, ...)
 #define PH_DEFINE_SDL_ENUM(...)
 #define PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES(getterFuncName, ...)
 #define PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(getterFuncName, ...)
+#define PH_DECLARE_DISPATCHER_FOR_ALL_SDL_CLASSES(dispatcherFuncName, visitorType, ...)

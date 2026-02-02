@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/SDL/Definition/SdlUserSpec.h"
+
 #include <Common/primitive_type.h>
 
 #include <string>
@@ -45,16 +47,19 @@ public:
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 	std::string getEntryDescription(std::size_t entryIndex) const;
+	const SdlUserSpec& getUserSpec() const;
 
 protected:
 	SdlEnum& setName(std::string name);
 	SdlEnum& setDescription(std::string description);
 	SdlEnum& setEntryDescription(std::size_t entryIndex, std::string description);
+	SdlEnum& setUserSpec(SdlUserSpec userSpec);
 
 private:
 	std::string              m_name;
 	std::string              m_description;
 	std::vector<std::string> m_entryDescriptions;
+	SdlUserSpec              m_userSpec;
 };
 
 // In-header Implementations:
@@ -74,6 +79,11 @@ inline std::string SdlEnum::getEntryDescription(const std::size_t entryIndex) co
 {
 	return entryIndex < m_entryDescriptions.size() ? 
 		m_entryDescriptions[entryIndex] : "";
+}
+
+inline const SdlUserSpec& SdlEnum::getUserSpec() const
+{
+	return m_userSpec;
 }
 
 }// end namespace ph

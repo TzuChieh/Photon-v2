@@ -5,6 +5,7 @@
 #include "Engine/SDL/SdlInputClauses.h"
 #include "Engine/SDL/SdlOutputClauses.h"
 #include "Engine/SDL/ESdlTypeCategory.h"
+#include "Engine/SDL/Definition/SdlUserSpec.h"
 
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
@@ -97,6 +98,7 @@ public:
 	std::string genCategoryName() const;
 	ESdlTypeCategory getCategory() const;
 	
+	const SdlUserSpec& getUserSpec() const;
 	std::string_view getDocName() const;
 	const SdlClass* getBase() const;
 	bool isDerived() const;
@@ -104,6 +106,8 @@ public:
 	bool hasFunction() const;
 
 protected:
+	SdlClass& setUserSpec(SdlUserSpec spec);
+
 	SdlClass& setTypeInfo(ESdlTypeCategory category, std::string typeName);
 
 	SdlClass& setDescription(std::string description);
@@ -125,6 +129,7 @@ private:
 	std::string m_typeName;
 	std::string m_docName;
 	std::string m_description;
+	SdlUserSpec m_userSpec;
 	const SdlClass* m_base;
 	uint32 m_isBlueprint : 1;
 	uint32 m_allowCreateFromClass : 1;
@@ -150,6 +155,11 @@ inline ESdlTypeCategory SdlClass::getCategory() const
 inline std::string_view SdlClass::getTypeName() const
 {
 	return m_typeName;
+}
+
+inline const SdlUserSpec& SdlClass::getUserSpec() const
+{
+	return m_userSpec;
 }
 
 inline std::string_view SdlClass::getDocName() const

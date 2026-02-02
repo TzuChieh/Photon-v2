@@ -47,20 +47,21 @@ public:
 	const SdlField* getField(std::size_t index) const override;
 
 	template<typename T>
-	TSdlOwnerStruct& addField(T sdlField);
+	auto addField(T sdlField) -> TSdlOwnerStruct&;
 
 	template<typename StructObjType>
-	TSdlOwnerStruct& addStruct(StructObjType StructType::* structObjPtr);
+	auto addStruct(StructObjType StructType::* structObjPtr) -> TSdlOwnerStruct&;
 
 	template<typename StructObjType>
-	TSdlOwnerStruct& addStruct(
+	auto addStruct(
 		StructObjType StructType::* structObjPtr,
-		const TSdlStructFieldStump<StructType>& structFieldStump);
+		const TSdlStructFieldStump<StructType>& structFieldStump) -> TSdlOwnerStruct&;
 
 	auto getFields() const -> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&;
 
 	auto typeName(std::string nameStr) -> TSdlOwnerStruct&;
-	TSdlOwnerStruct& description(std::string descriptionStr);
+	auto description(std::string descriptionStr) -> TSdlOwnerStruct&;
+	auto userSpec(SdlUserSpec spec) -> TSdlOwnerStruct&;
 
 private:
 	/*!

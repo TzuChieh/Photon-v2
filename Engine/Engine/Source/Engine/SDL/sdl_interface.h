@@ -105,15 +105,15 @@ Available functionalities after defining the macro:
 	template<typename InternalDef>\
 	inline static void internal_sdlStructDefinition(TSdlStructDefiner<InternalDef>& structDef)
 
-/*! @brief Define a SDL function with function-like syntax.
+/*! @brief Define a SDL method with function-like syntax.
 
 Available functionalities after defining the macro:
 
 * `const FunctionType* getSdlFunction()`
-  - A static method for accessing the SDL function static type.
+  - A static method for accessing the SDL method static type.
 
 */
-#define PH_DEFINE_SDL_FUNCTION(ownerType, funcDef, ...)\
+#define PH_DEFINE_SDL_METHOD(ownerType, funcDef, ...)\
 	\
 	using OwnerType = ownerType;\
 	\

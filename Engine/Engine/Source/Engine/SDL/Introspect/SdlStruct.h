@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/ISdlInstantiable.h"
+#include "Engine/SDL/Definition/SdlUserSpec.h"
 #include "Engine/SDL/sdl_fwd.h"
 #include "Engine/Utility/TAnyPtr.h"
 
@@ -59,11 +60,15 @@ public:
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;
 
+	const SdlUserSpec& getUserSpec() const;
+
 protected:
 	SdlStruct& setTypeName(std::string name);
 	SdlStruct& setDescription(std::string description);
+	SdlStruct& setUserSpec(SdlUserSpec spec);
 
 private:
+	SdlUserSpec m_userSpec;
 	std::string m_typeName;
 	std::string m_description;
 };
@@ -78,6 +83,11 @@ inline std::string_view SdlStruct::getTypeName() const
 inline std::string_view SdlStruct::getDescription() const
 {
 	return m_description;
+}
+
+inline const SdlUserSpec& SdlStruct::getUserSpec() const
+{
+	return m_userSpec;
 }
 
 }// end namespace ph

@@ -13,6 +13,7 @@ SdlClass::SdlClass()
 	, m_typeName()
 	, m_docName()
 	, m_description()
+	, m_userSpec()
 	, m_base(nullptr)
 	, m_isBlueprint(false)
 	, m_allowCreateFromClass(true)
@@ -26,6 +27,12 @@ std::string SdlClass::genPrettyName() const
 std::string SdlClass::genCategoryName() const
 {
 	return std::string(sdl::category_to_string(getCategory()));
+}
+
+SdlClass& SdlClass::setUserSpec(SdlUserSpec spec)
+{
+	m_userSpec = std::move(spec);
+	return *this;
 }
 
 SdlClass& SdlClass::setTypeInfo(ESdlTypeCategory category, std::string typeName)

@@ -2,12 +2,12 @@
 
 #include "Engine/SDL/Introspect/ISdlInstantiable.h"
 #include "Engine/SDL/sdl_fwd.h"
+#include "Engine/SDL/Definition/SdlUserSpec.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
 #include <string>
-#include <utility>
 
 namespace ph
 {
@@ -34,6 +34,8 @@ public:
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;
 
+	const SdlUserSpec& getUserSpec() const;
+
 	/*!
 	@return Function name.
 	*/
@@ -44,18 +46,15 @@ public:
 protected:
 	SdlFunction& setName(std::string name);
 	SdlFunction& setDescription(std::string description);
+	SdlFunction& setUserSpec(SdlUserSpec userSpec);
 
 private:
 	std::string m_name;
 	std::string m_description;
+	SdlUserSpec m_userSpec;
 };
 
 // In-header Implementations:
-
-inline SdlFunction::SdlFunction() : 
-	m_name       (),
-	m_description()
-{}
 
 inline std::size_t SdlFunction::numFields() const
 {
@@ -83,18 +82,9 @@ inline std::string_view SdlFunction::getDescription() const
 	return m_description;
 }
 
-inline SdlFunction& SdlFunction::setName(std::string name)
+inline const SdlUserSpec& SdlFunction::getUserSpec() const
 {
-	m_name = std::move(name);
-
-	return *this;
-}
-
-inline SdlFunction& SdlFunction::setDescription(std::string description)
-{
-	m_description = std::move(description);
-
-	return *this;
+	return m_userSpec;
 }
 
 }// end namespace ph

@@ -81,7 +81,7 @@ parser = SetupArgumentParser(description="Photon Renderer Setup Script")
 parser.add_argument('-d', '--directory', type=str, help="Build directory.")
 parser.add_argument('--skip-dl', action=argparse.BooleanOptionalAction, help="Skip all download steps.")
 parser.add_argument('--py-ver', type=str, help="Specify the Python version to use (e.g., 3.10).")
-parser.add_argument('--py-env', action=argparse.BooleanOptionalAction, help="Setup Python environment only and skip other steps. Respects --py-ver.")
+parser.add_argument('--py-env', action=argparse.BooleanOptionalAction, help="Setup Python environment and skip other steps. Respects --py-ver.")
 args = parser.parse_args()
 
 # Use the build directory as specified via config, optionally overridden by command line arguments

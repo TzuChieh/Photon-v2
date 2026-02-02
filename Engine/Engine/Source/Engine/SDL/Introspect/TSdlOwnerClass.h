@@ -99,6 +99,8 @@ public:
 
 	auto docName(std::string docName) -> TSdlOwnerClass&;
 
+	auto userSpec(SdlUserSpec spec) -> TSdlOwnerClass&;
+
 	/*! @brief Set another SDL class as the base of this class.
 
 	By default, fields and functions in the base are automatically inherited.

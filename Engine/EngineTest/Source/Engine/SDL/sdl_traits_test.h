@@ -66,7 +66,7 @@ struct DummyMethodStruct
 	void operator () (DummyClass& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(DummyMethodStruct, func, outerScope=sdl_traits_test)
+	PH_DEFINE_SDL_METHOD(DummyMethodStruct, func, outerScope=sdl_traits_test)
 	{
 		func.name("sdl_traits_test::dummy");
 	}
@@ -74,7 +74,7 @@ struct DummyMethodStruct
 
 struct DummyMethodStruct2 : public DummyMethodStruct
 {
-	PH_DEFINE_SDL_FUNCTION(DummyMethodStruct2, func, outerScope=sdl_traits_test)
+	PH_DEFINE_SDL_METHOD(DummyMethodStruct2, func, outerScope=sdl_traits_test)
 	{
 		func.name("sdl_traits_test::dummy2");
 	}

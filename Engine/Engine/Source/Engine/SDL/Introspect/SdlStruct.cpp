@@ -7,9 +7,10 @@
 namespace ph
 {
 
-SdlStruct::SdlStruct() :
-	m_typeName   (),
-	m_description()
+SdlStruct::SdlStruct()
+	: m_typeName()
+	, m_description()
+	, m_userSpec()
 {}
 
 SdlStruct& SdlStruct::setTypeName(std::string name)
@@ -23,6 +24,12 @@ SdlStruct& SdlStruct::setDescription(std::string description)
 {
 	m_description = std::move(description);
 
+	return *this;
+}
+
+SdlStruct& SdlStruct::setUserSpec(SdlUserSpec spec)
+{
+	m_userSpec = std::move(spec);
 	return *this;
 }
 

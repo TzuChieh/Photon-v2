@@ -181,6 +181,14 @@ inline auto TSdlOwnerStruct<StructType>::description(std::string descriptionStr)
 }
 
 template<typename StructType>
+inline auto TSdlOwnerStruct<StructType>::userSpec(SdlUserSpec spec)
+-> TSdlOwnerStruct&
+{
+	setUserSpec(std::move(spec));
+	return *this;
+}
+
+template<typename StructType>
 inline void TSdlOwnerStruct<StructType>::setFieldsToDefaults(StructType& structObj) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)

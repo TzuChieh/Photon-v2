@@ -23,7 +23,7 @@ struct DummyMethodStruct
 	void operator () (Actor& res)
 	{}
 
-	PH_DEFINE_SDL_FUNCTION(DummyMethodStruct, f, outerScope=TSdlAnyInstance_test)
+	PH_DEFINE_SDL_METHOD(DummyMethodStruct, f, outerScope=TSdlAnyInstance_test)
 	{
 		f.name("TSdlAnyInstance_test::dummy");
 	}

@@ -42,7 +42,7 @@ public:
 			actor.translate(amount);
 		}
 
-		PH_DEFINE_SDL_FUNCTION(SdlTranslate, func)
+		PH_DEFINE_SDL_METHOD(SdlTranslate, func)
 		{
 			func.name("translate");
 			func.description("Moves the actor away from the original location with a specified amount.");
@@ -79,7 +79,7 @@ public:
 			}
 		}
 
-		PH_DEFINE_SDL_FUNCTION(SdlRotate, func)
+		PH_DEFINE_SDL_METHOD(SdlRotate, func)
 		{
 			func.name("rotate");
 			func.description("Rotates the actor along an axis with a specified amount.");
@@ -107,7 +107,7 @@ public:
 			actor.scale(amount);
 		}
 
-		PH_DEFINE_SDL_FUNCTION(SdlScale, func)
+		PH_DEFINE_SDL_METHOD(SdlScale, func)
 		{
 			func.name("scale");
 			func.description("Enlarges or shrinks the actor with some specified amount.");

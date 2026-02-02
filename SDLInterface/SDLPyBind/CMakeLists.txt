@@ -38,7 +38,7 @@ nanobind_build_library(${NANOBIND_LIB_NAME} SHARED)
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${NANOBIND_LIB_NAME})
 
-set(PH_PY_BIND_MODULE_NAME "ph")
+set(PH_PY_BIND_MODULE_NAME "photon_renderer")
 target_compile_definitions(${TARGET_NAME} PRIVATE PH_PY_BIND_MODULE_NAME=${PH_PY_BIND_MODULE_NAME})
 
 # The actual name of the binary must match module name

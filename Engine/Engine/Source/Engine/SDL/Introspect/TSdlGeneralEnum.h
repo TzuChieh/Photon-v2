@@ -141,6 +141,12 @@ public:
 		return *this;
 	}
 
+	inline TSdlGeneralEnum& userSpec(SdlUserSpec spec)
+	{
+		setUserSpec(std::move(spec));
+		return *this;
+	}
+
 private:
 	struct BasicEnumEntry
 	{

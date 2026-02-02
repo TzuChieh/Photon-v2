@@ -16,50 +16,50 @@
 namespace ph
 {
 
-template<typename MethodStruct, typename TargetType>
-inline TSdlOwnerMethod<MethodStruct, TargetType>::TSdlOwnerMethod() :
+template<typename MethodStruct, typename Target>
+inline TSdlOwnerMethod<MethodStruct, Target>::TSdlOwnerMethod() :
 	SdlFunction()
 {}
 
-template<typename MethodStruct, typename TargetType>
-inline void TSdlOwnerMethod<MethodStruct, TargetType>::call(
+template<typename MethodStruct, typename Target>
+inline void TSdlOwnerMethod<MethodStruct, Target>::call(
 	ISdlResource*          resource,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
-	static_assert(CHasSdlClassDefinition<TargetType>);
+	static_assert(CHasSdlClassDefinition<Target>);
 
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(
 			"cannot call SDL method without target resource ({})",
-			sdl::gen_pretty_name(TargetType::getSdlClass()));
+			sdl::gen_pretty_name(Target::getSdlClass()));
 	}
 
-	auto const targetRes = dynamic_cast<TargetType*>(resource);
+	auto const targetRes = dynamic_cast<Target*>(resource);
 	if(!targetRes)
 	{
 		throw_formatted<SdlLoadError>(
 			"incompatible target resource, given {}, expected {}",
 			sdl::gen_pretty_name(resource->getDynamicSdlClass()),
-			sdl::gen_pretty_name(TargetType::getSdlClass()));
+			sdl::gen_pretty_name(Target::getSdlClass()));
 	}
 
 	PH_ASSERT(targetRes);
 	callMethod(*targetRes, clauses, ctx);
 }
 
-template<typename MethodStruct, typename TargetType>
-inline void TSdlOwnerMethod<MethodStruct, TargetType>::callMethod(
-	TargetType&            targetType, 
+template<typename MethodStruct, typename Target>
+inline void TSdlOwnerMethod<MethodStruct, Target>::callMethod(
+	Target&                target,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	static_assert(!std::is_abstract_v<MethodStruct> && std::is_default_constructible_v<MethodStruct>,
 		"MethodStruct must be non-abstract and default-constructible.");
 
-	static_assert(std::is_invocable_v<MethodStruct, TargetType&>,
-		"MethodStruct must contain an operator() that can take a TargetType instance.");
+	static_assert(std::is_invocable_v<MethodStruct, Target&>,
+		"MethodStruct must contain an operator() that can take a Target instance.");
 
 	MethodStruct methodStructObj{};
 	loadParameters(
@@ -67,11 +67,11 @@ inline void TSdlOwnerMethod<MethodStruct, TargetType>::callMethod(
 		clauses,
 		ctx);
 
-	methodStructObj(targetType);
+	methodStructObj(target);
 }
 
-template<typename MethodStruct, typename TargetType>
-inline void TSdlOwnerMethod<MethodStruct, TargetType>::loadParameters(
+template<typename MethodStruct, typename Target>
+inline void TSdlOwnerMethod<MethodStruct, Target>::loadParameters(
 	MethodStruct&          parameterStruct,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -94,22 +94,22 @@ inline void TSdlOwnerMethod<MethodStruct, TargetType>::loadParameters(
 		});
 }
 
-template<typename MethodStruct, typename TargetType>
-inline std::size_t TSdlOwnerMethod<MethodStruct, TargetType>::numParams() const
+template<typename MethodStruct, typename Target>
+inline std::size_t TSdlOwnerMethod<MethodStruct, Target>::numParams() const
 {
 	return m_fields.numFields();
 }
 
-template<typename MethodStruct, typename TargetType>
-inline const SdlField* TSdlOwnerMethod<MethodStruct, TargetType>::getParam(const std::size_t index) const
+template<typename MethodStruct, typename Target>
+inline const SdlField* TSdlOwnerMethod<MethodStruct, Target>::getParam(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
-template<typename MethodStruct, typename TargetType>
+template<typename MethodStruct, typename Target>
 template<typename T>
-inline auto TSdlOwnerMethod<MethodStruct, TargetType>::addParam(T sdlField)
-	-> TSdlOwnerMethod&
+inline auto TSdlOwnerMethod<MethodStruct, Target>::addParam(T sdlField)
+-> TSdlOwnerMethod&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
@@ -120,19 +120,27 @@ inline auto TSdlOwnerMethod<MethodStruct, TargetType>::addParam(T sdlField)
 	return *this;
 }
 
-template<typename MethodStruct, typename TargetType>
-inline auto TSdlOwnerMethod<MethodStruct, TargetType>::name(std::string nameStr)
+template<typename MethodStruct, typename Target>
+inline auto TSdlOwnerMethod<MethodStruct, Target>::name(std::string nameStr)
 -> TSdlOwnerMethod&
 {
 	setName(std::move(nameStr));
 	return *this;
 }
 
-template<typename MethodStruct, typename TargetType>
-inline auto TSdlOwnerMethod<MethodStruct, TargetType>::description(std::string descriptionStr)
-	-> TSdlOwnerMethod&
+template<typename MethodStruct, typename Target>
+inline auto TSdlOwnerMethod<MethodStruct, Target>::description(std::string descriptionStr)
+-> TSdlOwnerMethod&
 {
 	setDescription(std::move(descriptionStr));
+	return *this;
+}
+
+template<typename MethodStruct, typename Target>
+inline auto TSdlOwnerMethod<MethodStruct, Target>::userSpec(SdlUserSpec spec)
+-> TSdlOwnerMethod&
+{
+	setUserSpec(std::move(spec));
 	return *this;
 }
 

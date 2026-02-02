@@ -240,7 +240,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addFunction()
 	static_assert(CHasSdlFunctionDefinition<T>,
 		"SDL function definition not found.");
 
-	m_functions.pushBack(T::getSdlFunction());
+	m_functions.pushBack(T::getSdlMethod());
 
 	return *this;
 }
@@ -313,6 +313,14 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 		sdl::save_field_id(&field, clause);
 		field.toSdl(owner, clause, ctx);
 	}
+}
+
+template<typename Owner, typename FieldSet>
+inline auto TSdlOwnerClass<Owner, FieldSet>::userSpec(SdlUserSpec spec)
+-> TSdlOwnerClass&
+{
+	setUserSpec(std::move(spec));
+	return *this;
 }
 
 template<typename Owner, typename FieldSet>

@@ -7,8 +7,11 @@
 namespace ph
 {
 
-SdlEnum::SdlEnum() :
-	m_name()
+SdlEnum::SdlEnum()
+	: m_name()
+	, m_description()
+	, m_entryDescriptions()
+	, m_userSpec()
 {}
 
 SdlEnum& SdlEnum::setName(std::string name)
@@ -36,6 +39,12 @@ SdlEnum& SdlEnum::setEntryDescription(const std::size_t entryIndex, std::string 
 	PH_ASSERT_LT(entryIndex, m_entryDescriptions.size());
 	m_entryDescriptions[entryIndex] = std::move(description);
 
+	return *this;
+}
+
+SdlEnum& SdlEnum::setUserSpec(SdlUserSpec userSpec)
+{
+	m_userSpec = std::move(userSpec);
 	return *this;
 }
 
