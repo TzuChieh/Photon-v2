@@ -43,9 +43,6 @@ public:
 	using OwnerType  = MethodStruct;
 	using TargetType = Target;
 
-	/*! Convenient pointer to the target method. */
-	static constexpr void (MethodStruct::* METHOD_PTR)(Target& target) = &MethodStruct::operator ();
-
 public:
 	TSdlOwnerMethod();
 

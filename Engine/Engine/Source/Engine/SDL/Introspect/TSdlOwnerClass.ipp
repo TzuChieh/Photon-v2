@@ -240,7 +240,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addFunction()
 	static_assert(CHasSdlFunctionDefinition<T>,
 		"SDL function definition not found.");
 
-	m_functions.pushBack(T::getSdlMethod());
+	m_functions.pushBack(T::getSdlFunction());
 
 	return *this;
 }

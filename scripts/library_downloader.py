@@ -69,7 +69,12 @@ def _download_nanobind():
 
 def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
     """
-    Download third-party libraries for the engine.
+    Download third-party libraries that came with the engine.
     """
     _download_main_library_bundle(dst_directory, setup_config)
+
+def download_python_library(dst_directory, setup_config: configparser.ConfigParser):
+    """
+    Download additional Python libraries.
+    """
     _download_nanobind()

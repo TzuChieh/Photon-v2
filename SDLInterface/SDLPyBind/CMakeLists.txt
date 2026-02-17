@@ -12,7 +12,9 @@ file(GLOB_RECURSE SDL_GEN_HEADER_FILES
 	"${SDL_PY_BIND_DIR}/Source/*.ipp"
 	"${SDL_PY_BIND_DIR}/Source/*.tpp"
 )
-file(GLOB_RECURSE SDL_PY_BIND_SOURCE_FILES "${SDL_PY_BIND_DIR}/Source/*.cpp")
+file(GLOB_RECURSE SDL_PY_BIND_SOURCE_FILES
+	"${SDL_PY_BIND_DIR}/Source/*.cpp"
+	"${SDL_PY_BIND_DIR}/Generated/SDL/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${SDL_PY_BIND_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)

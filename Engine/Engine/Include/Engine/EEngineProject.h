@@ -17,6 +17,7 @@ enum class EEngineProject
 	EditorLib,
 	EditorTest,
 	IntersectError,
+	SDLPyBind,
 };
 
 /*! @brief Convert `EEngineProject` to string.
@@ -35,6 +36,7 @@ inline constexpr std::string_view to_string(const EEngineProject project)
 	case EEngineProject::EditorLib:      return "EditorLib";
 	case EEngineProject::EditorTest:     return "EditorTest";
 	case EEngineProject::IntersectError: return "IntersectError";
+	case EEngineProject::SDLPyBind:      return "SDLPyBind";
 	}
 
 	return "";

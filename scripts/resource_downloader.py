@@ -3,9 +3,10 @@ from utility import filesystem
 
 import sys
 import os
+import configparser
 
 
-def download_external_resource(dst_directory):
+def download_external_resource(dst_directory, setup_config: configparser.ConfigParser):
     """
     Download external resources for the renderer.
     """

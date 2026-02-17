@@ -79,9 +79,10 @@ setup_config = config.get_setup_config()
 
 parser = SetupArgumentParser(description="Photon Renderer Setup Script")
 parser.add_argument('-d', '--directory', type=str, help="Build directory.")
-parser.add_argument('--skip-dl', action=argparse.BooleanOptionalAction, help="Skip all download steps.")
+parser.add_argument('--skip-dl', action=argparse.BooleanOptionalAction, help="Skip download steps related to the engine.")
 parser.add_argument('--py-ver', type=str, help="Specify the Python version to use (e.g., 3.10).")
-parser.add_argument('--py-env', action=argparse.BooleanOptionalAction, help="Setup Python environment and skip other steps. Respects --py-ver.")
+parser.add_argument('--py-env', action='store_true', help="Setup Python environment and skip other steps. Respects --py-ver.")
+parser.add_argument('--py-skip-dl', action=argparse.BooleanOptionalAction, help="Skip download steps related to Python.")
 args = parser.parse_args()
 
 # Use the build directory as specified via config, optionally overridden by command line arguments
@@ -99,10 +100,14 @@ print(f"Using build directory: {build_dir}")
 
 _prepare_python_env(args, build_dir)
 
-# Download additional data to build directory
+# Download engine data to build directory
 if not args.skip_dl:
     library_downloader.download_thirdparty_library(build_dir, setup_config)
-    resource_downloader.download_external_resource(build_dir)
+    resource_downloader.download_external_resource(build_dir, setup_config)
+
+# Download Python data
+if not args.py_skip_dl:
+    library_downloader.download_python_library(build_dir, setup_config)
 
 # Setup libraries (for now, only non-Windows platforms need this)
 print("Setting up libraries...")

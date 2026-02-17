@@ -29,7 +29,7 @@ public:
 
 private:
 	// Working directory is only set when it can be determined (e.g., during loading).
-	// Not saved as working directory can be different on each load.
+	// This is not saved as working directory can be different on each load.
 	Path m_workingDirectory;
 
 	RawResourceCollection m_resources;

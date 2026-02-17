@@ -47,9 +47,9 @@ private:
 	const ISdlDataPacketGroup* m_srcDataPackets;
 };
 
-// Try to make the context trivially copyable, so mock contexts and copy-and-modified contexts can
-// be cheaper to create.
-static_assert(std::is_trivially_copyable_v<SdlInputContext>);
+static_assert(std::is_trivially_copyable_v<SdlInputContext>,
+	"Try to make the context trivially copyable, so mock contexts and copy-and-modified contexts can "
+	"be cheaper to create.");
 
 // In-header Implementation:
 

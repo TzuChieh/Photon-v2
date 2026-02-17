@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <iterator>
 
 namespace ph
 {
@@ -20,6 +21,12 @@ public:
 
 	bool hasKey(const std::string& key) const;
 	bool hasArg(const std::string& key, const std::string& arg) const;
+
+	/*! @brief Get positional argument (key without mapped values) at the specified index.
+	@return The argument. Empty if index is out of range.
+	*/
+	std::string getArg(std::size_t argIdx) const;
+
 	std::vector<std::string> getArgs(const std::string& key) const;
 
 private:
@@ -45,6 +52,18 @@ inline bool SdlUserSpec::hasArg(const std::string& key, const std::string& arg) 
 
 	const auto& args = findResult->second;
 	return std::find(args.begin(), args.end(), arg) != args.end();
+}
+
+inline std::string SdlUserSpec::getArg(const std::size_t argIdx) const
+{
+	if(argIdx >= m_keyToArgs.size())
+	{
+		return "";
+	}
+
+	auto iter = m_keyToArgs.begin();
+	std::advance(iter, argIdx);
+	return iter->first;
 }
 
 inline std::vector<std::string> SdlUserSpec::getArgs(const std::string& key) const
