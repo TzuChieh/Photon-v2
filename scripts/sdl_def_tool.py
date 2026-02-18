@@ -743,6 +743,7 @@ def _post_generate_source_for_all_projects(current_project: str, project_name_to
 
     return post_units
 
+
 def _init_macro_handlers() -> list[MacroHandler]:
     handlers = [
         ClassHandler(),

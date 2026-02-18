@@ -10,6 +10,47 @@
 namespace ph
 {
 
+std::optional<Path> Filesystem::s_installationDirectory;
+
+Path Filesystem::findInstallationDirectory()
+{
+	// There is a "PhotonRenderer.info" file at the installation root. We will climb back up the
+	// directory tree until we find it, or we reach the root directory. This may be called before
+	// engine init, so we rely only on STL as much as possible.
+
+	std::filesystem::path current = os::get_executable_path().parent_path();
+
+	// Limit the number of iterations to avoid infinite loop in case of unexpected directory structure.
+	for(int i = 0; i < 20; ++i)
+	{
+		if(std::filesystem::is_regular_file(current / "PhotonRenderer.info"))
+		{
+			return Path(current);
+		}
+
+		if(!current.has_parent_path())
+		{
+			break;
+		}
+
+		current = current.parent_path();
+	}
+
+	return Path();
+
+	// TODO: could do better if we start with module path again as engine may be linked as lib
+}
+
+void Filesystem::setInstallationDirectory(const Path& path)
+{
+	if(s_installationDirectory.has_value())
+	{
+		throw FilesystemError("Cannot reset installation directory.");
+	}
+
+	s_installationDirectory = path;
+}
+
 bool Filesystem::hasDirectory(const Path& path)
 {
 	return std::filesystem::is_directory(path.toStdPath());
@@ -98,46 +139,53 @@ Path Filesystem::makeRelative(const Path& src, const Path& base)
 	return Path(std::filesystem::relative(src.toStdPath(), base.toStdPath()));
 }
 
-const Path& Filesystem::getExecutablePath()
-{
-	// Cache this as it will not change during runtime
-	static auto path = Path(os::get_executable_path());
-	return path;
-}
-
 const Path& Filesystem::getInstallationDirectory()
 {
-	// Installation path is the directory outside of "bin"
-	static auto path = getExecutablePath().getParent().getParent().toCanonical();
+	// Cache this as it will not change during runtime
+	static auto path =
+		[]()
+		{
+			if(!s_installationDirectory.has_value())
+			{
+				throw FilesystemError("Installation directory has not been set.");
+			}
+
+			return s_installationDirectory.value();
+		}();
 	return path;
 }
 
 const Path& Filesystem::getConfigDirectory()
 {
+	// Cache this as it will not change during runtime
 	static auto path = getInstallationDirectory() / "Config";
 	return path;
 }
 
 const Path& Filesystem::getScriptDirectory()
 {
+	// Cache this as it will not change during runtime
 	static auto path = getInstallationDirectory() / "Script";
 	return path;
 }
 
 const Path& Filesystem::getIntermediateDirectory()
 {
+	// Cache this as it will not change during runtime
 	static auto path = getInstallationDirectory() / "Intermediate";
 	return path;
 }
 
 const Path& Filesystem::getInternalResourceDirectory()
 {
+	// Cache this as it will not change during runtime
 	static auto path = getInstallationDirectory() / "InternalResource";
 	return path;
 }
 
 const Path& Filesystem::getResourceDirectory()
 {
+	// Cache this as it will not change during runtime
 	static auto path = getInstallationDirectory() / "Photon-v2-Resource";
 	return path;
 }

@@ -50,13 +50,30 @@ LogGroups get_core_log_groups();
 
 }// end namespace ph
 
-namespace ph::detail::core_logging
+namespace ph::core_logging
 {
 
 /*! @brief Initializes core logging functionalities.
 Any logging is only valid after calling `init()`.
+@param logStorageDirectory Path to the directory where log files will be stored.
 */
-void init();
+void init(const std::string& logStorageDirectory);
+
+/*! @brief Terminates core logging functionalities.
+Cleanup after logging is finished.
+*/
+void exit();
+
+}// end namespace ph::core_logging
+
+namespace ph::core_logging::detail
+{
+
+/*! @brief Initializes core logging functionalities.
+Any logging is only valid after calling `init()`.
+@param logStorageDirectory Path to the directory where log files will be stored.
+*/
+void init(const std::string& logStorageDirectory);
 
 /*! @brief Terminates core logging functionalities.
 Cleanup after logging is finished.
@@ -78,7 +95,7 @@ std::size_t add_log_group(std::string_view groupName, std::string_view category 
 */
 void log_to_logger(const Logger& logger, std::string_view groupName, ELogLevel logLevel, std::string_view logMessage);
 
-}// end namespace ph::detail::core_logging
+}// end namespace ph::core_logging::detail
 
 /*! @brief Declares a logger.
 The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the source (preferably in a
@@ -92,17 +109,17 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 #define PH_DEFINE_LOG_GROUP(groupName, category)\
 	const ::ph::Logger& internal_impl_logger_access_##groupName()\
 	{\
-		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
+		static const std::size_t logGroupIndex = ::ph::core_logging::detail::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::get_logger();\
+		return ::ph::core_logging::detail::get_logger();\
 	}
 
 #define PH_DEFINE_INLINE_LOG_GROUP(groupName, category)\
 	inline const ::ph::Logger& internal_impl_logger_access_##groupName()\
 	{\
-		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
+		static const std::size_t logGroupIndex = ::ph::core_logging::detail::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::get_logger();\
+		return ::ph::core_logging::detail::get_logger();\
 	}
 
 /*! @brief Defines a logger that is private to a .cpp file.
@@ -128,7 +145,7 @@ The logger will be usable anywhere that includes the header file containing this
 		{\
 			static const bool PH_CONCAT_2(dummy, __LINE__) = [&]()\
 			{\
-				::ph::detail::core_logging::log_to_logger(\
+				::ph::core_logging::detail::log_to_logger(\
 					internal_impl_logger_access_##groupName(),\
 					#groupName,\
 					logLevel,\
@@ -138,7 +155,7 @@ The logger will be usable anywhere that includes the header file containing this
 		}\
 		else\
 		{\
-			::ph::detail::core_logging::log_to_logger(\
+			::ph::core_logging::detail::log_to_logger(\
 				internal_impl_logger_access_##groupName(),\
 				#groupName,\
 				logLevel,\

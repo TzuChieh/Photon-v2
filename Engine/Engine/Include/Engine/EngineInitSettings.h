@@ -20,6 +20,7 @@ class EngineInitSettings final
 {
 public:
 	/*! @brief Load from a standard location. Create one if the file does not exist.
+	@exception FilesystemError If the standard location is not found.
 	*/
 	static EngineInitSettings loadStandardConfig();
 
@@ -41,6 +42,13 @@ public:
 
 	uint32 fixedSeed = 42;
 	uint32 fixedSeedStep = 1;
+
+	/*!
+	If left empty, the engine will deduce the installation directory based on the current executable.
+	If the engine is being linked by an executable not located at this project's standard binary directory,
+	this option can be used to specify the installation directory for the engine.
+	*/
+	std::string installationDirectory = "";
 
 	/*! @brief Tries to load from a saved file.
 	If the loading failed, settings are not changed; othersie, settings will be updated to the values

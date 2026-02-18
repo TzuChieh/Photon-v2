@@ -14,7 +14,13 @@ namespace ph
 
 EngineInitSettings EngineInitSettings::loadStandardConfig()
 {
-	const std::string filePath = (Filesystem::getConfigDirectory() / "EngineConfig.ini").toNativeString();
+	const Path installationDir = Filesystem::findInstallationDirectory();
+	if(installationDir.isEmpty())
+	{
+		throw FilesystemError("Unable to find the standard location for EngineConfig.ini.");
+	}
+
+	const std::string filePath = (installationDir / "Config" / "EngineConfig.ini").toNativeString();
 
 	EngineInitSettings settings;
 	if(!settings.tryLoad(filePath))

@@ -82,7 +82,7 @@ EWindowsVersion get_windows_version();
 */
 std::size_t get_L1_cache_line_size_in_bytes();
 
-/*! @brief Get absolute path to the currently running executable.
+/*! @brief Get canonical path to the currently running executable.
 Answering the question, "Where am I?"
 @return Canonical path to the executable.
 @exception FilesystemError If cannot obtain the path.

@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <optional>
 
-namespace ph::detail::core_logging
+namespace ph::core_logging::detail
 {
 
 namespace
@@ -77,7 +77,7 @@ Logger make_core_logger()
 
 }// end namespace
 
-void init()
+void init(const std::string& logStorageDirectory)
 {
 	// In case some threads were created before `init()`
 	std::lock_guard<std::mutex> lock(g_coreLogMutex);
@@ -85,8 +85,7 @@ void init()
 	PH_ASSERT_MSG(!g_coreLogger.has_value(),
 		"Logger is already initialized.");
 
-	// Hard-coded to installation directory -> Logs
-	const auto logFileDirectory = os::get_executable_path().parent_path().parent_path() / "Logs";
+	const auto logFileDirectory = std::filesystem::path(logStorageDirectory);
 
 	auto coreLogFilename = Timestamp().toYMDHMS() + "_core_logs.txt";
 
@@ -149,12 +148,22 @@ void log_to_logger(const Logger& logger, const std::string_view groupName, const
 	logger.log(groupName, logLevel, logMessage);
 }
 
-}// end namespace ph::detail::core_logging
+}// end namespace ph::core_logging::detail
 
 namespace ph
 {
 
 PH_DEFINE_LOG_GROUP(PhotonRenderer, Core);
+
+void core_logging::init(const std::string& logStorageDirectory)
+{
+	detail::init(logStorageDirectory);
+}
+
+void core_logging::exit()
+{
+	detail::exit();
+}
 
 std::size_t LogGroups::addGroup(const std::string_view groupName, const std::string_view category)
 {
@@ -176,9 +185,9 @@ const LogGroup& LogGroups::getGroup(const std::size_t index) const
 
 LogGroups get_core_log_groups()
 {
-	std::lock_guard<std::mutex> lock(detail::core_logging::g_coreLogMutex);
+	std::lock_guard<std::mutex> lock(core_logging::detail::g_coreLogMutex);
 
-	return detail::core_logging::g_coreLogGroups;
+	return core_logging::detail::g_coreLogGroups;
 }
 
 }// end namespace ph

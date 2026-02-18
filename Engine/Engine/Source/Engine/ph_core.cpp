@@ -8,6 +8,7 @@
 #include <Common/logging.h>
 #include <Common/Log/Logger.h>
 
+#include <iostream>
 #include <utility>
 #include <vector>
 #include <string>
@@ -22,12 +23,32 @@ PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(gather_all_engine_SDL_enums, outerScope=void
 
 bool init_render_engine(std::optional<EngineInitSettings> settings)
 {
-	detail::core_logging::init();
-
 	if(!settings)
 	{
 		settings = EngineInitSettings::loadStandardConfig();
 	}
+
+	// Set standard directories before logging initialization as logger will use it to find log folder
+	if(settings->installationDirectory.empty())
+	{
+		Path installationDir = Filesystem::findInstallationDirectory();
+		if(installationDir.isEmpty())
+		{
+			std::cerr << "Unable to find installation directory." << std::endl;
+			return false;
+		}
+
+		Filesystem::setInstallationDirectory(Filesystem::findInstallationDirectory());
+	}
+	else
+	{
+		Filesystem::setInstallationDirectory(Path(settings->installationDirectory));
+	}
+
+	// Hard-coded to installation directory -> Logs
+	core_logging::init((Filesystem::getInstallationDirectory() / "Logs").toString());
+
+	PH_LOG(CppAPI, Note, "using installation at <{}>", Filesystem::getInstallationDirectory());
 
 	if(!settings->additionalLogHandlers.empty())
 	{
@@ -41,7 +62,7 @@ bool init_render_engine(std::optional<EngineInitSettings> settings)
 				continue;
 			}
 			
-			detail::core_logging::get_logger().addLogHandler(std::move(handler));
+			core_logging::detail::get_logger().addLogHandler(std::move(handler));
 		}
 
 		settings->additionalLogHandlers.clear();
@@ -89,7 +110,7 @@ bool exit_render_engine()
 		return false;
 	}
 
-	detail::core_logging::exit();
+	core_logging::exit();
 
 	return true;
 }

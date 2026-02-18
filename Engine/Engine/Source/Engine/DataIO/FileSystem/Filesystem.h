@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 namespace ph
 {
 
@@ -61,13 +63,6 @@ public:
 
 	static Path makeRelative(const Path& src, const Path& base);
 
-	/*! @brief Get absolute path to the currently running executable.
-	Answering the question, "Where am I?" The result will be cached from first run and reused.
-	@return Canonical path to the executable.
-	@exception FilesystemError If cannot obtain the path.
-	*/
-	static const Path& getExecutablePath();
-
 	/*! @brief Get path to the render engine root.
 	@return Canonical path to the render engine root. The result will be cached from first run and reused.
 	@exception FilesystemError If cannot obtain the path.
@@ -106,6 +101,21 @@ public:
 	@exception FilesystemError If cannot obtain the path.
 	*/
 	static const Path& getResourceDirectory();
+
+	/*!
+	Try to find the installation directory.
+	@return Empty path if not found.
+	*/
+	static Path findInstallationDirectory();
+
+	/*!
+	Set the installation directory for the engine. This is set on engine initialization stage
+	and should not be called afterwards.
+	*/
+	static void setInstallationDirectory(const Path& path);
+
+private:
+	static std::optional<Path> s_installationDirectory;
 };
 
 }// end namespace ph

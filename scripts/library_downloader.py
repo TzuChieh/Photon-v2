@@ -5,8 +5,6 @@ from utility import filesystem
 import sys
 import os
 import configparser
-import subprocess
-from pathlib import Path
 
 
 def _download_main_library_bundle(dst_directory, setup_config: configparser.ConfigParser):
@@ -28,6 +26,7 @@ def _download_main_library_bundle(dst_directory, setup_config: configparser.Conf
     # * some-branch3
     #
     # we need to parse it
+    # (note: this can also be done by "git rev-parse --abbrev-ref HEAD")
     #
     git_branch_tokens = git_branch_result.split()
     asterisk_index = git_branch_tokens.index("*")
