@@ -20,9 +20,11 @@ class EngineInitSettings final
 {
 public:
 	/*! @brief Load from a standard location. Create one if the file does not exist.
+	@param referenceEngineDir A path to any directory inside the engine installation. If provided,
+	this will be used as a reference point to find the standard location.
 	@exception FilesystemError If the standard location is not found.
 	*/
-	static EngineInitSettings loadStandardConfig();
+	static EngineInitSettings loadStandardConfig(const std::string& referenceEngineDir = "");
 
 	/*! @brief Additional log handlers for the core engine's internal logger.
 	Important note: Handler may be called concurrently hence its implementation must ensure proper

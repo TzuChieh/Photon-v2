@@ -1,5 +1,4 @@
 #include "Engine/DataIO/FileSystem/Filesystem.h"
-#include "Engine/DataIO/FileSystem/Path.h"
 
 #include <Common/io_exceptions.h>
 #include <Common/os.h>
@@ -12,13 +11,16 @@ namespace ph
 
 std::optional<Path> Filesystem::s_installationDirectory;
 
-Path Filesystem::findInstallationDirectory()
+Path Filesystem::findInstallationDirectory(const std::string& referenceEngineDir)
 {
 	// There is a "PhotonRenderer.info" file at the installation root. We will climb back up the
 	// directory tree until we find it, or we reach the root directory. This may be called before
 	// engine init, so we rely only on STL as much as possible.
 
-	std::filesystem::path current = os::get_executable_path().parent_path();
+	std::filesystem::path current = referenceEngineDir.empty()
+		? os::get_executable_path().parent_path()
+		: std::filesystem::path(referenceEngineDir);
+	current = std::filesystem::canonical(current);
 
 	// Limit the number of iterations to avoid infinite loop in case of unexpected directory structure.
 	for(int i = 0; i < 20; ++i)
@@ -48,7 +50,12 @@ void Filesystem::setInstallationDirectory(const Path& path)
 		throw FilesystemError("Cannot reset installation directory.");
 	}
 
-	s_installationDirectory = path;
+	if(!Filesystem::hasFile(path / "PhotonRenderer.info"))
+	{
+		throw FilesystemError("Invalid installation directory.");
+	}
+
+	s_installationDirectory = path.toCanonical();
 }
 
 bool Filesystem::hasDirectory(const Path& path)

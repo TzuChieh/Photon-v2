@@ -1,8 +1,8 @@
 #include "Engine/DataIO/FileSystem/Path.h"
 
 #include <Common/assertion.h>
-#include <Common/logging.h>
 
+#include <iostream>
 #include <cwchar>
 #include <cstring>
 #include <algorithm>
@@ -259,9 +259,7 @@ wchar_t Path::charToWchar(const char ch)
 	const std::wint_t wch = std::btowc(ch);
 	if(wch == WEOF)
 	{
-		PH_DEFAULT_LOG(Warning,
-			"at Path::charToWchar(), char <{}> failed to widen to wchar",
-			ch);
+		std::cerr << "at Path::charToWchar(), char <" << ch << "> failed to widen to wchar" << std::endl;
 	}
 
 	return static_cast<wchar_t>(wch);

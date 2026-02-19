@@ -19,6 +19,7 @@ To add new bindings, basically you will need to do the following steps:
 #include <Engine/SDL/SdlInputClauses.h>
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
 #include <nanobind/stl/shared_ptr.h>
 
 #include <string>
@@ -49,27 +50,35 @@ struct UniversalSDLBinder
 
 		using OwnerType = typename StaticSDLClassType::OwnerType;
 
-		auto c = nanobind::class_<OwnerType>(m, sdlClass.getUserSpec().getArg(0).c_str());
+		auto c = nanobind::class_<OwnerType>(
+			m,
+			sdlClass.getUserSpec().getArg(0).c_str(),
+			std::string(sdlClass.getDescription()).c_str());
 
-		c.def("__init__",
-			[&sdlClass](nanobind::kwargs kwargs)
-			{
-				std::shared_ptr<ISdlResource> resource = sdlClass.createResource();
-				if(kwargs.empty())
+		if(!sdlClass.isBlueprint() && sdlClass.allowCreateFromClass())
+		{
+			// nanobind caches object construction method, so we do not need to bind init
+			// (https://nanobind.readthedocs.io/en/latest/classes.html#customizing-python-object-creation)
+			c.def(nanobind::new_(
+				[&sdlClass](nanobind::kwargs kwargs)
 				{
-					sdlClass.initDefaultResource(*resource);
-				}
-				else
-				{
-					SdlInputClauses clauses = toSdlInputClauses(kwargs);
-					sdlClass.initResource(
-						*resource,
-						clauses,
-						SdlInputContext{});
-				}
-				
-				return resource;
-			});
+					std::shared_ptr<ISdlResource> resource = sdlClass.createResource();
+					if(kwargs.empty())
+					{
+						sdlClass.initDefaultResource(*resource);
+					}
+					else
+					{
+						SdlInputClauses clauses = toSdlInputClauses(kwargs);
+						sdlClass.initResource(
+							*resource,
+							clauses,
+							SdlInputContext{});
+					}
+
+					return std::static_pointer_cast<OwnerType>(resource);
+				}));
+		}
 
 		for(std::size_t fi = 0; fi < sdlClass.numFunctions(); ++fi)
 		{
@@ -86,6 +95,9 @@ struct UniversalSDLBinder
 						SdlInputContext{});
 				});
 		}
+
+		// TODO: field docs
+		// TODO: method docs
 	}
 
 	static std::string toSdlTypeName(nanobind::handle pyValue);

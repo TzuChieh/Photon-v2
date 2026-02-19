@@ -39,7 +39,7 @@ std::string UniversalSDLBinder::toSdlTypeName(nanobind::handle pyValue)
 			"Unable to map Python value type <" + 
 			std::string(nanobind::inst_name(pyValue).c_str()) + 
 			"> to SDL.";
-		throw nanobind::value_error(msg.c_str());
+		throw nanobind::type_error(msg.c_str());
 	}
 
 	return sdlType;
@@ -54,7 +54,7 @@ SdlInputClauses UniversalSDLBinder::toSdlInputClauses(nanobind::kwargs kwargs)
 			SdlInputClause(
 				toSdlTypeName(value),
 				nanobind::cast<std::string>(nanobind::str(key)),
-				nanobind::cast<std::string>(nanobind::str(key))));
+				nanobind::cast<std::string>(nanobind::str(value))));
 	}
 
 	return clauses;

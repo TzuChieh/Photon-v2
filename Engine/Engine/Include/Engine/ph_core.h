@@ -22,7 +22,7 @@ case of an exception (such as logging), consult the API's documentation to see
 if anything should be done before using it.
 
 @param settings Settings for the engine. If not provided, the engine will try to load from a
-standard location (automatically create a default one if not exist).
+standard location and automatically create a default config if not exist.
 */
 bool init_render_engine(std::optional<EngineInitSettings> settings = std::nullopt);
 

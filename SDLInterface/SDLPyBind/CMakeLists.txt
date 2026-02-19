@@ -6,7 +6,7 @@ set(TARGET_NAME                     "SDLPyBind")
 set(SDL_PY_BIND_INCLUDE_DIR         "${SDL_PY_BIND_DIR}/Include")
 set(SDL_PY_BIND_PRIVATE_INCLUDE_DIR "${SDL_PY_BIND_DIR}/Source")
 
-file(GLOB_RECURSE SDL_GEN_HEADER_FILES 
+file(GLOB_RECURSE SDL_PY_BIND_HEADER_FILES 
 	"${SDL_PY_BIND_DIR}/Include/*.h"
 	"${SDL_PY_BIND_DIR}/Source/*.h"
 	"${SDL_PY_BIND_DIR}/Source/*.ipp"

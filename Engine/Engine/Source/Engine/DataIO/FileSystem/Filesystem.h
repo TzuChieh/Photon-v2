@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Engine/DataIO/FileSystem/Path.h"
+
 #include <optional>
+#include <string>
 
 namespace ph
 {
-
-class Path;
 
 /*! @brief Filesystem operations and information on the native operating system.
 */
@@ -104,9 +105,11 @@ public:
 
 	/*!
 	Try to find the installation directory.
-	@return Empty path if not found.
+	@param referenceEngineDir A path to any directory inside the engine installation. If provided,
+	this will be used as a reference point to find the installation directory.
+	@return Canonical path to the installation directory. Empty path if not found.
 	*/
-	static Path findInstallationDirectory();
+	static Path findInstallationDirectory(const std::string& referenceEngineDir = "");
 
 	/*!
 	Set the installation directory for the engine. This is set on engine initialization stage
