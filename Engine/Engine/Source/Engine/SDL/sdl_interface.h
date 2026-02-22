@@ -22,6 +22,7 @@
 #include "Engine/SDL/Introspect/TSdlOwnerClass.h"
 #include "Engine/SDL/Introspect/TSdlOwnerStruct.h"
 #include "Engine/SDL/Introspect/TSdlOwnerMethod.h"
+#include "Engine/SDL/Introspect/TSdlOwnerStaticMethod.h"
 
 // Enum types
 #include "Engine/SDL/Introspect/TSdlGeneralEnum.h"
@@ -122,6 +123,27 @@ Available functionalities after defining the macro:
 	\
 	static auto getSdlFunction()\
 	-> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*;\
+	\
+	template<typename InternalDef>\
+	inline static void internal_sdlFunctionDefinition(TSdlFunctionDefiner<InternalDef>& funcDef)
+
+/*! @brief Define a SDL static method with function-like syntax.
+
+Available functionalities after defining the macro:
+
+* `const FunctionType* getSdlFunction()`
+  - A static method for accessing the SDL static method static type.
+
+*/
+#define PH_DEFINE_SDL_STATIC_METHOD(ownerType, funcDef, ...)\
+	\
+	using OwnerType = ownerType;\
+	\
+	/* A marker so we know the macro has been called. */\
+	using SdlFunctionDefinitionMarker = OwnerType;\
+	\
+	static auto getSdlFunction()\
+	-> const TSdlOwnerStaticMethod<OwnerType>*;\
 	\
 	template<typename InternalDef>\
 	inline static void internal_sdlFunctionDefinition(TSdlFunctionDefiner<InternalDef>& funcDef)

@@ -6,9 +6,12 @@ import datetime
 # We are using absolute imports with `PhotonBlend` folder as the root
 root_folder_path = os.path.abspath(os.path.dirname(__file__))
 print(f"PhotonBlend: using {root_folder_path} as root")
-sys.path.append(root_folder_path)
 
-from utility import blender
+try:
+	sys.path.insert(0, root_folder_path)
+	from utility import blender
+finally:
+	sys.path.remove(root_folder_path)
 
 # Required by Blender: addon header info
 bl_info = {
@@ -24,20 +27,22 @@ bl_info = {
 
 print(f"PhotonBlend activated. {datetime.datetime.now()}")
 
-main_package_full_name = "{}.{}".format(__name__, "bmodule")
-
 
 # Register all modules (a required Blender callback)
 def register():
-	global main_package_full_name
-
+	main_package_full_name = "{}.{}".format(__name__, "bmodule")
 	blender.module_manager = blender.BlenderModuleManager()
 
-	# Import or update existing modules
-	if main_package_full_name in sys.modules:
-		importlib.reload(sys.modules[main_package_full_name])
-	else:
-		importlib.import_module(main_package_full_name)
+	try:
+		sys.path.insert(0, root_folder_path)
+
+		# Import or update existing modules
+		if main_package_full_name in sys.modules:
+			importlib.reload(sys.modules[main_package_full_name])
+		else:
+			importlib.import_module(main_package_full_name)
+	finally:
+		sys.path.remove(root_folder_path)
 
 	blender.module_manager.register_all()
 

@@ -6,7 +6,7 @@ import uuid
 import re
 from pathlib import Path
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import Enum, auto
 from collections import OrderedDict
 
 # For Python < 3.10, we cannot use `|`
@@ -27,10 +27,11 @@ class EMacro(Enum):
     Type and purpose of the macro.
     """
     Other = 0
-    DefineClass = 1
-    DefineStruct = 2
-    DefineMethod = 3
-    DefineEnum = 4
+    DefineClass = auto()
+    DefineStruct = auto()
+    DefineMethod = auto()
+    DefineStaticMethod = auto()
+    DefineEnum = auto()
     DeclareMeta = 100
 
 
@@ -72,7 +73,7 @@ class MacroExtraction:
     @property
     def outer_scope(self) -> str:
         """
-        @return The scope as specified by `outerScope`. For `outerScope=` or `outerScope=void`,
+        :returns: The scope as specified by `outerScope`. For `outerScope=` or `outerScope=void`,
         the scope is treated as no scope. If `outerScope` is not even present in arguments,
         filename is used as the scope.
         """
@@ -154,23 +155,26 @@ class MacroHandler(ABC):
     def generate_source(self, extr: MacroExtraction) -> Union[MacroImplementation, None]:
         """
         Generate source code for a single macro. Called once for each macro usage.
-        @return `None` if nothing is generated.
+        
+        :returns: `None` if nothing is generated.
         """
         return None
 
     def post_generate_source(self, extrs: list[MacroExtraction]) -> Union[MacroImplementation, None]:
         """
         Generate source code (fragment) after all source files are scanned. Have access to extra info.
-        @param extrs All extractions in the same project. MacroExtraction.impl will contain the
+
+        :param extrs: All extractions in the same project. MacroExtraction.impl will contain the
         generated source returned by `generate_source()`.
-        @return `None` if nothing is generated.
+        :returns: `None` if nothing is generated.
         """
         return None
     
     def post_generate_source_for_all_projects(self, current_project: str, project_name_to_extrs: dict[str, list[MacroExtraction]]) -> Union[MacroImplementation, None]:
         """
         Called once for each project. Similar to `post_generate_source()`, but with extractions from all projects.
-        @param current_project Current project's name.
+        
+        :param current_project: Current project's name.
         """
         return None
 
@@ -324,6 +328,62 @@ class MethodHandler(MacroHandler):
             -> const TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>*
             {{
                 using SdlFunctionType = TSdlOwnerMethod<OwnerType, std::remove_cvref_t<TCallableTraits<OwnerType>::ArgTypeAt<0>>>;
+                static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,
+                    "getSdlFunction() must return a function derived from SdlFunction.");
+                
+                static const auto sdlFunction =
+                    []() -> SdlFunctionType
+                    {{
+                        SdlFunctionType def;
+                        def.userSpec(SdlUserSpec({_to_std_map_literal(extr.user_specs)}));
+                        
+                        TSdlFunctionDefiner<SdlFunctionType> definer(def);
+                        internal_sdlFunctionDefinition<SdlFunctionType>(definer);
+                        return def;
+                    }}();
+                return &sdlFunction;
+            }}
+
+            }}// end namespace ph
+
+            """)
+        return src
+
+
+class StaticMethodHandler(MacroHandler):
+    @property
+    def macro_name(self):
+        return 'PH_DEFINE_SDL_STATIC_METHOD'
+    
+    def generate_source(self, extr):
+        if extr.source_file.suffix != '.h':
+            raise ValueError(f"SDL static method definition is only allowed in header (offending file: {extr.source_file})")
+
+        # For arguments, we need at least `CppOwnerType, funcDef`
+        if len(extr.user_specs) < 2:
+            raise ValueError(f"{self.macro_name}() requires at least 2 arguments, {len(extr.user_specs)} were given")
+
+        outer_scope_expr = f"{extr.outer_scope}::" if extr.outer_scope else ""
+        owner_class_type = extr.user_spec_at(0)
+
+        src = MacroImplementation()
+        src.macro_type = EMacro.DefineStaticMethod
+        src.macro_header = extr.source_file
+        src.owner_class_type = owner_class_type
+        src.source = textwrap.dedent(
+            f"""
+            {extr.source_include_expr}
+
+            // For `SdlFunctionType`
+            #include <Engine/SDL/Introspect/TSdlOwnerStaticMethod.h>
+
+            namespace ph
+            {{
+
+            auto {outer_scope_expr}{owner_class_type}::getSdlFunction()
+            -> const TSdlOwnerStaticMethod<OwnerType>*
+            {{
+                using SdlFunctionType = TSdlOwnerStaticMethod<OwnerType>;
                 static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,
                     "getSdlFunction() must return a function derived from SdlFunction.");
                 
@@ -639,7 +699,7 @@ class MetaDispatcherForAllSdlClassesHandler(MacroHandler):
 
 def _extract_macros(project_name: str, source_file: Path, source_dir: Path, handlers: list[MacroHandler]) -> list[MacroExtraction]:
     """
-    @return A list of `MacroExtraction`.
+    :returns: A list of `MacroExtraction`.
     """
     # Parse source file line by line to find SDL macro usage
     extractions = []
@@ -688,7 +748,8 @@ def _extract_macros(project_name: str, source_file: Path, source_dir: Path, hand
 def _generate_source(extractions: list[MacroExtraction]) -> Union[CompilationUnit, None]:
     """
     Generate source code for a group of macro extractions.
-    @return A single compilation unit (`CompilationUnit`). `None` if nothing is generated.
+
+    :returns: A single compilation unit (`CompilationUnit`). `None` if nothing is generated.
     """
     impls = []
     for extraction in extractions:
@@ -714,8 +775,9 @@ def _generate_source(extractions: list[MacroExtraction]) -> Union[CompilationUni
 def _post_generate_source(extractions: list[MacroExtraction], handlers: list[MacroHandler]) -> list[CompilationUnit]:
     """
     Post generate source code for all macro extractions.
-    @param[in,out] extractions Macro extractions to process. They can also be modified during the process.
-    @return A list if compilation units generated additionally.
+
+    :param extractions: [in,out] Macro extractions to process. They can also be modified during the process.
+    :returns: A list if compilation units generated additionally.
     """
     post_units = []
     for handler in handlers:
@@ -749,6 +811,7 @@ def _init_macro_handlers() -> list[MacroHandler]:
         ClassHandler(),
         StructHandler(),
         MethodHandler(),
+        StaticMethodHandler(),
         EnumHandler(),
         MetaGetterForAllSdlClassesHandler(),
         MetaGetterForAllSdlEnumsHandler(),

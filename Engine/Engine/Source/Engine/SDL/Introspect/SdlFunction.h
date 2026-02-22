@@ -28,6 +28,7 @@ public:
 
 	virtual std::size_t numParams() const = 0;
 	virtual const SdlField* getParam(std::size_t index) const = 0;
+	virtual bool isStatic() const = 0;
 
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;

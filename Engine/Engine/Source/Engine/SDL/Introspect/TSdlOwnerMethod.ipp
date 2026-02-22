@@ -107,6 +107,12 @@ inline const SdlField* TSdlOwnerMethod<MethodStruct, Target>::getParam(const std
 }
 
 template<typename MethodStruct, typename Target>
+inline bool TSdlOwnerMethod<MethodStruct, Target>::isStatic() const
+{
+	return false;
+}
+
+template<typename MethodStruct, typename Target>
 template<typename T>
 inline auto TSdlOwnerMethod<MethodStruct, Target>::addParam(T sdlField)
 -> TSdlOwnerMethod&

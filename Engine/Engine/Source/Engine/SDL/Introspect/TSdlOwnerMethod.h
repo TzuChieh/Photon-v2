@@ -33,8 +33,7 @@ struct ExampleMethod
 ```
 
 @tparam MethodStruct Type of the functor.
-@tparam Target Type that defines the method. May be any C++ class/struct type including
-SDL resource types.
+@tparam Target Type that defines the method. Must be SDL resource types.
 */
 template<typename MethodStruct, typename Target>
 class TSdlOwnerMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
@@ -53,6 +52,7 @@ public:
 
 	std::size_t numParams() const override;
 	const SdlField* getParam(std::size_t index) const override;
+	bool isStatic() const override;
 
 	void callMethod(
 		Target&                target,

@@ -27,7 +27,7 @@ void GPlyPolygonMesh::storeCooked(
 	Timer loadTimer;
 	loadTimer.start();
 
-	*triangleBuffer = loadTriangleBuffer();
+	*triangleBuffer = loadStandardTriangleBuffer();
 
 	loadTimer.stop();
 
@@ -70,19 +70,25 @@ std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
 	return nullptr;
 }
 
-IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
+IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
+	PlyFile& file,
+	std::string_view vertexElementName,
+	std::string_view positionXPropertyName,
+	std::string_view positionYPropertyName,
+	std::string_view positionZPropertyName,
+	std::string_view normalXPropertyName,
+	std::string_view normalYPropertyName,
+	std::string_view normalZPropertyName,
+	std::string_view faceElementName,
+	std::string_view vertexIndicesPropertyName) const
 {
-	PH_LOG(GPlyPolygonMesh, Note, "loading file {}", m_plyFile);
-
-	PlyFile file(m_plyFile.getPath());
-
-	PlyElement* vertexElement = file.findElement("vertex");
+	PlyElement* vertexElement = file.findElement(vertexElementName);
 	if(!vertexElement)
 	{
 		throw CookException("cannot find PLY vertex element");
 	}
 
-	PlyElement* faceElement = file.findElement("face");
+	PlyElement* faceElement = file.findElement(faceElementName);
 	if(!faceElement)
 	{
 		throw CookException("cannot find PLY face element");
@@ -94,12 +100,12 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 
 	// Loading vertices
 
-	auto xValues = vertexElement->propertyValues(vertexElement->findProperty("x"));
-	auto yValues = vertexElement->propertyValues(vertexElement->findProperty("y"));
-	auto zValues = vertexElement->propertyValues(vertexElement->findProperty("z"));
-	auto nxValues = vertexElement->propertyValues(vertexElement->findProperty("nx"));
-	auto nyValues = vertexElement->propertyValues(vertexElement->findProperty("ny"));
-	auto nzValues = vertexElement->propertyValues(vertexElement->findProperty("nz"));
+	auto xValues = vertexElement->propertyValues(vertexElement->findProperty(positionXPropertyName));
+	auto yValues = vertexElement->propertyValues(vertexElement->findProperty(positionYPropertyName));
+	auto zValues = vertexElement->propertyValues(vertexElement->findProperty(positionZPropertyName));
+	auto nxValues = vertexElement->propertyValues(vertexElement->findProperty(normalXPropertyName));
+	auto nyValues = vertexElement->propertyValues(vertexElement->findProperty(normalYPropertyName));
+	auto nzValues = vertexElement->propertyValues(vertexElement->findProperty(normalZPropertyName));
 
 	const bool hasVertexCoords = xValues && yValues && zValues;
 	const bool hasNormals = nxValues && nyValues && nzValues;
@@ -152,7 +158,7 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 
 	// Loading indices
 
-	auto vertexIndexProperty = faceElement->findProperty("vertex_indices");
+	auto vertexIndexProperty = faceElement->findProperty(vertexIndicesPropertyName);
 	auto vertexIndexLists = faceElement->listPropertyValues(vertexIndexProperty);
 	if(!vertexIndexLists)
 	{
@@ -191,6 +197,24 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 	}
 
 	return loadedBuffer;
+}
+
+IndexedTriangleBuffer GPlyPolygonMesh::loadStandardTriangleBuffer() const
+{
+	PH_LOG(GPlyPolygonMesh, Note, "loading standard file {}", m_plyFile);
+
+	PlyFile file(m_plyFile.getPath());
+	return loadTriangleBuffer(
+		file,
+		"vertex",
+		"x",
+		"y",
+		"z",
+		"nx",
+		"ny",
+		"nz",
+		"face",
+		"vertex_indices");
 }
 
 }// end namespace ph

@@ -5,8 +5,12 @@
 #include "Engine/SDL/sdl_interface.h"
 #include "Engine/Core/Intersection/data_structure_fwd.h"
 
+#include <string_view>
+
 namespace ph
 {
+
+class PlyFile;
 
 /*! @brief Mesh stored as a .ply file.
 */
@@ -20,17 +24,38 @@ public:
 	std::shared_ptr<Geometry> genTransformed(
 		const StaticAffineTransform& transform) const override;
 
+protected:
+	/*!
+	@param plyFile The .ply file to load from.
+	*/
+	IndexedTriangleBuffer loadTriangleBuffer(
+		PlyFile& file,
+		std::string_view vertexElementName,
+		std::string_view positionXPropertyName,
+		std::string_view positionYPropertyName,
+		std::string_view positionZPropertyName,
+		std::string_view normalXPropertyName,
+		std::string_view normalYPropertyName,
+		std::string_view normalZPropertyName,
+		std::string_view faceElementName, 
+		std::string_view vertexIndicesPropertyName) const;
+
+	IndexedTriangleBuffer loadStandardTriangleBuffer() const;
+
 private:
 	ResourceIdentifier m_plyFile;
-
-	IndexedTriangleBuffer loadTriangleBuffer() const;
 
 public:
 	PH_DEFINE_SDL_CLASS(GPlyPolygonMesh, clazz)
 	{
 		clazz.typeName("ply");
 		clazz.docName("PLY Polygon Mesh");
-		clazz.description("Polygon mesh stored as a .ply file.");
+		clazz.description(
+			"Polygon mesh stored as a .ply file. This geometry assumes standard data "
+			"layout, with \"vertex\" element storing position propreties (x, y, z) and "
+			"normal properties (nx, ny, nz); \"face\" element storing a "
+			"\"vertex_indices\" property that points into the vertex element to "
+			"form polygon faces.");
 		clazz.baseOn<Geometry>();
 
 		TSdlResourceIdentifier<OwnerType> plyFile("ply-file", &OwnerType::m_plyFile);

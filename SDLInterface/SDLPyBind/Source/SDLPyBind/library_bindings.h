@@ -16,7 +16,9 @@ To add new bindings, basically you will need to do the following steps:
 #include <Engine/SDL/sdl_meta.h>
 #include <Engine/SDL/Introspect/SdlClass.h>
 #include <Engine/SDL/Introspect/SdlFunction.h>
+#include <Engine/SDL/Introspect/SdlField.h>
 #include <Engine/SDL/SdlInputClauses.h>
+#include <Engine/SDL/sdl_helpers.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
@@ -43,7 +45,7 @@ struct UniversalSDLBinder
 	void operator () (const StaticSDLClassType& sdlClass) const
 	{
 		const bool isPythonBindingRequested = sdlClass.getUserSpec().hasArg("interface", "python");
-		if(isPythonBindingRequested)
+		if(!isPythonBindingRequested)
 		{
 			return;
 		}
@@ -55,8 +57,12 @@ struct UniversalSDLBinder
 			sdlClass.getUserSpec().getArg(0).c_str(),
 			std::string(sdlClass.getDescription()).c_str());
 
+		// TODO: should use a proper SdlInputContext to resolve SDL names, wd, etc.
+
 		if(!sdlClass.isBlueprint() && sdlClass.allowCreateFromClass())
 		{
+			const std::string docstring = toRestructuredTextDocstring(sdlClass);
+
 			// nanobind caches object construction method, so we do not need to bind init
 			// (https://nanobind.readthedocs.io/en/latest/classes.html#customizing-python-object-creation)
 			c.def(nanobind::new_(
@@ -77,31 +83,54 @@ struct UniversalSDLBinder
 					}
 
 					return std::static_pointer_cast<OwnerType>(resource);
-				}));
+				}),
+				docstring.c_str());
 		}
 
 		for(std::size_t fi = 0; fi < sdlClass.numFunctions(); ++fi)
 		{
 			const SdlFunction* sdlFunc = sdlClass.getFunction(fi);
+			const std::string sdlFuncName = sdl::name_to_snake_case(sdlFunc->getTypeName());
+			const std::string docstring = toRestructuredTextDocstring(*sdlFunc);
 
-			// Bind method. For now all functions are methods. We should distinguish them later.
-			c.def(std::string(sdlFunc->getTypeName()).c_str(),
-				[sdlFunc](OwnerType& self, nanobind::kwargs kwargs)
-				{
-					SdlInputClauses clauses = toSdlInputClauses(kwargs);
-					sdlFunc->call(
-						&self,
-						clauses,
-						SdlInputContext{});
-				});
+			if(sdlFunc->isStatic())
+			{
+				c.def_static(sdlFuncName.c_str(),
+					[sdlFunc](nanobind::kwargs kwargs)
+					{
+						SdlInputClauses clauses = toSdlInputClauses(kwargs);
+						sdlFunc->call(
+							nullptr,
+							clauses,
+							SdlInputContext{});
+					},
+					docstring.c_str());
+			}
+			else
+			{
+				c.def(sdlFuncName.c_str(),
+					[sdlFunc](OwnerType& self, nanobind::kwargs kwargs)
+					{
+						SdlInputClauses clauses = toSdlInputClauses(kwargs);
+						sdlFunc->call(
+							&self,
+							clauses,
+							SdlInputContext{});
+					},
+					docstring.c_str());
+			}
 		}
+	}
 
-		// TODO: field docs
-		// TODO: method docs
+	static const nanobind::object& pyPurePathType()
+	{
+		static nanobind::object purePathType = nanobind::module_::import_("pathlib").attr("PurePath");
+		return purePathType;
 	}
 
 	static std::string toSdlTypeName(nanobind::handle pyValue);
 	static SdlInputClauses toSdlInputClauses(nanobind::kwargs kwargs);
+	static std::string toRestructuredTextDocstring(const ISdlInstantiable& instantiableType);
 };
 
 PH_DECLARE_DISPATCHER_FOR_ALL_SDL_CLASSES(bind_engine, UniversalSDLBinder, EEngineProject::Engine, outerScope=py);
