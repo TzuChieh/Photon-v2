@@ -68,7 +68,7 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 	// Disable fallback for fields
 	{
 		TSdlInteger<IntegerOwner, integer> sdlInt("number", &IntegerOwner::value);
-		sdlInt.enableFallback(false);
+		sdlInt.options({EFieldOption::DisableFallback});
 		sdlInt.defaultTo(22);
 
 		IntegerOwner owner;

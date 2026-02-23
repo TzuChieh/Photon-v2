@@ -86,7 +86,7 @@ inline bool DirectLightEstimator::neeSampleSurfaceEmission(
 		return false;
 	}
 
-	constexpr SurfaceHitReason reason{ESurfaceHitReason::SampledPos};
+	constexpr SurfaceHitReasons reason{ESurfaceHitReason::SampledPos};
 	const SurfaceHit Xe(directSample.outputs.getObservationRay(), probe, reason);
 	const auto optVisibilityRay = SurfaceHitRefinery{X}.tryEscape(Xe);
 	if(!optVisibilityRay || getScene().isOccluding(*optVisibilityRay))

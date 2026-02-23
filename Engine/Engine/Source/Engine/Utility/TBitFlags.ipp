@@ -17,13 +17,13 @@ inline constexpr TBitFlags<Value, Input>::TBitFlags(const FlagsSet& flagsSet) :
 
 template<typename Value, typename Input>
 inline constexpr TBitFlags<Value, Input>::TBitFlags(const Input flagsSet) :
-	m_bits(static_cast<Value>(flagsSet))
+	m_bits{static_cast<Value>(flagsSet)}
 {}
 
 template<typename Value, typename Input>
 template<typename OtherInput>
 inline constexpr TBitFlags<Value, Input>::TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags) :
-	m_bits(otherFlags.get())
+	m_bits{otherFlags.get()}
 {}
 
 template<typename Value, typename Input>

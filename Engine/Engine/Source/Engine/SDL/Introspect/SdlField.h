@@ -2,6 +2,7 @@
 
 #include "Engine/SDL/sdl_fwd.h"
 #include "Engine/SDL/Introspect/EFieldImportance.h"
+#include "Engine/SDL/Introspect/EFieldOption.h"
 
 #include <Common/logging.h>
 
@@ -41,23 +42,18 @@ public:
 	std::string_view getTypeSignature() const;
 
 	EFieldImportance getImportance() const;
-
-	/*! @brief Whether the field want to use built-in mechanism to handle I/O problems.
-	An example of this is default field value. With fallback enabled, the field may set itself to
-	the default value supplied (if available) on error. By default, fallback is enabled.
-	*/
-	bool isFallbackEnabled() const;
+	FieldOptions getOptions() const;
 
 protected:
 	SdlField& setDescription(std::string descriptionStr);
 
 	/*! @brief Sets the importance of the field.
-	Different importance affect the underlying policy used during the import
-	and export of the field, e.g., whether warnings are emitted.
+	Different importance affect the underlying error reporting policy used when loading
+	and saving the field, e.g., whether warnings are emitted, exceptions are thrown.
 	*/
 	SdlField& setImportance(EFieldImportance importance);
 
-	SdlField& setEnableFallback(bool isFallbackEnabled);
+	SdlField& setOptions(FieldOptions options);
 
 private:
 	std::string m_typeName;
@@ -65,7 +61,7 @@ private:
 	std::string m_description;
 	std::string m_typeSignature;
 	EFieldImportance m_importance;
-	bool m_isFallbackEnabled;
+	FieldOptions m_options;
 };
 
 // In-header Implementation:
@@ -95,9 +91,9 @@ inline EFieldImportance SdlField::getImportance() const
 	return m_importance;
 }
 
-inline bool SdlField::isFallbackEnabled() const
+inline FieldOptions SdlField::getOptions() const
 {
-	return m_isFallbackEnabled;
+	return m_options;
 }
 
 inline SdlField& SdlField::setDescription(std::string descriptionStr)
@@ -114,9 +110,9 @@ inline SdlField& SdlField::setImportance(EFieldImportance importance)
 	return *this;
 }
 
-inline SdlField& SdlField::setEnableFallback(bool isFallbackEnabled)
+inline SdlField& SdlField::setOptions(FieldOptions options)
 {
-	m_isFallbackEnabled = isFallbackEnabled;
+	m_options = options;
 
 	return *this;
 }

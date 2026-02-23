@@ -41,7 +41,7 @@ TEST(TSdlNestedFieldTest, KeepsFieldSettings)
 	{
 		TSdlString<TestInner> innerStrField("test-str", &TestInner::str);
 		innerStrField.description("test description");
-		innerStrField.enableFallback(false);
+		innerStrField.options({EFieldOption::DisableFallback});
 		innerStrField.withImportance(EFieldImportance::Required);
 
 		TSdlNestedField<TestOuter, TestInner> nestedField(&TestOuter::innerObj, &innerStrField);
@@ -50,7 +50,7 @@ TEST(TSdlNestedFieldTest, KeepsFieldSettings)
 		PH_EXPECT_STRING_EQ(nestedField.getFieldName(), innerStrField.getFieldName());
 		PH_EXPECT_STRING_EQ(nestedField.getDescription(), innerStrField.getDescription());
 		EXPECT_EQ(nestedField.getImportance(), innerStrField.getImportance());
-		EXPECT_EQ(nestedField.isFallbackEnabled(), innerStrField.isFallbackEnabled());
+		EXPECT_EQ(nestedField.getOptions(), innerStrField.getOptions());
 	}
 }
 

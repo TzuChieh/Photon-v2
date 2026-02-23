@@ -74,7 +74,7 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 		"setting self as inner field is forbidden (will result in infinite recursive calls)");
 
 	this->setDescription(std::string(m_innerObjField->getDescription()));
-	this->setEnableFallback(m_innerObjField->isFallbackEnabled());
+	this->setOptions(m_innerObjField->getOptions());
 	this->setImportance(m_innerObjField->getImportance());
 }
 

@@ -13,6 +13,7 @@ namespace ph
 /*! @brief Manipulate a value type where each bit is a binary flag.
 @tparam Value The underlying value type of this class. Must be an integral.
 @tparam Input The input type for the manipulation of flags. Can be integral, scoped/unscoped enum.
+The conversion from `Input` to `Value` is done via `static_cast` if unspecified.
 */
 template<typename Value, typename Input = Value>
 class TBitFlags final
@@ -35,16 +36,18 @@ public:
 
 	/*! @brief Create with initial flags set.
 	*/
-	explicit constexpr TBitFlags(const FlagsSet& flagsSet);
+	constexpr TBitFlags(const FlagsSet& flagsSet);
 
 	/*! @brief Create with initial flags set.
+	The conversion from `Input` to `Value` is done via `static_cast`.
 	*/
-	explicit constexpr TBitFlags(Input flagsSet);
+	constexpr TBitFlags(Input flagsSet);
 
 	/*! @brief Copy construct flags from another `TBitFlags` with a different `Input` type.
+	Effectively copies the underlying value directly.
 	*/
 	template<typename OtherInput>
-	explicit constexpr TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags);
+	constexpr TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags);
 
 	/*! @brief Unions specified flags into this instance.
 	*/

@@ -44,7 +44,7 @@ enum class ESurfaceHitReason : detail::HitReasonIntType
 
 PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);
 
-using SurfaceHitReason = TEnumFlags<ESurfaceHitReason>;
+using SurfaceHitReasons = TEnumFlags<ESurfaceHitReason>;
 
 /*! @brief General information about a ray-surface intersection event.
 */
@@ -60,19 +60,19 @@ public:
 	use the overload which let you set the hit detail directly.
 	*/
 	SurfaceHit(
-		const Ray&       ray,
-		const HitProbe&  probe,
-		SurfaceHitReason reason);
+		const Ray&        ray,
+		const HitProbe&   probe,
+		SurfaceHitReasons reason);
 
 	/*! @brief Contruct with all internal data specified explicitly.
 	No extra calculation is performed.
 	*/
 	SurfaceHit(
-		const Ray&       ray,
-		const HitProbe&  probe,
-		const HitDetail& detail,
-		SurfaceHitReason reason,
-		bool             hasFullHitDetail);
+		const Ray&        ray,
+		const HitProbe&   probe,
+		const HitDetail&  detail,
+		SurfaceHitReasons reason,
+		bool              hasFullHitDetail);
 
 	SurfaceHit(
 		const Ray&        ray,
@@ -97,7 +97,7 @@ public:
 
 	const HitDetail& getDetail() const;
 	const HitProbe& getProbe() const;
-	SurfaceHitReason getReason() const;
+	SurfaceHitReasons getReason() const;
 
 	/*!
 	This ray is the ray that caused the hit event and will not be affected when transforming
@@ -132,11 +132,11 @@ public:
 	///@}
 
 private:
-	Ray              m_ray;
-	HitProbe         m_recordedProbe;
-	HitDetail        m_detail;
-	SurfaceHitReason m_reason;
-	bool             m_hasFullHitDetail;
+	Ray               m_ray;
+	HitProbe          m_recordedProbe;
+	HitDetail         m_detail;
+	SurfaceHitReasons m_reason;
+	bool              m_hasFullHitDetail;
 };
 
 // In-header Implementations:
@@ -150,9 +150,9 @@ inline SurfaceHit::SurfaceHit()
 {}
 
 inline SurfaceHit::SurfaceHit(
-	const Ray&       ray,
-	const HitProbe&  probe,
-	SurfaceHitReason reason)
+	const Ray&        ray,
+	const HitProbe&   probe,
+	SurfaceHitReasons reason)
 
 	: m_ray             {ray}
 	, m_recordedProbe   {probe}
@@ -167,11 +167,11 @@ inline SurfaceHit::SurfaceHit(
 }
 
 inline SurfaceHit::SurfaceHit(
-	const Ray&             ray, 
-	const HitProbe&        probe, 
-	const HitDetail&       detail,
-	const SurfaceHitReason reason,
-	const bool             hasFullHitDetail)
+	const Ray&              ray, 
+	const HitProbe&         probe, 
+	const HitDetail&        detail,
+	const SurfaceHitReasons reason,
+	const bool              hasFullHitDetail)
 
 	: m_ray             {ray}
 	, m_recordedProbe   {probe}
@@ -185,7 +185,7 @@ inline SurfaceHit::SurfaceHit(
 	const HitProbe&         probe,
 	const ESurfaceHitReason reason)
 
-	: SurfaceHit(ray, probe, SurfaceHitReason(reason))
+	: SurfaceHit(ray, probe, SurfaceHitReasons(reason))
 {}
 
 inline SurfaceHit::SurfaceHit(
@@ -195,7 +195,7 @@ inline SurfaceHit::SurfaceHit(
 	const ESurfaceHitReason reason,
 	const bool              hasFullHitDetail)
 
-	: SurfaceHit(ray, probe, detail, SurfaceHitReason(reason), hasFullHitDetail)
+	: SurfaceHit(ray, probe, detail, SurfaceHitReasons(reason), hasFullHitDetail)
 {}
 
 inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
@@ -213,7 +213,7 @@ inline const HitProbe& SurfaceHit::getProbe() const
 	return m_recordedProbe;
 }
 
-inline SurfaceHitReason SurfaceHit::getReason() const
+inline SurfaceHitReasons SurfaceHit::getReason() const
 {
 	return m_reason;
 }

@@ -52,7 +52,7 @@ public:
 	TSdlValue& optional();
 	TSdlValue& niceToHave();
 	TSdlValue& required();
-	TSdlValue& enableFallback(bool isFallbackEnabled);
+	TSdlValue& options(FieldOptions newOptions);
 
 protected:
 	void loadFromSdl(

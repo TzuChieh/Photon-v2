@@ -94,7 +94,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 				continue;
 			}
 
-			constexpr SurfaceHitReason reason(ESurfaceHitReason::SampledPosDir);
+			constexpr SurfaceHitReasons reason(ESurfaceHitReason::SampledPosDir);
 			tracingRay = energyEmission.outputs.getEmittedRay();
 			surfaceHit = SurfaceHit(tracingRay, probe, reason);
 		}

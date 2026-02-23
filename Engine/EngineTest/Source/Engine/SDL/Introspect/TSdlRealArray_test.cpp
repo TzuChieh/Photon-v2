@@ -67,7 +67,7 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 	// Disable fallback for fields
 	{
 		TSdlRealArray<RealArrOwner> sdlRealArr("array3", &RealArrOwner::arr);
-		sdlRealArr.enableFallback(false);
+		sdlRealArr.options({EFieldOption::DisableFallback});
 		sdlRealArr.defaultTo({123.0_r, 456.0_r, 789.0_r});
 
 		RealArrOwner owner;

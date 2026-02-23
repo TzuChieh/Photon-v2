@@ -121,10 +121,10 @@ inline auto TSdlValue<T, Owner>::required()
 }
 
 template<typename T, typename Owner>
-inline auto TSdlValue<T, Owner>::enableFallback(const bool isFallbackEnabled)
+inline auto TSdlValue<T, Owner>::options(FieldOptions newOptions)
 -> TSdlValue&
 {
-	this->setEnableFallback(isFallbackEnabled);
+	this->setOptions(newOptions);
 	return *this;
 }
 

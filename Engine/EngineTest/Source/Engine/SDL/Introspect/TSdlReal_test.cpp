@@ -65,7 +65,7 @@ TEST(TSdlReadTest, ReadFromSdl)
 	// Disable fallback for fields
 	{
 		TSdlReal<RealOwner, real> sdlReal("number", &RealOwner::value);
-		sdlReal.enableFallback(false);
+		sdlReal.options({EFieldOption::DisableFallback});
 		sdlReal.defaultTo(123.0_r);
 
 		RealOwner owner;

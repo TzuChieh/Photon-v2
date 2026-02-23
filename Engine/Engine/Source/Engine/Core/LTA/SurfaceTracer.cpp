@@ -35,7 +35,7 @@ bool SurfaceTracer::traceNextSurface(
 		return false;
 	}
 
-	X = SurfaceHit(ray, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
+	X = SurfaceHit(ray, probe, SurfaceHitReasons(ESurfaceHitReason::IncidentRay));
 
 	// For false hits, do not use strict policy as our intension is to cull geometry. Strict policy can result
 	// in premature hit termination while the geometry can be skipped.
@@ -69,7 +69,7 @@ bool SurfaceTracer::traceNextSurface(
 		}
 		else
 		{
-			X = SurfaceHit(remainingRay, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
+			X = SurfaceHit(remainingRay, probe, SurfaceHitReasons(ESurfaceHitReason::IncidentRay));
 		}
 	}
 

@@ -76,7 +76,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 	// Disable fallback for fields
 	{
 		TSdlVector3Array<Vec3ArrOwner> sdlVec3Arr("arrayHa", &Vec3ArrOwner::arr);
-		sdlVec3Arr.enableFallback(false);
+		sdlVec3Arr.options({EFieldOption::DisableFallback});
 		sdlVec3Arr.defaultTo({{123.0_r, 456.0_r, 789.0_r}});
 
 		Vec3ArrOwner owner;
