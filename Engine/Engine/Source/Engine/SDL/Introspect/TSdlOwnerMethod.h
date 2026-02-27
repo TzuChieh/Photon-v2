@@ -2,7 +2,7 @@
 
 #include "Engine/SDL/Introspect/SdlFunction.h"
 #include "Engine/SDL/Definition/ISdlDefaultFunctionDefinition.h"
-#include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "Engine/SDL/Introspect/FieldSet/TSdlDefaultFieldSet.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
 
 #include <cstddef>
@@ -35,7 +35,7 @@ struct ExampleMethod
 @tparam MethodStruct Type of the functor.
 @tparam Target Type that defines the method. Must be SDL resource types.
 */
-template<typename MethodStruct, typename Target>
+template<typename MethodStruct, typename Target, typename FieldSet = TSdlDefaultFieldSet<TSdlOwnedField<MethodStruct>>>
 class TSdlOwnerMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
 {
 public:
@@ -74,7 +74,7 @@ public:
 	// TODO: support structs?
 
 private:
-	TSdlBruteForceFieldSet<TSdlOwnedField<MethodStruct>> m_fields;
+	FieldSet m_fields;
 };
 
 }// end namespace ph

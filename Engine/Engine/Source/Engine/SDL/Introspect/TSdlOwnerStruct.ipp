@@ -15,16 +15,18 @@
 namespace ph
 {
 
-template<typename StructType>
-inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct()
+template<typename StructType, typename FieldSet>
+inline TSdlOwnerStruct<StructType, FieldSet>
+::TSdlOwnerStruct()
 
 	: SdlStruct()
 
 	, m_fields()
 {}
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::initObject(
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::initObject(
 	AnyNonConstPtr         obj,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -53,8 +55,9 @@ inline void TSdlOwnerStruct<StructType>::initObject(
 		noticeReceiver);
 }
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::initDefaultObject(AnyNonConstPtr obj) const
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::initDefaultObject(AnyNonConstPtr obj) const
 {
 	PH_ASSERT(obj);
 
@@ -67,8 +70,9 @@ inline void TSdlOwnerStruct<StructType>::initDefaultObject(AnyNonConstPtr obj) c
 	}
 }
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::saveObject(
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::saveObject(
 	AnyConstPtr             obj,
 	SdlOutputClauses&       clauses,
 	const SdlOutputContext& ctx) const
@@ -86,8 +90,9 @@ inline void TSdlOwnerStruct<StructType>::saveObject(
 }
 
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::referencedResources(
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::referencedResources(
 	AnyConstPtr obj,
 	std::vector<const ISdlResource*>& out_resources) const
 {
@@ -99,9 +104,10 @@ inline void TSdlOwnerStruct<StructType>::referencedResources(
 	}
 }
 
-template<typename StructType>
+template<typename StructType, typename FieldSet>
 template<typename T>
-inline auto TSdlOwnerStruct<StructType>::addField(T sdlField)
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::addField(T sdlField)
 -> TSdlOwnerStruct&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
@@ -113,17 +119,19 @@ inline auto TSdlOwnerStruct<StructType>::addField(T sdlField)
 	return *this;
 }
 
-template<typename StructType>
+template<typename StructType, typename FieldSet>
 template<typename StructObjType>
-inline auto TSdlOwnerStruct<StructType>::addStruct(StructObjType StructType::* const structObjPtr)
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::addStruct(StructObjType StructType::* const structObjPtr)
 -> TSdlOwnerStruct&
 {
 	return addStruct(structObjPtr, TSdlStructFieldStump<StructType>{});
 }
 
-template<typename StructType>
+template<typename StructType, typename FieldSet>
 template<typename StructObjType>
-inline auto TSdlOwnerStruct<StructType>::addStruct(
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::addStruct(
 	StructObjType StructType::* const structObjPtr,
 	const TSdlStructFieldStump<StructType>& structFieldStump)
 -> TSdlOwnerStruct&
@@ -134,62 +142,70 @@ inline auto TSdlOwnerStruct<StructType>::addStruct(
 
 	PH_ASSERT(structObjPtr);
 
-	m_fields.addFields(structFieldStump.genFieldSet(structObjPtr));
+	m_fields.addFields(structFieldStump.genFieldSet<FieldSet>(structObjPtr));
 
 	return *this;
 }
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::initDefaultStruct(StructType& structObj) const
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::initDefaultStruct(StructType& structObj) const
 {
 	setFieldsToDefaults(structObj);
 }
 
-template<typename StructType>
-inline std::size_t TSdlOwnerStruct<StructType>::numFields() const
+template<typename StructType, typename FieldSet>
+inline std::size_t TSdlOwnerStruct<StructType, FieldSet>
+::numFields() const
 {
 	return m_fields.numFields();
 }
 
-template<typename StructType>
-inline const SdlField* TSdlOwnerStruct<StructType>::getField(const std::size_t index) const
+template<typename StructType, typename FieldSet>
+inline const SdlField* TSdlOwnerStruct<StructType, FieldSet>
+::getField(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
-template<typename StructType>
-inline auto TSdlOwnerStruct<StructType>::getFields() const
--> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&
+template<typename StructType, typename FieldSet>
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::getFields() const
+-> const FieldSet&
 {
 	return m_fields;
 }
 
-template<typename StructType>
-inline auto TSdlOwnerStruct<StructType>::typeName(std::string nameStr)
+template<typename StructType, typename FieldSet>
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::typeName(std::string nameStr)
 -> TSdlOwnerStruct&
 {
 	setTypeName(std::move(nameStr));
 	return *this;
 }
 
-template<typename StructType>
-inline auto TSdlOwnerStruct<StructType>::description(std::string descriptionStr)
+template<typename StructType, typename FieldSet>
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::description(std::string descriptionStr)
 -> TSdlOwnerStruct&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
 }
 
-template<typename StructType>
-inline auto TSdlOwnerStruct<StructType>::userSpec(SdlUserSpec spec)
+template<typename StructType, typename FieldSet>
+inline auto TSdlOwnerStruct<StructType, FieldSet>
+::userSpec(SdlUserSpec spec)
 -> TSdlOwnerStruct&
 {
 	setUserSpec(std::move(spec));
 	return *this;
 }
 
-template<typename StructType>
-inline void TSdlOwnerStruct<StructType>::setFieldsToDefaults(StructType& structObj) const
+template<typename StructType, typename FieldSet>
+inline void TSdlOwnerStruct<StructType, FieldSet>
+::setFieldsToDefaults(StructType& structObj) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{

@@ -1,4 +1,4 @@
-#include <Engine/SDL/Introspect/TSdlBruteForceFieldSet.h>
+#include <Engine/SDL/Introspect/FieldSet/TSdlSortedFieldSet.h>
 #include <Engine/SDL/Introspect/TSdlString.h>
 #include <Engine/SDL/Introspect/TSdlInteger.h>
 #include <Engine/SDL/Introspect/TSdlReal.h>
@@ -21,12 +21,12 @@ namespace
 	};
 }
 
-TEST(TSdlBruteForceFieldSetTest, RequiredProperties)
+TEST(TSdlSortedFieldSetTest, RequiredProperties)
 {
 	// SDL string is the most trivial field as it simply copies the input
 
 	{
-		using FieldSet = TSdlBruteForceFieldSet<TSdlString<TestOwner>>;
+		using FieldSet = TSdlSortedFieldSet<TSdlString<TestOwner>>;
 		EXPECT_FALSE(std::is_copy_constructible_v<FieldSet>);
 		EXPECT_TRUE(std::is_move_constructible_v<FieldSet>);
 		EXPECT_FALSE(std::is_copy_assignable_v<FieldSet>);
@@ -34,12 +34,12 @@ TEST(TSdlBruteForceFieldSetTest, RequiredProperties)
 	}
 }
 
-TEST(TSdlBruteForceFieldSetTest, AddFields)
+TEST(TSdlSortedFieldSetTest, AddFields)
 {
 	// SDL string is the most trivial field as it simply copies the input
 
 	{
-		TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSetA;
+		TSdlSortedFieldSet<TSdlString<TestOwner>> fieldSetA;
 		{
 			EXPECT_EQ(fieldSetA.numFields(), 0);
 
@@ -71,7 +71,7 @@ TEST(TSdlBruteForceFieldSetTest, AddFields)
 			}
 		}
 
-		TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSetB;
+		TSdlSortedFieldSet<TSdlString<TestOwner>> fieldSetB;
 		{
 			EXPECT_EQ(fieldSetB.numFields(), 0);
 
@@ -122,10 +122,10 @@ TEST(TSdlBruteForceFieldSetTest, AddFields)
 	}
 }
 
-TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
+TEST(TSdlSortedFieldSetTest, AddPolymorphicFields)
 {
 	{
-		TSdlBruteForceFieldSet<TSdlOwnedField<TestOwner>> fieldSetA;
+		TSdlSortedFieldSet<TSdlOwnedField<TestOwner>> fieldSetA;
 		{
 			EXPECT_EQ(fieldSetA.numFields(), 0);
 
@@ -141,7 +141,7 @@ TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
 			EXPECT_EQ(fieldSetA[2].getFieldName(), "realA");
 		}
 
-		TSdlBruteForceFieldSet<TSdlOwnedField<TestOwner>> fieldSetB;
+		TSdlSortedFieldSet<TSdlOwnedField<TestOwner>> fieldSetB;
 		{
 			EXPECT_EQ(fieldSetB.numFields(), 0);
 

@@ -35,20 +35,40 @@ inline void load_fields_from_sdl(
 	// For each clause, load them into matching field
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.size();)
 	{
-		// TODO: check isFieldTouched and warn on duplicating clauses?
-
 		const auto& clause   = clauses[clauseIdx];
-		const auto& fieldIdx = fieldSet.findFieldIndex(clause.type, clause.name);
-		if(fieldIdx)
+		const auto& fieldIdx = fieldSet.findFieldIndex(clause.name);
+		if(fieldIdx.has_value())
 		{
-			const auto& field = fieldSet[fieldIdx.value()];
-			field.fromSdl(owner, clause, ctx);
+			if constexpr(SHOULD_NOTIFY_REDUNDANT_CLAUSE)
+			{
+				if(isFieldTouched[*fieldIdx])
+				{
+					// Treat a redundant clause input as an optional field
+					noticeReceiver(
+						"duplicated input clause <" + clause.genPrettyName() + "> found "
+						"(from " + ctx.genPrettySrcInfo() + "), overwriting existing value",
+						EFieldImportance::Optional);
+				}
+			}
 
-			isFieldTouched[fieldIdx.value()] = true;
+			const auto& field = fieldSet[*fieldIdx];
+			if(clause.type == field.getTypeName())
+			{
+				field.fromSdl(owner, clause, ctx);
 
-			// Consume the clause once a match is found; no need to increment
-			// <clauseIdx> since a new one will fill the empty slot
-			clauses.consumeBySwapPop(clauseIdx);
+				isFieldTouched[*fieldIdx] = true;
+
+				// Consume the clause once a match is found; no need to increment
+				// <clauseIdx> since a new one will fill the empty slot
+				clauses.consumeBySwapPop(clauseIdx);
+			}
+			else
+			{
+				noticeReceiver(
+					"type mismatched for input clause <" + clause.genPrettyName() + ">, expecting <"
+					+ field.genPrettyName() + "> (from " + ctx.genPrettySrcInfo() + "), ignoring",
+					field.getImportance());
+			}
 		}
 		else
 		{
@@ -57,7 +77,7 @@ inline void load_fields_from_sdl(
 				// Treat a redundant clause input as an optional field
 				noticeReceiver(
 					"no matching field for input clause <" + clause.genPrettyName() + "> "
-					"(" + ctx.genPrettySrcInfo() + "), ignoring",
+					"(from " + ctx.genPrettySrcInfo() + "), ignoring",
 					EFieldImportance::Optional);
 			}
 
@@ -73,7 +93,9 @@ inline void load_fields_from_sdl(
 		{
 			const auto& field = fieldSet[fieldIdx];
 			const auto importance = field.getImportance();
-			if(field.isFallbackEnabled())
+
+			// Fallback enabled
+			if(field.getOptions().hasNo(EFieldOption::DisableFallback))
 			{
 				field.ownedValueToDefault(owner);
 
@@ -88,6 +110,7 @@ inline void load_fields_from_sdl(
 						importance);
 				}
 			}
+			// Fallback disabled
 			else
 			{
 				// For importance levels other than optional, uninitialized field is an error

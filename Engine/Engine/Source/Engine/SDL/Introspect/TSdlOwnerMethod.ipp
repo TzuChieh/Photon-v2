@@ -16,13 +16,15 @@
 namespace ph
 {
 
-template<typename MethodStruct, typename Target>
-inline TSdlOwnerMethod<MethodStruct, Target>::TSdlOwnerMethod() :
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::TSdlOwnerMethod() :
 	SdlFunction()
 {}
 
-template<typename MethodStruct, typename Target>
-inline void TSdlOwnerMethod<MethodStruct, Target>::call(
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::call(
 	ISdlResource*          resource,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -49,8 +51,9 @@ inline void TSdlOwnerMethod<MethodStruct, Target>::call(
 	callMethod(*targetRes, clauses, ctx);
 }
 
-template<typename MethodStruct, typename Target>
-inline void TSdlOwnerMethod<MethodStruct, Target>::callMethod(
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::callMethod(
 	Target&                target,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -70,8 +73,9 @@ inline void TSdlOwnerMethod<MethodStruct, Target>::callMethod(
 	methodStructObj(target);
 }
 
-template<typename MethodStruct, typename Target>
-inline void TSdlOwnerMethod<MethodStruct, Target>::loadParameters(
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::loadParameters(
 	MethodStruct&          parameterStruct,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
@@ -94,27 +98,31 @@ inline void TSdlOwnerMethod<MethodStruct, Target>::loadParameters(
 		});
 }
 
-template<typename MethodStruct, typename Target>
-inline std::size_t TSdlOwnerMethod<MethodStruct, Target>::numParams() const
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline std::size_t TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::numParams() const
 {
 	return m_fields.numFields();
 }
 
-template<typename MethodStruct, typename Target>
-inline const SdlField* TSdlOwnerMethod<MethodStruct, Target>::getParam(const std::size_t index) const
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline const SdlField* TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::getParam(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
-template<typename MethodStruct, typename Target>
-inline bool TSdlOwnerMethod<MethodStruct, Target>::isStatic() const
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline bool TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::isStatic() const
 {
 	return false;
 }
 
-template<typename MethodStruct, typename Target>
+template<typename MethodStruct, typename Target, typename FieldSet>
 template<typename T>
-inline auto TSdlOwnerMethod<MethodStruct, Target>::addParam(T sdlField)
+inline auto TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::addParam(T sdlField)
 -> TSdlOwnerMethod&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
@@ -126,24 +134,27 @@ inline auto TSdlOwnerMethod<MethodStruct, Target>::addParam(T sdlField)
 	return *this;
 }
 
-template<typename MethodStruct, typename Target>
-inline auto TSdlOwnerMethod<MethodStruct, Target>::name(std::string nameStr)
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline auto TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::name(std::string nameStr)
 -> TSdlOwnerMethod&
 {
 	setName(std::move(nameStr));
 	return *this;
 }
 
-template<typename MethodStruct, typename Target>
-inline auto TSdlOwnerMethod<MethodStruct, Target>::description(std::string descriptionStr)
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline auto TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::description(std::string descriptionStr)
 -> TSdlOwnerMethod&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
 }
 
-template<typename MethodStruct, typename Target>
-inline auto TSdlOwnerMethod<MethodStruct, Target>::userSpec(SdlUserSpec spec)
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline auto TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::userSpec(SdlUserSpec spec)
 -> TSdlOwnerMethod&
 {
 	setUserSpec(std::move(spec));

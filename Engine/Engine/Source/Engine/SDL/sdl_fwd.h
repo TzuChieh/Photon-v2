@@ -69,10 +69,13 @@ class TSdlFunctionDefiner;
 template<typename ClassType, typename FieldSet>
 class TSdlOwnerClass;
 
-template<typename StructType>
+template<typename StructType, typename FieldSet>
 class TSdlOwnerStruct;
 
-template<typename MethodStruct, typename TargetType>
+template<typename MethodStruct, typename TargetType, typename FieldSet>
 class TSdlOwnerMethod;
+
+template<typename MethodStruct, typename FieldSet>
+class TSdlOwnerStaticMethod;
 
 }// end namespace ph

@@ -3,6 +3,7 @@
 #include "Engine/SDL/Introspect/SdlField.h"
 #include "Engine/Utility/TArrayVector.h"
 #include "Engine/Utility/IMoveOnly.h"
+#include "Engine/SDL/sdl_exceptions.h"
 
 #include <Common/assertion.h>
 #include <Common/config.h>
@@ -19,13 +20,14 @@
 namespace ph
 {
 
-// TODO: trie or unordered_map variant
-// TODO: add a field set concept
-
 /*! @brief A set of fields, with basic functionalities.
 
 This class accepts polymorphic field types. 
 This class finds a field using brute-force method.
+
+For faster field lookup, you may add a trie or hash map variant, see `TSdlSortedFieldSet` for example.
+Currently there are not so many fields in a single owner type, so we think current implementation
+should be good enough.
 */
 template<typename BaseFieldType, std::size_t MAX_FIELDS = PH_SDL_MAX_FIELDS>
 class TSdlBruteForceFieldSet final : private IMoveOnly
@@ -54,45 +56,38 @@ public:
 	inline auto addField(T field)
 	-> TSdlBruteForceFieldSet&
 	{
-		if(canAddField(field))
-		{
-			m_fields.pushBack(std::make_unique<T>(std::move(field)));
-		}
+		ensureWeCanAddField(field);
+
+		m_fields.pushBack(std::make_unique<T>(std::move(field)));
 
 		return *this;
 	}
 
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
-	inline auto addFields(TSdlBruteForceFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> fields)
+	inline auto addFields(TSdlBruteForceFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> otherFields)
 	-> TSdlBruteForceFieldSet&
 	{
 		static_assert(std::is_base_of_v<BaseFieldType, OtherBaseFieldType>,
 			"Incoming field type must derive from the field type that this set stores.");
 
-		for(std::size_t i = 0; i < fields.numFields(); ++i)
+		for(std::size_t i = 0; i < otherFields.numFields(); ++i)
 		{
-			if(!canAddField(fields[i]))
-			{
-				break;
-			}
+			ensureWeCanAddField(otherFields[i]);
 
-			m_fields.pushBack(std::move(fields.m_fields[i]));
+			m_fields.pushBack(std::move(otherFields.m_fields[i]));
 		}
 
 		return *this;
 	}
 
-	inline std::optional<std::size_t> findFieldIndex(
-		const std::string_view typeName,
-		const std::string_view fieldName) const
+	inline std::optional<std::size_t> findFieldIndex(const std::string_view fieldName) const
 	{
-		PH_ASSERT(!typeName.empty());
 		PH_ASSERT(!fieldName.empty());
 
 		for(std::size_t i = 0; i < m_fields.size(); ++i)
 		{
 			const auto& field = m_fields[i];
-			if(typeName == field->getTypeName() && fieldName == field->getFieldName())
+			if(fieldName == field->getFieldName())
 			{
 				return i;
 			}
@@ -106,26 +101,27 @@ public:
 	}
 
 private:
-	TArrayVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
-
 	template<typename T>
-	inline bool canAddField(const T& field)
+	inline void ensureWeCanAddField(const T& field)
 	{
 		static_assert(std::is_base_of_v<BaseFieldType, T>,
 			"Cannot add a field that is not derived from the field type of the set.");
 
-		const bool isFieldUnique = !findFieldIndex(field.getTypeName(), field.getFieldName());
+		const bool isFieldUnique = !findFieldIndex(field.getFieldName());
 		const bool hasMoreSpace  = !m_fields.isFull();
 
-		PH_ASSERT_MSG(isFieldUnique,
-			"field set already contains field <" + field.genPrettyName() + ">");
+		if(!isFieldUnique)
+		{
+			throw_formatted<SdlException>("field set already contains field <{}>", field.genPrettyName());
+		}
 
-		PH_ASSERT_MSG(hasMoreSpace,
-			"field set is full, consider increase its size "
-			"(> " + std::to_string(m_fields.size()) + ")");
-
-		return isFieldUnique && hasMoreSpace;
+		if(!hasMoreSpace)
+		{
+			throw_formatted<SdlException>("field set is full, consider increase its size to {}", m_fields.size());
+		}
 	}
+
+	TArrayVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
 };
 
 }// end namespace ph

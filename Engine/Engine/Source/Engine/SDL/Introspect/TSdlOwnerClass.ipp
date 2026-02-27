@@ -227,7 +227,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
 
 	PH_ASSERT(structObjPtr);
 
-	m_fields.addFields(structFieldStump.genFieldSet(structObjPtr));
+	m_fields.addFields(structFieldStump.genFieldSet<FieldSet>(structObjPtr));
 
 	return *this;
 }

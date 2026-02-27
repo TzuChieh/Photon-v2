@@ -72,7 +72,8 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 	}
 	catch(const SdlException& e)
 	{
-		if(isFallbackEnabled())
+		// Fallback enabled
+		if(getOptions().hasNo(EFieldOption::DisableFallback))
 		{
 			ownedValueToDefault(owner);
 
@@ -85,6 +86,7 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 				e.whatStr(),
 				valueToString(owner));
 		}
+		// Fallback disabled
 		else
 		{
 			// Let caller handle the error if fallback is disabled

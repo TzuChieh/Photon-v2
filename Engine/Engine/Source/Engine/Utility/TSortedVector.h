@@ -108,10 +108,6 @@ public:
 	///@}
 
 private:
-	std::vector<ValueType> m_sortedValues;
-
-	[[PH_NO_UNIQUE_ADDRESS]] IsLess m_isLess;
-
 	/*!
 	Find the index to the first value x that satisfies x >= `targetValue`.
 	*/
@@ -121,6 +117,10 @@ private:
 	Count how many values are equal to `targetValue` starting from `startingIndex`.
 	*/
 	std::size_t numIdenticalValuesFrom(std::size_t startingIndex, const ValueType& targetValue) const;
+
+	std::vector<ValueType> m_sortedValues;
+
+	[[PH_NO_UNIQUE_ADDRESS]] IsLess m_isLess;
 };
 
 }// end namespace ph

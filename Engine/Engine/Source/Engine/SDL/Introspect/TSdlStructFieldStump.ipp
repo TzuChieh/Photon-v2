@@ -14,9 +14,9 @@ namespace ph
 {
 
 template<typename Owner>
-template<typename StructType>
+template<typename FieldSet, typename StructType>
 inline auto TSdlStructFieldStump<Owner>::genFieldSet(StructType Owner::* const structObjPtr) const
--> TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>
+-> FieldSet
 {
 	// TODO: require StructType has getSdlFunction()
 
@@ -25,7 +25,7 @@ inline auto TSdlStructFieldStump<Owner>::genFieldSet(StructType Owner::* const s
 	auto const  sdlStruct    = StructType::getSdlStruct();
 	const auto& structFields = sdlStruct->getFields();
 
-	TSdlBruteForceFieldSet<TSdlOwnedField<Owner>> fieldSet;
+	FieldSet fieldSet;
 	for(std::size_t i = 0; i < structFields.numFields(); ++i)
 	{
 		const auto& structField = structFields[i];

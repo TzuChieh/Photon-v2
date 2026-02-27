@@ -3,7 +3,7 @@
 #include "Engine/SDL/Introspect/SdlStruct.h"
 #include "Engine/SDL/Definition/ISdlDefaultStructDefinition.h"
 #include "Engine/SDL/sdl_fwd.h"
-#include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "Engine/SDL/Introspect/FieldSet/TSdlDefaultFieldSet.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
 
 #include <cstddef>
@@ -14,7 +14,7 @@ namespace ph
 
 /*! @brief SDL binding type for a typical C++ struct.
 */
-template<typename StructType>
+template<typename StructType, typename FieldSet = TSdlDefaultFieldSet<TSdlOwnedField<StructType>>>
 class TSdlOwnerStruct : public SdlStruct, public ISdlDefaultStructDefinition
 {
 public:
@@ -57,7 +57,7 @@ public:
 		StructObjType StructType::* structObjPtr,
 		const TSdlStructFieldStump<StructType>& structFieldStump) -> TSdlOwnerStruct&;
 
-	auto getFields() const -> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&;
+	auto getFields() const -> const FieldSet&;
 
 	auto typeName(std::string nameStr) -> TSdlOwnerStruct&;
 	auto description(std::string descriptionStr) -> TSdlOwnerStruct&;
@@ -69,7 +69,7 @@ private:
 	*/
 	void setFieldsToDefaults(StructType& structObj) const;
 
-	TSdlBruteForceFieldSet<TSdlOwnedField<StructType>> m_fields;
+	FieldSet m_fields;
 };
 
 }// end namespace ph

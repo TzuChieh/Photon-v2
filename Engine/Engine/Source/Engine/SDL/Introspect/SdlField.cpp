@@ -20,7 +20,7 @@ SdlField::SdlField(
 	, m_description()
 	, m_typeSignature(std::move(typeSignature))
 	, m_importance(EFieldImportance::NiceToHave)
-	, m_options{EFieldOption::EnableFallback}
+	, m_options{}
 {
 	PH_ASSERT(!m_typeName.empty());
 	PH_ASSERT(!m_fieldName.empty());

@@ -2,7 +2,7 @@
 
 #include "Engine/SDL/Introspect/SdlFunction.h"
 #include "Engine/SDL/Definition/ISdlDefaultFunctionDefinition.h"
-#include "Engine/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "Engine/SDL/Introspect/FieldSet/TSdlDefaultFieldSet.h"
 #include "Engine/SDL/Introspect/TSdlOwnedField.h"
 
 #include <cstddef>
@@ -38,7 +38,7 @@ resource is still possible by explicitly defining a reference to the resource as
 
 @tparam MethodStruct Type of the functor.
 */
-template<typename MethodStruct>
+template<typename MethodStruct, typename FieldSet = TSdlDefaultFieldSet<TSdlOwnedField<MethodStruct>>>
 class TSdlOwnerStaticMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
 {
 public:
@@ -75,7 +75,7 @@ public:
 	// TODO: support structs?
 
 private:
-	TSdlBruteForceFieldSet<TSdlOwnedField<MethodStruct>> m_fields;
+	FieldSet m_fields;
 };
 
 }// end namespace ph
