@@ -1,5 +1,6 @@
 #include "Engine/SDL/Introspect/SdlClass.h"
 #include "Engine/SDL/sdl_helpers.h"
+#include "Engine/SDL/Introspect/SdlInstantiated.h"
 
 #include <Common/assertion.h>
 
@@ -18,6 +19,19 @@ SdlClass::SdlClass()
 	, m_isBlueprint(false)
 	, m_allowCreateFromClass(true)
 {}
+
+SdlInstantiated SdlClass::instantiate() const
+{
+	std::shared_ptr<ISdlResource> allocation = createResource();
+
+	return
+	{
+		// `SdlClass` has its own type casting system, always use `ISdlResource` as type
+		SdlNonConstInstance{allocation.get()},
+
+		allocation
+	};
+}
 
 std::string SdlClass::genPrettyName() const
 {

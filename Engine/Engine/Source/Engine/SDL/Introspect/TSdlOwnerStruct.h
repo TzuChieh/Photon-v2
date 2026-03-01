@@ -24,25 +24,26 @@ public:
 	TSdlOwnerStruct();
 
 	void initObject(
-		AnyNonConstPtr         obj,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const override;
+		const SdlNonConstInstance& obj,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const override;
 
-	void initDefaultObject(AnyNonConstPtr obj) const override;
+	void initDefaultObject(const SdlNonConstInstance& obj) const override;
 
 	void saveObject(
-		AnyConstPtr             obj,
-		SdlOutputClauses&       clauses,
-		const SdlOutputContext& ctx) const override;
+		const SdlConstInstance&    obj,
+		SdlOutputClauses&          clauses,
+		const SdlOutputContext&    ctx) const override;
 
 	void referencedResources(
-		AnyConstPtr obj,
+		const SdlConstInstance& obj,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
 	/*! @brief Initialize the struct object to default values.
 	*/
 	void initDefaultStruct(StructType& structObj) const;
 
+	SdlInstantiated instantiate() const override;
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 
@@ -55,7 +56,7 @@ public:
 	template<typename StructObjType>
 	auto addStruct(
 		StructObjType StructType::* structObjPtr,
-		const TSdlStructFieldStump<StructType>& structFieldStump) -> TSdlOwnerStruct&;
+		const TSdlStructFieldStub<StructType>& structFieldStub) -> TSdlOwnerStruct&;
 
 	auto getFields() const -> const FieldSet&;
 

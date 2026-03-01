@@ -14,6 +14,13 @@ public:
 	virtual ~ISdlInstantiable() = default;
 
 	/*!
+	@return An instance. The actual type of the instance depends on the SDL definition
+	of this instantiable. Depending on the SDL definition, the instance may be null
+	(e.g., we cannot instantiate an abstract class).
+	*/
+	virtual SdlInstantiated instantiate() const = 0;
+
+	/*!
 	@return Number of fields in this instantiable.
 	*/
 	virtual std::size_t numFields() const = 0;

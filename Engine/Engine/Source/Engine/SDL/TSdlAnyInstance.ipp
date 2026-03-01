@@ -37,6 +37,8 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 
 	if constexpr(CDerived<T, ISdlResource>)
 	{
+		static_assert(CSdlInstance<T>);
+
 		// `T` may be const qualified; this automatically sets the right type (void pointer has
 		// lower rank in overload resolution)
 		m_instance = target;
@@ -52,6 +54,8 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 	}
 	else if constexpr(CHasSdlStructDefinition<T>)
 	{
+		static_assert(CSdlInstance<T>);
+
 		// `T` may be const qualified; this automatically sets the right type
 		m_instance = target;
 
@@ -59,6 +63,8 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 	}
 	else if constexpr(CHasSdlFunctionDefinition<T>)
 	{
+		static_assert(CSdlInstance<T>);
+
 		// `T` may be const qualified; this automatically sets the right type
 		m_instance = target;
 
@@ -69,12 +75,9 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(T,
 			"Input is not a valid SDL target type (must be a SDL class/struct/function).");
 
-		// Make sure every invalid `T` also fail this concept
+		// Make sure every invalid `T` fails this concept
 		static_assert(!CSdlInstance<T>);
 	}
-
-	// Make sure every valid `T` also satisfy this concept
-	static_assert(CSdlInstance<T>);
 }
 
 template<bool IS_CONST>

@@ -26,6 +26,11 @@ struct TestMethodStruct
 	{
 		res.str = str;
 	}
+
+	PH_DEFINE_SDL_STRUCT(TestMethodStruct, ztruct, outerScope=TSdlOwnerMethod_test)
+	{
+		ztruct.typeName("TSdlOwnerMethod_test::dummy2");
+	}
 };
 
 }// end namespace ph::TSdlOwnerMethod_test

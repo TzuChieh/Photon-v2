@@ -33,7 +33,7 @@ struct ExampleMethod
 ```
 
 @tparam MethodStruct Type of the functor.
-@tparam Target Type that defines the method. Must be SDL resource types.
+@tparam Target Type that defines the method. Must be a SDL resource type.
 */
 template<typename MethodStruct, typename Target, typename FieldSet = TSdlDefaultFieldSet<TSdlOwnedField<MethodStruct>>>
 class TSdlOwnerMethod : public SdlFunction, public ISdlDefaultFunctionDefinition
@@ -45,17 +45,28 @@ public:
 public:
 	TSdlOwnerMethod();
 
+	using SdlFunction::call;
+
 	void call(
 		ISdlResource*          resource,
+		const SdlInstantiated* instantiated,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const override;
-
+	
+	SdlInstantiated instantiate() const override;
 	std::size_t numParams() const override;
 	const SdlField* getParam(std::size_t index) const override;
 	bool isStatic() const override;
 
 	void callMethod(
 		Target&                target,
+		MethodStruct&          functor,
+		SdlInputClauses&       clauses,
+		const SdlInputContext& ctx) const;
+
+	void callMethod(
+		Target&                target,
+		const SdlInstantiated& instantiated,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 

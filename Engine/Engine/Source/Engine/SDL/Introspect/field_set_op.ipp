@@ -94,8 +94,9 @@ inline void load_fields_from_sdl(
 			const auto& field = fieldSet[fieldIdx];
 			const auto importance = field.getImportance();
 
-			// Fallback enabled
-			if(field.getOptions().hasNo(EFieldOption::DisableFallback))
+			// Fallback enabled. Also checks for no `PreferNativeAccess` as untouched fields
+			// are assumed to be handled by native access.
+			if(field.getOptions().hasNone({EFieldOption::DisableFallback, EFieldOption::PreferNativeAccess}))
 			{
 				field.ownedValueToDefault(owner);
 

@@ -2,6 +2,7 @@
 
 #include "Engine/SDL/Introspect/TSdlOwnerMethod.h"
 #include "Engine/SDL/SdlInputClauses.h"
+#include "Engine/SDL/Introspect/SdlInstantiated.h"
 #include "Engine/SDL/Introspect/SdlInputContext.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
 #include "Engine/SDL/SceneDescription.h"
@@ -26,6 +27,7 @@ template<typename MethodStruct, typename Target, typename FieldSet>
 inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 ::call(
 	ISdlResource*          resource,
+	const SdlInstantiated* instantiated,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
@@ -48,29 +50,62 @@ inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 	}
 
 	PH_ASSERT(targetRes);
-	callMethod(*targetRes, clauses, ctx);
+
+	if(instantiated)
+	{
+		callMethod(*targetRes, *instantiated, clauses, ctx);
+	}
+	else
+	{
+		if constexpr(std::is_default_constructible_v<MethodStruct>)
+		{
+			MethodStruct methodStructObj{};
+			callMethod(*targetRes, methodStructObj, clauses, ctx);
+		}
+		else
+		{
+			throw_formatted<SdlException>(
+				"MethodStruct must be default-constructible for method <{}>",
+				genPrettyName());
+		}
+	}
 }
 
 template<typename MethodStruct, typename Target, typename FieldSet>
 inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 ::callMethod(
 	Target&                target,
+	MethodStruct&          functor,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
-	static_assert(!std::is_abstract_v<MethodStruct> && std::is_default_constructible_v<MethodStruct>,
-		"MethodStruct must be non-abstract and default-constructible.");
-
 	static_assert(std::is_invocable_v<MethodStruct, Target&>,
 		"MethodStruct must contain an operator() that can take a Target instance.");
 
-	MethodStruct methodStructObj{};
 	loadParameters(
-		methodStructObj,
+		functor,
 		clauses,
 		ctx);
 
-	methodStructObj(target);
+	functor(target);
+}
+
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::callMethod(
+	Target&                target,
+	const SdlInstantiated& instantiated,
+	SdlInputClauses&       clauses,
+	const SdlInputContext& ctx) const
+{
+	MethodStruct* methodStructPtr = instantiated.data.get<MethodStruct>();
+	if(!methodStructPtr)
+	{
+		throw_formatted<SdlException>(
+			"invalid functor instance provided for method <{}>", genPrettyName());
+	}
+
+	callMethod(target, *methodStructPtr, clauses, ctx);
 }
 
 template<typename MethodStruct, typename Target, typename FieldSet>
@@ -96,6 +131,14 @@ inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 				PH_LOG_STRING(SdlFunction, Warning, noticeMsg);
 			}
 		});
+}
+
+template<typename MethodStruct, typename Target, typename FieldSet>
+inline SdlInstantiated TSdlOwnerMethod<MethodStruct, Target, FieldSet>
+::instantiate() const
+{
+	auto allocation = std::make_shared<MethodStruct>();
+	return {SdlNonConstInstance{allocation.get()}, allocation};
 }
 
 template<typename MethodStruct, typename Target, typename FieldSet>

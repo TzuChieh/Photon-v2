@@ -44,7 +44,7 @@ public:
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	/*! @brief Direct access to the field memory of an owner.
-	Short-lived owner objects such as function parameter structs must be kept alive during during
+	Short-lived owner objects such as function parameter structs must be kept alive during
 	this call and any further usages of the returned native data.
 	*/
 	virtual SdlNativeData ownedNativeData(Owner& owner) const = 0;

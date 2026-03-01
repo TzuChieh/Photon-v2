@@ -19,8 +19,15 @@ class SdlFunction : public ISdlInstantiable
 public:
 	SdlFunction();
 
+	/*! @brief Call the function.
+	@param resource The target resource the function may operate on. Can use null for
+	static functions (check `isStatic()`).
+	@param instantiated An optional functor instance. If specified, the function will call this functor
+	rather than a temporary one.
+	*/
 	virtual void call(
 		ISdlResource*          resource,
+		const SdlInstantiated* instantiated,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const = 0;
 
@@ -30,12 +37,17 @@ public:
 	virtual const SdlField* getParam(std::size_t index) const = 0;
 	virtual bool isStatic() const = 0;
 
-	std::size_t numFields() const override;
-	const SdlField* getField(std::size_t index) const override;
+	SdlInstantiated instantiate() const override = 0;
+
+	std::size_t numFields() const override final;
+	const SdlField* getField(std::size_t index) const override final;
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;
 
-	const SdlUserSpec& getUserSpec() const;
+	void call(
+		ISdlResource*          resource,
+		SdlInputClauses&       clauses,
+		const SdlInputContext& ctx) const;
 
 	/*!
 	@return Function name.
@@ -43,6 +55,7 @@ public:
 	std::string_view getName() const;
 
 	std::string genPrettyName() const;
+	const SdlUserSpec& getUserSpec() const;
 
 protected:
 	SdlFunction& setName(std::string name);
@@ -56,6 +69,14 @@ private:
 };
 
 // In-header Implementations:
+
+inline void SdlFunction::call(
+	ISdlResource*          resource,
+	SdlInputClauses&       clauses,
+	const SdlInputContext& ctx) const
+{
+	call(resource, nullptr, clauses, ctx);
+}
 
 inline std::size_t SdlFunction::numFields() const
 {

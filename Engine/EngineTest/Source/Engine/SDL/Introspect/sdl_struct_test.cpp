@@ -1,16 +1,11 @@
+#include "Engine/SDL/Introspect/sdl_struct_test.h"
+
 #include <Engine/SDL/Introspect/TSdlOwnerStruct.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
-
-namespace
-{
-
-struct EmptyStruct
-{};
-
-}
+using namespace ph::sdl_struct_test;
 
 // It is known that compiling TSdlOwnerStruct with EmptyStruct in 
 // VS2017 15.9.34 will cause warning C5046 which is about dtor not being 

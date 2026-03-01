@@ -3,7 +3,7 @@
 #include "Engine/SDL/Introspect/TSdlOwnerClass.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
 #include "Engine/SDL/Introspect/SdlStruct.h"
-#include "Engine/SDL/Introspect/TSdlStructFieldStump.h"
+#include "Engine/SDL/Introspect/TSdlStructFieldStub.h"
 #include "Engine/SDL/sdl_exceptions.h"
 #include "Engine/SDL/Introspect/SdlFunction.h"
 #include "Engine/SDL/sdl_helpers.h"
@@ -142,13 +142,13 @@ inline void TSdlOwnerClass<Owner, FieldSet>::call(
 
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::referencedResources(
-	const ISdlResource* const targetResource,
+	const ISdlResource& targetResource,
 	std::vector<const ISdlResource*>& out_resources) const
 {
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	const Owner& owner = *(castTo<const Owner>(targetResource));
+	const Owner& owner = *(castTo<const Owner>(&targetResource));
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		m_fields[fieldIdx].ownedResources(owner, out_resources);
@@ -211,14 +211,14 @@ template<typename StructType>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(StructType Owner::* const structObjPtr)
 	-> TSdlOwnerClass&
 {
-	return addStruct(structObjPtr, TSdlStructFieldStump<Owner>{});
+	return addStruct(structObjPtr, TSdlStructFieldStub<Owner>{});
 }
 
 template<typename Owner, typename FieldSet>
 template<typename StructType>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
 	StructType Owner::* const structObjPtr,
-	const TSdlStructFieldStump<Owner>& structFieldStump)
+	const TSdlStructFieldStub<Owner>& structFieldStub)
 
 	-> TSdlOwnerClass&
 {
@@ -227,7 +227,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
 
 	PH_ASSERT(structObjPtr);
 
-	m_fields.addFields(structFieldStump.genFieldSet<FieldSet>(structObjPtr));
+	m_fields.addFields(structFieldStub.genFieldSet<FieldSet>(structObjPtr));
 
 	return *this;
 }

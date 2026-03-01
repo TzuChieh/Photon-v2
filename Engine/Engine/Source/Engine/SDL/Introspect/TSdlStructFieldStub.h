@@ -9,7 +9,7 @@ namespace ph
 /*! @brief Information required for adding struct members to another struct-like type.
 */
 template<typename Owner>
-class TSdlStructFieldStump final
+class TSdlStructFieldStub final
 {
 public:
 	template<typename FieldSet, typename StructType>
@@ -22,4 +22,4 @@ public:
 
 }// end namespace ph
 
-#include "Engine/SDL/Introspect/TSdlStructFieldStump.ipp"
+#include "Engine/SDL/Introspect/TSdlStructFieldStub.ipp"

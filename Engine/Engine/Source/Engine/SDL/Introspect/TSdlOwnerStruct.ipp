@@ -2,7 +2,8 @@
 
 #include "Engine/SDL/Introspect/TSdlOwnerStruct.h"
 #include "Engine/SDL/Introspect/SdlField.h"
-#include "Engine/SDL/Introspect/TSdlStructFieldStump.h"
+#include "Engine/SDL/Introspect/SdlInstantiated.h"
+#include "Engine/SDL/Introspect/TSdlStructFieldStub.h"
 #include "Engine/SDL/Introspect/field_set_op.h"
 #include "Engine/SDL/sdl_exceptions.h"
 
@@ -27,9 +28,9 @@ inline TSdlOwnerStruct<StructType, FieldSet>
 template<typename StructType, typename FieldSet>
 inline void TSdlOwnerStruct<StructType, FieldSet>
 ::initObject(
-	AnyNonConstPtr         obj,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
+	const SdlNonConstInstance& obj,
+	SdlInputClauses&           clauses,
+	const SdlInputContext&     ctx) const
 {
 	constexpr auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
 	{
@@ -57,7 +58,7 @@ inline void TSdlOwnerStruct<StructType, FieldSet>
 
 template<typename StructType, typename FieldSet>
 inline void TSdlOwnerStruct<StructType, FieldSet>
-::initDefaultObject(AnyNonConstPtr obj) const
+::initDefaultObject(const SdlNonConstInstance& obj) const
 {
 	PH_ASSERT(obj);
 
@@ -73,7 +74,7 @@ inline void TSdlOwnerStruct<StructType, FieldSet>
 template<typename StructType, typename FieldSet>
 inline void TSdlOwnerStruct<StructType, FieldSet>
 ::saveObject(
-	AnyConstPtr             obj,
+	const SdlConstInstance& obj,
 	SdlOutputClauses&       clauses,
 	const SdlOutputContext& ctx) const
 {
@@ -93,7 +94,7 @@ inline void TSdlOwnerStruct<StructType, FieldSet>
 template<typename StructType, typename FieldSet>
 inline void TSdlOwnerStruct<StructType, FieldSet>
 ::referencedResources(
-	AnyConstPtr obj,
+	const SdlConstInstance& obj,
 	std::vector<const ISdlResource*>& out_resources) const
 {
 	PH_ASSERT(obj);
@@ -125,7 +126,7 @@ inline auto TSdlOwnerStruct<StructType, FieldSet>
 ::addStruct(StructObjType StructType::* const structObjPtr)
 -> TSdlOwnerStruct&
 {
-	return addStruct(structObjPtr, TSdlStructFieldStump<StructType>{});
+	return addStruct(structObjPtr, TSdlStructFieldStub<StructType>{});
 }
 
 template<typename StructType, typename FieldSet>
@@ -133,7 +134,7 @@ template<typename StructObjType>
 inline auto TSdlOwnerStruct<StructType, FieldSet>
 ::addStruct(
 	StructObjType StructType::* const structObjPtr,
-	const TSdlStructFieldStump<StructType>& structFieldStump)
+	const TSdlStructFieldStub<StructType>& structFieldStub)
 -> TSdlOwnerStruct&
 {
 	// More restrictions on StructObjType may be imposed by FieldSet
@@ -142,7 +143,7 @@ inline auto TSdlOwnerStruct<StructType, FieldSet>
 
 	PH_ASSERT(structObjPtr);
 
-	m_fields.addFields(structFieldStump.genFieldSet<FieldSet>(structObjPtr));
+	m_fields.addFields(structFieldStub.genFieldSet<FieldSet>(structObjPtr));
 
 	return *this;
 }
@@ -152,6 +153,14 @@ inline void TSdlOwnerStruct<StructType, FieldSet>
 ::initDefaultStruct(StructType& structObj) const
 {
 	setFieldsToDefaults(structObj);
+}
+
+template<typename StructType, typename FieldSet>
+inline SdlInstantiated TSdlOwnerStruct<StructType, FieldSet>
+::instantiate() const
+{
+	auto allocation = std::make_shared<StructType>();
+	return {SdlNonConstInstance{allocation.get()}, allocation};
 }
 
 template<typename StructType, typename FieldSet>

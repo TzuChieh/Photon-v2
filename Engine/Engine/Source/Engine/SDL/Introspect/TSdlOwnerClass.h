@@ -49,7 +49,7 @@ public:
 		const SdlInputContext& ctx) const override;
 
 	void referencedResources(
-		const ISdlResource* targetResource,
+		const ISdlResource& targetResource,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
 	std::size_t numFields() const override;
@@ -86,7 +86,7 @@ public:
 	template<typename StructType>
 	TSdlOwnerClass& addStruct(
 		StructType Owner::* structObjPtr,
-		const TSdlStructFieldStump<Owner>& structFieldStump);
+		const TSdlStructFieldStub<Owner>& structFieldStub);
 
 	/*! @brief Adds a function that can later be called.
 	*/

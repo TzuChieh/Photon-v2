@@ -3,7 +3,7 @@
 #include "Engine/SDL/Introspect/ISdlInstantiable.h"
 #include "Engine/SDL/Definition/SdlUserSpec.h"
 #include "Engine/SDL/sdl_fwd.h"
-#include "Engine/Utility/TAnyPtr.h"
+#include "Engine/SDL/TSdlAnyInstance.h"
 
 #include <Common/logging.h>
 
@@ -31,19 +31,19 @@ public:
 	How the object will be initialized depends on the struct's SDL definition.
 	*/
 	virtual void initObject(
-		AnyNonConstPtr         obj,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const = 0;
+		const SdlNonConstInstance& obj,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const = 0;
 
 	/*! @brief Initialize a struct object to default values.
 	Default values are defined by the struct's SDL definition.
 	*/
-	virtual void initDefaultObject(AnyNonConstPtr obj) const = 0;
+	virtual void initDefaultObject(const SdlNonConstInstance& obj) const = 0;
 
 	virtual void saveObject(
-		AnyConstPtr             obj,
-		SdlOutputClauses&       clauses,
-		const SdlOutputContext& ctx) const = 0;
+		const SdlConstInstance&    obj,
+		SdlOutputClauses&          clauses,
+		const SdlOutputContext&    ctx) const = 0;
 
 	/*! @brief Get all SDL resources referenced by @p obj.
 	@param obj The object that may contain SDL resources.
@@ -51,9 +51,10 @@ public:
 	Appends to existing ones.
 	*/
 	virtual void referencedResources(
-		AnyConstPtr obj,
+		const SdlConstInstance& obj,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
+	SdlInstantiated instantiate() const override = 0;
 	std::size_t numFields() const override = 0;
 	const SdlField* getField(std::size_t index) const override = 0;
 

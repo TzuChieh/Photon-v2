@@ -9,11 +9,15 @@ namespace ph
 {
 
 /*! @brief References a SDL object.
+
 This is a lightweight utility for referencing SDL objects. Following objects are valid targets
 to be referenced by this type:
 - Objects of SDL classes
 - Objects of SDL structs
 - Objects of SDL function parameter structs
+
+@tparam IS_CONST Specifies the constness of the referenced instance. We have convenient type aliases
+`SdlConstInstance` and `SdlNonConstInstance`.
 */
 template<bool IS_CONST>
 class TSdlAnyInstance

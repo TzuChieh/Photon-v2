@@ -117,7 +117,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 			PH_ASSERT(sdlClass);
 
 			tmpReferencedResources.clear();
-			sdlClass->referencedResources(resInfo.resource, tmpReferencedResources);
+			sdlClass->referencedResources(*resInfo.resource, tmpReferencedResources);
 
 			maxRefCount = std::max(tmpReferencedResources.size(), maxRefCount);
 

@@ -3,6 +3,7 @@
 namespace ph
 {
 
+struct SdlInstantiated;
 class ISdlInstantiable;
 class SdlClass;
 class SdlStruct;
@@ -11,7 +12,7 @@ class SdlFunction;
 class SdlEnum;
 
 template<typename Owner>
-class TSdlStructFieldStump;
+class TSdlStructFieldStub;
 
 template<typename EnumType>
 class TSdlEnum;

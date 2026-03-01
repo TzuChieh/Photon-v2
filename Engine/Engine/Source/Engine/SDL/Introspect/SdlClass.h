@@ -59,7 +59,7 @@ public:
 	Appends to existing ones.
 	*/
 	virtual void referencedResources(
-		const ISdlResource* targetResource,
+		const ISdlResource& targetResource,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	/*!
@@ -78,6 +78,7 @@ public:
 
 	const SdlField* getField(std::size_t index) const override = 0;
 
+	SdlInstantiated instantiate() const override;
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;
 

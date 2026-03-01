@@ -47,16 +47,26 @@ public:
 public:
 	TSdlOwnerStaticMethod();
 
+	using SdlFunction::call;
+
 	void call(
 		ISdlResource*          resource,
+		const SdlInstantiated* instantiated,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const override;
 
+	SdlInstantiated instantiate() const override;
 	std::size_t numParams() const override;
 	const SdlField* getParam(std::size_t index) const override;
 	bool isStatic() const override;
 
 	void callStaticMethod(
+		MethodStruct&          functor,
+		SdlInputClauses&       clauses,
+		const SdlInputContext& ctx) const;
+
+	void callStaticMethod(
+		const SdlInstantiated& instantiated,
 		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 
