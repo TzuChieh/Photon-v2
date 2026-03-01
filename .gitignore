@@ -124,6 +124,7 @@ _deps
 # Photon Specific Files & Folders                                             #
 ###############################################################################
 
+Main/AgentSkills/*.skill
 /build/
 /*.png
 /*.jpg

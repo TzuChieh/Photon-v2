@@ -27,6 +27,9 @@ class SdlClass : public ISdlInstantiable
 public:
 	SdlClass();
 
+	/*! @brief Create a resource instance of this class.
+	@return A new resource instance. Can be null if the class is a blueprint (for example) or an error occurs.
+	*/
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
 	/*! @brief Initialize a resource from value clauses.
@@ -42,11 +45,22 @@ public:
 	*/
 	virtual void initDefaultResource(ISdlResource& resource) const = 0;
 
+	/*! @brief Save a resource instance to value clauses.
+	@param resource The resource instance to save.
+	@param clauses Output buffer for storing the saved values.
+	@param ctx Context for the saving operation.
+	*/
 	virtual void saveResource(
 		const ISdlResource&     resource,
 		SdlOutputClauses&       clauses,
 		const SdlOutputContext& ctx) const = 0;
 
+	/*! @brief Call a function of the class.
+	@param funcName Name of the function to call.
+	@param resource The target resource instance. Can be null if the function is static.
+	@param clauses Input clauses for the function call.
+	@param ctx Context for the function call.
+	*/
 	virtual void call(
 		std::string_view       funcName,
 		ISdlResource*          resource,
@@ -68,6 +82,9 @@ public:
 	*/
 	virtual std::size_t numFunctions() const = 0;
 
+	/*! @brief Get a function of the class by index.
+	@param index The index of the function to retrieve. Must be less than `numFunctions()`.
+	*/
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
 	/*!
@@ -76,6 +93,9 @@ public:
 	*/
 	std::size_t numFields() const override = 0;
 
+	/*! @brief Get a field of the class by index.
+	@param index The index of the field to retrieve. Must be less than `numFields()`.
+	*/
 	const SdlField* getField(std::size_t index) const override = 0;
 
 	SdlInstantiated instantiate() const override;
@@ -95,34 +115,79 @@ public:
 	*/
 	bool allowCreateFromClass() const;
 
+	/*! @brief Generate a human-readable name for the class.
+	*/
 	std::string genPrettyName() const;
+
+	/*! @brief Generate a human-readable name for the class's category.
+	*/
 	std::string genCategoryName() const;
+
+	/*! @brief Get the category of the class.
+	*/
 	ESdlTypeCategory getCategory() const;
 	
+	/*! @brief Get the user specifications for the class.
+	*/
 	const SdlUserSpec& getUserSpec() const;
+
+	/*! @brief Get the documentation name for the class.
+	*/
 	std::string_view getDocName() const;
+
+	/*! @brief Get the base class of this class.
+	@return Pointer to the base SDL class, or null if no base class exists.
+	*/
 	const SdlClass* getBase() const;
+
+	/*! @brief Whether the class is derived from another SDL class.
+	*/
 	bool isDerived() const;
+
+	/*! @brief Whether the class contains any SDL fields.
+	*/
 	bool hasField() const;
+
+	/*! @brief Whether the class contains any SDL functions.
+	*/
 	bool hasFunction() const;
 
 protected:
+	/*! @brief Set the user specifications for the class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setUserSpec(SdlUserSpec spec);
 
+	/*! @brief Set the category and type name of the class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setTypeInfo(ESdlTypeCategory category, std::string typeName);
 
+	/*! @brief Set the description of the class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setDescription(std::string description);
 
+	/*! @brief Set the documentation name of the class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setDocName(std::string docName);
 
 	/*! @brief Set another SDL class as the base of this class.
-
 	The effect of the base class depends on the implementation.
+	@return `*this` for chaining.
 	*/
 	template<typename SdlResourceType>
 	SdlClass& setBase();
 
+	/*! @brief Set whether the class is a blueprint class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setIsBlueprint(bool isBlueprint);
+
+	/*! @brief Set whether the resource can be created from this class.
+	@return `*this` for chaining.
+	*/
 	SdlClass& setAllowCreateFromClass(bool allowCreateFromClass);
 
 private:

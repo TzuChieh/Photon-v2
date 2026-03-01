@@ -33,8 +33,18 @@ public:
 
 	// TODO: saveCall() & asyncCall() ?
 
+	/*! @brief Get the number of parameters the function accepts.
+	*/
 	virtual std::size_t numParams() const = 0;
+
+	/*! @brief Get a parameter of the function by index.
+	@param index The index of the parameter to retrieve. Must be less than `numParams()`.
+	*/
 	virtual const SdlField* getParam(std::size_t index) const = 0;
+
+	/*! @brief Whether the function is static.
+	Static functions do not require a resource instance to be called.
+	*/
 	virtual bool isStatic() const = 0;
 
 	SdlInstantiated instantiate() const override = 0;
@@ -44,6 +54,8 @@ public:
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;
 
+	/*! @brief Call the function with a default functor instance.
+	*/
 	void call(
 		ISdlResource*          resource,
 		SdlInputClauses&       clauses,
@@ -54,12 +66,28 @@ public:
 	*/
 	std::string_view getName() const;
 
+	/*! @brief Generate a human-readable name for the function.
+	*/
 	std::string genPrettyName() const;
+
+	/*! @brief Get the user specifications for the function.
+	*/
 	const SdlUserSpec& getUserSpec() const;
 
 protected:
+	/*! @brief Set the name of the function.
+	@return `*this` for chaining.
+	*/
 	SdlFunction& setName(std::string name);
+
+	/*! @brief Set the description of the function.
+	@return `*this` for chaining.
+	*/
 	SdlFunction& setDescription(std::string description);
+
+	/*! @brief Set the user specifications for the function.
+	@return `*this` for chaining.
+	*/
 	SdlFunction& setUserSpec(SdlUserSpec userSpec);
 
 private:
