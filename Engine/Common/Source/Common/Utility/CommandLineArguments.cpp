@@ -6,7 +6,7 @@
 namespace ph
 {
 
-CommandLineArguments::CommandLineArguments(int argc, char* argv[]) : 
+CommandLineArguments::CommandLineArguments(int argc, const char* argv[]) : 
 	m_programName(),
 	m_arguments()
 {
@@ -39,6 +39,7 @@ std::vector<std::string> CommandLineArguments::retrieveStrings(const std::size_t
 
 std::vector<std::string> CommandLineArguments::retrieveOptionArguments(const std::string& optionPrefix)
 {
+	// Expect next option starts with "-"
 	return retrieveStrings(optionPrefix, "-", false, false);
 }
 
@@ -57,7 +58,8 @@ std::vector<std::string> CommandLineArguments::retrieveStrings(
 		});
 
 	auto endIter = std::find_if(
-		startIter, m_arguments.end(),
+		startIter == m_arguments.end() ? m_arguments.end() : startIter + 1, 
+		m_arguments.end(),
 		[&endingPrefix](const std::string& argument)
 		{
 			// Using rfind() with pos=0 to limit the search to prefix only
