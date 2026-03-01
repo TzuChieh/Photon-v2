@@ -1,19 +1,22 @@
 # Code Review Checklist
 
-Use this checklist during Step 1 of the `commit-expert` workflow.
+Use this checklist during Step 1 of the `committer` workflow.
 
 ## Style & Naming
 - [ ] Member variables have `m_` prefix.
-- [ ] Class names are `CapitalizedCamelCase`.
+- [ ] Class names are `PascalCase`.
 - [ ] Function names are `snake_case`.
 - [ ] All `ph` namespace blocks have an ending comment: `}// end namespace ph`.
 
-## Correctness & Safety
+## Correctness & Safety (Modern C++ Best Practices)
 - [ ] `const` is applied to all non-modified parameters, local variables, and methods.
-- [ ] No raw `new` or `delete` (use smart pointers or `std::make_shared`).
+- [ ] `constexpr` is used for compile-time constants and functions.
+- [ ] No raw `new` or `delete` (use smart pointers or RAII).
 - [ ] `nullptr` is used instead of `NULL`.
 - [ ] `override` is present for all overridden virtual methods (and `virtual` is removed).
 - [ ] `explicit` is used for single-parameter constructors.
+- [ ] Strongly-typed enums (`enum class`) are used.
+- [ ] Leverage C++20/23 features like `concepts`, `ranges`, and `std::format` where they improve clarity and safety.
 
 ## Formatting
 - [ ] Curly braces have their own line.
