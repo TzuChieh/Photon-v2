@@ -9,7 +9,9 @@ This skill provides a specialized workflow for high-quality code reviews and com
 
 ## Core Workflow
 
-- **No Unauthorized Commits:** NEVER stage or commit changes without explicit user consent (e.g., "LGTM", "Proceed with commit").
+- **Initial Work:** Keep the initial implementation of a task UNSTAGED for the first review.
+- **Incremental Review Staging:** Stage your current work (`git add -A`) ONLY when the user asks for an update or correction. This allows the user to see your latest changes as a "delta" in the unstaged section of their IDE, while the previous version remains in the staged section.
+- **No Unauthorized Commits:** NEVER commit changes without explicit user consent (e.g., "LGTM", "Proceed with commit").
 - **No Push:** Do not push changes to a remote repository unless specifically requested.
 
 ### 1. Code Review (Sanity Check)

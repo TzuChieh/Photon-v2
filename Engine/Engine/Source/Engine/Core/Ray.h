@@ -28,7 +28,7 @@ public:
 	Ray() = default;
 
 	/*! @brief A longest possible ray.
-
+	The ray will have the maximum possible finite length.
 	@param direction Does not need to be normalized.
 	*/
 	Ray(const math::Vector3R& origin, const math::Vector3R& direction);
