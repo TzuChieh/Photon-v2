@@ -25,7 +25,7 @@ Before staging, use `git diff` to perform a quick review based on the project's 
 
 ### 2. Staging & Draft
 - **Git Add:** Use `git add -A` to stage all changes in the current project.
-- **Concise Message:** Draft a short, clear message (e.g., "Add documentation for SdlFunction") that focuses on the core change. 
+- **Linux Style Message:** Use a concise one-line summary (e.g., "Add documentation for SdlFunction"), followed by a blank line and bullet points for additional details if necessary.
 - **Branch Check:** If the current branch is not `master`, proceed with the commit. If it is `master`, suggest running tests (`EngineTest`, `RenderTest`) before finality.
 
 ### 3. Execution

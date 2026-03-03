@@ -43,6 +43,7 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 ## Git
 
 - **Stage Before Update:** Always stage existing changes (`git add -A`) before applying new updates or corrections to the code. This ensures the user can see the "delta" (diff) in their IDE (like VSCode) between the staged (old) and unstaged (new) versions.
+- **Linux Style Commit Message:** Prefer a one-line brief summary, followed by a blank line and bullet points for details if necessary.
 - **Read-Only by Default:** Only perform read-only git operations. Write operations are only allowed if requested by the human user.
 
 ## Code Review
