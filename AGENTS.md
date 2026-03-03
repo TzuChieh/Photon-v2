@@ -1,4 +1,4 @@
-# Gemini Code Assistant Context
+# Project Context for AI Agents
 
 When working on this project, you are allowed to sacrifice grammar for concision.
 
@@ -37,7 +37,8 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 
 ## Git
 
-Only perform read-only git operations. Write operations are only allowed if requested by the human user.
+- **Stage Before Update:** Always stage existing changes (`git add -A`) before applying new updates or corrections to the code. This ensures the user can see the "delta" (diff) in their IDE (like VSCode) between the staged (old) and unstaged (new) versions.
+- **Read-Only by Default:** Only perform read-only git operations. Write operations are only allowed if requested by the human user.
 
 ## Code Review
 

@@ -9,8 +9,8 @@ This skill provides a specialized workflow for high-quality code reviews and com
 
 ## Core Workflow
 
+- **Stage Before Update:** Always stage your current changes (`git add -A`) BEFORE applying any new updates or corrections. This ensures the user can see your latest changes as an unstaged "delta" in their IDE (like VSCode), while the previous version remains in the staged section.
 - **Initial Work:** Keep the initial implementation of a task UNSTAGED for the first review.
-- **Incremental Review Staging:** Stage your current work (`git add -A`) ONLY when the user asks for an update or correction. This allows the user to see your latest changes as a "delta" in the unstaged section of their IDE, while the previous version remains in the staged section.
 - **No Unauthorized Commits:** NEVER commit changes without explicit user consent (e.g., "LGTM", "Proceed with commit").
 - **No Push:** Do not push changes to a remote repository unless specifically requested.
 
