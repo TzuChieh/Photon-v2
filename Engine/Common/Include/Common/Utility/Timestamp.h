@@ -15,8 +15,14 @@ It is guaranteed to be thread-safe.
 class Timestamp final
 {
 public:
+	/*! @brief Create a timestamp for the current local time.
+	*/
 	Timestamp();
 
+	/*! @name Formatters
+	Format the timestamp into a string.
+	*/
+	///@{
 	std::string toYMD() const;
 	std::string toHMS() const;
 	std::string toHMSMilliseconds() const;
@@ -25,6 +31,7 @@ public:
 	std::string toYMDHMSMilliseconds() const;
 	std::string toYMDHMSMicroseconds() const;
 	std::string toString() const;
+	///@}
 
 private:
 	std::chrono::system_clock::time_point m_time;

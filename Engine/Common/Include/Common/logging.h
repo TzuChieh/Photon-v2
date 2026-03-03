@@ -70,13 +70,14 @@ namespace ph::core_logging::detail
 {
 
 /*! @brief Initializes core logging functionalities.
-Any logging is only valid after calling `init()`.
+Any core logging (use of macros with prefixes `PH_LOG_`, `PH_DEFAULT_LOG_` and their debug variants)
+is only valid after calling `init()`.
 @param logStorageDirectory Path to the directory where log files will be stored.
 */
 void init(const std::string& logStorageDirectory);
 
 /*! @brief Terminates core logging functionalities.
-Cleanup after logging is finished.
+Cleanup after core logging is finished.
 */
 void exit();
 
