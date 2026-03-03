@@ -42,6 +42,8 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 
 ## Git
 
+- **Committer Skill:** Always use the `Committer` skill (`Main/AgentSkills/Committer/SKILL.md`) for code reviews, staging, and drafting commit messages. Activate this skill when the user requests a commit or review of staged changes.
+- **One LGTM Per Commit:** You must receive an explicit "LGTM" (or equivalent) for EVERY commit. One "LGTM" grants permission for exactly ONE `git commit` command. Subsequent commits require a new "LGTM".
 - **Stage Before Update:** Always stage existing changes (`git add -A`) before applying new updates or corrections to the code. This ensures the user can see the "delta" (diff) in their IDE (like VSCode) between the staged (old) and unstaged (new) versions.
 - **Linux Style Commit Message:** Prefer a one-line brief summary, followed by a blank line and bullet points for details if necessary.
 - **Read-Only by Default:** Only perform read-only git operations. Write operations are only allowed if requested by the human user.
