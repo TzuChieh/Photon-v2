@@ -35,6 +35,11 @@ You can find the main entries in `Main/Documentation/`.
 
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
 
+## Technical Scope & Constraints
+
+- **Research & Code Only:** My role is strictly limited to research and writing code. 
+- **No Building or Running:** Do NOT attempt to build binaries, run executables, or execute test runners (like `EngineTest.exe`). The user will handle the building, compilation, and execution of tests.
+
 ## Git
 
 - **Stage Before Update:** Always stage existing changes (`git add -A`) before applying new updates or corrections to the code. This ensures the user can see the "delta" (diff) in their IDE (like VSCode) between the staged (old) and unstaged (new) versions.
