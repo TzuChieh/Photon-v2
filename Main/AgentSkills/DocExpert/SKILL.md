@@ -11,8 +11,12 @@ This skill provides a specialized workflow for maintaining high-quality Doxygen 
 
 ### 1. Identify Target Areas
 - **Git-Driven Selection:** Use `git diff HEAD` or `git status` to find files you have recently modified. Focus on public headers (`.h`) first.
-- **Priority by Usage:** For undocumented or changed symbols, use `grep_search` to count occurrences across the codebase. Higher frequency symbols (more call sites) take priority.
+- **Skip Already Documented:** Before starting, check [documented-classes.md](references/documented-classes.md) to ensure the target symbols are not already well-documented.
+- **Priority by Usage (Impact Prioritization):** For undocumented or changed symbols, use `grep_search` to count occurrences across the codebase. Higher frequency symbols (more call sites) take priority.
 - **Stale Check:** Compare Doxygen `@param` and `@return` tags against the actual function signature. Flag any mismatches.
+
+## Gold Standard Documentation
+Refer to [style-examples.md](references/style-examples.md) and [documented-classes.md](references/documented-classes.md) for "Gold Standard" examples from the project.
 
 ### 2. Analysis & Drafting
 - **Verify Intent:** Read the implementation (`.cpp`) to understand side effects, units, and corner cases.

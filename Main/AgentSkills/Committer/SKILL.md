@@ -30,11 +30,8 @@ Before staging, use `git diff` to perform a quick review based on the project's 
 - **Branch Check:** If the current branch is not `master`, proceed with the commit. If it is `master`, suggest running tests (`EngineTest`, `RenderTest`) before finality.
 
 ### 3. Execution
-Apply the commit using:
-```bash
-git add -A; git commit -m "[Your concise message]"
-```
-*(Note: Use `;` on Windows/PowerShell for command chaining.)*
+Apply the commit using sequential tool calls.
+*(Note: Do NOT use `&&` or `;` on Windows/PowerShell for command chaining.)*
 
 ## References
 - [review-checklist.md](references/review-checklist.md): A technical checklist for code quality.
