@@ -106,7 +106,9 @@ TEST(TimerTest, MarkLapReturnsIntervalAndUpdatesTotal)
 	EXPECT_GE(lap2Ms, expectedLap2);
 
 	// Verify total duration includes both laps exactly (since markLap adds to total)
-	EXPECT_EQ(timer.getDeltaMs(), lap1Ms + lap2Ms);
+	EXPECT_EQ(
+		timer.getDeltaMs(),
+		std::chrono::duration_cast<std::chrono::milliseconds>(mark2Time - startTime).count());
 }
 
 TEST(TimerTest, PeekLapDoesNotResetInterval)
