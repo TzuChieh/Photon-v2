@@ -16,28 +16,28 @@ enum class ESdlDataFormat : uint8
 	/*! `T` types. Scalar or containing a single object only. */
 	Single,
 
-	/*! `math::TVector2<T>` types. */
+	/*! `ph::math::TVector2<T>` types. */
 	Vector2,
 
-	/*! `math::TVector3<T>` types. */
+	/*! `ph::math::TVector3<T>` types. */
 	Vector3,
 
-	/*! `math::TVector4<T>` types. */
+	/*! `ph::math::TVector4<T>` types. */
 	Vector4,
 
-	/*! `math::TQuaternion<T>` types. */
+	/*! `ph::math::TQuaternion<T>` types. */
 	Quaternion,
 
 	/*! `std::vector<T>` types. */
 	Vector,
 
-	/*! `std::vector<math::TVector2<T>>` types. */
+	/*! `std::vector<ph::math::TVector2<T>>` types. */
 	Vector2Vector,
 
-	/*! `std::vector<math::TVector3<T>>` types. */
+	/*! `std::vector<ph::math::TVector3<T>>` types. */
 	Vector3Vector,
 
-	/*! `std::vector<math::TQuaternion<T>>` types. */
+	/*! `std::vector<ph::math::TQuaternion<T>>` types. */
 	QuaternionVector,
 
 	/*! `std::vector<std::shared_ptr<T>>` types. */

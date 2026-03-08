@@ -6,7 +6,6 @@
 namespace ph
 {
 
-
 SdlFunction::SdlFunction()
 	: m_name()
 	, m_description()

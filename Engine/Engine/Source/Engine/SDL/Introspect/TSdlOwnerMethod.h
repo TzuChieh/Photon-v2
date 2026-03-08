@@ -48,38 +48,69 @@ public:
 	using SdlFunction::call;
 
 	void call(
-		ISdlResource*          resource,
-		const SdlInstantiated* instantiated,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const override;
+		ISdlResource*              resource,
+		const SdlNonConstInstance& instance,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const override;
 	
 	SdlInstantiated instantiate() const override;
 	std::size_t numParams() const override;
 	const SdlField* getParam(std::size_t index) const override;
 	bool isStatic() const override;
 
+	/*! @brief Call the method on a target instance using a specific functor.
+	@param target The target instance the method operates on.
+	@param functor The functor to be called.
+	@param clauses Input clauses for the call.
+	@param ctx Context for the call.
+	*/
 	void callMethod(
-		Target&                target,
-		MethodStruct&          functor,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		Target&                    target,
+		MethodStruct&              functor,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
+	/*! @brief Call the method on a target instance using a type-erased functor instance.
+	@param target The target instance the method operates on.
+	@param instance The type-erased functor instance.
+	@param clauses Input clauses for the call.
+	@param ctx Context for the call.
+	*/
 	void callMethod(
-		Target&                target,
-		const SdlInstantiated& instantiated,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		Target&                    target,
+		const SdlNonConstInstance& instance,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
+	/*! @brief Load parameters from clauses into a parameter struct.
+	@param parameterStruct The struct to load parameters into.
+	@param clauses Input clauses containing the parameters.
+	@param ctx Context for the loading process.
+	*/
 	void loadParameters(
-		MethodStruct&          parameterStruct,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		MethodStruct&              parameterStruct,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
 	template<typename T>
 	TSdlOwnerMethod& addParam(T sdlField);
 
+	/*! @brief Set the name of the method.
+	@param nameStr The new name.
+	@return `*this` for chaining.
+	*/
 	auto name(std::string nameStr) -> TSdlOwnerMethod&;
+
+	/*! @brief Set the description of the method.
+	@param descriptionStr The new description.
+	@return `*this` for chaining.
+	*/
 	auto description(std::string descriptionStr) -> TSdlOwnerMethod&;
+
+	/*! @brief Set the user specifications for the method.
+	@param spec The new user specifications.
+	@return `*this` for chaining.
+	*/
 	auto userSpec(SdlUserSpec spec) -> TSdlOwnerMethod&;
 
 	// TODO: support structs?

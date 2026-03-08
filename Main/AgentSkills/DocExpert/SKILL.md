@@ -10,7 +10,7 @@ This skill provides a specialized workflow for maintaining high-quality Doxygen 
 ## Core Workflow
 
 ### 1. Identify Target Areas
-- **Git-Driven Selection:** Use `git diff HEAD` or `git status` to find files you have recently modified. Focus on public headers (`.h`) first.
+- **Git-Driven Selection:** Use `git diff HEAD` or `git status` to find files the user have recently modified. Focus on public headers (`.h`) first.
 - **Skip Already Documented:** Before starting, check [documented-classes.md](references/documented-classes.md) to ensure the target symbols are not already well-documented.
 - **Priority by Usage (Impact Prioritization):** For undocumented or changed symbols, use `grep_search` to count occurrences across the codebase. Higher frequency symbols (more call sites) take priority.
 - **Stale Check:** Compare Doxygen `@param` and `@return` tags against the actual function signature. Flag any mismatches.

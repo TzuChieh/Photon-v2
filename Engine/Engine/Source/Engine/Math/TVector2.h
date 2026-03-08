@@ -33,23 +33,35 @@ public:
 
 	using Base::Base;
 
+	/*! @brief Creates a 2-D vector.
+	*/
 	TVector2(T vx, T vy);
 
+	/*! @brief Creates a 2-D vector from another 2-D vector of different type.
+	*/
 	template<typename U>
 	explicit TVector2(const TVector2<U>& other);
 
 	template<typename U>
 	TVector2<U> losslessCast() const;
 
+	/*! @name Component Access (Geometric)
+	*/
+	///@{
 	T& x();
 	T& y();
 	const T& x() const;
 	const T& y() const;
+	///@}
 
+	/*! @name Component Access (Texture)
+	*/
+	///@{
 	T& u();
 	T& v();
 	const T& u() const;
 	const T& v() const;
+	///@}
 };
 
 }// end namespace ph::math

@@ -50,36 +50,65 @@ public:
 	using SdlFunction::call;
 
 	void call(
-		ISdlResource*          resource,
-		const SdlInstantiated* instantiated,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const override;
+		ISdlResource*              resource,
+		const SdlNonConstInstance& instance,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const override;
 
 	SdlInstantiated instantiate() const override;
 	std::size_t numParams() const override;
 	const SdlField* getParam(std::size_t index) const override;
 	bool isStatic() const override;
 
+	/*! @brief Call the static method using a specific functor.
+	@param functor The functor to be called.
+	@param clauses Input clauses for the call.
+	@param ctx Context for the call.
+	*/
 	void callStaticMethod(
-		MethodStruct&          functor,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		MethodStruct&              functor,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
+	/*! @brief Call the static method using a type-erased functor instance.
+	@param instance The type-erased functor instance.
+	@param clauses Input clauses for the call.
+	@param ctx Context for the call.
+	*/
 	void callStaticMethod(
-		const SdlInstantiated& instantiated,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		const SdlNonConstInstance& instance,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
+	/*! @brief Load parameters from clauses into a parameter struct.
+	@param parameterStruct The struct to load parameters into.
+	@param clauses Input clauses containing the parameters.
+	@param ctx Context for the loading process.
+	*/
 	void loadParameters(
-		MethodStruct&          parameterStruct,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		MethodStruct&              parameterStruct,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
 	template<typename T>
 	TSdlOwnerStaticMethod& addParam(T sdlField);
 
+	/*! @brief Set the name of the static method.
+	@param nameStr The new name.
+	@return `*this` for chaining.
+	*/
 	auto name(std::string nameStr) -> TSdlOwnerStaticMethod&;
+
+	/*! @brief Set the description of the static method.
+	@param descriptionStr The new description.
+	@return `*this` for chaining.
+	*/
 	auto description(std::string descriptionStr) -> TSdlOwnerStaticMethod&;
+
+	/*! @brief Set the user specifications for the static method.
+	@param spec The new user specifications.
+	@return `*this` for chaining.
+	*/
 	auto userSpec(SdlUserSpec spec) -> TSdlOwnerStaticMethod&;
 
 	// TODO: support structs?

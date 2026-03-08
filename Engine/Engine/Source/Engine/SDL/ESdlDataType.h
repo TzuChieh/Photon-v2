@@ -6,7 +6,9 @@ namespace ph
 {
 
 /*! @brief Common data types used by SDL.
-Each listed data type has some form of one to one mapping to a specific runtime type. 
+Each listed data type has some form of one to one mapping to a specific runtime type.
+This is the `T` part when combined with `ESdlDataFormat`. For example, `ESdlDataFormat::Vector2`
+and `ESdlDataType::UInt16` together indicates the type `math::TVector2<ph::uint16>`.
 Useful for code that require some determinable runtime behavior.
 */
 enum class ESdlDataType : uint8

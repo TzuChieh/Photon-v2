@@ -26,10 +26,10 @@ inline TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 template<typename MethodStruct, typename Target, typename FieldSet>
 inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 ::call(
-	ISdlResource*          resource,
-	const SdlInstantiated* instantiated,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
+	ISdlResource*              resource,
+	const SdlNonConstInstance& instance,
+	SdlInputClauses&           clauses,
+	const SdlInputContext&     ctx) const
 {
 	static_assert(CHasSdlClassDefinition<Target>);
 
@@ -51,9 +51,9 @@ inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 
 	PH_ASSERT(targetRes);
 
-	if(instantiated)
+	if(instance)
 	{
-		callMethod(*targetRes, *instantiated, clauses, ctx);
+		callMethod(*targetRes, instance, clauses, ctx);
 	}
 	else
 	{
@@ -93,12 +93,12 @@ inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 template<typename MethodStruct, typename Target, typename FieldSet>
 inline void TSdlOwnerMethod<MethodStruct, Target, FieldSet>
 ::callMethod(
-	Target&                target,
-	const SdlInstantiated& instantiated,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
+	Target&                    target,
+	const SdlNonConstInstance& instance,
+	SdlInputClauses&           clauses,
+	const SdlInputContext&     ctx) const
 {
-	MethodStruct* methodStructPtr = instantiated.data.get<MethodStruct>();
+	MethodStruct* methodStructPtr = instance.get<MethodStruct>();
 	if(!methodStructPtr)
 	{
 		throw_formatted<SdlException>(

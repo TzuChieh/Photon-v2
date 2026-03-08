@@ -24,11 +24,18 @@ public:
 
 	using Base::Base;
 
+	/*! @brief Creates a 4-D vector.
+	*/
 	TVector4(T vx, T vy, T vz, T vw);
 
+	/*! @brief Creates a 4-D vector from another 4-D vector of different type.
+	*/
 	template<typename U>
 	explicit TVector4(const TVector4<U>& other);
 
+	/*! @name Component Access (Geometric)
+	*/
+	///@{
 	T& x();
 	T& y();
 	T& z();
@@ -37,7 +44,11 @@ public:
 	const T& y() const;
 	const T& z() const;
 	const T& w() const;
+	///@}
 
+	/*! @name Component Access (Color)
+	*/
+	///@{
 	T& r();
 	T& g();
 	T& b();
@@ -46,6 +57,7 @@ public:
 	const T& g() const;
 	const T& b() const;
 	const T& a() const;
+	///@}
 };
 
 }// end namespace ph::math

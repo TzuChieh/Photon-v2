@@ -22,14 +22,16 @@ public:
 	/*! @brief Call the function.
 	@param resource The target resource the function may operate on. Can use null for
 	static functions (check `isStatic()`).
-	@param instantiated An optional functor instance. If specified, the function will call this functor
+	@param instance An optional functor instance. If specified, the function will call this functor
 	rather than a temporary one.
+	@param clauses Input clauses for the function call.
+	@param ctx Context for the function call.
 	*/
 	virtual void call(
-		ISdlResource*          resource,
-		const SdlInstantiated* instantiated,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const = 0;
+		ISdlResource*              resource,
+		const SdlNonConstInstance& instance,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const = 0;
 
 	// TODO: saveCall() & asyncCall() ?
 
@@ -55,14 +57,17 @@ public:
 	std::string_view getDescription() const override;
 
 	/*! @brief Call the function with a default functor instance.
+	@param resource The target resource the function may operate on. Can use null for
+	static functions (check `isStatic()`).
+	@param clauses Input clauses for the function call.
+	@param ctx Context for the function call.
 	*/
 	void call(
-		ISdlResource*          resource,
-		SdlInputClauses&       clauses,
-		const SdlInputContext& ctx) const;
+		ISdlResource*              resource,
+		SdlInputClauses&           clauses,
+		const SdlInputContext&     ctx) const;
 
-	/*!
-	@return Function name.
+	/*! @brief Get the name of the function.
 	*/
 	std::string_view getName() const;
 
@@ -76,16 +81,19 @@ public:
 
 protected:
 	/*! @brief Set the name of the function.
+	@param name The new name.
 	@return `*this` for chaining.
 	*/
 	SdlFunction& setName(std::string name);
 
 	/*! @brief Set the description of the function.
+	@param description The new description.
 	@return `*this` for chaining.
 	*/
 	SdlFunction& setDescription(std::string description);
 
 	/*! @brief Set the user specifications for the function.
+	@param userSpec The new user specifications.
 	@return `*this` for chaining.
 	*/
 	SdlFunction& setUserSpec(SdlUserSpec userSpec);
@@ -97,14 +105,6 @@ private:
 };
 
 // In-header Implementations:
-
-inline void SdlFunction::call(
-	ISdlResource*          resource,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
-{
-	call(resource, nullptr, clauses, ctx);
-}
 
 inline std::size_t SdlFunction::numFields() const
 {
@@ -135,6 +135,23 @@ inline std::string_view SdlFunction::getDescription() const
 inline const SdlUserSpec& SdlFunction::getUserSpec() const
 {
 	return m_userSpec;
+}
+
+}// end namespace ph
+
+#include "Engine/SDL/TSdlAnyInstance.h"
+
+namespace ph
+{
+
+inline void SdlFunction::call(
+	ISdlResource*          resource,
+	SdlInputClauses&       clauses,
+	const SdlInputContext& ctx) const
+{
+	// Implicit conversion from `nullptr` to `SdlNonConstInstance` requires definition.
+	// We have to include after `SdlFunction` definition to avoid circular dependency.
+	call(resource, nullptr, clauses, ctx);
 }
 
 }// end namespace ph

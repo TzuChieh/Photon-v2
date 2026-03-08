@@ -26,16 +26,16 @@ inline TSdlOwnerStaticMethod<MethodStruct, FieldSet>
 template<typename MethodStruct, typename FieldSet>
 inline void TSdlOwnerStaticMethod<MethodStruct, FieldSet>
 ::call(
-	ISdlResource*          resource,
-	const SdlInstantiated* instantiated,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
+	ISdlResource*              resource,
+	const SdlNonConstInstance& instance,
+	SdlInputClauses&           clauses,
+	const SdlInputContext&     ctx) const
 {
 	PH_ASSERT(!resource);
 
-	if(instantiated)
+	if(instance)
 	{
-		callStaticMethod(*instantiated, clauses, ctx);
+		callStaticMethod(instance, clauses, ctx);
 	}
 	else
 	{
@@ -74,11 +74,11 @@ inline void TSdlOwnerStaticMethod<MethodStruct, FieldSet>
 template<typename MethodStruct, typename FieldSet>
 inline void TSdlOwnerStaticMethod<MethodStruct, FieldSet>
 ::callStaticMethod(
-	const SdlInstantiated& instantiated,
-	SdlInputClauses&       clauses,
-	const SdlInputContext& ctx) const
+	const SdlNonConstInstance& instance,
+	SdlInputClauses&           clauses,
+	const SdlInputContext&     ctx) const
 {
-	MethodStruct* methodStructPtr = instantiated.data.get<MethodStruct>();
+	MethodStruct* methodStructPtr = instance.get<MethodStruct>();
 	if(!methodStructPtr)
 	{
 		throw_formatted<SdlException>(

@@ -37,8 +37,12 @@ public:
 
 	using Base::Base;
 
+	/*! @brief Creates a 3-D vector.
+	*/
 	TVector3(T vx, T vy, T vz);
 
+	/*! @brief Creates a 3-D vector from another 3-D vector of different type.
+	*/
 	template<typename U>
 	explicit TVector3(const TVector3<U>& other);
 
@@ -66,19 +70,27 @@ public:
 	*/
 	void sort(TVector3* out_result) const;
 
+	/*! @name Component Access (Geometric)
+	*/
+	///@{
 	T& x();
 	T& y();
 	T& z();
 	const T& x() const;
 	const T& y() const;
 	const T& z() const;
+	///@}
 
+	/*! @name Component Access (Color)
+	*/
+	///@{
 	T& r();
 	T& g();
 	T& b();
 	const T& r() const;
 	const T& g() const;
 	const T& b() const;
+	///@}
 };
 
 }// end namespace ph::math

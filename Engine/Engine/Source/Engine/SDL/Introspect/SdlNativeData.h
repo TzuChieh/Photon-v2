@@ -70,9 +70,10 @@ using SdlSetterVariant = TSdlAccessorVariant<std::variant<
 
 /*!
 All public fields are only hints and may not always be available. They provide additional information
-for the underlying data, which can help to better interpret them. Implementation ensures there is no
-dynamic allocation and the size of the object should be reasonably small (independent of the data it
-is representing). This object can be cached if only getter and setter accessors are used.
+for the underlying data, which can help to better interpret them. Implementation ensures the
+`SdlNativeData` instance itself has no dynamic allocation and the size of the object should be
+reasonably small (independent of the data it is representing). This object can be cached if only
+getter and setter accessors are used.
 
 Note on the implementation of getter & setter accessors:
 Implementation should guarantee that any calls to getter & setter accessors will not cause the
@@ -121,6 +122,8 @@ public:
 
 	/*! @brief Creates native data for a single element pointer.
 	@param elementPtr Pointer to the single element. If null, all native data access will be no-op.
+	@param elementContainer Format of the data container.
+	@param elementType Type of the data element.
 	@param canSet If true, @p elementPtr will also be used for ordinary setter.
 	@param canDirectAccess If true, @p elementPtr will also be used for direct access.
 	*/
@@ -137,33 +140,63 @@ public:
 	SdlNativeData();
 
 	/*! @brief Creates read-only native data.
+	@param getter Functor for retrieving element values.
 	*/
 	explicit SdlNativeData(ElementGetter getter);
 
 	/*! @brief Creates native data with both read and write capabilities.
+	@param getter Functor for retrieving element values.
+	@param setter Functor for setting element values.
 	*/
 	SdlNativeData(ElementGetter getter, ElementSetter setter);
 
 	/*! @brief Creates native data with custom capabilities.
+	@param getter Functor for retrieving element values.
+	@param setter Functor for setting element values.
+	@param directPtr Pointer for direct memory access.
 	*/
 	SdlNativeData(ElementGetter getter, ElementSetter setter, AnyNonConstPtr directPtr);
 
+	/*! @brief Get the value of an element.
+	@param elementIdx Index of the element to retrieve.
+	@return The value of the element, or `std::nullopt` if retrieval failed or index out of bounds.
+	*/
 	template<typename T>
 		requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 	std::optional<T> get(std::size_t elementIdx) const;
 
+	/*! @brief Get value of an element.
+	@param elementIdx Index of the element to retrieve.
+	@return The pointer to value, or `nullptr` if retrieval failed or index out of bounds.
+	*/
 	template<typename T>
 		requires std::is_pointer_v<T>
 	T get(std::size_t elementIdx) const;
 
+	/*! @brief Set the value of an element.
+	@param elementIdx Index of the element to set.
+	@param value The new value.
+	@return `true` if the value was successfully set, `false` otherwise.
+	*/
 	template<typename T>
 		requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 	bool set(std::size_t elementIdx, T value) const;
 
+	/*! @brief Set the value of an element.
+	@param elementIdx Index of the element to set.
+	@param ptr Pointer to the new value.
+	@return `true` if the value was successfully set, `false` otherwise.
+	*/
 	template<typename T>
 		requires std::is_pointer_v<T>
 	bool set(std::size_t elementIdx, T ptr) const;
 
+	/*! @brief Set an element to null/empty state.
+	See `isNullClearable`.
+	@param elementIdx Index of the element to clear.
+	@param nullPtr Null pointer constant (`nullptr`).
+	@return `true` if the element was successfully cleared, `false` otherwise.
+	*/
 	template<typename T>
 		requires std::is_null_pointer_v<T>
 	bool set(std::size_t elementIdx, T nullPtr) const;
@@ -171,15 +204,26 @@ public:
 	/*! @brief Directly access the underlying data.
 	Use of direct accessor may invalidate getter and setter accessors (should reacquire native data
 	from source for subsequent getter/setter access). Direct accessor never invalidate itself.
+	@return Pointer to the underlying data.
 	*/
 	template<typename T>
 	T* directAccess() const;
 
+	/*! @brief Set the direct accessor pointer.
+	@param accessor Pointer to the underlying data.
+	*/
 	void setDirectAccessor(AnyNonConstPtr accessor);
 
+	/*! @brief Check if elements are of integer type.
+	*/
 	bool isIntegerElement() const;
+
+	/*! @brief Check if elements are of floating-point type.
+	*/
 	bool isFloatingPointElement() const;
 
+	/*! @brief Check if the native data is valid/non-empty.
+	*/
 	operator bool () const;
 
 public:

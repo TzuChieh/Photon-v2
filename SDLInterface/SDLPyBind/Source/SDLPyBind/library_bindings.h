@@ -12,21 +12,28 @@ To add new bindings, basically you will need to do the following steps:
 
 */
 
+#include "SDLPyBind/nanobind_exceptions.h"
+
 #include <Engine/EEngineProject.h>
 #include <Engine/SDL/sdl_meta.h>
 #include <Engine/SDL/Introspect/SdlClass.h>
 #include <Engine/SDL/Introspect/SdlFunction.h>
 #include <Engine/SDL/Introspect/SdlField.h>
+#include <Engine/SDL/Introspect/SdlInputContext.h>
 #include <Engine/SDL/SdlInputClauses.h>
+#include <Engine/SDL/ESdlDataFormat.h>
+#include <Engine/SDL/ESdlDataType.h>
 #include <Engine/SDL/sdl_helpers.h>
 
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/string.h>
 #include <nanobind/stl/shared_ptr.h>
 
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace ph { class SceneDescription; }
+namespace ph { class SdlNativeData; }
 
 namespace ph::py
 {
@@ -41,6 +48,8 @@ struct UniversalSDLBinder
 		: m(m)
 	{}
 
+	/*! @brief Bind a SDL class to Python.
+	*/
 	template<typename StaticSDLClassType>
 	void operator () (const StaticSDLClassType& sdlClass) const
 	{
@@ -93,23 +102,28 @@ struct UniversalSDLBinder
 			const std::string sdlFuncName = sdl::name_to_snake_case(sdlFunc->getTypeName());
 			const std::string docstring = toRestructuredTextDocstring(*sdlFunc);
 
+			std::vector<const SdlField*> nativeAccessParams;
+			for(std::size_t pi = 0; pi < sdlFunc->numParams(); ++pi)
+			{
+				if(sdlFunc->getParam(pi)->getOptions().hasAny(EFieldOption::PreferNativeAccess))
+				{
+					nativeAccessParams.push_back(sdlFunc->getParam(pi));
+				}
+			}
+
 			if(sdlFunc->isStatic())
 			{
 				c.def_static(sdlFuncName.c_str(),
-					[sdlFunc](nanobind::kwargs kwargs)
+					[sdlFunc, nativeAccessParams](nanobind::kwargs kwargs)
 					{
-						SdlInputClauses clauses = toSdlInputClauses(kwargs);
-						sdlFunc->call(
-							nullptr,
-							clauses,
-							SdlInputContext{});
+						callSdlStaticFunction(*sdlFunc, nativeAccessParams, kwargs);
 					},
 					docstring.c_str());
 			}
 			else
 			{
 				c.def(sdlFuncName.c_str(),
-					[sdlFunc](OwnerType& self, nanobind::kwargs kwargs)
+					[sdlFunc, nativeAccessParams](OwnerType& self, nanobind::kwargs kwargs)
 					{
 						SdlInputClauses clauses = toSdlInputClauses(kwargs);
 						sdlFunc->call(
@@ -128,8 +142,28 @@ struct UniversalSDLBinder
 		return purePathType;
 	}
 
-	static std::string toSdlTypeName(nanobind::handle pyValue);
+	/*! @brief Convert a Python type to its corresponding SDL type name.
+	*/
+	static std::string toSdlTypeName(nanobind::handle pyType);
+
+	/*! @brief Convert Python keyword arguments to SDL input clauses.
+	*/
 	static SdlInputClauses toSdlInputClauses(nanobind::kwargs kwargs);
+
+	/*! @brief Try to transfer a Python value to SDL via native data interface.
+	@return `true` if successful.
+	*/
+	static bool tryTransferToSdlNativeData(nanobind::handle pyValue, SdlNativeData& nativeData);
+
+	/*! @brief Call a static SDL function.
+	*/
+	static void callSdlStaticFunction(
+		const SdlFunction& sdlFunc,
+		const std::vector<const SdlField*>& nativeAccessParams,
+		nanobind::kwargs kwargs);
+
+	/*! @brief Generate a reStructuredText docstring for a SDL instantiable type.
+	*/
 	static std::string toRestructuredTextDocstring(const ISdlInstantiable& instantiableType);
 };
 
