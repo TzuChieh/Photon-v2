@@ -213,6 +213,11 @@ class PlyFile final
 		"The file explicitly depends on the fact that std::byte contains 8 bits.");
 
 public:
+	/*! @brief Fast path for saving data of a specific format as PLY.
+	*/
+	static PlyFile save(
+		);
+
 	PlyFile();
 
 	/*! @brief Load file with default config.

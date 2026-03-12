@@ -15,7 +15,7 @@ namespace ph
 class CommandLineArguments final
 {
 public:
-	CommandLineArguments(int argc, const char* argv[]);
+	CommandLineArguments(int argc, char* argv[]);
 
 	/*! @brief Get the program name.
 	@return An empty string if program name is not available.

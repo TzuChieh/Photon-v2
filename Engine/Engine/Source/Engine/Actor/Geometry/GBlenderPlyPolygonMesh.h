@@ -21,10 +21,7 @@ public:
 	{
 		Path path;
 
-		void operator () () const
-		{
-
-		}
+		void operator () () const;
 
 		PH_DEFINE_SDL_STATIC_METHOD(SdlWritePly, func)
 		{

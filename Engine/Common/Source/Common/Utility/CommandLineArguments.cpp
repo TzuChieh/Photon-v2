@@ -6,7 +6,7 @@
 namespace ph
 {
 
-CommandLineArguments::CommandLineArguments(int argc, const char* argv[]) : 
+CommandLineArguments::CommandLineArguments(int argc, char* argv[]) : 
 	m_programName(),
 	m_arguments()
 {

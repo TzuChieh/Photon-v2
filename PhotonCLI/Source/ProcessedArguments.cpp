@@ -10,7 +10,7 @@ namespace ph::cli
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PhotonCliArgs, PhotonCLI);
 
-ProcessedArguments::ProcessedArguments(int argc, char* argv[]) : 
+ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 	ProcessedArguments(CommandLineArguments(argc, argv))
 {}
 

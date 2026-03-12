@@ -10,13 +10,12 @@ using namespace ph;
 TEST(CommandLineArgumentsTest, RetrieveString)
 {
 	// Simulated command line with synthetic arguments
-	const char* argv[] = {
-		"my_app.exe", 
-		"--arg-1", 
-		"value-1", 
-		"--arg-2", 
-		"22"
-	};
+	char arg0[] = "my_app.exe";
+	char arg1[] = "--arg-1";
+	char arg2[] = "value-1";
+	char arg3[] = "--arg-2";
+	char arg4[] = "22";
+	char* argv[] = {arg0, arg1, arg2, arg3, arg4};
 	int argc = 5;
 
 	CommandLineArguments args(argc, argv);
@@ -49,11 +48,10 @@ TEST(CommandLineArgumentsTest, RetrieveString)
 TEST(CommandLineArgumentsTest, RetrieveInt)
 {
 	// Simulated command line with generic numeric values
-	const char* argv[] = {
-		"numeric_app.exe",
-		"-999",
-		"123"
-	};
+	char arg0[] = "numeric_app.exe";
+	char arg1[] = "-999";
+	char arg2[] = "123";
+	char* argv[] = {arg0, arg1, arg2};
 	int argc = 3;
 
 	CommandLineArguments args(argc, argv);
@@ -71,11 +69,10 @@ TEST(CommandLineArgumentsTest, RetrieveInt)
 TEST(CommandLineArgumentsTest, RetrieveFloat)
 {
 	// Simulated command line with generic numeric values
-	const char* argv[] = {
-		"numeric_app.exe",
-		"123.456",
-		"-0.001"
-	};
+	char arg0[] = "numeric_app.exe";
+	char arg1[] = "123.456";
+	char arg2[] = "-0.001";
+	char* argv[] = {arg0, arg1, arg2};
 	int argc = 3;
 
 	CommandLineArguments args(argc, argv);
@@ -93,12 +90,14 @@ TEST(CommandLineArgumentsTest, RetrieveFloat)
 TEST(CommandLineArgumentsTest, RetrieveOptionArguments)
 {
 	// Simulated command line with various generic options
-	const char* argv[] = {
-		"synthetic_app.exe",
-		"-a", "alpha",
-		"--beta", "1024", "768",
-		"-gamma"
-	};
+	char arg0[] = "synthetic_app.exe";
+	char arg1[] = "-a";
+	char arg2[] = "alpha";
+	char arg3[] = "--beta";
+	char arg4[] = "1024";
+	char arg5[] = "768";
+	char arg6[] = "-gamma";
+	char* argv[] = {arg0, arg1, arg2, arg3, arg4, arg5, arg6};
 	int argc = 7;
 
 	CommandLineArguments args(argc, argv);
@@ -125,11 +124,13 @@ TEST(CommandLineArgumentsTest, RetrieveOptionArguments)
 TEST(CommandLineArgumentsTest, RetrieveStrings)
 {
 	// Simulated command line with generic marked ranges
-	const char* argv[] = {
-		"range_app.exe",
-		"<begin>", "val-a", "val-b", "<end>",
-		"trailing"
-	};
+	char arg0[] = "range_app.exe";
+	char arg1[] = "<begin>";
+	char arg2[] = "val-a";
+	char arg3[] = "val-b";
+	char arg4[] = "<end>";
+	char arg5[] = "trailing";
+	char* argv[] = {arg0, arg1, arg2, arg3, arg4, arg5};
 	int argc = 6;
 
 	CommandLineArguments args(argc, argv);
