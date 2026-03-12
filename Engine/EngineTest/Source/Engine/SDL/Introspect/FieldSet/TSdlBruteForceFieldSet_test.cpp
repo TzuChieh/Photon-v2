@@ -122,6 +122,34 @@ TEST(TSdlBruteForceFieldSetTest, AddFields)
 	}
 }
 
+TEST(TSdlBruteForceFieldSetTest, FieldIndexOrdering)
+{
+	TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSet;
+
+	fieldSet.addField(TSdlString<TestOwner>("field0", &TestOwner::s));
+	fieldSet.addField(TSdlString<TestOwner>("field1", &TestOwner::s));
+	fieldSet.addField(TSdlString<TestOwner>("field2", &TestOwner::s));
+
+	// Verification of index as the order of add
+	EXPECT_EQ(fieldSet.findFieldIndex("field0"), 0);
+	EXPECT_EQ(fieldSet.findFieldIndex("field1"), 1);
+	EXPECT_EQ(fieldSet.findFieldIndex("field2"), 2);
+
+	// Finding non-existent fields
+	EXPECT_FALSE(fieldSet.findFieldIndex("none").has_value());
+	EXPECT_FALSE(fieldSet.findFieldIndex("A").has_value());
+}
+
+TEST(TSdlBruteForceFieldSetTest, DuplicateFields)
+{
+	TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSet;
+
+	fieldSet.addField(TSdlString<TestOwner>("same", &TestOwner::s));
+
+	// Verification of ensuring unique field name
+	EXPECT_THROW(fieldSet.addField(TSdlString<TestOwner>("same", &TestOwner::s)), SdlException);
+}
+
 TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
 {
 	{
