@@ -29,16 +29,27 @@ public:
 	friend class TSdlSortedFieldSet;
 
 public:
+	/*! @brief Get the number of fields in the set.
+	*/
 	std::size_t numFields() const
 	{
 		return m_fields.numFields();
 	}
 
+	/*! @brief Get a field by index.
+	@param index Index of the field.
+	@return Pointer to the field, or nullptr if index is out of bounds.
+	*/
 	const BaseFieldType* getField(const std::size_t index) const
 	{
 		return index < m_fields.numFields() ? &(*this)[index] : nullptr;
 	}
 
+	/*! @brief Add a field to the set.
+	@param newField The field to add.
+	@return `*this` for chaining.
+	@throw SdlException If field name is duplicated or prefix collision occurs.
+	*/
 	template<typename T>
 	auto addField(T newField)
 	-> TSdlSortedFieldSet&
@@ -46,16 +57,22 @@ public:
 		m_fields.addField(newField);
 
 		FieldInfo newFieldInfo(newField.getFieldName());
+		newFieldInfo.fieldIdx = static_cast<uint32>(m_fields.numFields() - 1);
 		if(!m_fieldInfos.addUniqueValue(newFieldInfo))
 		{
 			throw_formatted<SdlException>(
-				"Cannot add field <{}>, check if it is duplicated or the encoded prefix ({}) is of "
-				"insufficient length.", newField.genPrettyName(), newFieldInfo.toString());
+				"Cannot add field <{}>, check if its name is duplicated or the encoded prefix ({}) "
+				"is of insufficient length. For field names to collide, they must have same length "
+				"and common prefix.", newField.genPrettyName(), newFieldInfo.toString());
 		}
 
 		return *this;
 	}
 
+	/*! @brief Add multiple fields from another set.
+	@param otherFields The set of fields to add.
+	@return `*this` for chaining.
+	*/
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS, std::size_t OTHER_MAX_ENCODE_LEN>
 	auto addFields(TSdlSortedFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS, OTHER_MAX_ENCODE_LEN> otherFields)
 	-> TSdlSortedFieldSet&
@@ -70,7 +87,10 @@ public:
 		for(std::size_t fi = numOldFields; fi < m_fields.numFields(); ++fi)
 		{
 			// Re-encode with potentially a different encode length
-			m_fieldInfos.addUniqueValue(FieldInfo(m_fields[fi].getFieldName()));
+			FieldInfo info(m_fields[fi].getFieldName());
+			info.fieldIdx = static_cast<uint32>(fi);
+			
+			m_fieldInfos.addUniqueValue(info);
 		}
 
 		PH_ASSERT_EQ(m_fields.numFields(), m_fieldInfos.size());
@@ -78,13 +98,22 @@ public:
 		return *this;
 	}
 
+	/*! @brief Find the index of a field by name.
+	@param fieldName Name of the field to find.
+	@return The index of the field, or std::nullopt if not found.
+	*/
 	std::optional<std::size_t> findFieldIndex(const std::string_view fieldName) const
 	{
 		PH_ASSERT(!fieldName.empty());
 
-		return m_fieldInfos.indexOfValue(FieldInfo(fieldName));
+		const auto infoIdx = m_fieldInfos.indexOfValue(FieldInfo(fieldName));
+		return infoIdx.has_value()
+			? std::optional<std::size_t>(m_fieldInfos.get(*infoIdx).fieldIdx)
+			: std::nullopt;
 	}
 
+	/*! @brief Get a field by index.
+	*/
 	const BaseFieldType& operator [] (const std::size_t index) const
 	{
 		return m_fields[index];
@@ -94,12 +123,13 @@ private:
 	struct FieldInfo
 	{
 		std::array<uint8, MAX_ENCODE_LEN> encodedPrefix;
+		uint32 fieldIdx;
 
-		/*!
-		Construct information for lookup.
+		/*! @brief Construct information for lookup.
 		*/
 		explicit FieldInfo(const std::string_view fieldName)
 			: encodedPrefix(encodePrefix(fieldName))
+			, fieldIdx(-1)
 		{}
 
 		std::string toString() const
@@ -113,16 +143,26 @@ private:
 			return str;
 		}
 
-		bool operator == (const FieldInfo& other) const = default;
+		bool operator == (const FieldInfo& other) const
+		{
+			return (*this <=> other) == 0;
+		}
 
+		auto operator <=> (const FieldInfo& other) const
+		{
+			// Compares encoded prefix only
+			return encodedPrefix <=> other.encodedPrefix;
+		}
+
+		/*! @brief Encode a field name into a fixed-length prefix for faster comparison.
+		*/
 		static std::array<uint8, MAX_ENCODE_LEN> encodePrefix(const std::string_view fieldName)
 		{
 			std::array<uint8, MAX_ENCODE_LEN> result{};
 
-			// First entry stores length, so names of different lengths can be handled naturally
-			// by `FieldInfoComparator`
+			// First entry stores length, so names of different lengths can be compared naturally
 			PH_ASSERT_LE(fieldName.size(), std::numeric_limits<uint32>::max());
-			result[0] = fieldName.size();
+			result[0] = static_cast<uint8>(fieldName.size());
 
 			// Stores remaining chars as much as possible
 			const auto maxChars = std::min(MAX_ENCODE_LEN - 1, fieldName.size());
@@ -135,16 +175,8 @@ private:
 		}
 	};
 
-	struct FieldInfoComparator
-	{
-		bool operator () (const FieldInfo& a, const FieldInfo& b) const
-		{
-			return a.encodedPrefix < b.encodedPrefix;
-		}
-	};
-
-	TSdlBruteForceFieldSet<BaseFieldType, MAX_FIELDS> m_fields;
-	TSortedVector<FieldInfo, FieldInfoComparator> m_fieldInfos;
+	TSdlBruteForceFieldSet<BaseFieldType, MAX_FIELDS> m_fields{};
+	TSortedVector<FieldInfo> m_fieldInfos{MAX_FIELDS};
 };
 
 }// end namespace ph

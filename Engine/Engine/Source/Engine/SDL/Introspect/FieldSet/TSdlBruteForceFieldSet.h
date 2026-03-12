@@ -121,7 +121,7 @@ private:
 		}
 	}
 
-	TArrayVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
+	TArrayVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields{};
 };
 
 }// end namespace ph
