@@ -42,16 +42,27 @@ public:
 	using FieldType = BaseFieldType;
 
 public:
+	/*! @brief Get the number of fields in the set.
+	*/
 	inline std::size_t numFields() const
 	{
 		return m_fields.size();
 	}
 
+	/*! @brief Get a field by index.
+	@param index Index of the field.
+	@return Pointer to the field, or nullptr if index is out of bounds.
+	*/
 	inline const BaseFieldType* getField(const std::size_t index) const
 	{
 		return index < m_fields.size() ? &(*this)[index] : nullptr;
 	}
 
+	/*! @brief Add a field to the set.
+	@param field The field to add.
+	@return `*this` for chaining.
+	@throw SdlException If field name is duplicated or the set is full.
+	*/
 	template<typename T>
 	inline auto addField(T field)
 	-> TSdlBruteForceFieldSet&
@@ -63,6 +74,10 @@ public:
 		return *this;
 	}
 
+	/*! @brief Add multiple fields from another set.
+	@param otherFields The set of fields to add.
+	@return `*this` for chaining.
+	*/
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
 	inline auto addFields(TSdlBruteForceFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> otherFields)
 	-> TSdlBruteForceFieldSet&
@@ -80,6 +95,10 @@ public:
 		return *this;
 	}
 
+	/*! @brief Find the index of a field by name.
+	@param fieldName Name of the field to find.
+	@return The index of the field, or std::nullopt if not found.
+	*/
 	inline std::optional<std::size_t> findFieldIndex(const std::string_view fieldName) const
 	{
 		PH_ASSERT(!fieldName.empty());
@@ -95,6 +114,8 @@ public:
 		return std::nullopt;
 	}
 
+	/*! @brief Get a field by index.
+	*/
 	inline const BaseFieldType& operator [] (const std::size_t index) const
 	{
 		return *(m_fields[index]);
