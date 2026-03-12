@@ -122,6 +122,35 @@ TEST(TSdlSortedFieldSetTest, AddFields)
 	}
 }
 
+TEST(TSdlSortedFieldSetTest, FieldIndexOrdering)
+{
+	TSdlSortedFieldSet<TSdlString<TestOwner>> fieldSet;
+
+	fieldSet.addField(TSdlString<TestOwner>("c", &TestOwner::s));
+	fieldSet.addField(TSdlString<TestOwner>("a", &TestOwner::s));
+	fieldSet.addField(TSdlString<TestOwner>("b", &TestOwner::s));
+
+	// Verification of index as the order of add (c=0, a=1, b=2)
+	// Sorting alphabetically (a, b, c) would result in (a=0, b=1, c=2) if bug existed
+	EXPECT_EQ(fieldSet.findFieldIndex("c"), 0);
+	EXPECT_EQ(fieldSet.findFieldIndex("a"), 1);
+	EXPECT_EQ(fieldSet.findFieldIndex("b"), 2);
+
+	// Finding non-existent fields
+	EXPECT_FALSE(fieldSet.findFieldIndex("none").has_value());
+	EXPECT_FALSE(fieldSet.findFieldIndex("A").has_value());
+}
+
+TEST(TSdlSortedFieldSetTest, DuplicateFields)
+{
+	TSdlSortedFieldSet<TSdlString<TestOwner>> fieldSet;
+
+	fieldSet.addField(TSdlString<TestOwner>("same", &TestOwner::s));
+
+	// Verification of ensuring unique field name
+	EXPECT_THROW(fieldSet.addField(TSdlString<TestOwner>("same", &TestOwner::s)), SdlException);
+}
+
 TEST(TSdlSortedFieldSetTest, AddPolymorphicFields)
 {
 	{
