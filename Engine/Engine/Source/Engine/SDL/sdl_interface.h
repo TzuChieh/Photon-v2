@@ -37,6 +37,7 @@
 #include "Engine/SDL/Introspect/TSdlVector4.h"
 #include "Engine/SDL/Introspect/TSdlQuaternion.h"
 #include "Engine/SDL/Introspect/TSdlRealArray.h"
+#include "Engine/SDL/Introspect/TSdlIntegerArray.h"
 #include "Engine/SDL/Introspect/TSdlVector3Array.h"
 #include "Engine/SDL/Introspect/TSdlReference.h"
 #include "Engine/SDL/Introspect/TSdlReferenceArray.h"

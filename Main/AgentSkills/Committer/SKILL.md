@@ -10,9 +10,7 @@ This skill provides a specialized workflow for high-quality code reviews and com
 ## Core Workflow
 
 - **One LGTM Per Commit:** You must receive an explicit "LGTM" (or equivalent) for EVERY commit. One "LGTM" grants permission for exactly ONE `git commit` command. Subsequent commits require a new "LGTM".
-- **Stage Before Update:** Always stage your current changes (`git add -A`) BEFORE applying any new updates or corrections. This ensures the user can see your latest changes as an unstaged "delta" in their IDE (like VSCode), while the previous version remains in the staged section.
-- **Initial Work:** Keep the initial implementation of a task UNSTAGED for the first review.
-- **No Unauthorized Commits:** NEVER commit changes without explicit user consent.
+- **No Unauthorized Commit:** NEVER commit changes without explicit user consent.
 - **No Push:** Do not push changes to a remote repository unless specifically requested.
 
 ### 1. Code Review (Sanity Check)
