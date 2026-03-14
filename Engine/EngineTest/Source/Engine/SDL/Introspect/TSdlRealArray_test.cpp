@@ -82,4 +82,41 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 	}
 }
 
+TEST(TSdlRealArrayTest, NativeData)
+{
+	TSdlRealArray<RealArrOwner> sdlRealArr("array", &RealArrOwner::arr);
+	RealArrOwner owner;
+	owner.arr = {-1.1_r, 2.2_r, 3.3_r};
+
+	SdlNativeData data = sdlRealArr.ownedNativeData(owner);
+	EXPECT_EQ(data.numElements, 3);
+	EXPECT_EQ(data.elementContainer, ESdlDataFormat::Vector);
+	EXPECT_EQ(data.elementType, sdl::float_type_of<real>());
+
+	ASSERT_TRUE(data);
+
+	// Access by native data getter
+	PH_EXPECT_REAL_EQ(data.get<float64>(0).value_or(0.0), -1.1_r);
+	PH_EXPECT_REAL_EQ(data.get<float64>(1).value_or(0.0), 2.2_r);
+	PH_EXPECT_REAL_EQ(data.get<float64>(2).value_or(0.0), 3.3_r);
+
+	// Which is what native data actually stored
+	PH_EXPECT_REAL_EQ(owner.arr[0], -1.1_r);
+	PH_EXPECT_REAL_EQ(owner.arr[1], 2.2_r);
+	PH_EXPECT_REAL_EQ(owner.arr[2], 3.3_r);
+
+	// Modify `arr[1]` by native data setter
+	EXPECT_TRUE(data.set<float64>(1, -22.2));
+
+	// Access by native data getter again after update
+	PH_EXPECT_REAL_EQ(data.get<float64>(0).value_or(0.0), -1.1_r);
+	PH_EXPECT_REAL_EQ(data.get<float64>(1).value_or(0.0), -22.2_r);// <- changed by setter
+	PH_EXPECT_REAL_EQ(data.get<float64>(2).value_or(0.0), 3.3_r);
+
+	// Which is what native data actually stored
+	PH_EXPECT_REAL_EQ(owner.arr[0], -1.1_r);
+	PH_EXPECT_REAL_EQ(owner.arr[1], -22.2_r);// <- changed by setter
+	PH_EXPECT_REAL_EQ(owner.arr[2], 3.3_r);
+}
+
 // TODO: ReadFromSdlInFile
