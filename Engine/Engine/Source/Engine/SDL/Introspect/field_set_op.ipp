@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Engine/SDL/Introspect/field_set_op.h"
-#include "Engine/SDL/SdlInputClauses.h"
+#include "Engine/SDL/Introspect/EFieldOption.h"
 #include "Engine/SDL/Introspect/SdlInputContext.h"
+#include "Engine/SDL/SdlInputClauses.h"
 #include "Engine/SDL/sdl_helpers.h"
 
 #include <Common/assertion.h>
@@ -94,9 +95,14 @@ inline void load_fields_from_sdl(
 			const auto& field = fieldSet[fieldIdx];
 			const auto importance = field.getImportance();
 
-			// Fallback enabled. Also checks for no `PreferNativeAccess` as untouched fields
-			// are assumed to be handled by native access.
-			if(field.getOptions().hasNone({EFieldOption::DisableFallback, EFieldOption::PreferNativeAccess}))
+			// For `PreferNativeAccess`, untouched fields are assumed to be handled by native access.
+			if(field.getOptions().has({EFieldOption::PreferNativeAccess}))
+			{
+				continue;
+			}
+
+			// Fallback enabled.
+			if(field.getOptions().hasNone({EFieldOption::DisableFallback}))
 			{
 				field.ownedValueToDefault(owner);
 

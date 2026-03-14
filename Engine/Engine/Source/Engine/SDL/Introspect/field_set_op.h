@@ -18,25 +18,25 @@ struct NoOpNoticeReceiver final
 template<
 	typename Owner, 
 	typename FieldSet, 
-	typename NoticeReceiver, 
+	typename NoticeReceiver = NoOpNoticeReceiver,
 	bool     SHOULD_NOTIFY_REDUNDANT_CLAUSE = true>
 void load_fields_from_sdl(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
+	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver{});
 
 template<
 	typename Owner,
 	typename FieldSet,
-	typename NoticeReceiver>
+	typename NoticeReceiver = NoOpNoticeReceiver>
 void load_fields_from_sdl_with_redundant_clauses(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
+	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver{});
 
 }// end namespace ph::field_set_op
 

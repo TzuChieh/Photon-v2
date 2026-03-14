@@ -20,7 +20,9 @@ enum class EFieldOption : uint32
 	*/
 	DisableFallback = math::flag_bit<uint32, 0>(),
 
-	/*! Prefer direct memory access if supported. */
+	/*! Prefer direct memory access if supported. You are expected to validate data yourself with
+	this option set. This will disable internal fallback mechanisms and some error handling to
+	give native access more flexibility and speed. */
 	PreferNativeAccess = math::flag_bit<uint32, 1>(),
 };
 

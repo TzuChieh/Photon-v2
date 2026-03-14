@@ -43,7 +43,10 @@ public:
 			path.required();
 			func.addParam(path);
 
-
+			/*TSdlFloat32Array<OwnerType> rawVertPositions("raw-vert-positions", &OwnerType::rawVertPositions);
+			rawVertPositions.optional();
+			rawVertPositions.options(EFieldOption::PreferNativeAccess);
+			func.addParam(rawVertPositions);*/
 		}
 	};
 
