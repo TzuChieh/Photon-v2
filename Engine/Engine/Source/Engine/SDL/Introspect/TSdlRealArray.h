@@ -100,4 +100,16 @@ protected:
 	}
 };
 
+template<typename Owner>
+using TSdlFloatArray = TSdlRealArray<Owner, float>;
+
+template<typename Owner>
+using TSdlDoubleArray = TSdlRealArray<Owner, double>;
+
+template<typename Owner>
+using TSdlFloat32Array = TSdlRealArray<Owner, float32>;
+
+template<typename Owner>
+using TSdlFloat64Array = TSdlRealArray<Owner, float64>;
+
 }// end namespace ph

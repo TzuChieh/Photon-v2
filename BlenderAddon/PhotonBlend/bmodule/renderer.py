@@ -32,8 +32,8 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
     # Init is called whenever a new render engine instance is created. Multiple instances may exist at the same 
     # time, for example for a viewport and final render.
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.renderer = render.RenderProcess()
         self.identifier = str(uuid.uuid4())

@@ -59,8 +59,7 @@ def loop_triangles_to_sdl_triangle_mesh(
                 normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
 
         for loop_index in b_loop_triangle.loops:
-            # b_uv = b_mesh_uv_loops[loop_index].uv
-            b_uv = b_mesh_uv_loops[loop_index].uv if b_mesh_uv_loops is not None else (0.0, 0.0)# HACK
+            b_uv = b_mesh_uv_loops[loop_index].uv if b_mesh_uv_loops is not None else (0.0, 0.0)
             tex_coords.append(Vector((b_uv[0], b_uv[1], 0.0)))
 
     buffers_to_sdl_triangle_mesh(
