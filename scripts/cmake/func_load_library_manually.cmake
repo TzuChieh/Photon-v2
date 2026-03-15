@@ -47,6 +47,11 @@ function(load_library_manually libName)
         set(ARG_MANUAL_LIB_DIRS "")
     endif()
 
+    # Prioritize "Photon_" prefix for `find_library()` calls on Windows
+    if(WIN32)
+        list(INSERT CMAKE_FIND_LIBRARY_PREFIXES 0 "Photon_")
+    endif()
+
     set(LIBS_LIST)
     set(ALL_LIBS_FOUND TRUE)
     foreach(LIB_NAME ${ARG_MANUAL_LIB_NAMES})

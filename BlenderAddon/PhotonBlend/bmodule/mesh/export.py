@@ -5,6 +5,7 @@ from utility import blender, material
 from psdl import sdl, SdlConsole
 from bmodule import naming
 from . import triangle_mesh
+import psdl
 
 import bpy
 import numpy as np
@@ -144,8 +145,7 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
     tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
-    
-    
+    psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply()
 
 
 def _export_original_mesh_object_v3p6(b_mesh_object: bpy.types.Object, console: SdlConsole):

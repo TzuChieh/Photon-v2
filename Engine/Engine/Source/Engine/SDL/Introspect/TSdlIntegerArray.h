@@ -21,6 +21,8 @@ namespace ph
 template<typename Owner, typename Element = integer, typename SdlValueType = TSdlValue<std::vector<Element>, Owner>>
 class TSdlIntegerArray : public SdlValueType
 {
+	static_assert(std::is_integral_v<Element>);
+
 	static_assert(std::is_base_of_v<TSdlAbstractValue<std::vector<Element>, Owner>, SdlValueType>,
 		"SdlValueType should be a subclass of TSdlAbstractValue.");
 

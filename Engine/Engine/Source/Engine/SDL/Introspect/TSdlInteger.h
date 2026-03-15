@@ -19,6 +19,8 @@ namespace ph
 template<typename Owner, typename IntType = integer, typename SdlValueType = TSdlValue<IntType, Owner>>
 class TSdlInteger : public SdlValueType
 {
+	static_assert(std::is_integral_v<IntType>);
+
 	static_assert(std::is_base_of_v<TSdlAbstractValue<IntType, Owner>, SdlValueType>,
 		"SdlValueType should be a subclass of TSdlAbstractValue.");
 

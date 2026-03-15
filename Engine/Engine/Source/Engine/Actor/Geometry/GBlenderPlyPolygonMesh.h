@@ -43,10 +43,29 @@ public:
 			path.required();
 			func.addParam(path);
 
-			/*TSdlFloat32Array<OwnerType> rawVertPositions("raw-vert-positions", &OwnerType::rawVertPositions);
-			rawVertPositions.optional();
+			TSdlFloat32Array<OwnerType> rawVertPositions("raw-vert-positions", &OwnerType::rawVertPositions);
 			rawVertPositions.options(EFieldOption::PreferNativeAccess);
-			func.addParam(rawVertPositions);*/
+			func.addParam(rawVertPositions);
+
+			TSdlFloat32Array<OwnerType> rawVertLoopNormals("raw-vert-normals", &OwnerType::rawVertLoopNormals);
+			rawVertLoopNormals.options(EFieldOption::PreferNativeAccess);
+			func.addParam(rawVertLoopNormals);
+
+			TSdlFloat32Array<OwnerType> rawVertLoopUVs("raw-vert-uvs", &OwnerType::rawVertLoopUVs);
+			rawVertLoopUVs.options(EFieldOption::PreferNativeAccess);
+			func.addParam(rawVertLoopUVs);
+
+			TSdlUInt32Array<OwnerType> vertPositionIndices("vert-position-indices", &OwnerType::vertPositionIndices);
+			vertPositionIndices.options(EFieldOption::PreferNativeAccess);
+			func.addParam(vertPositionIndices);
+
+			TSdlUInt32Array<OwnerType> vertLoopIndices("vert-loop-indices", &OwnerType::vertPositionIndices);
+			vertLoopIndices.options(EFieldOption::PreferNativeAccess);
+			func.addParam(vertLoopIndices);
+
+			TSdlUInt32Array<OwnerType> triMatIds("tri-mat-ids", &OwnerType::vertPositionIndices);
+			triMatIds.options(EFieldOption::PreferNativeAccess);
+			func.addParam(triMatIds);
 		}
 	};
 

@@ -147,6 +147,9 @@ option(PH_USE_SIMD
     "Use vector instruction set found on the target hardware to accelerate computing." 
     ${USE_SIMD_DEFAULT})
 
+set(PH_TARGET_BLENDER_VERSION "4.5" CACHE STRING
+    "Target a specific Blender version (e.g., 3.6, 4.5). Empty means no specific version is targeted.")
+
 ###############################################################################
 # Compiler Settings                                                           #
 ###############################################################################
@@ -185,6 +188,15 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     if(PH_USE_FAST_MATH)
         add_compile_options(/fp:fast)
+    endif()
+
+    # For Blender version < 5.2, they use a MSVC runtime which is older than 17.10 and there is a binary incompatibility
+    # due to updated mutex ctor. Python binding will crash in Blender with MSVCP140 related error.
+    # See https://github.com/microsoft/STL/issues/4978 for more details.
+    if(PH_TARGET_BLENDER_VERSION AND PH_TARGET_BLENDER_VERSION VERSION_LESS "5.2")
+        if(MSVC_VERSION GREATER_EQUAL 1940)
+            add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+        endif()
     endif()
 
     # Always add `/bigobj` flag so error C1128 will not occur. This flag
