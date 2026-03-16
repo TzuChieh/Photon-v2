@@ -138,6 +138,7 @@ bool UniversalSDLBinder::tryTransferToSdlNativeData(nanobind::handle pyValue, Sd
 	{
 		switch(nativeData.elementType)
 		{
+		// FIXME: this likely will fail due to std::vector<bool> specialization
 		case ESdlDataType::Bool:
 			return copy_ndarray_to_primitive_vector<bool>(pyValue, nativeData);
 

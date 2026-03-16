@@ -145,7 +145,16 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
     tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
-    psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply()
+    ply_path = (console.get_working_dir() / "Mesh_data" / b_mesh_object.name).with_suffix(".ply")
+    ply_path.mkdir(parents=True, exist_ok=True)
+    psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
+        path=ply_path,
+        raw_vert_positions=raw_vert_positions,
+        raw_vert_loop_normals=raw_vert_loop_normals,
+        raw_vert_loop_uvs=raw_vert_loop_uvs,
+        vert_position_indices=vert_position_indices,
+        vert_loop_indices=vert_loop_indices,
+        tri_mat_ids=tri_mat_ids)
 
 
 def _export_original_mesh_object_v3p6(b_mesh_object: bpy.types.Object, console: SdlConsole):
