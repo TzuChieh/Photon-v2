@@ -99,7 +99,7 @@ struct UniversalSDLBinder
 		for(std::size_t fi = 0; fi < sdlClass.numFunctions(); ++fi)
 		{
 			const SdlFunction* sdlFunc = sdlClass.getFunction(fi);
-			const std::string sdlFuncName = sdl::name_to_snake_case(sdlFunc->getTypeName());
+			const std::string sdlFuncName = sdlFunc->getSnakeCaseName();
 			const std::string docstring = toRestructuredTextDocstring(*sdlFunc);
 
 			std::vector<const SdlField*> nativeAccessParams;

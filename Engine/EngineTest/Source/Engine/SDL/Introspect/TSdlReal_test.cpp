@@ -77,3 +77,18 @@ TEST(TSdlReadTest, ReadFromSdl)
 		PH_EXPECT_REAL_EQ(owner.value, 6.8_r);// owner value should not update
 	}
 }
+
+TEST(TSdlReadTest, SnakeCaseFieldName)
+{
+	{
+		TSdlReal<RealOwner, real> sdlReal("some-field-name", &RealOwner::value);
+		PH_EXPECT_STRING_EQ(sdlReal.getFieldName(), "some-field-name");
+		PH_EXPECT_STRING_EQ(sdlReal.getSnakeCaseFieldName(), "some_field_name");
+	}
+
+	{
+		TSdlReal<RealOwner, real> sdlReal("simple", &RealOwner::value);
+		PH_EXPECT_STRING_EQ(sdlReal.getFieldName(), "simple");
+		PH_EXPECT_STRING_EQ(sdlReal.getSnakeCaseFieldName(), "simple");
+	}
+}

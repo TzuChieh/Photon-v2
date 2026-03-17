@@ -17,6 +17,7 @@ SdlField::SdlField(
 
 	: m_typeName(std::move(typeName))
 	, m_fieldName(std::move(fieldName))
+	, m_snakeCaseFieldName(sdl::name_to_snake_case(m_fieldName))
 	, m_description()
 	, m_typeSignature(std::move(typeSignature))
 	, m_importance(EFieldImportance::NiceToHave)

@@ -71,6 +71,10 @@ public:
 	*/
 	std::string_view getName() const;
 
+	/*! @brief Get the snake-case name of the function.
+	*/
+	std::string_view getSnakeCaseName() const;
+
 	/*! @brief Generate a human-readable name for the function.
 	*/
 	std::string genPrettyName() const;
@@ -100,6 +104,7 @@ protected:
 
 private:
 	std::string m_name;
+	std::string m_snakeCaseName;
 	std::string m_description;
 	SdlUserSpec m_userSpec;
 };
@@ -125,6 +130,11 @@ inline std::string_view SdlFunction::getName() const
 {
 	PH_ASSERT(!m_name.empty());
 	return m_name;
+}
+
+inline std::string_view SdlFunction::getSnakeCaseName() const
+{
+	return m_snakeCaseName;
 }
 
 inline std::string_view SdlFunction::getDescription() const

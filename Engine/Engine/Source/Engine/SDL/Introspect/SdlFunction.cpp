@@ -8,6 +8,7 @@ namespace ph
 
 SdlFunction::SdlFunction()
 	: m_name()
+	, m_snakeCaseName()
 	, m_description()
 	, m_userSpec()
 {}
@@ -20,6 +21,7 @@ std::string SdlFunction::genPrettyName() const
 SdlFunction& SdlFunction::setName(std::string name)
 {
 	m_name = std::move(name);
+	m_snakeCaseName = sdl::name_to_snake_case(m_name);
 	return *this;
 }
 

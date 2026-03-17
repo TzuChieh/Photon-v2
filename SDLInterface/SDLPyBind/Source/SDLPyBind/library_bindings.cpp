@@ -198,7 +198,7 @@ void UniversalSDLBinder::callSdlStaticFunction(
 		{
 			for(const SdlField* nativeAccessParam : nativeAccessParams)
 			{
-				nanobind::object pyKey = nanobind::cast(nativeAccessParam->getFieldName());
+				nanobind::object pyKey = nanobind::cast(nativeAccessParam->getSnakeCaseFieldName());
 				nanobind::object pyValue = kwargs.attr("pop")(pyKey, nanobind::none());
 				if(pyValue.is_none())
 				{
@@ -233,9 +233,9 @@ std::string UniversalSDLBinder::toRestructuredTextDocstring(const ISdlInstantiab
 	for(std::size_t pi = 0; pi < instantiableType.numFields(); ++pi)
 	{
 		const SdlField* sdlField = instantiableType.getField(pi);
-		docstring += ":param " + std::string(sdlField->getFieldName()) + ": ";
+		docstring += ":param " + std::string(sdlField->getSnakeCaseFieldName()) + ": ";
 		docstring += std::string(sdlField->getDescription()) + "\n";
-		docstring += ":type " + std::string(sdlField->getFieldName()) + ": ";
+		docstring += ":type " + std::string(sdlField->getSnakeCaseFieldName()) + ": ";
 		docstring += std::string(sdlField->getTypeName()) + "\n";
 	}
 

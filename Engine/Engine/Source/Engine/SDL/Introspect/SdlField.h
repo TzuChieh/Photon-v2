@@ -38,6 +38,7 @@ public:
 	std::string genPrettyName() const;
 	std::string_view getTypeName() const;
 	std::string_view getFieldName() const;
+	std::string_view getSnakeCaseFieldName() const;
 	std::string_view getDescription() const;
 	std::string_view getTypeSignature() const;
 
@@ -58,6 +59,7 @@ protected:
 private:
 	std::string m_typeName;
 	std::string m_fieldName;
+	std::string m_snakeCaseFieldName;
 	std::string m_description;
 	std::string m_typeSignature;
 	EFieldImportance m_importance;
@@ -74,6 +76,11 @@ inline std::string_view SdlField::getTypeName() const
 inline std::string_view SdlField::getFieldName() const
 {
 	return m_fieldName;
+}
+
+inline std::string_view SdlField::getSnakeCaseFieldName() const
+{
+	return m_snakeCaseFieldName;
 }
 
 inline std::string_view SdlField::getDescription() const

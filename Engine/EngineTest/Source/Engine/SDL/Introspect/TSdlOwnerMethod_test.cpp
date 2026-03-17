@@ -71,3 +71,20 @@ TEST(TSdlOwnerMethodTest, CallMethod)
 		PH_EXPECT_STRING_EQ(res.str, "hello");
 	}
 }
+
+TEST(TSdlOwnerMethodTest, SnakeCaseName)
+{
+	{
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method;
+		method.name("some-method-name");
+		PH_EXPECT_STRING_EQ(method.getName(), "some-method-name");
+		PH_EXPECT_STRING_EQ(method.getSnakeCaseName(), "some_method_name");
+	}
+
+	{
+		TSdlOwnerMethod<TestMethodStruct, TestResource> method;
+		method.name("simple");
+		PH_EXPECT_STRING_EQ(method.getName(), "simple");
+		PH_EXPECT_STRING_EQ(method.getSnakeCaseName(), "simple");
+	}
+}
