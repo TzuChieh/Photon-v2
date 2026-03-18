@@ -47,11 +47,11 @@ public:
 			rawVertPositions.options(EFieldOption::PreferNativeAccess);
 			func.addParam(rawVertPositions);
 
-			TSdlFloat32Array<OwnerType> rawVertLoopNormals("raw-vert-normals", &OwnerType::rawVertLoopNormals);
+			TSdlFloat32Array<OwnerType> rawVertLoopNormals("raw-vert-loop-normals", &OwnerType::rawVertLoopNormals);
 			rawVertLoopNormals.options(EFieldOption::PreferNativeAccess);
 			func.addParam(rawVertLoopNormals);
 
-			TSdlFloat32Array<OwnerType> rawVertLoopUVs("raw-vert-uvs", &OwnerType::rawVertLoopUVs);
+			TSdlFloat32Array<OwnerType> rawVertLoopUVs("raw-vert-loop-uvs", &OwnerType::rawVertLoopUVs);
 			rawVertLoopUVs.options(EFieldOption::PreferNativeAccess);
 			func.addParam(rawVertLoopUVs);
 
