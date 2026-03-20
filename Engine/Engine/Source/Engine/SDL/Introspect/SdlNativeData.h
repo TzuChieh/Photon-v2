@@ -222,7 +222,7 @@ public:
 	*/
 	bool isFloatingPointElement() const;
 
-	/*! @brief Check if the native data is valid/non-empty.
+	/*! @brief Check if the native data is valid.
 	*/
 	operator bool () const;
 

@@ -188,8 +188,8 @@ class PhPhotonExportEngine(bpy.types.RenderEngine):
 
     # Init is called whenever a new render engine instance is created. Multiple instances may exist at the same 
     # time, for example for a viewport and final render.
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         print("Photon render-to-p2 engine started")
 

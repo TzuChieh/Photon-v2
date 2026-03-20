@@ -305,7 +305,7 @@ inline bool SdlNativeData::isFloatingPointElement() const
 
 inline SdlNativeData::operator bool () const
 {
-	return numElements > 0;
+	return elementContainer != ESdlDataFormat::None;
 }
 
 template<typename ElementType>

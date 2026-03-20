@@ -119,4 +119,18 @@ TEST(TSdlRealArrayTest, NativeData)
 	PH_EXPECT_REAL_EQ(owner.arr[2], 3.3_r);
 }
 
+TEST(TSdlRealArrayTest, EmptyVectorHasValidNativeData)
+{
+	TSdlRealArray<RealArrOwner> sdlRealArr("array", &RealArrOwner::arr);
+	RealArrOwner owner;
+	owner.arr = {};
+
+	SdlNativeData data = sdlRealArr.ownedNativeData(owner);
+	
+	// Should be valid even if empty
+	EXPECT_TRUE(data);
+	EXPECT_EQ(data.numElements, 0);
+	EXPECT_EQ(data.elementContainer, ESdlDataFormat::Vector);
+}
+
 // TODO: ReadFromSdlInFile

@@ -59,11 +59,11 @@ public:
 			vertPositionIndices.options(EFieldOption::PreferNativeAccess);
 			func.addParam(vertPositionIndices);
 
-			TSdlUInt32Array<OwnerType> vertLoopIndices("vert-loop-indices", &OwnerType::vertPositionIndices);
+			TSdlUInt32Array<OwnerType> vertLoopIndices("vert-loop-indices", &OwnerType::vertLoopIndices);
 			vertLoopIndices.options(EFieldOption::PreferNativeAccess);
 			func.addParam(vertLoopIndices);
 
-			TSdlUInt32Array<OwnerType> triMatIds("tri-mat-ids", &OwnerType::vertPositionIndices);
+			TSdlUInt32Array<OwnerType> triMatIds("tri-mat-ids", &OwnerType::triMatIds);
 			triMatIds.options(EFieldOption::PreferNativeAccess);
 			func.addParam(triMatIds);
 		}

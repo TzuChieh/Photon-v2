@@ -146,7 +146,7 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
     ply_path = (console.get_working_dir() / "Mesh_data" / b_mesh_object.name).with_suffix(".ply")
-    ply_path.mkdir(parents=True, exist_ok=True)
+    ply_path.parent.mkdir(parents=True, exist_ok=True)
     psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
         path=ply_path,
         raw_vert_positions=raw_vert_positions,

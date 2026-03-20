@@ -14,27 +14,20 @@ namespace ph
 
 void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 {
-	PH_ASSERT_EQ(rawVertPositions.size() % 3, 0);
-	PH_ASSERT_EQ(rawVertLoopNormals.size() % 3, 0);
-	PH_ASSERT_EQ(rawVertLoopUVs.size() % 2, 0);
-	PH_ASSERT_EQ(vertPositionIndices.size() % 3, 0);
-	PH_ASSERT_EQ(vertLoopIndices.size() % 3, 0);
-	PH_ASSERT_EQ(triMatIds.size() % 3, 0);
-
 	const auto numPosVerts = rawVertPositions.size() / 3;
 	const auto numLoopVerts = rawVertLoopNormals.size() / 3;
 	const auto numTris = vertLoopIndices.size() / 3;
 
-#if PH_DEBUG
-	if((numLoopVerts != rawVertLoopUVs.size() / 2) || 
-	   (triMatIds.size() != vertPositionIndices.size() || triMatIds.size() != vertLoopIndices.size()))
+	if(numLoopVerts != rawVertLoopUVs.size() / 2 || 
+	   vertPositionIndices.size() != vertLoopIndices.size() ||
+	   triMatIds.size() != vertLoopIndices.size() / 3)
 	{
 		PH_DEFAULT_LOG(Warning,
-			"Inconsistent Blender PLY polygon data sizes: "
+			"Inconsistent Blender PLY polygon data sizes, writing aborted: "
 			"raw-vert-positions={}, raw-vert-normals={}, raw-vert-uvs={}, vert-position-indices={}, vert-loop-indices={}, tri-mat-ids={}",
 			rawVertPositions.size(), rawVertLoopNormals.size(), rawVertLoopUVs.size(), vertPositionIndices.size(), vertLoopIndices.size(), triMatIds.size());
+		return;
 	}
-#endif
 
 	BinaryFileOutputStream writeStream(path);
 
