@@ -201,7 +201,17 @@ public:
 		return m_primitiveGetter().calcExtendedArea();
 	}
 
-	const PrimitiveMetadata& getMetadata(uint32 slot) const override
+	uint32 numMetadataSlots() const override
+	{
+		return m_primitiveGetter().numMetadataSlots();
+	}
+
+	uint32 toMetadataSlot(const uint64 faceID) const override
+	{
+		return m_primitiveGetter().toMetadataSlot(faceID);
+	}
+
+	const PrimitiveMetadata& getMetadata(const uint32 slot) const override
 	{
 		// Metadata from `m_primitiveGetter()->getMetadata()` (if any) is intentionally overridden
 		// by the injected one
