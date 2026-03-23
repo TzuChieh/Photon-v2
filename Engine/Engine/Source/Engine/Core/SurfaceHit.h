@@ -132,11 +132,14 @@ public:
 	///@}
 
 private:
-	Ray               m_ray;
-	HitProbe          m_recordedProbe;
-	HitDetail         m_detail;
-	SurfaceHitReasons m_reason;
-	bool              m_hasFullHitDetail;
+	static const Primitive& getPrimitiveRef(const HitDetail& detail);
+
+	Ray                      m_ray;
+	HitProbe                 m_recordedProbe;
+	HitDetail                m_detail;
+	const PrimitiveMetadata* m_metadata;// TODO: init
+	SurfaceHitReasons        m_reason;
+	bool                     m_hasFullHitDetail;
 };
 
 // In-header Implementations:
@@ -257,11 +260,16 @@ inline bool SurfaceHit::hasFullHitDetail() const
 
 inline const Primitive& SurfaceHit::getPrimitive() const
 {
-	PH_ASSERT_MSG(getDetail().getPrimitive(),
-		"Does not make sense to call the method if `surfaceHit` hits nothing. "
+	return getPrimitiveRef(getDetail());
+}
+
+inline const Primitive& SurfaceHit::getPrimitiveRef(const HitDetail& detail)
+{
+	PH_ASSERT_MSG(detail.getPrimitive(),
+		"Does not make sense to call the method if `SurfaceHit` hits nothing. "
 		"You may miss a call to check for valid hit.");
 
-	return *getDetail().getPrimitive();
+	return *detail.getPrimitive();
 }
 
 }// end namespace ph

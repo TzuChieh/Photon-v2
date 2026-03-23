@@ -38,7 +38,8 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 
 const PrimitiveMetadata& SurfaceHit::getMetadata() const
 {
-	return getPrimitive().getMetadata();
+	const Primitive& primitive = getPrimitive();
+	return primitive.getMetadata(primitive.toMetadataSlot(getDetail().getFaceID()));
 }
 
 const SurfaceEmitter& SurfaceHit::getSurfaceEmitter() const

@@ -23,7 +23,7 @@ void Primitive::calcPosPdf(PrimitivePosPdfQuery& query) const
 	PH_ASSERT(!query.outputs);
 }
 
-const PrimitiveMetadata& Primitive::getMetadata() const
+const PrimitiveMetadata& Primitive::getMetadata(uint32 /* slot */) const
 {
 	return *SceneGlobals::getDefaultPrimitiveMetadata();
 }

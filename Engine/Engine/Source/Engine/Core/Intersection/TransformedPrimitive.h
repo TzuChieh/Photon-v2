@@ -54,7 +54,7 @@ public:
 
 	real calcExtendedArea() const override;
 
-	const PrimitiveMetadata& getMetadata() const override;
+	const PrimitiveMetadata& getMetadata(uint32 slot) const override;
 
 private:
 	const Primitive*      m_primitive;
@@ -113,9 +113,9 @@ inline real TransformedPrimitive::calcExtendedArea() const
 	return m_primitive->calcExtendedArea();
 }
 
-inline const PrimitiveMetadata& TransformedPrimitive::getMetadata() const
+inline const PrimitiveMetadata& TransformedPrimitive::getMetadata(const uint32 slot) const
 {
-	return m_primitive->getMetadata();
+	return m_primitive->getMetadata(slot);
 }
 
 }// end namespace ph

@@ -51,6 +51,7 @@ public:
 
 	VolumeHit(
 		const Primitive* primitive,
+		const PrimitiveMetadata* metadata,
 		const Ray& ray,
 		const math::Vector3R& pos,
 		bool isInterior,
@@ -80,6 +81,7 @@ public:
 
 private:
 	const Primitive* m_primitive;
+	const PrimitiveMetadata* m_metadata;
 	math::Vector3R m_pos;
 	Ray m_ray;
 	bool m_isInterior;
@@ -91,6 +93,7 @@ private:
 inline VolumeHit::VolumeHit()
 #if PH_DEBUG
 	: m_primitive{}
+	, m_metadata{}
 	, m_pos{}
 	, m_ray{}
 	, m_isInterior{}
@@ -100,12 +103,14 @@ inline VolumeHit::VolumeHit()
 
 inline VolumeHit::VolumeHit(
 	const Primitive* primitive,
+	const PrimitiveMetadata* metadata,
 	const Ray& ray,
 	const math::Vector3R& pos,
 	bool isInterior,
 	VolumeHitReason reason)
 
 	: m_primitive{primitive}
+	, m_metadata{metadata}
 	, m_pos{pos}
 	, m_ray{ray}
 	, m_isInterior{isInterior}
@@ -141,6 +146,12 @@ inline const Primitive& VolumeHit::getPrimitive() const
 		"this should be handled by previous logics.");
 
 	return *m_primitive;
+}
+
+inline const PrimitiveMetadata& VolumeHit::getMetadata() const
+{
+	PH_ASSERT(m_metadata);
+	return *m_metadata;
 }
 
 inline math::Vector3R VolumeHit::getPos() const

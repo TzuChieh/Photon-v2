@@ -9,6 +9,7 @@
 
 #include <concepts>
 #include <utility>
+#include <array>
 
 namespace ph
 {
@@ -17,9 +18,9 @@ namespace detail
 {
 
 template<typename GetterType>
-concept CPrimitiveMetaGetter = requires (const GetterType getter)
+concept CPrimitiveMetaGetter = requires (const GetterType getter, uint32 slot)
 {
-	{ getter() } -> std::same_as<const PrimitiveMetadata&>;
+	{ getter(slot) } -> std::same_as<const PrimitiveMetadata&>;
 };
 
 template<typename GetterType>
@@ -38,7 +39,7 @@ struct ReferencedPrimitiveMetaGetter final
 		: metadata(metadata)
 	{}
 
-	const PrimitiveMetadata& operator () () const
+	const PrimitiveMetadata& operator () (uint32 /* slot */) const
 	{
 		PH_ASSERT(metadata);
 		return *metadata;
@@ -54,7 +55,7 @@ struct EmbeddedPrimitiveMetaGetter final
 		: metadata(std::forward<DeducedArgs>(args)...)
 	{}
 
-	const PrimitiveMetadata& operator () () const
+	const PrimitiveMetadata& operator () (uint32 /* slot */) const
 	{
 		return metadata;
 	}
@@ -200,11 +201,11 @@ public:
 		return m_primitiveGetter().calcExtendedArea();
 	}
 
-	const PrimitiveMetadata& getMetadata() const override
+	const PrimitiveMetadata& getMetadata(uint32 slot) const override
 	{
 		// Metadata from `m_primitiveGetter()->getMetadata()` (if any) is intentionally overridden
 		// by the injected one
-		return m_metaGetter();
+		return m_metaGetter(slot);
 	}
 
 	/*! @brief Gets the primitive that has got metadata injected.

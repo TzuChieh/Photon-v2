@@ -81,12 +81,12 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	// Update source primitives with the modulated emitters
 	if(!sourceElement.primitivesView.empty())
 	{
-		const PrimitiveMetadata& metadata = sourceElement.primitivesView[0]->getMetadata();
+		const PrimitiveMetadata& refMetadata = sourceElement.primitivesView[0]->getMetadata(0);
 
 		bool hasSingleMetadata = true;
-		for(auto* sourcePrimitive : sourceElement.primitivesView)
+		for(auto* pi : sourceElement.primitivesView)
 		{
-			if(&sourcePrimitive->getMetadata() != &metadata)
+			if(pi->numMetadataSlots() != 1 || &pi->getMetadata(0) != &refMetadata)
 			{
 				hasSingleMetadata = false;
 				break;
@@ -103,14 +103,14 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		// 1 emitter to many primitives
 		if(result.surfaceEmitters.size() == 1)
 		{
-			auto* iesMetadata = ctx.getResources().makeMetadata(metadata);
+			auto* iesMetadata = ctx.getResources().makeMetadata(refMetadata);
 			iesMetadata->surface().setEmitter(result.surfaceEmitters[0]);
-			for(auto* sourcePrimitive : sourceElement.primitivesView)
+			for(auto* pi : sourceElement.primitivesView)
 			{
 				auto* iesPrimitive = ctx.getResources().copyIntersectable(
 					TMetaInjectionPrimitive(
 						ReferencedPrimitiveMetaGetter(iesMetadata),
-						TReferencedPrimitiveGetter<Primitive>(sourcePrimitive)));
+						TReferencedPrimitiveGetter<Primitive>(pi)));
 
 				result.add(iesPrimitive);
 			}
@@ -121,7 +121,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 			PH_ASSERT_EQ(result.surfaceEmitters.size(), sourceElement.primitivesView.size());
 			for(std::size_t i = 0; i < result.surfaceEmitters.size(); ++i)
 			{
-				auto* iesMetadata = ctx.getResources().makeMetadata(metadata);
+				auto* iesMetadata = ctx.getResources().makeMetadata(refMetadata);
 				iesMetadata->surface().setEmitter(result.surfaceEmitters[i]);
 
 				auto* iesPrimitive = ctx.getResources().copyIntersectable(

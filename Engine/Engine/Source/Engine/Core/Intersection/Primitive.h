@@ -58,13 +58,28 @@ public:
 	*/
 	virtual real calcExtendedArea() const;
 
+	virtual uint32 numMetadataSlots() const;
+
+	virtual uint32 toMetadataSlot(uint64 faceID) const;
+
 	/*!
-	@return The metadata associated to this primitive.
+	@return The metadata associated to this primitive at a slot.
 	*/
-	virtual const PrimitiveMetadata& getMetadata() const;
+	virtual const PrimitiveMetadata& getMetadata(uint32 slot) const;
 };
 
 // In-header Implementation:
+
+inline uint32 Primitive::numMetadataSlots() const
+{
+	return 1;
+}
+
+inline uint32 Primitive::toMetadataSlot(uint64 /* faceID */) const
+{
+	// Default slot is 0
+	return 0;
+}
 
 inline real Primitive::calcExtendedArea() const
 {

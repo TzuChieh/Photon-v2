@@ -55,8 +55,8 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 		numPosVerts,
 		numLoopVerts,
 		numLoopVerts,
-		numTris,
-		numTris,
+		numTris * 3,
+		numTris * 3,
 		numTris));
 
 	// Write actual data

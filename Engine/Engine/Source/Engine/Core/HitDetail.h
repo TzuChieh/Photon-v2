@@ -36,7 +36,7 @@ public:
 	@param uvw The parametric coordinates of the hit.
 	@param rayT The parametric distance of the hit relative to the ray. The unit of this
 	value depends on the length of the ray's direction vector.
-	@param faceID ID of the face that was hit. This ID may not be globally unique, see `getFaceID()`.
+	@param faceID ID of the face that was hit. This ID is not globally unique, see `getFaceID()`.
 	@param faceTopology Surface topology locally around the hit point.
 	*/
 	HitDetail& setHitIntrinsics(

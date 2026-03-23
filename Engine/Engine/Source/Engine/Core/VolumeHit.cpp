@@ -18,6 +18,7 @@ VolumeHit::VolumeHit(
 
 	: VolumeHit(
 		X.getDetail().getPrimitive(),
+		&X.getMetadata(),
 		incidentRay,
 		X.getPos(),
 		isInterior,
@@ -26,12 +27,12 @@ VolumeHit::VolumeHit(
 
 const VolumeOptics* VolumeHit::getInteriorOptics() const
 {
-	return getPrimitive().getMetadata().getInterior().getOptics();
+	return getMetadata().getInterior().getOptics();
 }
 
 const VolumeOptics* VolumeHit::getExteriorOptics() const
 {
-	return getPrimitive().getMetadata().getExterior().getOptics();
+	return getMetadata().getExterior().getOptics();
 }
 
 }// end namespace ph

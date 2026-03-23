@@ -1,4 +1,5 @@
 #include "Engine/World/Foundation/CookedNamedResource.h"
+#include "Engine/Core/Intersection/Primitive.h"
 
 #include <Common/logging.h>
 
@@ -18,6 +19,13 @@ const Primitive* CookedNamedResource::getBackgroundPrimitive() const
 
 void CookedNamedResource::setBackgroundPrimitive(const Primitive* const primitive)
 {
+	if(primitive && primitive->numMetadataSlots() > 1)
+	{
+		PH_LOG(CookedNamedResource, Warning,
+			"{} metadata in background primitive, will use metadata slot 0 only",
+			primitive->numMetadataSlots());
+	}
+
 	// Overwriting existing background primitive is not what the user want (most of the time).
 	// Log this event so it is easier to track.
 	if(m_backgroundPrimitive != nullptr)
