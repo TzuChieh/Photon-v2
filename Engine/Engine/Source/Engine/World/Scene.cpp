@@ -113,7 +113,7 @@ const VolumeBehavior* Scene::getBackgroundVolumeBehavior() const
 		return nullptr;
 	}
 
-	const PrimitiveMetadata& metadata = getBackgroundPrimitive()->getMetadata();
+	const PrimitiveMetadata& metadata = getBackgroundPrimitive()->getMetadata(0);
 	return &metadata.getInterior();
 }
 

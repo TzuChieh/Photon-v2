@@ -194,6 +194,7 @@ void Transform::transform(
 		surfaceHit.getRay(),
 		surfaceHit.getProbe(),
 		tDetail,
+		&SurfaceHit::getPrimitiveMetadataRef(tDetail),
 		surfaceHit.getReason(),
 		surfaceHit.hasFullHitDetail());
 }

@@ -58,6 +58,9 @@ public:
 	*/
 	void setBackgroundPrimitive(const Primitive* const primitive);
 
+	/*!
+	Background primitive uses only metadata at slot 0.
+	*/
 	const Primitive* getBackgroundPrimitive() const;
 
 	const VolumeBehavior* getBackgroundVolumeBehavior() const;

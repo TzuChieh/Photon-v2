@@ -153,7 +153,7 @@ inline bool SurfaceTracer::traceNextSurface(
 		return false;
 	}
 
-	*out_X = SurfaceHit(ray, probe, SurfaceHitReasons(ESurfaceHitReason::IncidentRay));
+	*out_X = SurfaceHit(ray, probe, ESurfaceHitReason::IncidentRay);
 	sidedness.adjustForSidednessAgreement(*out_X);
 
 	return sidedness.isSidednessAgreed(*out_X, ray.getDir());

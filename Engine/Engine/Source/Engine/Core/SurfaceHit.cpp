@@ -32,14 +32,17 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 		HitDetail newDetail;
 		newProbe.calcHitDetail(m_ray, &newDetail);
 
-		return SurfaceHit(m_ray, newProbe, newDetail, m_reason, false);
+		return SurfaceHit(m_ray, newProbe, newDetail, m_metadata, m_reason, false);
 	}
 }
 
 const PrimitiveMetadata& SurfaceHit::getMetadata() const
 {
-	const Primitive& primitive = getPrimitive();
-	return primitive.getMetadata(primitive.toMetadataSlot(getDetail().getFaceID()));
+	PH_ASSERT_MSG(m_metadata,
+		"Does not make sense to call the method if `SurfaceHit` hits nothing. "
+		"You may miss a call to check for valid hit.");
+
+	return *m_metadata;
 }
 
 const SurfaceEmitter& SurfaceHit::getSurfaceEmitter() const
@@ -60,6 +63,12 @@ const VolumeOptics* SurfaceHit::getInteriorOptics() const
 const VolumeOptics* SurfaceHit::getExteriorOptics() const
 {
 	return getMetadata().getExterior().getOptics();
+}
+
+const PrimitiveMetadata& SurfaceHit::getPrimitiveMetadataRef(const HitDetail& detail)
+{
+	const Primitive& primitive = getPrimitiveRef(detail);
+	return primitive.getMetadata(primitive.toMetadataSlot(detail.getFaceID()));
 }
 
 }// end namespace ph

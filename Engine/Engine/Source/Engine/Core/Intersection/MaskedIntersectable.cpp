@@ -26,7 +26,13 @@ inline SurfaceHit report_hit(const Ray& ray, const HitProbe& probe)
 	// We do not need to compute bases for sampling the mask
 	HitDetail detail;
 	probe.calcHitDetail(ray, &detail);
-	return SurfaceHit(ray, probe, detail, SurfaceHitReasons(ESurfaceHitReason::IncidentRay), false);
+	return SurfaceHit(
+		ray,
+		probe,
+		detail,
+		&SurfaceHit::getPrimitiveMetadataRef(detail),
+		SurfaceHitReasons(ESurfaceHitReason::IncidentRay),
+		false);
 }
 
 inline std::optional<Ray> next_ray_from(const SurfaceHit& X)
