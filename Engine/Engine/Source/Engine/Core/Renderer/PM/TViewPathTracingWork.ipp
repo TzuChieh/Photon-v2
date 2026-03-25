@@ -234,7 +234,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 	const lta::RussianRoulette rr{};
 
-	const PrimitiveMetadata& metadata      = X.getDetail().getPrimitive()->getMetadata();
+	const PrimitiveMetadata& metadata      = X.getMetadata();
 	const SurfaceOptics&     surfaceOptics = metadata.getSurface().getOptics();
 
 	const SurfacePhenomena targetPhenomena = policy.getTargetPhenomena();

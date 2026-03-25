@@ -69,6 +69,9 @@ inline void load_fields_from_sdl(
 					"type mismatched for input clause <" + clause.genPrettyName() + ">, expecting <"
 					+ field.genPrettyName() + "> (from " + ctx.genPrettySrcInfo() + "), ignoring",
 					field.getImportance());
+
+				// No match is found, skip to next clause
+				++clauseIdx;
 			}
 		}
 		else

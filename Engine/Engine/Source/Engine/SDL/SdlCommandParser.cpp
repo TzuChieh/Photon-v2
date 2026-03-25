@@ -461,7 +461,7 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 		{
 			PH_LOG(SdlCommandParser, Warning,
 				"switching PSDL version: old={}, new={} (engine native PSDL={})", 
-				m_commandVersion.toString(), versionStr, PH_PSDL_VERSION);
+				m_commandVersion.toString(), loadedVersion.toString(), PH_PSDL_VERSION);
 		}
 
 		m_commandVersion = loadedVersion;
