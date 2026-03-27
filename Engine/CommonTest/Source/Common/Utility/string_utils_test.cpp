@@ -52,6 +52,91 @@ TEST(StringUtilsTest, NextToken)
 	}
 }
 
+TEST(StringUtilsTest, Cut)
+{
+	{
+		EXPECT_EQ(cut_head("abc", "a"), "bc");
+		EXPECT_EQ(cut_head("abc", "ab"), "c");
+		EXPECT_EQ(cut_head("abc", "abc"), "");
+		EXPECT_EQ(cut_head("abc", "d"), "abc");
+		EXPECT_EQ(cut_head("", "a"), "");
+		EXPECT_EQ(cut_head("aaa", "a"), "");
+	}
+
+	{
+		EXPECT_EQ(cut_tail("abc", "c"), "ab");
+		EXPECT_EQ(cut_tail("abc", "bc"), "a");
+		EXPECT_EQ(cut_tail("abc", "abc"), "");
+		EXPECT_EQ(cut_tail("abc", "d"), "abc");
+		EXPECT_EQ(cut_tail("", "a"), "");
+		EXPECT_EQ(cut_tail("ccc", "c"), "");
+	}
+
+	{
+		EXPECT_EQ(cut_ends("abc", "a"), "bc");
+		EXPECT_EQ(cut_ends("abc", "c"), "ab");
+		EXPECT_EQ(cut_ends("abc", "ac"), "b");
+		EXPECT_EQ(cut_ends("aba", "a"), "b");
+		EXPECT_EQ(cut_ends("aaa", "a"), "");
+	}
+}
+
+TEST(StringUtilsTest, Trim)
+{
+	{
+		EXPECT_EQ(trim_head("  abc"), "abc");
+		EXPECT_EQ(trim_head("\t\n abc"), "abc");
+		EXPECT_EQ(trim_head("abc  "), "abc  ");
+		EXPECT_EQ(trim_head(""), "");
+		EXPECT_EQ(trim_head("   "), "");
+	}
+
+	{
+		EXPECT_EQ(trim_tail("abc  "), "abc");
+		EXPECT_EQ(trim_tail("abc \t\n"), "abc");
+		EXPECT_EQ(trim_tail("  abc"), "  abc");
+		EXPECT_EQ(trim_tail(""), "");
+		EXPECT_EQ(trim_tail("   "), "");
+	}
+
+	{
+		EXPECT_EQ(trim("  abc  "), "abc");
+		EXPECT_EQ(trim("\t abc \n"), "abc");
+		EXPECT_EQ(trim("abc"), "abc");
+		EXPECT_EQ(trim(""), "");
+		EXPECT_EQ(trim("   "), "");
+	}
+}
+
+TEST(StringUtilsTest, CaseConversion)
+{
+	{
+		EXPECT_EQ(az_to_AZ('a'), 'A');
+		EXPECT_EQ(az_to_AZ('z'), 'Z');
+		EXPECT_EQ(az_to_AZ('A'), 'A');
+		EXPECT_EQ(az_to_AZ('1'), '1');
+	}
+
+	{
+		EXPECT_EQ(AZ_to_az('A'), 'a');
+		EXPECT_EQ(AZ_to_az('Z'), 'z');
+		EXPECT_EQ(AZ_to_az('a'), 'a');
+		EXPECT_EQ(AZ_to_az('1'), '1');
+	}
+
+	{
+		std::string s = "abcDEF123";
+		az_to_AZ(s);
+		EXPECT_EQ(s, "ABCDEF123");
+	}
+
+	{
+		std::string s = "abcDEF123";
+		AZ_to_az(s);
+		EXPECT_EQ(s, "abcdef123");
+	}
+}
+
 TEST(StringUtilsTest, StringifyIntAlphabetic)
 {
 	// Base 2 to 36, use `std::to_char()` to verify
