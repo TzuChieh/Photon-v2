@@ -12,24 +12,26 @@ Values stored in the map are stored at the same index as their keys. The impleme
 performs the same operation as those performed by `TSortedVector<KeyType>`.
 */
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline TSortedMap<KeyType, ValueType, IsLess>::TSortedMap(const std::size_t initialCapacity, IsLess isLess)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline TSortedMap<KeyType, ValueType, Index, IsLess>::TSortedMap(const Index initialCapacity, IsLess isLess)
 	: m_keys  (initialCapacity, std::move(isLess))
 	, m_values()
 {
 	m_values.reserve(initialCapacity);
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::size_t TSortedMap<KeyType, ValueType, IsLess>::map(KeyType key, ValueType value)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline Index TSortedMap<KeyType, ValueType, Index, IsLess>::map(KeyType key, ValueType value)
 {
+	PH_ASSERT_LT(m_values.size(), std::numeric_limits<Index>::max());
+
 	const auto keyIndex = m_keys.addValue(std::move(key));
 	m_values.insert(m_values.begin() + keyIndex, std::move(value));
 	return keyIndex;
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::optional<std::size_t> TSortedMap<KeyType, ValueType, IsLess>::mapUnique(KeyType key, ValueType value)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline std::optional<Index> TSortedMap<KeyType, ValueType, Index, IsLess>::mapUnique(KeyType key, ValueType value)
 {
 	const auto optKeyIndex = m_keys.addUniqueValue(std::move(key));
 	if(!optKeyIndex.has_value())
@@ -37,13 +39,14 @@ inline std::optional<std::size_t> TSortedMap<KeyType, ValueType, IsLess>::mapUni
 		return std::nullopt;
 	}
 
+	PH_ASSERT_LT(m_values.size(), std::numeric_limits<Index>::max());
 	PH_ASSERT(optKeyIndex.has_value());
 	m_values.insert(m_values.begin() + *optKeyIndex, std::move(value));
 	return optKeyIndex;
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline bool TSortedMap<KeyType, ValueType, IsLess>::unmap(const KeyType& key)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline bool TSortedMap<KeyType, ValueType, Index, IsLess>::unmap(const KeyType& key)
 {
 	const auto optFirstKeyIndex = m_keys.removeValue(key);
 	if(optFirstKeyIndex.has_value())
@@ -53,10 +56,10 @@ inline bool TSortedMap<KeyType, ValueType, IsLess>::unmap(const KeyType& key)
 	return optFirstKeyIndex.has_value();
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline bool TSortedMap<KeyType, ValueType, IsLess>::unmapValues(const KeyType& key)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline bool TSortedMap<KeyType, ValueType, Index, IsLess>::unmapValues(const KeyType& key)
 {
-	std::size_t numRemovedValues = 0;
+	Index numRemovedValues = 0;
 	const auto optFirstKeyIndex = m_keys.removeValues(key, &numRemovedValues);
 	if(optFirstKeyIndex.has_value())
 	{
@@ -68,23 +71,23 @@ inline bool TSortedMap<KeyType, ValueType, IsLess>::unmapValues(const KeyType& k
 	return optFirstKeyIndex.has_value();
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline void TSortedMap<KeyType, ValueType, IsLess>::unmapByIndex(const std::size_t valueIndex)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline void TSortedMap<KeyType, ValueType, Index, IsLess>::unmapByIndex(const Index valueIndex)
 {
 	PH_ASSERT_LT(valueIndex, m_keys.size());
-	PH_ASSERT_LT(valueIndex, m_values.size());
+	PH_ASSERT_LT(valueIndex, size());
 
 	m_keys.removeValueByIndex(valueIndex);
 	m_values.erase(m_values.begin() + valueIndex);
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline const ValueType* TSortedMap<KeyType, ValueType, IsLess>::getValue(const KeyType& key) const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline const ValueType* TSortedMap<KeyType, ValueType, Index, IsLess>::getValue(const KeyType& key) const
 {
 	const auto optFirstKeyIndex = m_keys.indexOfValue(key);
 	if(optFirstKeyIndex.has_value())
 	{
-		PH_ASSERT_LT(*optFirstKeyIndex, m_values.size());
+		PH_ASSERT_LT(*optFirstKeyIndex, size());
 		return &m_values[*optFirstKeyIndex];
 	}
 	else
@@ -93,8 +96,8 @@ inline const ValueType* TSortedMap<KeyType, ValueType, IsLess>::getValue(const K
 	}
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline const ValueType* TSortedMap<KeyType, ValueType, IsLess>::getValue(const KeyType& key, const std::size_t ithValue) const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline const ValueType* TSortedMap<KeyType, ValueType, Index, IsLess>::getValue(const KeyType& key, const Index ithValue) const
 {
 	const auto optFirstKeyIndex = m_keys.indexOfValue(key);
 	if(optFirstKeyIndex.has_value())
@@ -104,10 +107,10 @@ inline const ValueType* TSortedMap<KeyType, ValueType, IsLess>::getValue(const K
 		// Do not rely on testing the equality of values as `ValueType` may not be comparable, or 
 		// values that compare equal were mapped to different keys.
 
-		const std::size_t ithKeyIndex = *optFirstKeyIndex + ithValue;
+		const Index ithKeyIndex = *optFirstKeyIndex + ithValue;
 		if(ithKeyIndex < m_keys.size() && m_keys.get(ithKeyIndex) == key)
 		{
-			PH_ASSERT_LT(ithKeyIndex, m_values.size());
+			PH_ASSERT_LT(ithKeyIndex, size());
 			return &m_values[ithKeyIndex];
 		}
 		else
@@ -121,60 +124,60 @@ inline const ValueType* TSortedMap<KeyType, ValueType, IsLess>::getValue(const K
 	}
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline const ValueType& TSortedMap<KeyType, ValueType, IsLess>::get(const std::size_t valueIndex) const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline const ValueType& TSortedMap<KeyType, ValueType, Index, IsLess>::get(const Index valueIndex) const
 {
-	PH_ASSERT_LT(valueIndex, m_values.size());
+	PH_ASSERT_LT(valueIndex, size());
 	return m_values[valueIndex];
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline ValueType& TSortedMap<KeyType, ValueType, IsLess>::get(const std::size_t valueIndex)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline ValueType& TSortedMap<KeyType, ValueType, Index, IsLess>::get(const Index valueIndex)
 {
-	PH_ASSERT_LT(valueIndex, m_values.size());
+	PH_ASSERT_LT(valueIndex, size());
 	return m_values[valueIndex];
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::pair<const KeyType&, const ValueType&> TSortedMap<KeyType, ValueType, IsLess>::getKeyAndValue(const std::size_t valueIndex) const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline std::pair<const KeyType&, const ValueType&> TSortedMap<KeyType, ValueType, Index, IsLess>::getKeyAndValue(const Index valueIndex) const
 {
 	return {m_keys.get(valueIndex), get(valueIndex)};
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::pair<const KeyType&, ValueType&> TSortedMap<KeyType, ValueType, IsLess>::getKeyAndValue(const std::size_t valueIndex)
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline std::pair<const KeyType&, ValueType&> TSortedMap<KeyType, ValueType, Index, IsLess>::getKeyAndValue(const Index valueIndex)
 {
 	return {m_keys.get(valueIndex), get(valueIndex)};
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::size_t TSortedMap<KeyType, ValueType, IsLess>::numValues(const KeyType& key) const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline Index TSortedMap<KeyType, ValueType, Index, IsLess>::numValues(const KeyType& key) const
 {
 	// We store duplicated keys for values mapped to the same key
 	const auto numIdenticalKeys = m_keys.numValues(key);
 	return numIdenticalKeys;
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline std::size_t TSortedMap<KeyType, ValueType, IsLess>::size() const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline Index TSortedMap<KeyType, ValueType, Index, IsLess>::size() const
 {
-	return m_values.size();
+	return static_cast<Index>(m_values.size());
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline bool TSortedMap<KeyType, ValueType, IsLess>::isEmpty() const
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline bool TSortedMap<KeyType, ValueType, Index, IsLess>::isEmpty() const
 {
 	return m_values.empty();
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline typename std::vector<ValueType>::const_iterator TSortedMap<KeyType, ValueType, IsLess>::begin() const noexcept
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline typename std::vector<ValueType>::const_iterator TSortedMap<KeyType, ValueType, Index, IsLess>::begin() const noexcept
 {
 	return m_values.begin();
 }
 
-template<typename KeyType, typename ValueType, typename IsLess>
-inline typename std::vector<ValueType>::const_iterator TSortedMap<KeyType, ValueType, IsLess>::end() const noexcept
+template<typename KeyType, typename ValueType, typename Index, typename IsLess>
+inline typename std::vector<ValueType>::const_iterator TSortedMap<KeyType, ValueType, Index, IsLess>::end() const noexcept
 {
 	return m_values.end();
 }

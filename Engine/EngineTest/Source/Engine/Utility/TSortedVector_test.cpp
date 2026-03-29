@@ -7,6 +7,8 @@
 
 #include <memory>
 
+#include <type_traits>
+
 using namespace ph;
 
 TEST(TSortedVectorTest, Creation)
@@ -121,6 +123,24 @@ TEST(TSortedVectorTest, AddValuesAndRead)
 #endif
 
 #endif
+
+TEST(TSortedVectorTest, CustomIndexType)
+{
+	{
+		TSortedVector<float, uint32> vec;
+		vec.addValue(-2.0f);
+		vec.addValue(-1.0f);
+		vec.addValue(0.0f);
+		vec.addValue(10.0f);
+		vec.addValue(20.0f);
+
+		EXPECT_EQ(vec.size(), 5);
+		static_assert(std::is_same_v<decltype(vec.size()), uint32>);
+		
+		EXPECT_EQ(*vec.indexOfValue(-2.0f), 0);
+		static_assert(std::is_same_v<std::remove_reference_t<decltype(*vec.indexOfValue(-2.0f))>, uint32>);
+	}
+}
 
 TEST(TSortedVectorTest, AddAndRemoval)
 {

@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 
 using namespace ph;
 
@@ -102,6 +103,22 @@ TEST(TSortedMapTest, MapAndAccess)
 
 		*intMap.getValue(1) = 3;
 		EXPECT_EQ(*intMap.getValue(1), 3);
+	}
+}
+
+TEST(TSortedMapTest, CustomIndexType)
+{
+	{
+		TSortedMap<int, std::string, uint32> strMap;
+		strMap.map(1, "one");
+		strMap.map(2, "two");
+		strMap.map(8, "eight");
+
+		EXPECT_EQ(strMap.size(), 3);
+		static_assert(std::is_same_v<decltype(strMap.size()), uint32>);
+		
+		EXPECT_EQ(strMap.get(0), "one");
+		static_assert(std::is_same_v<decltype(strMap.map(3, "three")), uint32>);
 	}
 }
 

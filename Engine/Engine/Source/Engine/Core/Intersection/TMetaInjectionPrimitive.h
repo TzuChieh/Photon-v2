@@ -93,8 +93,6 @@ struct TEmbeddedPrimitiveGetter final
 	}
 };
 
-// TODO: could use EBO on some cases
-
 template<typename PrimitiveMetaGetter, typename PrimitiveGetter>
 class TMetaInjectionPrimitive : public Primitive
 {
@@ -103,6 +101,8 @@ class TMetaInjectionPrimitive : public Primitive
 	static_assert(detail::CPrimitiveGetter<PrimitiveGetter>,
 		"Input type does not fulfill the requirements of a PrimitiveGetter.");
 
+	// TODO: could use EBO on some cases
+
 public:
 	TMetaInjectionPrimitive(PrimitiveMetaGetter metaGetter, PrimitiveGetter primitiveGetter)
 		: Primitive()
@@ -110,7 +110,7 @@ public:
 		, m_primitiveGetter(std::move(primitiveGetter))
 	{}
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override final
 	{
 		if(m_primitiveGetter().isIntersecting(ray, probe))
 		{
@@ -129,7 +129,7 @@ public:
 		const Ray& ray,
 		HitProbe& probe,
 		const Ray& srcRay,
-		HitProbe& srcProbe) const override
+		HitProbe& srcProbe) const override final
 	{
 		PH_ASSERT(srcProbe.getTopHit() == this);
 		srcProbe.popHit();
@@ -148,7 +148,7 @@ public:
 	void calcHitDetail(
 		const Ray&       ray,
 		HitProbe&        probe,
-		HitDetail* const out_detail) const override
+		HitDetail* const out_detail) const override final
 	{
 		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
 		// the hit stack; 2. the hit event is invalid
@@ -165,7 +165,7 @@ public:
 		// Global primitive ID is not updated since no instancing is done here
 	}
 
-	math::AABB3D calcAABB() const override
+	math::AABB3D calcAABB() const override final
 	{
 		return m_primitiveGetter().calcAABB();
 	}
@@ -175,7 +175,7 @@ public:
 		return m_primitiveGetter().isOccluding(ray);
 	}
 
-	bool mayOverlapVolume(const math::AABB3D& volume) const override
+	bool mayOverlapVolume(const math::AABB3D& volume) const override final
 	{
 		return m_primitiveGetter().mayOverlapVolume(volume);
 	}
@@ -183,7 +183,7 @@ public:
 	void genPosSample(
 		PrimitivePosSampleQuery& query, 
 		SampleFlow& sampleFlow,
-		HitProbe& probe) const override
+		HitProbe& probe) const override final
 	{
 		m_primitiveGetter().genPosSample(query, sampleFlow, probe);
 
@@ -191,27 +191,27 @@ public:
 		probe.pushIntermediateHit(this);
 	}
 
-	void calcPosPdf(PrimitivePosPdfQuery& query) const override
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override final
 	{
 		m_primitiveGetter().calcPosPdf(query);
 	}
 
-	real calcExtendedArea() const override
+	real calcExtendedArea() const override final
 	{
 		return m_primitiveGetter().calcExtendedArea();
 	}
 
-	uint32 numMetadataSlots() const override
+	uint32 numMetadataSlots() const override final
 	{
 		return m_primitiveGetter().numMetadataSlots();
 	}
 
-	uint32 toMetadataSlot(const uint64 faceID) const override
+	uint32 toMetadataSlot(const uint64 faceID) const override final
 	{
 		return m_primitiveGetter().toMetadataSlot(faceID);
 	}
 
-	const PrimitiveMetadata& getMetadata(const uint32 slot) const override
+	const PrimitiveMetadata& getMetadata(const uint32 slot) const override final
 	{
 		// Metadata from `m_primitiveGetter()->getMetadata()` (if any) is intentionally overridden
 		// by the injected one

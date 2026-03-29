@@ -18,7 +18,7 @@ namespace ph
 The container has continuous memory allocation. The values are stored in ascending order according to 
 their keys.
 */
-template<typename KeyType, typename ValueType, typename IsLess = std::less<KeyType>>
+template<typename KeyType, typename ValueType, typename Index = std::size_t, typename IsLess = std::less<KeyType>>
 class TSortedMap final
 {
 public:
@@ -26,24 +26,24 @@ public:
 		: TSortedMap(0, IsLess{})
 	{}
 
-	inline explicit TSortedMap(const std::size_t initialCapacity) requires std::default_initializable<IsLess>
+	inline explicit TSortedMap(const Index initialCapacity) requires std::default_initializable<IsLess>
 		: TSortedMap(initialCapacity, IsLess{})
 	{}
 
-	TSortedMap(std::size_t initialCapacity, IsLess isLess);
+	TSortedMap(Index initialCapacity, IsLess isLess);
 
 	/*! @brief Map a key to a value.
 	Complexity is O(N), where N is the size of the map. Duplicated keys are allowed (i.e., one key can
 	map to multiple values), with the most recently-added value at the front.
 	@return Current index to the newly-added value.
 	*/
-	std::size_t map(KeyType key, ValueType value);
+	Index map(KeyType key, ValueType value);
 
 	/*! @brief Map a key just to a single value.
 	Similar to map(KeyType, ValueType), except that duplicated keys are disallowed.
 	@return Current index to the newly-added value. Empty if the key is mapped already.
 	*/
-	std::optional<std::size_t> mapUnique(KeyType key, ValueType value);
+	std::optional<Index> mapUnique(KeyType key, ValueType value);
 
 	/*! @brief Remove the value mapped to the key from the vector.
 	Complexity is O(N), where N is the size of the map. If there are more than 1
@@ -61,7 +61,7 @@ public:
 	/*! @brief Similar to unmap(KeyType).
 	@param index The index of the value.
 	*/
-	void unmapByIndex(std::size_t valueIndex);
+	void unmapByIndex(Index valueIndex);
 
 	/*! @brief Get a value from the map using its associated key.
 	Complexity is O(logN), where N is the size of the map.
@@ -80,8 +80,8 @@ public:
 	@p ithValue one will be returned. Empty if no mapped value found or @p ithValue exceeds all duplicated values.
 	*/
 	///@{
-	const ValueType* getValue(const KeyType& key, std::size_t ithValue) const;
-	inline decltype(auto) getValue(const KeyType& key, std::size_t ithValue) { return mutable_cast(std::as_const(*this).getValue(key, ithValue)); }
+	const ValueType* getValue(const KeyType& key, Index ithValue) const;
+	inline decltype(auto) getValue(const KeyType& key, Index ithValue) { return mutable_cast(std::as_const(*this).getValue(key, ithValue)); }
 	///@}
 
 	/*! @brief Get a value from the map using its index.
@@ -89,8 +89,8 @@ public:
 	@return The value on the specified index.
 	*/
 	///@{
-	const ValueType& get(std::size_t valueIndex) const;
-	ValueType& get(std::size_t valueIndex);
+	const ValueType& get(Index valueIndex) const;
+	ValueType& get(Index valueIndex);
 	///@}
 
 	/*! @brief Get a key-value pair from the map using value index.
@@ -99,8 +99,8 @@ public:
 	element is value.
 	*/
 	///@{
-	std::pair<const KeyType&, const ValueType&> getKeyAndValue(std::size_t valueIndex) const;
-	std::pair<const KeyType&, ValueType&> getKeyAndValue(std::size_t valueIndex);
+	std::pair<const KeyType&, const ValueType&> getKeyAndValue(Index valueIndex) const;
+	std::pair<const KeyType&, ValueType&> getKeyAndValue(Index valueIndex);
 	///@}
 
 	/*! @brief Check how many stored values are mapped to the key.
@@ -108,11 +108,11 @@ public:
 	the return value.
 	@return Number of values mapped to @p key.
 	*/
-	std::size_t numValues(const KeyType& key) const;
+	Index numValues(const KeyType& key) const;
 
 	/*! @brief Get the number of values in the map.
 	*/
-	std::size_t size() const;
+	Index size() const;
 
 	/*! @brief Check whether the size of the map is 0.
 	*/
@@ -127,7 +127,7 @@ public:
 	///@}
 
 private:
-	TSortedVector<KeyType> m_keys;
+	TSortedVector<KeyType, Index, IsLess> m_keys;
 	std::vector<ValueType> m_values;
 };
 

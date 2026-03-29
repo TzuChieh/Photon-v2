@@ -89,7 +89,7 @@ private:
 
 	TUniquePtrVector<ISceneResource> m_resources;
 	std::vector<ISceneResource*> m_resourcesPendingDestroy;
-	TSortedVector<IDynamicSceneResource*, DynamicResourceOrderer> m_dynamicResources;
+	TSortedVector<IDynamicSceneResource*, std::size_t, DynamicResourceOrderer> m_dynamicResources;
 };
 
 inline System& Scene::getSystem()
