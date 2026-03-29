@@ -91,13 +91,24 @@ public:
 	*/
 	Index numValues(const ValueType& value) const;
 
+	/*! @brief Same as `std::lower_bound()`.
+	Find the index to the first value x that satisfies x >= `inputValue`.
+	*/
+	Index lowerBound(const ValueType& inputValue) const;
+
 	/*! @brief Get the number of values in the vector.
 	*/
 	Index size() const;
 
+	/*! @brief Get the capacity of the vector.
+	*/
+	Index capacity() const;
+
 	/*! @brief Check whether the size of the vector is 0.
 	*/
 	bool isEmpty() const;
+
+	void shrinkToFit();
 
 	/*! @name Iterators
 	Iterators for stored values.

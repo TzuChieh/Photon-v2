@@ -127,15 +127,33 @@ inline Index TSortedVector<ValueType, Index, IsLess>::numValues(const ValueType&
 }
 
 template<typename ValueType, typename Index, typename IsLess>
+inline Index TSortedVector<ValueType, Index, IsLess>::lowerBound(const ValueType& inputValue) const
+{
+	return binarySearchSmallestInsertionIndex(inputValue);
+}
+
+template<typename ValueType, typename Index, typename IsLess>
 inline Index TSortedVector<ValueType, Index, IsLess>::size() const
 {
 	return static_cast<Index>(m_sortedValues.size());
 }
 
 template<typename ValueType, typename Index, typename IsLess>
+inline Index TSortedVector<ValueType, Index, IsLess>::capacity() const
+{
+	return static_cast<Index>(m_sortedValues.capacity());
+}
+
+template<typename ValueType, typename Index, typename IsLess>
 inline bool TSortedVector<ValueType, Index, IsLess>::isEmpty() const
 {
 	return m_sortedValues.empty();
+}
+
+template<typename ValueType, typename Index, typename IsLess>
+inline void TSortedVector<ValueType, Index, IsLess>::shrinkToFit()
+{
+	m_sortedValues.shrink_to_fit();
 }
 
 template<typename ValueType, typename Index, typename IsLess>
