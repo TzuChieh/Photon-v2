@@ -21,10 +21,10 @@ public:
 	std::vector<const Intersectable*> intersectables;
 	std::vector<const SurfaceEmitter*> surfaceEmitters;
 
-	/*! @brief Represent the same shape as `intersectables`.
+	/*! @brief Primitive view of `intersectables`. May not cover all `intersectables`.
 	Will be provided if obtaining such representation incurs no significant overhead (e.g., is a 
 	byproduct during the build of intersectables). Otherwise, this view may not be available if not
-	specifically requested. This view will cover all the shapes defined by `intersectables` if provided.
+	specifically requested.
 	*/
 	std::vector<const Primitive*> primitivesView;
 

@@ -1,6 +1,8 @@
 #include "Engine/Actor/Geometry/GBlenderPlyPolygonMesh.h"
 #include "Engine/DataIO/PlyFile.h"
 #include "Engine/DataIO/Stream/BinaryFileOutputStream.h"
+#include "Engine/World/Foundation/CookedGeometry.h"
+#include "Engine/World/Foundation/CookingContext.h"
 
 #include <Common/assertion.h>
 

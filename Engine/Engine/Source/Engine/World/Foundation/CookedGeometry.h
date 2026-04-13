@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/data_structure_fwd.h"
+#include "Engine/Core/Intersection/DataStructure/PrimitiveMetadataSlotMap.h"
 
 #include <vector>
 
@@ -19,6 +20,8 @@ public:
 	all the shapes defined by `primitives`.
 	*/
 	const IndexedTriangleBuffer* triangleView = nullptr;
+
+	PrimitiveMetadataSlotMap metadataSlotMap;
 };
 
 }// end namespace ph

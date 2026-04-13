@@ -17,7 +17,7 @@ public:
 	/*! @brief Gets the slot index for the given face ID.
 	Extraction is @f$ O(logN) @f$, where @f$ N @f$ is the number of primitive metadata clusters.
 	*/
-	uint32 getSlot(const uint64 faceId) const;
+	uint32 getSlot(uint64 faceId) const;
 
 	/*! @brief Adds a mapping for a new slot by its max face ID.
 	If the mapping already exists, it will not be added again.
@@ -25,6 +25,8 @@ public:
 	void addSlot(uint32 slot, uint64 maxFaceId);
 
 	void reallocateToFit();
+
+	bool isEmpty() const;
 
 private:
 	struct SlotRunLength
@@ -64,6 +66,11 @@ inline void PrimitiveMetadataSlotMap::addSlot(const uint32 slot, const uint64 ma
 inline void PrimitiveMetadataSlotMap::reallocateToFit()
 {
 	m_maxFaceIdToSlot.shrinkToFit();
+}
+
+inline bool PrimitiveMetadataSlotMap::isEmpty() const
+{
+	return m_maxFaceIdToSlot.isEmpty();
 }
 
 }// end namespace ph
