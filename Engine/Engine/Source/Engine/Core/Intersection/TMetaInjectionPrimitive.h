@@ -10,6 +10,7 @@
 #include <concepts>
 #include <utility>
 #include <array>
+#include <memory>
 
 namespace ph
 {
@@ -58,6 +59,41 @@ struct EmbeddedPrimitiveMetaGetter final
 	const PrimitiveMetadata& operator () (uint32 /* slot */) const
 	{
 		return metadata;
+	}
+};
+
+struct ReferencedPrimitiveMetaArrayGetter final
+{
+	std::unique_ptr<const PrimitiveMetadata*[]> metadatas;
+	uint32 numMetadatas;
+
+	ReferencedPrimitiveMetaArrayGetter(std::unique_ptr<const PrimitiveMetadata*[]> metadatas, uint32 numMetadatas)
+		: metadatas(std::move(metadatas))
+		, numMetadatas(numMetadatas)
+	{}
+
+	const PrimitiveMetadata& operator () (const uint32 slot) const
+	{
+		PH_ASSERT_LT(slot, numMetadatas);
+		PH_ASSERT(metadatas[slot]);
+		return *metadatas[slot];
+	}
+};
+
+struct EmbeddedPrimitiveMetaArrayGetter final
+{
+	std::unique_ptr<PrimitiveMetadata[]> metadatas;
+	uint32 numMetadatas;
+
+	EmbeddedPrimitiveMetaArrayGetter(std::unique_ptr<PrimitiveMetadata[]> metadatas, uint32 numMetadatas)
+		: metadatas(std::move(metadatas))
+		, numMetadatas(numMetadatas)
+	{}
+
+	const PrimitiveMetadata& operator () (const uint32 slot) const
+	{
+		PH_ASSERT_LT(slot, numMetadatas);
+		return metadatas[slot];
 	}
 };
 

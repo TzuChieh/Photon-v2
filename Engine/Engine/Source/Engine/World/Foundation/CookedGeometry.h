@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/data_structure_fwd.h"
-#include "Engine/Core/Intersection/DataStructure/PrimitiveMetadataSlotMap.h"
+#include "Engine/Core/Intersection/DataStructure/TIndexRangeMap.h"
 
 #include <vector>
 
@@ -21,7 +21,7 @@ public:
 	*/
 	const IndexedTriangleBuffer* triangleView = nullptr;
 
-	PrimitiveMetadataSlotMap metadataSlotMap;
+	TIndexRangeMap<uint64, uint32> faceIdToMetadataSlot;
 };
 
 }// end namespace ph
