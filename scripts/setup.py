@@ -134,7 +134,7 @@ if not args.skip_dl:
 
 # Download Python data
 if not args.py_skip_dl:
-    library_downloader.download_python_library(build_dir, setup_config)
+    library_downloader.download_python_library(setup_config)
 
 # Setup libraries (for now, only non-Windows platforms need this)
 print("Setting up libraries...")
@@ -158,6 +158,7 @@ src_dst_dirs = []
 dst_config_root = build_dir / "Config"
 dst_internal_res_root = build_dir / "InternalResource"
 dst_script_root = build_dir / "Script"
+dst_test_root = build_dir / "Test"
 
 # Gather project data to install
 for section_name, section in config.get_all_projects(setup_config):
@@ -180,6 +181,11 @@ for section_name, section in config.get_all_projects(setup_config):
         src_script_dir = project_dir / section["ScriptDirectory"]
         dst_script_dir = dst_script_root / project_name
         src_dst_dirs.append((src_script_dir, dst_script_dir))
+
+    if setup_config.has_option(section_name, "TestDirectory"):
+        src_test_dir = project_dir / section["TestDirectory"]
+        dst_test_dir = dst_test_root / project_name
+        src_dst_dirs.append((src_test_dir, dst_test_dir))
 
 # Gather miscellaneous data to install
 

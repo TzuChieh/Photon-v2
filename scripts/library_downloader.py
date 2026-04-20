@@ -1,10 +1,12 @@
 from utility import downloader
 from utility import console
 from utility import filesystem
+from utility import config
 
 import sys
 import os
 import configparser
+from pathlib import Path
 
 
 def _download_main_library_bundle(dst_directory, setup_config: configparser.ConfigParser):
@@ -46,7 +48,7 @@ def _download_main_library_bundle(dst_directory, setup_config: configparser.Conf
     print("Third-party library version selected: %s" % lib_branch_name)
 
     src_filename = lib_branch_name + ".zip"
-    src_file_url = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/refs/heads/" + src_filename
+    src_file_url = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/heads/" + src_filename
 
     print("Downloading third-party libraries from <%s>..." % src_file_url)
     downloader.download_zipfile_and_extract(src_file_url, dst_directory)
@@ -62,9 +64,44 @@ def _download_main_library_bundle(dst_directory, setup_config: configparser.Conf
     else:
         print("Failed to locate third-party libraries, expected to be <%s>" % final_folder_path, file=sys.stderr)
 
-def _download_nanobind():
+def _download_engine_prerequisites():
+    """
+    Install or upgrade engine prerequisites (e.g., nanobind).
+    """
     result = console.run_python("-m",  "pip", "install", "--upgrade", "nanobind")
-    print(f"Setup nanobind: {result}")
+    print(f"Setup engine prerequisites: {result}")
+
+def _download_project_requirements(setup_config: configparser.ConfigParser):
+    """
+    Gather all requirements.txt files from projects and install them.
+    A single pip call is used to allow for cross-project dependency resolution.
+    """
+    # Gather all requirements.txt files
+    all_requirements = []
+    for section_name, section in config.get_all_projects(setup_config):
+        if setup_config.has_option(section_name, "PyRequirements"):
+            project_dir = Path(section["ProjectDirectory"])
+            req_file = project_dir / section["PyRequirements"]
+            if req_file.exists():
+                all_requirements.append(req_file)
+
+    # Add RenderTest requirements (it's a non-canonical project)
+    render_test_req = Path(setup_config["RenderTest"]["ProjectDirectory"]) / "requirements.txt"
+    if render_test_req.exists():
+        all_requirements.append(render_test_req)
+
+    if all_requirements:
+        print(f"Installing project requirements...")
+        
+        # Build a single command with all requirement files
+        # This allows pip to resolve dependencies and detect version conflicts across all projects
+        pip_args = ["-m", "pip", "install"]
+        for req_file in all_requirements:
+            print(f"Including: {req_file}")
+            pip_args.extend(["-r", str(req_file)])
+        
+        result = console.run_python(*pip_args)
+        print(f"Project requirements setup: {result}")
 
 def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
     """
@@ -72,8 +109,9 @@ def download_thirdparty_library(dst_directory, setup_config: configparser.Config
     """
     _download_main_library_bundle(dst_directory, setup_config)
 
-def download_python_library(dst_directory, setup_config: configparser.ConfigParser):
+def download_python_library(setup_config: configparser.ConfigParser):
     """
-    Download additional Python libraries.
+    Download core and project-specific Python libraries.
     """
-    _download_nanobind()
+    _download_engine_prerequisites()
+    _download_project_requirements(setup_config)
