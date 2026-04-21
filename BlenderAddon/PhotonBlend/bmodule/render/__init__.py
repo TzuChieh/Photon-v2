@@ -56,7 +56,11 @@ class RenderProcess:
         timeout_seconds = 15
         try:
             return_code = self.process.wait(timeout=timeout_seconds)
-            print(f"process exited with code {return_code}")
+            if return_code != 0:
+                arg_strs = self._generate_argument_strings()
+                print(f"process exited with code {return_code}. Command: {' '.join(arg_strs)}")
+            else:
+                print(f"process exited with code {return_code}")
         except subprocess.TimeoutExpired as e:
             print("note: process does not terminate, killing")
             self.process.kill()

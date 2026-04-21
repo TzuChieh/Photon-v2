@@ -130,6 +130,11 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                     print("note: connected to the rendering server")
                     break
                 except OSError:
+                    # If renderer crashed, no need to wait for connection anymore
+                    if not self.renderer.is_running():
+                        print("error: renderer crashed")
+                        break
+
                     print("note: waiting for server to respond... (attempt %d/%d)" % (num_retries + 1, max_retries))
                     num_retries += 1
                     time.sleep(poll_seconds)

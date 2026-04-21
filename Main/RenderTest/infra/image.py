@@ -53,7 +53,7 @@ class Image:
         plt.imshow(self.values, origin='lower', interpolation='nearest')
         plt.title(title, fontsize=11)
         plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
-        plt.clf()
+        plt.close()
 
     def save_pseudocolor_plot(
             self, 
@@ -80,7 +80,7 @@ class Image:
         plt.title(title, fontsize=11)
         plt.colorbar()
         plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
-        plt.clf()
+        plt.close()
 
 
 def read_pfm(file_path):

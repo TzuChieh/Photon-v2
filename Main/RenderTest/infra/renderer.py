@@ -40,6 +40,11 @@ class RenderProcess:
         self.process = subprocess.Popen(arg_strs)
         self.process.wait()
 
+        if self.process.returncode != 0:
+            raise RuntimeError(
+                f"Renderer failed with exit code {self.process.returncode}. "
+                f"Command: {' '.join(arg_strs)}")
+
     def exit(self):
         if self.process is None:
             return
