@@ -42,7 +42,7 @@ public:
 			m_runLengthToValue.get() + m_numEntries, 
 			queryInput);
 
-		PH_ASSERT(entryPtr != m_runLengthToValue.get() + m_numEntries);
+		PH_ASSERT(entryPtr < m_runLengthToValue.get() + m_numEntries);
 		return entryPtr->value;
 	}
 

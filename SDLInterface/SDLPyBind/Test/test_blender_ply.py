@@ -44,9 +44,9 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
     loop_indices = np.array([0, 1, 2], dtype=np.uint32)
     mat_ids = np.array([0], dtype=np.uint32)
     
-    # Write the file
+    # Write the file (passing Path directly to test binder conversion)
     mesh_class.write_ply(
-        path=str(ply_path),
+        path=ply_path,
         raw_vert_positions=positions,
         raw_vert_loop_normals=normals,
         raw_vert_loop_uvs=uvs,
@@ -61,16 +61,17 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
     with open(ply_path, 'rb') as f:
         content = f.read()
         
-    # Find the end of the header (header ends with 'property uint mi\n')
-    header_end_marker = b'property uint mi\n'
+    # Find the end of the header (header ends with 'end_header\n')
+    header_end_marker = b'end_header\n'
     header_end_idx = content.find(header_end_marker) + len(header_end_marker)
     header = content[:header_end_idx].decode('ascii')
     binary_data = content[header_end_idx:]
 
-    # Check header counts
+    # Check header contents
     assert "element raw_vert_positions 3" in header
     assert "element raw_vert_loop_normals 3" in header
     assert "element mat_ids 1" in header
+    assert "end_header" in header
 
     # Verify binary data blocks (in the exact order written in C++)
     offset = 0
@@ -103,3 +104,26 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
     # 6. triMatIds (1 uint32)
     read_mat_ids = np.frombuffer(binary_data, dtype=np.uint32, count=1, offset=offset)
     assert np.array_equal(read_mat_ids, mat_ids)
+
+def test_blender_ply_inconsistent_data(engine, tmp_path):
+    try:
+        import numpy as np
+    except ImportError:
+        pytest.skip("numpy not found, skipping call test")
+
+    mesh_class = engine.GBlenderPlyPolygonMesh
+    
+    # Inconsistent data: 2 positions but 3 indices
+    positions = np.array([0, 0, 0, 1, 0, 0], dtype=np.float32)
+    pos_indices = np.array([0, 1, 2], dtype=np.uint32)
+    
+    with pytest.raises(RuntimeError, match="Inconsistent Blender PLY polygon data sizes"):
+        mesh_class.write_ply(
+            path=tmp_path / "error.ply",
+            raw_vert_positions=positions,
+            raw_vert_loop_normals=np.array([], dtype=np.float32),
+            raw_vert_loop_uvs=np.array([], dtype=np.float32),
+            vert_position_indices=pos_indices,
+            vert_loop_indices=pos_indices,
+            tri_mat_ids=np.array([0], dtype=np.uint32)
+        )

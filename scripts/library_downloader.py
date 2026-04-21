@@ -48,7 +48,7 @@ def _download_main_library_bundle(dst_directory, setup_config: configparser.Conf
     print("Third-party library version selected: %s" % lib_branch_name)
 
     src_filename = lib_branch_name + ".zip"
-    src_file_url = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/heads/" + src_filename
+    src_file_url = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/refs/heads/" + src_filename
 
     print("Downloading third-party libraries from <%s>..." % src_file_url)
     downloader.download_zipfile_and_extract(src_file_url, dst_directory)

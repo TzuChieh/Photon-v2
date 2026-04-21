@@ -5,6 +5,7 @@
 #include "Engine/World/Foundation/CookingContext.h"
 
 #include <Common/assertion.h>
+#include <Common/exceptions.h>
 
 #include <stdio.h>
 #include <array>
@@ -22,13 +23,13 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 
 	if(numLoopVerts != rawVertLoopUVs.size() / 2 || 
 	   vertPositionIndices.size() != vertLoopIndices.size() ||
-	   triMatIds.size() != vertLoopIndices.size() / 3)
+	   triMatIds.size() != vertLoopIndices.size() / 3 ||
+	   numLoopVerts != vertLoopIndices.size())
 	{
-		PH_DEFAULT_LOG(Warning,
-			"Inconsistent Blender PLY polygon data sizes, writing aborted: "
+		throw_formatted<InvalidArgumentException>(
+			"Inconsistent Blender PLY polygon data sizes: "
 			"raw-vert-positions={}, raw-vert-normals={}, raw-vert-uvs={}, vert-position-indices={}, vert-loop-indices={}, tri-mat-ids={}",
 			rawVertPositions.size(), rawVertLoopNormals.size(), rawVertLoopUVs.size(), vertPositionIndices.size(), vertLoopIndices.size(), triMatIds.size());
-		return;
 	}
 
 	BinaryFileOutputStream writeStream(path);
@@ -53,7 +54,8 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 		"element loop_indices {}\n"
 		"property uint li\n"
 		"element mat_ids {}\n"
-		"property uint mi\n",
+		"property uint mi\n"
+		"end_header\n",
 		numPosVerts,
 		numLoopVerts,
 		numLoopVerts,

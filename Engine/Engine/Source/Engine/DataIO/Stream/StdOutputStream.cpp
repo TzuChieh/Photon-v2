@@ -27,7 +27,7 @@ void StdOutputStream::write(const std::size_t numBytes, const std::byte* const b
 {
 	static_assert(sizeof(char) == sizeof(std::byte));
 	PH_ASSERT(m_ostream);
-	PH_ASSERT(bytes);
+	PH_ASSERT(bytes || numBytes == 0);
 
 	ensureStreamIsGoodForWrite();
 

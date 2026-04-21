@@ -43,7 +43,7 @@ template<typename T, bool DO_BYTE_REVERSAL>
 inline void BinaryFileOutputStream::writeData(TSpanView<T> data)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
-	PH_ASSERT(data.data());
+	PH_ASSERT(data.data() || data.empty());
 
 	auto const dataAsBytes = std::as_bytes(data);
 	if constexpr(DO_BYTE_REVERSAL)
