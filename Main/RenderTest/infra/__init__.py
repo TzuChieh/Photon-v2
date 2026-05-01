@@ -5,6 +5,22 @@ import json
 import copy
 
 
+from infra.core import (
+    RendererConfig, 
+    VerificationResult, 
+    Verifier, 
+    RenderCase, 
+    RenderTestSuite
+)
+from infra.verifier import (
+    MSEVerifier, 
+    RelAvgVerifier, 
+    PerPixelVerifier, 
+    VisualErrorVerifier
+)
+from infra.resource_cache import ResourceCache
+from infra.runner import TestRunner
+
 class TestCase:
     def __init__(self, module_name, case_name, scene_path):
         super().__init__()

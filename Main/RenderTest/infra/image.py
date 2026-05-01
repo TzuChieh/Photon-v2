@@ -44,6 +44,11 @@ class Image:
         return img
     
     def to_summed_absolute_components(self):
+        """
+        Create a single-component image where each pixel's value is the sum of the absolute
+        values of all components in the original image. This is useful for visualizing
+        the total error across all color channels.
+        """
         return self.to_absolute_components().to_summed_component()
 
     def save_plot(self, file_path, title, create_dirs=False):
