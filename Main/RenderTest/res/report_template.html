@@ -1,0 +1,968 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Render Test Report</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0c1118;
+  --surface: #121a24;
+  --surface2: #172231;
+  --border: #2b3a4f;
+  --text: #eaf2ff;
+  --muted: #9fb0ca;
+  --ok: #39d98a;
+  --bad: #ff6b7a;
+  --accent: #6ba3ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui,Segoe UI,Arial,sans-serif; }
+.app { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+aside { border-right: 1px solid var(--border); padding: 14px; position: sticky; top: 0; height: 100vh; overflow: auto; background: #0f1620; }
+main { padding: 18px; height: 100vh; overflow: hidden; }
+h1,h2,h3 { margin: 0; font-weight: 650; }
+.meta { margin-top: 10px; color: var(--muted); font-size: 12px; }
+.cards { margin-top: 14px; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+.label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.value { font-size: 18px; margin-top: 2px; }
+.ok { color: var(--ok); }
+.bad { color: var(--bad); }
+.toolrow { margin-top: 12px; display: grid; gap: 8px; }
+input,select { width: 100%; border: 1px solid var(--border); background: var(--surface2); color: var(--text); border-radius: 8px; padding: 9px 10px; }
+.list { margin-top: 12px; display: grid; gap: 8px; }
+.item { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 8px; cursor: pointer; }
+.item:hover { border-color: var(--accent); }
+.item .name { font-weight: 600; }
+.item .tiny { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.panel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  height: calc(100vh - 36px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-h {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--surface);
+}
+.desc { color: var(--muted); margin-top: 8px; white-space: pre-wrap; }
+.case {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+}
+.case:first-of-type { border-top: 0; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row-space {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+.badge { border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+.images { margin-top: 10px; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.imgbox { background: #0a0f16; border: 1px solid var(--border); border-radius: 8px; padding: 8px; min-height: 120px; }
+.imgbox img { display: block; border-radius: 6px; }
+.images.plot-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+.images.plot-grid .imgbox {
+  width: 320px;
+  height: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.images.plot-grid .imgframe {
+  width: 100%;
+  height: var(--plot-item-height, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+.images.plot-grid .imgframe img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.imglabel { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.compare { margin-top: 10px; }
+.compare-stage {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  overflow: hidden;
+  background: #000;
+  width: var(--compare-full-width, 100%);
+  height: var(--compare-full-height, 100%);
+}
+.compare-stage img-comparison-slider {
+  width: 100%;
+  height: 100%;
+  display: block;
+  --divider-width: 2px;
+  --divider-color: #ffffff;
+  --divider-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.45);
+  --default-handle-width: 44px;
+  --default-handle-color: rgba(255, 255, 255, 0.88);
+  --default-handle-opacity: 1;
+  --default-handle-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+.compare-handle {
+  width: 36px;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  background: rgba(5, 10, 18, 0.82);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.compare-handle .chev {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.compare-handle .chev.left { border-right: 7px solid #ffffff; }
+.compare-handle .chev.right { border-left: 7px solid #ffffff; }
+.compare-handle .bar {
+  width: 1px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.96);
+}
+.selector-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  width: 100%;
+}
+.selector-row select { width: 100%; min-width: 0; margin: 0; }
+.selector-lines { display: grid; gap: 8px; width: min(860px, 100%); }
+.case-nav-group {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface2);
+}
+.case-nav-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.case-nav-btn:last-child { border-right: 0; }
+.case-nav-btn:hover { background: #213046; }
+.case-nav-btn:active { background: #2b3e5a; }
+.case-nav-btn[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+@media (max-width: 900px) {
+  .row-space { grid-template-columns: 1fr; }
+  .selector-lines { width: 100%; }
+}
+.compare-stage img,
+.compare-stage canvas {
+  width: var(--compare-full-width, 100%);
+  height: var(--compare-full-height, 100%);
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+.compare-stage canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+.msg { margin-top: 8px; color: var(--muted); white-space: pre-wrap; }
+.controls-col { display: grid; gap: 6px; }
+.meta-toggle-row { display: flex; align-items: center; gap: 8px; }
+.text-expander {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  border-radius: 8px;
+}
+.text-expander > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.text-expander > summary::-webkit-details-marker { display: none; }
+.text-expander-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.text-expander-preview {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.text-expander-arrow {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  flex: 0 0 auto;
+  transition: transform .12s ease;
+}
+.text-expander-body {
+  margin: 0;
+  padding: 0 10px 8px 10px;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.text-expander:not([open]) .text-expander-body { display: none; }
+.text-expander[open] .text-expander-arrow { transform: rotate(90deg); }
+.verifier-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.mode-btn { border: 1px solid #32537d; background: #16263a; color: #dbe9ff; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.mode-btn.active { border-color: #6ba3ff; background: #244066; }
+.viewmode-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.viewmode-btn { border: 1px solid #6a5740; background: #2b2318; color: #ffe7c7; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
+.viewmode-btn.active { border-color: #d9a66b; background: #4a3722; }
+.scale-select { width: auto; min-width: 96px; }
+.scale-label { font-size: 12px; color: var(--muted); align-self: center; }
+.sys { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; color: var(--muted); }
+.warns { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; color: #ffcf88; white-space: pre-wrap; display: none; }
+.warns.show { display: block; }
+@media (max-width: 1100px) {
+  .app { grid-template-columns: 1fr; }
+  aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+  main { height: auto; overflow: visible; }
+  .panel { height: auto; }
+  .case { overflow: visible; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h1>Render Test Report</h1>
+    <div class="meta" id="genTime"></div>
+    <div class="cards">
+      <div class="card"><div class="label">Cases</div><div class="value" id="totalCases"></div></div>
+      <div class="card"><div class="label">Pass Rate</div><div class="value" id="passRate"></div></div>
+      <div class="card"><div class="label">Passed</div><div class="value ok" id="passedCases"></div></div>
+      <div class="card"><div class="label">Failed</div><div class="value bad" id="failedCases"></div></div>
+      <div class="card"><div class="label">Warnings</div><div class="value" id="warningCount"></div></div>
+    </div>
+    <div class="toolrow">
+      <input id="search" type="search" placeholder="Search test/case name..." />
+      <select id="filter">
+        <option value="all">All outcomes</option>
+        <option value="failed">Failed only</option>
+        <option value="passed">Passed only</option>
+      </select>
+    </div>
+    <div class="list" id="testList"></div>
+    <div class="sys" id="sysInfo"></div>
+    <button class="item" id="toggleWarningsBtn" type="button">Show Warnings</button>
+    <div class="warns" id="warnInfo"></div>
+  </aside>
+  <main id="content"></main>
+</div>
+<script src="vendor/img-comparison-slider.js"></script>
+<script>
+const data = __PAYLOAD_JSON__;
+const qs = (s, p=document) => p.querySelector(s);
+const qsa = (s, p=document) => Array.from(p.querySelectorAll(s));
+const esc = (v) => String(v ?? "");
+const hasImg = (v) => typeof v === "string" && v.length > 0;
+
+function parsePfm(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  let offset = 0;
+  const readLine = () => {
+    let end = offset;
+    while (end < bytes.length && bytes[end] !== 0x0a) end += 1;
+    const line = new TextDecoder("ascii").decode(bytes.slice(offset, end)).trim();
+    offset = end + 1;
+    return line;
+  };
+
+  const magic = readLine();
+  const channels = magic === "PF" ? 3 : (magic === "Pf" ? 1 : 0);
+  if (!channels) throw new Error(`unsupported PFM magic: ${magic}`);
+
+  const [wStr, hStr] = readLine().split(/\s+/);
+  const width = Number(wStr);
+  const height = Number(hStr);
+  if (!Number.isFinite(width) || !Number.isFinite(height)) throw new Error("bad PFM dimensions");
+
+  const scale = Number(readLine());
+  if (!Number.isFinite(scale) || scale === 0) throw new Error("bad PFM scale");
+  const littleEndian = scale < 0;
+  const absScale = Math.abs(scale);
+
+  const floatCount = width * height * channels;
+  const view = new DataView(arrayBuffer, offset);
+  const values = new Float32Array(floatCount);
+  for (let i = 0; i < floatCount; ++i) {
+    values[i] = view.getFloat32(i * 4, littleEndian) * absScale;
+  }
+  return { width, height, channels, values };
+}
+
+function calcDisplayMax(pfmA, pfmB) {
+  let maxVal = 0;
+  const scan = (arr) => {
+    for (let i = 0; i < arr.length; ++i) {
+      const v = arr[i];
+      if (Number.isFinite(v) && v > maxVal) maxVal = v;
+    }
+  };
+  scan(pfmA.values);
+  scan(pfmB.values);
+  return maxVal > 0 ? maxVal : 1.0;
+}
+
+function drawPfmToCanvas(canvas, pfm, displayMax) {
+  canvas.width = pfm.width;
+  canvas.height = pfm.height;
+  const ctx = canvas.getContext("2d");
+  const imageData = ctx.createImageData(pfm.width, pfm.height);
+  const out = imageData.data;
+  const gamma = 1.0 / 2.2;
+
+  for (let y = 0; y < pfm.height; ++y) {
+    for (let x = 0; x < pfm.width; ++x) {
+      const srcY = pfm.height - 1 - y;
+      const srcIndex = (srcY * pfm.width + x) * pfm.channels;
+      const dstIndex = (y * pfm.width + x) * 4;
+      const r = pfm.values[srcIndex];
+      const g = pfm.channels > 1 ? pfm.values[srcIndex + 1] : r;
+      const b = pfm.channels > 1 ? pfm.values[srcIndex + 2] : r;
+      const map = (v) => {
+        const n = Math.max(0, Math.min(1, v / displayMax));
+        return Math.round(Math.pow(n, gamma) * 255);
+      };
+      out[dstIndex] = map(r);
+      out[dstIndex + 1] = map(g);
+      out[dstIndex + 2] = map(b);
+      out[dstIndex + 3] = 255;
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function setCompareScale(compareRoot, scalePercent) {
+  const stage = qs(".compare-stage", compareRoot);
+  const baseCanvas = qs(".pfm-base", compareRoot);
+  const baseImg = qs(".compare-base-media", compareRoot);
+  let nativeWidth = 0;
+  let nativeHeight = 0;
+  if (baseCanvas) {
+    nativeWidth = baseCanvas.width;
+    nativeHeight = baseCanvas.height;
+  } else if (baseImg) {
+    nativeWidth = baseImg.naturalWidth;
+    nativeHeight = baseImg.naturalHeight;
+  }
+  if (!nativeWidth || !nativeHeight) return;
+  if (nativeWidth < 64 || nativeHeight < 64) {
+    // Some cases may produce very small buffers; keep viewer usable.
+    nativeWidth = Math.max(nativeWidth, 64);
+    nativeHeight = Math.max(nativeHeight, 64);
+  }
+
+  const clamped = Math.max(5, Math.min(1600, Number(scalePercent) || 100));
+  const targetWidth = Math.max(1, Math.round(nativeWidth * clamped / 100));
+  const targetHeight = Math.max(1, Math.round(nativeHeight * clamped / 100));
+  stage.style.width = `${targetWidth}px`;
+  stage.style.height = `${targetHeight}px`;
+  compareRoot.style.setProperty("--compare-full-width", `${targetWidth}px`);
+  compareRoot.style.setProperty("--compare-full-height", `${targetHeight}px`);
+  return { percent: clamped, width: targetWidth, height: targetHeight };
+}
+
+function calcFitScalePercent(compareRoot) {
+  const baseCanvas = qs(".pfm-base", compareRoot);
+  const baseImg = qs(".compare-base-media", compareRoot);
+  let nativeWidth = 0;
+  let nativeHeight = 0;
+  if (baseCanvas) {
+    nativeWidth = baseCanvas.width;
+    nativeHeight = baseCanvas.height;
+  } else if (baseImg) {
+    nativeWidth = baseImg.naturalWidth;
+    nativeHeight = baseImg.naturalHeight;
+  }
+  if (!nativeWidth || !nativeHeight) return 100;
+  if (nativeWidth < 64 || nativeHeight < 64) {
+    nativeWidth = Math.max(nativeWidth, 64);
+    nativeHeight = Math.max(nativeHeight, 64);
+  }
+
+  const stage = qs(".compare-stage", compareRoot);
+  if (!stage) return 100;
+
+  const rootRect = compareRoot.getBoundingClientRect();
+
+  // Width budget: keep within the compare block content width.
+  const maxW = Math.max(80, compareRoot.clientWidth - 4);
+
+  // Height budget: use remaining viewport height after this compare block's top,
+  // minus non-image controls inside the compare block.
+  let nonImageHeight = 0;
+  const children = Array.from(compareRoot.children);
+  for (const child of children) {
+    if (child === stage) continue;
+    const style = window.getComputedStyle(child);
+    const mt = parseFloat(style.marginTop) || 0;
+    const mb = parseFloat(style.marginBottom) || 0;
+    nonImageHeight += child.getBoundingClientRect().height + mt + mb;
+  }
+  const viewportBottomPadding = 20;
+  const remainingH = window.innerHeight - rootRect.top - viewportBottomPadding;
+  const maxH = Math.max(80, remainingH - nonImageHeight);
+
+  const fit = Math.min(maxW / nativeWidth, maxH / nativeHeight);
+  return Math.max(5, Math.floor(fit * 100));
+}
+
+function applyCompareScale(compareRoot, setting) {
+  if (setting === "fit") {
+    return setCompareScale(compareRoot, calcFitScalePercent(compareRoot));
+  }
+  return setCompareScale(compareRoot, Number(setting));
+}
+
+function applyPlotScale(modeContent, setting) {
+  const plotRoot = qs(".images.plot-grid", modeContent);
+  if (!plotRoot) return null;
+  const boxes = qsa(".imgbox", plotRoot);
+  const imgs = qsa(".imgbox img", plotRoot).filter((img) => (img.naturalWidth > 0 && img.naturalHeight > 0));
+  if (!boxes.length || !imgs.length) return null;
+  const firstBox = boxes[0];
+  const label = qs(".imglabel", firstBox);
+  const boxStyle = window.getComputedStyle(firstBox);
+  const padTop = parseFloat(boxStyle.paddingTop) || 0;
+  const padBottom = parseFloat(boxStyle.paddingBottom) || 0;
+  const padLeft = parseFloat(boxStyle.paddingLeft) || 0;
+  const padRight = parseFloat(boxStyle.paddingRight) || 0;
+  const borderY = (parseFloat(boxStyle.borderTopWidth) || 0) + (parseFloat(boxStyle.borderBottomWidth) || 0);
+  const borderX = (parseFloat(boxStyle.borderLeftWidth) || 0) + (parseFloat(boxStyle.borderRightWidth) || 0);
+  const labelH = label ? label.getBoundingClientRect().height + (parseFloat(window.getComputedStyle(label).marginBottom) || 0) : 0;
+  const chromeH = padTop + padBottom + borderY + labelH;
+  const chromeW = padLeft + padRight + borderX;
+
+  // Plot mode no longer auto-fits. "Fit" maps to 100%.
+  const percent = setting === "fit" ? 100 : Math.max(5, Math.min(1600, Number(setting) || 100));
+  const targetPlotH = Math.max(1, Math.round(imgs[0].naturalHeight * percent / 100));
+  plotRoot.style.setProperty("--plot-item-height", `${targetPlotH}px`);
+
+  for (const box of boxes) {
+    const img = qs("img", box);
+    if (!img || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
+      box.style.width = "320px";
+      continue;
+    }
+    const aspect = img.naturalWidth / img.naturalHeight;
+    const targetW = Math.max(40, Math.round(targetPlotH * aspect) + Math.round(chromeW));
+    box.style.width = `${targetW}px`;
+  }
+  return percent;
+}
+
+function setupServerLifecycleHooks() {
+  if (window.location.protocol !== "http:" && window.location.protocol !== "https:") return;
+  const shutdownPath = "/__shutdown";
+
+  const shutdown = () => {
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(shutdownPath, "");
+      } else {
+        fetch(shutdownPath, { method: "POST", cache: "no-store", keepalive: true }).catch(() => {});
+      }
+    } catch (_) {}
+  };
+
+  window.addEventListener("beforeunload", shutdown);
+}
+
+function updateScaleLabel(percent) {
+  const label = qs("#scalePct");
+  if (label && percent != null) label.textContent = `${Math.round(percent)}%`;
+}
+
+function applyScaleForCurrentMode(caseEl, modeContent, viewMode) {
+  const setting = caseEl.dataset.scaleSetting || "fit";
+  let percent = null;
+  if (viewMode === "plot") {
+    percent = applyPlotScale(modeContent, setting);
+  } else {
+    const compareRoot = qs(".compare", modeContent);
+    if (compareRoot) {
+      const result = applyCompareScale(compareRoot, setting);
+      if (result) percent = result.percent;
+    }
+  }
+  updateScaleLabel(percent);
+}
+
+async function initPfmCompare(block, outputPfmPath, refPfmPath) {
+  if (!outputPfmPath || !refPfmPath) return;
+  try {
+    const loadArrayBuffer = async (rawPath) => {
+      const normalizedPath = encodeURI(rawPath);
+      try {
+        const resp = await fetch(normalizedPath);
+        if (!resp.ok) throw new Error(`fetch failed (${resp.status})`);
+        return await resp.arrayBuffer();
+      } catch (fetchError) {
+        return await new Promise((resolve, reject) => {
+          const req = new XMLHttpRequest();
+          req.open("GET", normalizedPath, true);
+          req.responseType = "arraybuffer";
+          req.onload = () => {
+            if (req.status === 0 || (req.status >= 200 && req.status < 300)) {
+              resolve(req.response);
+            } else {
+              reject(new Error(`xhr failed (${req.status})`));
+            }
+          };
+          req.onerror = () => reject(fetchError);
+          req.send();
+        });
+      }
+    };
+
+    const outputPfm = parsePfm(await loadArrayBuffer(outputPfmPath));
+    const refPfm = parsePfm(await loadArrayBuffer(refPfmPath));
+    const displayMax = calcDisplayMax(outputPfm, refPfm);
+    drawPfmToCanvas(qs(".pfm-base", block), refPfm, displayMax);
+    drawPfmToCanvas(qs(".pfm-overlay", block), outputPfm, displayMax);
+    return true;
+  } catch (error) {
+    const protocol = String(window.location.protocol || "");
+    if (protocol === "file:") {
+      block.innerHTML = `<div class="msg">(raw compare blocked by browser local-file security; open report via localhost/http to enable raw PFM compare)</div>`;
+    } else {
+      block.innerHTML = `<div class="msg">(raw compare load failed: ${esc(error.message || error)})</div>`;
+    }
+    return false;
+  }
+}
+
+function renderSummary() {
+  const s = data.summary;
+  qs("#genTime").textContent = `UTC ${esc(s.generation_time_utc)} | ${Math.round(s.total_secs)}s total`;
+  qs("#totalCases").textContent = esc(s.total_cases);
+  qs("#passRate").textContent = `${s.pass_ratio.toFixed(2)}%`;
+  qs("#passedCases").textContent = esc(s.passed_cases);
+  qs("#failedCases").textContent = esc(s.failed_cases);
+  const warns = data.warnings || [];
+  qs("#warningCount").textContent = esc(warns.length);
+  const sys = s.system;
+  qs("#sysInfo").innerHTML = `
+    <div>OS: ${esc(sys.os)}</div>
+    <div>CPU: ${esc(sys.cpu)} (${esc(sys.cpu_logical)} logical/${esc(sys.cpu_physical)} physical)</div>
+    <div>RAM: ${sys.ram_gib.toFixed(2)} GiB</div>
+    <div>Disk: ${sys.disk_total_gib.toFixed(2)} GiB total, ${sys.disk_free_gib.toFixed(2)} GiB free</div>`;
+  const warnInfo = qs("#warnInfo");
+  warnInfo.textContent = warns.length
+    ? warns.map((w) => `- ${w.nodeid}: ${w.message}`).join("\n")
+    : "No warnings.";
+  qs("#toggleWarningsBtn").textContent = warns.length ? `Show Warnings (${warns.length})` : "Show Warnings (0)";
+}
+
+function selectedTest() {
+  const sel = qs("#testSelect");
+  return data.tests.find((t) => t.name === sel.value);
+}
+
+function selectedCase(test) {
+  const sel = qs("#caseSelect");
+  return (test.cases || []).find((c) => c.name === sel.value);
+}
+
+function renderCaseSelector(test) {
+  const caseSel = qs("#caseSelect");
+  caseSel.innerHTML = "";
+  for (const c of test.cases) {
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = `${c.name} [${c.outcome.toUpperCase()}]`;
+    caseSel.appendChild(opt);
+  }
+}
+
+function findPreferredVerifierIndex(modes, prevVerifierName) {
+  let preferredIndex = modes.findIndex((v) => v.verifier === prevVerifierName);
+  if (preferredIndex < 0) {
+    preferredIndex = modes.findIndex((v) => {
+      const name = String(v.verifier || "");
+      return name.includes("VisualErrorVerifier") || name.includes("Visual");
+    });
+  }
+  return preferredIndex < 0 ? 0 : preferredIndex;
+}
+
+function buildViewModeControls(viewMode, scaleSetting) {
+  return `
+      <button class="viewmode-btn ${viewMode === "compare" ? "active" : ""}" type="button" data-viewmode="compare">Slider Compare</button>
+      <button class="viewmode-btn ${viewMode === "plot" ? "active" : ""}" type="button" data-viewmode="plot">Verifier Plots</button>
+      <select class="scale-select" id="scaleSelect">
+        <option value="fit" ${scaleSetting === "fit" ? "selected" : ""}>Fit</option>
+        <option value="50" ${scaleSetting === "50" ? "selected" : ""}>50%</option>
+        <option value="100" ${scaleSetting === "100" ? "selected" : ""}>100%</option>
+        <option value="200" ${scaleSetting === "200" ? "selected" : ""}>200%</option>
+        <option value="400" ${scaleSetting === "400" ? "selected" : ""}>400%</option>
+      </select>
+      <span class="scale-label" id="scalePct">100%</span>`;
+}
+
+function renderMainViewport() {
+  const root = qs("#content");
+  root.innerHTML = `<section class="panel">
+    <div class="panel-h">
+      <div class="row-space">
+        <div class="selector-lines">
+          <div class="selector-row">
+            <select id="testSelect"></select>
+            <div class="case-nav-group">
+              <button class="case-nav-btn" type="button" id="prevTestBtn" title="Previous Suite" aria-label="Previous Suite">&#x2039;</button>
+              <button class="case-nav-btn" type="button" id="nextTestBtn" title="Next Suite" aria-label="Next Suite">&#x203A;</button>
+            </div>
+          </div>
+          <div class="selector-row">
+            <select id="caseSelect"></select>
+            <div class="case-nav-group">
+              <button class="case-nav-btn" type="button" id="prevCaseBtn" title="Previous Case" aria-label="Previous Case">&#x2039;</button>
+              <button class="case-nav-btn" type="button" id="nextCaseBtn" title="Next Case" aria-label="Next Case">&#x203A;</button>
+            </div>
+          </div>
+        </div>
+        <div class="controls-col">
+          <div class="verifier-row" id="verifierButtons"></div>
+          <div class="viewmode-row" id="viewModeButtons"></div>
+        </div>
+      </div>
+      <div class="meta-toggle-row">
+        <div id="testMetaSummary" class="meta"></div>
+      </div>
+      <details id="testTextExpander" class="text-expander">
+        <summary>
+          <div class="text-expander-head">
+            <div id="testTextPreview" class="text-expander-preview"></div>
+            <div class="text-expander-arrow">▸</div>
+          </div>
+        </summary>
+        <div id="testTextBody" class="text-expander-body"></div>
+      </details>
+    </div>
+    <article class="case" id="casePanel"></article>
+  </section>`;
+
+  const testSel = qs("#testSelect");
+  for (const t of data.tests) {
+    const opt = document.createElement("option");
+    opt.value = t.name;
+    opt.textContent = `${t.name} (${t.cases.length})`;
+    testSel.appendChild(opt);
+  }
+
+  const applySelection = () => {
+    const test = selectedTest();
+    if (!test) return;
+    renderCaseSelector(test);
+    const caseSel = qs("#caseSelect");
+    const existing = Array.from(caseSel.options).find((o) => o.value === caseSel.dataset.prevValue);
+    caseSel.value = existing ? existing.value : (caseSel.options[0]?.value || "");
+    caseSel.dataset.prevValue = caseSel.value;
+    renderSelectedCase();
+  };
+
+  const renderSelectedCase = () => {
+    const test = selectedTest();
+    if (!test) return;
+    const metaText = `${test.cases.length} case(s), ${test.failed} failed, ${test.passed} passed, ${Math.round(test.secs)}s`;
+    qs("#testMetaSummary").textContent = metaText;
+    const descText = test.desc || "";
+    const descLines = descText
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+    const firstLine = descLines[0] || "(no description)";
+    const remainingText = descLines.slice(1).join("\n");
+    qs("#testTextPreview").textContent = firstLine;
+    qs("#testTextBody").textContent = remainingText || "(no additional details)";
+    const expander = qs("#testTextExpander");
+    expander.open = false;
+    const c = selectedCase(test);
+    if (!c) return;
+    const caseEl = qs("#casePanel");
+    const prevViewMode = qs("#viewModeButtons .viewmode-btn.active")?.dataset.viewmode || "compare";
+    const prevScaleSetting = qs("#scaleSelect")?.value || "fit";
+    const prevVerifierName = qs("#verifierButtons .mode-btn.active")?.textContent?.trim() || "";
+    const modes = c.verifier_modes || [];
+    const preferredIndex = findPreferredVerifierIndex(modes, prevVerifierName);
+    caseEl.dataset.viewMode = prevViewMode;
+    caseEl.dataset.modeIndex = String(preferredIndex);
+    caseEl.dataset.scaleSetting = prevScaleSetting;
+    const modeButtons = modes.map((m, i) => `<button class="mode-btn ${i===preferredIndex ? "active" : ""}" type="button" data-mode-index="${i}">${esc(m.verifier)}</button>`).join("");
+    qs("#verifierButtons").innerHTML = modeButtons;
+    qs("#viewModeButtons").innerHTML = buildViewModeControls(caseEl.dataset.viewMode, caseEl.dataset.scaleSetting);
+    caseEl.innerHTML = `
+      <div class="row">
+        <h3>${esc(c.name)}</h3>
+        <span class="badge ${c.outcome === "passed" ? "ok" : "bad"}">${esc(c.outcome.toUpperCase())}</span>
+        <span class="badge">${Math.round(c.secs)}s</span>
+      </div>
+      ${c.case_msg ? `<div class="msg">${esc(c.case_msg)}</div>` : ""}
+      <div class="mode-content"></div>`;
+    caseEl.dataset.verifierModes = JSON.stringify(modes);
+    qs("#caseSelect").dataset.prevValue = c.name;
+    bindModeButtons();
+  };
+
+  testSel.addEventListener("change", applySelection);
+  qs("#caseSelect").addEventListener("change", renderSelectedCase);
+  applySelection();
+}
+
+async function renderMode(caseEl, modeIndex) {
+  const renderToken = String(Number(caseEl.dataset.renderToken || "0") + 1);
+  caseEl.dataset.renderToken = renderToken;
+  const modes = JSON.parse(caseEl.dataset.verifierModes || "[]");
+  if (!modes.length) return;
+  const m = modes[Math.max(0, Math.min(modeIndex, modes.length - 1))];
+  const viewMode = caseEl.dataset.viewMode || "compare";
+  const hasRawPfm = hasImg(m.raw_output_image) && hasImg(m.raw_ref_image);
+  const outputBlock = hasImg(m.plot_output_image) ? `<img loading="lazy" src="${esc(m.plot_output_image)}" alt="output image" />` : "<div class='msg'>(no output image)</div>";
+  const refBlock = hasImg(m.plot_ref_image) ? `<img loading="lazy" src="${esc(m.plot_ref_image)}" alt="reference image" />` : "<div class='msg'>(no reference image)</div>";
+  const debugBlock = hasImg(m.plot_debug_image) ? `<img loading="lazy" src="${esc(m.plot_debug_image)}" alt="debug output image" />` : "<div class='msg'>(no debug output image)</div>";
+  const plotCompareBlock = hasImg(m.plot_output_image) && hasImg(m.plot_ref_image) ? `
+    <div class="compare">
+      <div class="imglabel">Slider Compare (left: output, right: reference)</div>
+      <div class="compare-stage">
+        <img-comparison-slider value="50">
+          <div slot="handle" class="compare-handle" aria-hidden="true"><span class="chev left"></span><span class="bar"></span><span class="chev right"></span></div>
+          <img slot="first" class="compare-overlay-media" src="${esc(m.plot_output_image)}" alt="output image" />
+          <img slot="second" class="compare-base-media" src="${esc(m.plot_ref_image)}" alt="reference image" />
+        </img-comparison-slider>
+      </div>
+    </div>` : "";
+  const rawCompareBlock = hasRawPfm ? `
+    <div class="compare pfm-compare">
+      <div class="imglabel">Slider Compare (left: output, right: reference)</div>
+      <div class="compare-stage">
+        <img-comparison-slider value="50">
+          <div slot="handle" class="compare-handle" aria-hidden="true"><span class="chev left"></span><span class="bar"></span><span class="chev right"></span></div>
+          <canvas slot="first" class="pfm-overlay"></canvas>
+          <canvas slot="second" class="pfm-base"></canvas>
+        </img-comparison-slider>
+      </div>
+    </div>` : "";
+  const metrics = m.metrics && Object.keys(m.metrics).length ? `<div class="msg">Metrics: ${esc(JSON.stringify(m.metrics))}</div>` : "";
+  const verifierMsg = m.message ? `<div class="msg">Verifier: ${esc(m.message)}</div>` : "";
+  const debugMsg = m.debug_msg ? `<div class="msg">Debug: ${esc(m.debug_msg)}</div>` : "";
+  const modeContent = qs(".mode-content", caseEl);
+  let body = "";
+  if (viewMode === "plot") {
+    body = `
+      <div class="images plot-grid">
+        <div class="imgbox"><div class="imglabel">Output Plot</div><div class="imgframe">${outputBlock}</div></div>
+        <div class="imgbox"><div class="imglabel">Reference Plot</div><div class="imgframe">${refBlock}</div></div>
+        <div class="imgbox"><div class="imglabel">Debug Plot</div><div class="imgframe">${debugBlock}</div></div>
+      </div>`;
+  } else {
+    body = rawCompareBlock || plotCompareBlock || "<div class='msg'>(compare view unavailable for this verifier)</div>";
+  }  if (caseEl.dataset.renderToken !== renderToken) return;
+  modeContent.innerHTML = `${body}${metrics}${verifierMsg}${debugMsg}`;
+
+  qsa("#verifierButtons .mode-btn").forEach((btn) => btn.classList.remove("active"));
+  const activeBtn = qs(`#verifierButtons .mode-btn[data-mode-index="${modeIndex}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
+  qsa("#viewModeButtons .viewmode-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.viewmode === viewMode));
+  const scaleSelect = qs("#scaleSelect");
+  if (scaleSelect) scaleSelect.value = caseEl.dataset.scaleSetting || "fit";
+  if (viewMode !== "plot" && hasRawPfm) {
+    const rawBlock = qs(".pfm-compare", modeContent);
+    if (rawBlock) {
+      const ok = await initPfmCompare(rawBlock, m.raw_output_image, m.raw_ref_image);
+      if (caseEl.dataset.renderToken !== renderToken) return;
+      if (!ok && String(window.location.protocol || "") === "file:" && plotCompareBlock) {
+        modeContent.innerHTML = `${plotCompareBlock}${metrics}${verifierMsg}${debugMsg}`;
+      }
+    }
+  }
+  applyScaleForCurrentMode(caseEl, modeContent, viewMode);
+
+  if ((caseEl.dataset.scaleSetting || "fit") === "fit") {
+    requestAnimationFrame(() => {
+      if (caseEl.dataset.renderToken !== renderToken) return;
+      applyScaleForCurrentMode(caseEl, modeContent, caseEl.dataset.viewMode || "compare");
+    });
+    qsa("img", modeContent).forEach((imgEl) => {
+      if (imgEl.complete && imgEl.naturalWidth > 0 && imgEl.naturalHeight > 0) return;
+      imgEl.addEventListener("load", () => {
+        if (caseEl.dataset.renderToken !== renderToken) return;
+        applyScaleForCurrentMode(caseEl, modeContent, caseEl.dataset.viewMode || "compare");
+      }, { once: true });
+    });
+  }
+}
+
+function bindModeButtons() {
+  qsa("#casePanel").forEach((caseEl) => {
+    const buttons = qsa("#verifierButtons .mode-btn");
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        caseEl.dataset.modeIndex = String(Number(btn.dataset.modeIndex));
+        renderMode(caseEl, Number(btn.dataset.modeIndex));
+      });
+    });
+    qsa("#viewModeButtons .viewmode-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        caseEl.dataset.viewMode = btn.dataset.viewmode;
+        renderMode(caseEl, Number(caseEl.dataset.modeIndex || "0"));
+      });
+    });
+    const scaleSelect = qs("#scaleSelect");
+    if (scaleSelect) {
+      scaleSelect.addEventListener("change", () => {
+        caseEl.dataset.scaleSetting = scaleSelect.value;
+        renderMode(caseEl, Number(caseEl.dataset.modeIndex || "0"));
+      });
+    }
+    if (buttons.length) {
+      renderMode(caseEl, Number(caseEl.dataset.modeIndex || "0"));
+    }
+  });
+}
+
+function stepCase(delta) {
+  const testSelect = qs("#testSelect");
+  const caseSelect = qs("#caseSelect");
+  if (!testSelect || !caseSelect || !testSelect.options.length) return;
+
+  const testOptions = Array.from(testSelect.options);
+  const testIndex = Math.max(0, testOptions.findIndex((opt) => opt.value === testSelect.value));
+  const caseOptions = Array.from(caseSelect.options);
+  if (!caseOptions.length) return;
+
+  let caseIndex = Math.max(0, caseOptions.findIndex((opt) => opt.value === caseSelect.value));
+  caseIndex += delta;
+
+  const moveToTest = (targetIndex, pickLastCase) => {
+    testSelect.value = testOptions[targetIndex].value;
+    testSelect.dispatchEvent(new Event("change"));
+    const refreshedCaseSelect = qs("#caseSelect");
+    if (!refreshedCaseSelect || !refreshedCaseSelect.options.length) return;
+    refreshedCaseSelect.value = pickLastCase
+      ? refreshedCaseSelect.options[refreshedCaseSelect.options.length - 1].value
+      : refreshedCaseSelect.options[0].value;
+    refreshedCaseSelect.dispatchEvent(new Event("change"));
+  };
+
+  if (caseIndex >= 0 && caseIndex < caseOptions.length) {
+    caseSelect.value = caseOptions[caseIndex].value;
+    caseSelect.dispatchEvent(new Event("change"));
+    return;
+  }
+
+  if (delta < 0) {
+    const prevTest = testIndex > 0 ? testIndex - 1 : testOptions.length - 1;
+    moveToTest(prevTest, true);
+  } else {
+    const nextTest = testIndex + 1 < testOptions.length ? testIndex + 1 : 0;
+    moveToTest(nextTest, false);
+  }
+}
+
+function stepTest(delta) {
+  const testSelect = qs("#testSelect");
+  if (!testSelect || !testSelect.options.length) return;
+  const options = Array.from(testSelect.options);
+  let idx = options.findIndex((opt) => opt.value === testSelect.value);
+  if (idx < 0) idx = 0;
+  idx = (idx + delta + options.length) % options.length;
+  testSelect.value = options[idx].value;
+  testSelect.dispatchEvent(new Event("change"));
+}
+
+function applyFilter() {
+  const text = qs("#search").value.trim().toLowerCase();
+  const outcomeFilter = qs("#filter").value;
+  const list = qs("#testList");
+  list.innerHTML = "";
+
+  for (const test of data.tests) {
+    const testName = test.name.toLowerCase();
+    const matchingCases = test.cases.filter((c) => {
+      const matchText = testName.includes(text) || c.name.toLowerCase().includes(text);
+      return matchText && (outcomeFilter === "all" || c.outcome === outcomeFilter);
+    });
+
+    if (matchingCases.length > 0) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "item";
+      item.innerHTML = `<div class="name">${test.name}</div><div class="tiny">${matchingCases.length} visible case(s)</div>`;
+      item.addEventListener("click", () => {
+        const testSelect = qs("#testSelect");
+        testSelect.value = test.name;
+        testSelect.dispatchEvent(new Event("change"));
+        const caseSelect = qs("#caseSelect");
+        const preferred = matchingCases[0]?.name;
+        const options = Array.from(caseSelect.options);
+        const hasPreferred = options.find((o) => o.value === preferred);
+        if (hasPreferred) caseSelect.value = preferred;
+        caseSelect.dispatchEvent(new Event("change"));
+      });
+      list.appendChild(item);
+    }
+  }
+}
+
+renderSummary();
+renderMainViewport();
+qs("#search").addEventListener("input", applyFilter);
+qs("#filter").addEventListener("change", applyFilter);
+qs("#prevTestBtn").addEventListener("click", () => stepTest(-1));
+qs("#nextTestBtn").addEventListener("click", () => stepTest(1));
+qs("#prevCaseBtn").addEventListener("click", () => stepCase(-1));
+qs("#nextCaseBtn").addEventListener("click", () => stepCase(1));
+window.addEventListener("resize", () => {
+  const caseEl = qs("#casePanel");
+  if (!caseEl) return;
+  if ((caseEl.dataset.scaleSetting || "fit") !== "fit") return;
+  renderMode(caseEl, Number(caseEl.dataset.modeIndex || "0"));
+});
+qs("#toggleWarningsBtn").addEventListener("click", () => {
+  const block = qs("#warnInfo");
+  block.classList.toggle("show");
+  qs("#toggleWarningsBtn").textContent = block.classList.contains("show") ? "Hide Warnings" : `Show Warnings (${(data.warnings || []).length})`;
+});
+applyFilter();
+setupServerLifecycleHooks();
+</script>
+</body>
+</html>
+

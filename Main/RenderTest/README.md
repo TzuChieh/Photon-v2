@@ -56,3 +56,39 @@ python ./RenderTest/run_and_report.py -k unit_radiance
 ## Writing New Tests
 
 If you do not follow the pattern of existing tests, please keep in mind that the tests can run in parallel (e.g., using `xdist`). All tests must be written in a thread-safe and process-safe way. 
+
+## Design Overview
+
+RenderTest follows a case-driven pipeline:
+
+1. Test modules define one or more `infra.RenderTestSuite` instances.
+2. Each suite owns multiple `infra.RenderCase` objects.
+3. `pytest` executes parametrized cases, and `infra.TestRunner` renders + verifies each case.
+4. For each executed case, `conftest.py` writes one case JSON to `./RenderTest/test_output/`.
+5. `make_report.py` reads case JSON and generates reports in `./RenderTest/report_output/`.
+
+Key notes:
+
+- `run_and_report.py` supports `--mode {both,markdown,html}`, `--report-only`, and `--test-only`.
+- Report metadata is stored as `./RenderTest/test_output/test_meta.json`.
+- If case mapping warnings occur during `pytest_runtest_makereport()`, they are shown in the report warnings section.
+
+## Adding New Tests
+
+Example workflow:
+
+1. Create a new test module under `./RenderTest/tests/` (follow existing naming pattern).
+2. Define a module-level `RenderTestSuite` suite instance.
+3. Construct verifier instances.
+4. Add cases via `suite.add_case(infra.RenderCase(...))`.
+5. Parametrize with `@pytest.mark.parametrize("case", suite.get_cases(), ids=lambda c: c.name)`.
+6. In test body, run:
+   - `runner = infra.TestRunner()`
+   - `result = runner.run(case)`
+   - `assert result.passed, result.message`
+
+Guidelines:
+
+- Keep each case name unique within the module (used as pytest id and JSON filename).
+- Prefer verifier composition over custom ad-hoc test logic.
+- Assume parallel execution (`xdist`): do not rely on shared mutable global state.

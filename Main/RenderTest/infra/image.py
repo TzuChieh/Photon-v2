@@ -87,6 +87,34 @@ class Image:
         plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
         plt.close()
 
+    def save_pfm(self, file_path, create_dirs=False):
+        if create_dirs:
+            Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+
+        pfm_path = Path(file_path).with_suffix(".pfm")
+        values = np.asarray(self.values, dtype=np.float32)
+        if values.ndim == 3 and values.shape[2] == 3:
+            header = "PF\n"
+            data = values
+        elif values.ndim == 2:
+            header = "Pf\n"
+            data = values
+        elif values.ndim == 3 and values.shape[2] == 1:
+            header = "Pf\n"
+            data = values[:, :, 0]
+        else:
+            raise ValueError("unsupported image dimensions for PFM: %s" % (values.shape,))
+
+        height = data.shape[0]
+        width = data.shape[1]
+        endian_scale = -1.0  # little endian
+
+        with open(pfm_path, "wb") as pfm_file:
+            pfm_file.write(header.encode("ascii"))
+            pfm_file.write(f"{width} {height}\n".encode("ascii"))
+            pfm_file.write(f"{endian_scale}\n".encode("ascii"))
+            pfm_file.write(data.tobytes(order="C"))
+
 
 def read_pfm(file_path):
     with open(Path(file_path).with_suffix(".pfm"), 'rb') as pfm_file:

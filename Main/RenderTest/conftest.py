@@ -7,6 +7,14 @@ import sys
 import re
 import json
 import inspect
+import warnings
+import os
+import shutil
+
+try:
+    import numpy as np
+except ModuleNotFoundError:
+    np = None
 
 
 def _get_module_suites(module):
@@ -18,6 +26,37 @@ def _get_module_suites(module):
             suites.append(value)
     return suites
 
+
+def _to_json_compatible(value):
+    """
+    Handle values that built-in json cannot serialize.
+    """
+    if np is not None:
+        if isinstance(value, np.generic):
+            return _to_json_compatible(value.item())
+        if isinstance(value, np.ndarray):
+            return [_to_json_compatible(val) for val in value.tolist()]
+
+    if isinstance(value, dict):
+        return {str(key): _to_json_compatible(val) for key, val in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_to_json_compatible(val) for val in value]
+    return value
+
+
+def _warning_dir():
+    return infra.paths.test_output() / "_report_warnings"
+
+
+def _append_report_warning(nodeid: str, message: str):
+    warning_dir = _warning_dir()
+    warning_dir.mkdir(parents=True, exist_ok=True)
+    worker_name = os.environ.get("PYTEST_XDIST_WORKER", "master")
+    warning_file = warning_dir / f"{worker_name}.jsonl"
+    payload = {"nodeid": nodeid, "message": message}
+    with open(warning_file, "a", encoding="utf-8") as warning_stream:
+        warning_stream.write(json.dumps(payload, ensure_ascii=True) + "\n")
+
 @pytest.hookimpl()
 def pytest_sessionstart(session: pytest.Session):
     """
@@ -25,6 +64,13 @@ def pytest_sessionstart(session: pytest.Session):
     """
     # Use a non-interactive backend so plot window will not pop out
     matplotlib.use('Agg')
+
+    # Prevent stale warnings from previous runs leaking into the next report.
+    # In xdist, only controller process should clear this directory.
+    if os.environ.get("PYTEST_XDIST_WORKER") is None:
+        warning_dir = _warning_dir()
+        if warning_dir.exists():
+            shutil.rmtree(warning_dir)
 
 @pytest.hookimpl()
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
@@ -88,13 +134,20 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     for suite in suites:
         cases.extend(suite.get_cases())
 
-    # Extract test ID from square brackets (`item.name` contains "test_func_name[test-id]") and find the case
+    # Extract test ID from square brackets (`item.name` contains "test_func_name[test-id]") and find the case.
     called_test_id = re.findall(r'\[(.*?)\]', item.name)[0]
+
     called_case = [case for case in cases if case.get_name() == called_test_id]
     if not called_case:
-        raise ValueError("cannot find corresponding case for test ID <%s>" % called_test_id)
+        message = "cannot find corresponding case for test ID <%s>; skip json write" % called_test_id
+        warnings.warn(message)
+        _append_report_warning(item.nodeid, message)
+        return report
     elif len(called_case) > 1:
-        raise ValueError("duplicated cases for the test ID <%s> found (ID collision)" % called_test_id)
+        message = "duplicated cases for the test ID <%s>; skip json write" % called_test_id
+        warnings.warn(message)
+        _append_report_warning(item.nodeid, message)
+        return report
     else:
         called_case = called_case[0]
 
@@ -104,9 +157,13 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    with open((output_dir / case_name).with_suffix('.json'), 'w') as json_file:
-        case_info = called_case.to_json_dict()
-        case_info['outcome'] = report.outcome
-        case_info['desc'] = inspect.cleandoc(item.function.__doc__)
-        case_info['secs'] = call.duration
-        json_file.write(json.dumps(case_info, indent=4))
+    case_info = called_case.to_json_dict()
+    case_info['outcome'] = report.outcome
+    case_info['desc'] = inspect.cleandoc(item.function.__doc__)
+    case_info['secs'] = call.duration
+
+    case_json_path = (output_dir / case_name).with_suffix('.json')
+    case_json_temp_path = (output_dir / (case_name + ".tmp")).with_suffix('.json')
+    with open(case_json_temp_path, 'w', encoding='utf-8') as json_file:
+        json_file.write(json.dumps(_to_json_compatible(case_info), indent=4))
+    case_json_temp_path.replace(case_json_path)

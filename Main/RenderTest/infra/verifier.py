@@ -50,6 +50,21 @@ class RefVerifier(Verifier):
     def _has_path_ref(self):
         return self.ref_image_path is not None
 
+    def get_ref_image_for_output(self, output_img: image.Image):
+        if self.has_image_ref():
+            return self.get_image_ref()
+
+        ref_img = image.Image(output_img.get_width(), output_img.get_height(), output_img.num_components())
+        ref_img.fill(self.get_ref_scalar())
+        return ref_img
+
+    def save_compare_ref_raw(self, output_img: image.Image, output_dir: Path, case: RenderCase):
+        ref_img = self.get_ref_image_for_output(output_img)
+        ref_raw_filename = f"{case.output_filename}_{type(self).__name__.lower()}_ref_raw"
+        ref_img.save_pfm(output_dir / ref_raw_filename)
+        case.set_raw_output_image_filename(case.output_filename)
+        case.set_raw_ref_image_filename(ref_raw_filename)
+
 
 class MSEVerifier(RefVerifier):
     """
@@ -131,8 +146,8 @@ class MeanDiffVerifier(RefVerifier):
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
         mean_diff = np.mean(output_img.values) - self.get_ref_scalar()
-        case.debug_msg = "mean diff = %.8f, max pixel = %.8f, min pixel = %.8f" % (
-            mean_diff, np.max(output_img.values), np.min(output_img.values))
+        case.set_debug_msg("mean diff = %.8f, max pixel = %.8f, min pixel = %.8f" % (
+            mean_diff, np.max(output_img.values), np.min(output_img.values)))
 
         passed = abs(mean_diff) < self.threshold
         return VerificationResult(
@@ -189,9 +204,11 @@ class VisualErrorVerifier(RefVerifier):
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
         error_img = image.Image(output_img.get_width(), output_img.get_height(), output_img.num_components())
 
-        # Compatibility metadata for reporter
-        case.ref_filename = self.ref_output_filename if self.has_image_ref() else None
-        case.debug_output_filename = self.error_output_filename or f"{case.output_filename}_error"
+        if self.has_image_ref():
+            case.set_plot_ref_image_filename(self.ref_output_filename)
+        else:
+            case.clear_plot_ref_image_filename()
+        case.set_plot_debug_image_filename(self.error_output_filename or f"{case.output_filename}_error")
 
         if self.has_image_ref():
             ref_img = self.get_image_ref()
@@ -202,7 +219,7 @@ class VisualErrorVerifier(RefVerifier):
         error_img.values = np.abs(error_img.values) * self.error_scale
         error_img = error_img.to_summed_absolute_components()
         
-        debug_output_path = output_dir / case.debug_output_filename
+        debug_output_path = output_dir / case.plot_debug_image_filename
         if callable(self.error_title):
             error_title = self.error_title(case)
         else:
@@ -232,11 +249,11 @@ class PseudocolorPlotVerifier(Verifier):
         self.color_map = color_map
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        case.debug_output_filename = self.output_filename or f"{case.output_filename}_error"
+        case.set_plot_debug_image_filename(self.output_filename or f"{case.output_filename}_error")
         debug_img = self.transform(output_img)
         title = self.title(case) if callable(self.title) else (self.title or f"{case.name} Debug Output")
         debug_img.save_pseudocolor_plot(
-            output_dir / case.debug_output_filename,
+            output_dir / case.plot_debug_image_filename,
             title,
             color_min=self.color_min,
             color_max=self.color_max,

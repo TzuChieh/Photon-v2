@@ -1,5 +1,6 @@
 from infra import renderer, image
 from infra.core import RenderCase, VerificationResult
+from infra.verifier import RefVerifier
 
 import inspect
 from pathlib import Path
@@ -57,14 +58,21 @@ class TestRunner:
         combined_passed = True
         combined_msg = []
         combined_metrics = {}
+        case.reset_report_state()
 
         for verifier in case.verifiers:
+            case.begin_verifier_report(type(verifier).__name__)
+            if isinstance(verifier, RefVerifier):
+                verifier.save_compare_ref_raw(output_img, case_output_dir, case)
             result = verifier.verify(output_img, case_output_dir, case)
             if not result.passed:
                 combined_passed = False
                 if result.message:
                     combined_msg.append(result.message)
             combined_metrics.update(result.metrics)
+            case.finalize_verifier_report(result)
+
+        case.finalize_primary_report_fields()
 
         # 4. Save standard plot for report after metrics are available.
         output_img.save_plot(output_path, case.get_output_title(combined_metrics))
@@ -72,5 +80,4 @@ class TestRunner:
         return VerificationResult(
             passed=combined_passed,
             message="; ".join(combined_msg),
-            metrics=combined_metrics
-        )
+            metrics=combined_metrics)
