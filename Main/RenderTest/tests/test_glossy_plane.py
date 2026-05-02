@@ -10,7 +10,7 @@ renderer_config = infra.RendererConfig(num_threads=10)
 ref_path = res_dir / "ref_bvpt_1048576spp"
 
 def output_title(case, metrics):
-    return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_avg"] * 100)
+    return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
 
 visual_error_verifier = infra.VisualErrorVerifier(
     ref=ref_path,
@@ -23,7 +23,7 @@ suite.add_case(infra.RenderCase(
     renderer_config,
     [
         infra.MSEVerifier(ref=ref_path, threshold=0.0036),
-        infra.RelAvgVerifier(ref=ref_path, threshold=0.0056),
+        infra.RelMeanVerifier(ref=ref_path, threshold=0.0056),
         visual_error_verifier
     ],
     output_title=output_title))
@@ -33,7 +33,7 @@ suite.add_case(infra.RenderCase(
     renderer_config,
     [
         infra.MSEVerifier(ref=ref_path, threshold=0.003),
-        infra.RelAvgVerifier(ref=ref_path, threshold=0.0034),
+        infra.RelMeanVerifier(ref=ref_path, threshold=0.0034),
         visual_error_verifier
     ],
     output_title=output_title))

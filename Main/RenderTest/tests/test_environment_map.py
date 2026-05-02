@@ -1,107 +1,75 @@
 import infra
 from infra import image
-from infra import renderer
 from infra import paths
-
 import pytest
 
 
 res_dir = paths.test_resources() / "environment_map"
+suite = infra.RenderTestSuite(__name__, res_dir)
 
-debug_bvpt_sphere_case = infra.TestCase(__name__, "BVPT (debug map + sphere)", res_dir / "scene_debug_bvpt_sphere.p2")
-debug_bvpt_sphere_case.output = "debug_bvpt_sphere"
-debug_bvpt_sphere_case.debug_output = "debug_bvpt_sphere_error"
-debug_bvpt_sphere_case.ref = "ref_debug_sphere"
+renderer_config = infra.RendererConfig(num_threads=4)
+debug_ref_path = res_dir / "ref_debug_bvpt_sphere_16384spp"
+white_ref_img = image.Image(128, 64, 3)
+white_ref_img.fill(1.0)
 
-debug_bvpt_sphere_shifted_case = infra.TestCase(__name__, "BVPT (debug map + sphere + shifted)", res_dir / "scene_debug_bvpt_sphere_shifted.p2")
-debug_bvpt_sphere_shifted_case.output = "debug_bvpt_sphere_shifted"
-debug_bvpt_sphere_shifted_case.debug_output = "debug_bvpt_sphere_shifted_error"
-debug_bvpt_sphere_shifted_case.ref = "ref_debug_sphere"
-debug_bvpt_sphere_shifted_case.case_msg = (
-    "All settings are the same with \"BVPT (debug map + sphere)\" case, except the sphere and camera are shifted "
-    "2000 units in +x. The result should be the same as our environment map depends on view direction only.")
+def output_title(case, metrics):
+    return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
 
-debug_bneept_sphere_case = infra.TestCase(__name__, "BNEEPT (debug map + sphere)", res_dir / "scene_debug_bneept_sphere.p2")
-debug_bneept_sphere_case.output = "debug_bneept_sphere"
-debug_bneept_sphere_case.debug_output = "debug_bneept_sphere_error"
-debug_bneept_sphere_case.ref = "ref_debug_sphere"
+debug_visual_error_verifier = infra.VisualErrorVerifier(
+    ref=debug_ref_path,
+    error_scale=100.0,
+    ref_output_filename="ref_debug_sphere",
+    ref_title="Reference: Debug map + sphere, 16384 spp")
+white_visual_error_verifier = infra.VisualErrorVerifier(
+    ref=white_ref_img,
+    error_scale=100.0,
+    ref_output_filename="ref_white",
+    ref_title="Reference: Fully white (1.0)")
 
-debug_bneept_sphere_shifted_case = infra.TestCase(__name__, "BNEEPT (debug map + sphere + shifted)", res_dir / "scene_debug_bneept_sphere_shifted.p2")
-debug_bneept_sphere_shifted_case.output = "debug_bneept_sphere_shifted"
-debug_bneept_sphere_shifted_case.debug_output = "debug_bneept_sphere_shifted_error"
-debug_bneept_sphere_shifted_case.ref = "ref_debug_sphere"
-debug_bneept_sphere_shifted_case.case_msg = (
-    "All settings are the same with \"BNEEPT (debug map + sphere)\" case, except the sphere and camera are shifted "
-    "2000 units in +x. The result should be the same as our environment map depends on view direction only.")
+for case_name, output_name, scene_name, ref, visual_error_verifier, max_mse, max_rel_mean, case_msg in [
+    ("BVPT (debug map + sphere)", "debug_bvpt_sphere", "scene_debug_bvpt_sphere.p2",
+     debug_ref_path, debug_visual_error_verifier, 0.0001, 0.002,
+     ""),
+    ("BVPT (debug map + sphere + shifted)", "debug_bvpt_sphere_shifted", "scene_debug_bvpt_sphere_shifted.p2",
+     debug_ref_path, debug_visual_error_verifier, 0.0001, 0.002,
+     "All settings are the same with \"BVPT (debug map + sphere)\" case, except the sphere and camera are shifted "
+     "2000 units in +x. The result should be the same as our environment map depends on view direction only."),
+    ("BNEEPT (debug map + sphere)", "debug_bneept_sphere", "scene_debug_bneept_sphere.p2",
+     debug_ref_path, debug_visual_error_verifier, 0.0001, 0.0003,
+     ""),
+    ("BNEEPT (debug map + sphere + shifted)", "debug_bneept_sphere_shifted", "scene_debug_bneept_sphere_shifted.p2",
+     debug_ref_path, debug_visual_error_verifier, 0.0001, 0.0006,
+     "All settings are the same with \"BNEEPT (debug map + sphere)\" case, except the sphere and camera are shifted "
+     "2000 units in +x. The result should be the same as our environment map depends on view direction only."),
+    ("BVPT (white map + sphere)", "white_bvpt_sphere", "scene_white_bvpt_sphere.p2",
+     white_ref_img, white_visual_error_verifier, 1e-10, 1e-10,
+     "Effectively a white furnace test."),
+    ("BNEEPT (white map + sphere)", "white_bneept_sphere", "scene_white_bneept_sphere.p2",
+     white_ref_img, white_visual_error_verifier, 1e-10, 1e-10,
+     "Effectively a white furnace test."),
+    ("PPPM (white map + plane)", "white_pppm_plane", "scene_white_pppm_plane.p2",
+     white_ref_img, white_visual_error_verifier, 0.002, 0.0106,
+     "Effectively a white furnace test. The receiver is placed fairly close to the plane, looking at the horizon "
+     "(forms grazing angles). The environment sphere is also shifted and rotated, which should not affect the result.")
+    ]:
+    suite.add_case(infra.RenderCase(
+        case_name,
+        res_dir / scene_name,
+        renderer_config,
+        [
+            infra.MSEVerifier(ref=ref, threshold=max_mse),
+            infra.RelMeanVerifier(ref=ref, threshold=max_rel_mean),
+            visual_error_verifier
+        ],
+        output_filename=output_name,
+        output_title=output_title,
+        case_msg=case_msg))
 
-white_bvpt_sphere_case = infra.TestCase(__name__, "BVPT (white map + sphere)", res_dir / "scene_white_bvpt_sphere.p2")
-white_bvpt_sphere_case.output = "white_bvpt_sphere"
-white_bvpt_sphere_case.debug_output = "white_bvpt_sphere_error"
-white_bvpt_sphere_case.ref = "ref_white"
-white_bvpt_sphere_case.case_msg = (
-    "Effectively a white furnace test.")
-
-white_bneept_sphere_case = infra.TestCase(__name__, "BNEEPT (white map + sphere)", res_dir / "scene_white_bneept_sphere.p2")
-white_bneept_sphere_case.output = "white_bneept_sphere"
-white_bneept_sphere_case.debug_output = "white_bneept_sphere_error"
-white_bneept_sphere_case.ref = "ref_white"
-white_bneept_sphere_case.case_msg = (
-    "Effectively a white furnace test.")
-
-white_pppm_plane_case = infra.TestCase(__name__, "PPPM (white map + plane)", res_dir / "scene_white_pppm_plane.p2")
-white_pppm_plane_case.output = "white_pppm_plane"
-white_pppm_plane_case.debug_output = "white_pppm_plane_error"
-white_pppm_plane_case.ref = "ref_white"
-white_pppm_plane_case.case_msg = (
-    "Effectively a white furnace test. The receiver is placed fairly close to the plane, looking at the horizon "
-    "(forms grazing angles). The environment sphere is also shifted and rotated, which should not affect the result.")
-
-@pytest.fixture(scope='module')
-def ref_white_img():
-    img = image.Image(128, 64, 3)
-    img.fill(1.0)
-    img.save_plot(white_bvpt_sphere_case.get_ref_path(), "Reference: Fully white (1.0)", create_dirs=True)
-    return img
-
-@pytest.fixture(scope='module')
-def ref_debug_sphere_img():
-    img = image.read_pfm(res_dir / "ref_debug_bvpt_sphere_16384spp")
-    img.save_plot(debug_bvpt_sphere_case.get_ref_path(), "Reference: Debug map + sphere, 16384 spp", create_dirs=True)
-    return img
-
-@pytest.mark.parametrize("case, max_mse, max_re_avg", [
-    pytest.param(debug_bvpt_sphere_case, 0.0001, 0.002, id=debug_bvpt_sphere_case.get_name()),
-    pytest.param(debug_bvpt_sphere_shifted_case, 0.0001, 0.002, id=debug_bvpt_sphere_shifted_case.get_name()),
-    pytest.param(debug_bneept_sphere_case, 0.0001, 0.0003, id=debug_bneept_sphere_case.get_name()),
-    pytest.param(debug_bneept_sphere_shifted_case, 0.0001, 0.0006, id=debug_bneept_sphere_shifted_case.get_name()),
-    pytest.param(white_bvpt_sphere_case, 1e-10, 1e-10, id=white_bvpt_sphere_case.get_name()),
-    pytest.param(white_bneept_sphere_case, 1e-10, 1e-10, id=white_bneept_sphere_case.get_name()),
-    pytest.param(white_pppm_plane_case, 0.002, 0.0106, id=white_pppm_plane_case.get_name()),
-])
-def test_render(ref_white_img, ref_debug_sphere_img, case, max_mse, max_re_avg):
+@pytest.mark.parametrize("case", suite.get_cases(), ids=lambda c: c.name)
+def test_render(case):
     """
     An object is being illuminated by an environment map.
     """
-    is_white_case = (
-        case is white_bvpt_sphere_case or 
-        case is white_bneept_sphere_case or 
-        case is white_pppm_plane_case)
-
-    process = renderer.open_default_render_process(case.get_scene_path(), case.get_output_path(), num_threads=4)
-    process.run_and_wait()
-
-    ref_img = ref_white_img if is_white_case else ref_debug_sphere_img
-
-    output_img = image.read_pfm(case.get_output_path())
-    mse = image.mse_of(output_img, ref_img)
-    re_avg = image.re_avg_of(output_img, ref_img)
-    output_img.save_plot(case.get_output_path(), case.get_name() + " Output (MSE: %f, Δ: %f%%)" % (mse, re_avg * 100))
-
-    output_img.values -= ref_img.values
-    output_img.values *= 100
-    output_img = output_img.to_summed_absolute_components()
-    output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
-
-    assert mse < max_mse
-    assert abs(re_avg) < max_re_avg
-    
+    runner = infra.TestRunner()
+    result = runner.run(case)
+    assert result.passed, result.message

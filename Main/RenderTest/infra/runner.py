@@ -59,12 +59,12 @@ class TestRunner:
         combined_metrics = {}
 
         for verifier in case.verifiers:
-            res = verifier.verify(output_img, case_output_dir, case)
-            if not res.passed:
+            result = verifier.verify(output_img, case_output_dir, case)
+            if not result.passed:
                 combined_passed = False
-                if res.message:
-                    combined_msg.append(res.message)
-            combined_metrics.update(res.metrics)
+                if result.message:
+                    combined_msg.append(result.message)
+            combined_metrics.update(result.metrics)
 
         # 4. Save standard plot for report after metrics are available.
         output_img.save_plot(output_path, case.get_output_title(combined_metrics))

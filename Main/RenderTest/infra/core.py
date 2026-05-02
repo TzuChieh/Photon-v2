@@ -69,7 +69,8 @@ class RenderCase:
             renderer_config: RendererConfig, 
             verifiers: Union[Verifier, List[Verifier]],
             output_filename: str = None,
-            output_title: Union[str, Callable[['RenderCase', dict], str]] = None):
+            output_title: Union[str, Callable[['RenderCase', dict], str]] = None,
+            case_msg: str = ""):
         """
         @param name A unique name for this test case.
         @param scene_path Path to the scene file (.p2).
@@ -80,6 +81,7 @@ class RenderCase:
         @param output_title Optional title for the rendered output plot. This can be either a fixed
                string or a callable with signature (case, metrics) -> str. The callable form is useful
                when the title should include verifier metrics, such as MSE or relative average error.
+        @param case_msg Optional message shown in the report for this case.
         """
         self.name = name
         self.scene_path = scene_path
@@ -97,7 +99,7 @@ class RenderCase:
         self.ref_filename = None
         self.debug_output_filename = None
         self.output_title = output_title
-        self.case_msg = ""
+        self.case_msg = case_msg
         self.debug_msg = ""
 
     def set_module_name(self, module_name: str):
@@ -137,7 +139,7 @@ class RenderCase:
 
     def to_json_dict(self):
         """
-        Get a json serializable dictionary compatible with TestCase.
+        Get a json serializable dictionary for report generation.
         """
         return {
             '_test_name': self._test_name,

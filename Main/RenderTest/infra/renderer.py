@@ -95,4 +95,3 @@ class RenderProcess:
 
     def _set_argument(self, key, value):
         self.arguments[key] = value
-

@@ -7,8 +7,16 @@ import sys
 import re
 import json
 import inspect
-from collections import abc
 
+
+def _get_module_suites(module):
+    suites = []
+    for name, value in module.__dict__.items():
+        if name.startswith("_"):
+            continue
+        if isinstance(value, infra.RenderTestSuite):
+            suites.append(value)
+    return suites
 
 @pytest.hookimpl()
 def pytest_sessionstart(session: pytest.Session):
@@ -30,17 +38,17 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
     Called after collection has been performed. This runs ONLY in the Master process
     before any workers are spawned. We use this to generate all reference plots.
     """
-    # Track unique suites to avoid redundant processing
+    # Track modules to avoid redundant processing
     processed_modules = set()
 
     for item in items:
-        module = getattr(item, 'module', None)
-        if not module or module.__name__ in processed_modules:
+        module = sys.modules[item.function.__module__]
+        if module in processed_modules:
             continue
-        
-        suite = getattr(module, 'suite', None)
-        if not suite:
-            processed_modules.add(module.__name__)
+
+        suites = _get_module_suites(module)
+        if not suites:
+            processed_modules.add(module)
             continue
 
         output_dir = infra.paths.test_output() / module.__name__
@@ -48,19 +56,17 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         # Reference plots are written once by the controller process before xdist workers run tests.
         plotted_refs = set()
 
-        for case in suite.get_cases():
-            for verifier in case.verifiers:
-                if isinstance(verifier, infra.VisualErrorVerifier) and verifier.has_image_ref():
-                    ref_path = verifier.get_image_ref_path()
-                    ref_name = verifier.get_ref_output_filename()
-                    
-                    if ref_path not in plotted_refs:
-                        ref_img = infra.ResourceCache.get_image(ref_path)
-                        plot_path = output_dir / ref_name
-                        ref_img.save_plot(plot_path, verifier.get_ref_title(), create_dirs=True)
-                        plotted_refs.add(ref_path)
+        for suite in suites:
+            for case in suite.get_cases():
+                for verifier in case.verifiers:
+                    if isinstance(verifier, infra.VisualErrorVerifier) and verifier.has_image_ref():
+                        ref_key = verifier.get_ref_key()
+
+                        if ref_key not in plotted_refs:
+                            verifier.save_ref_plot(output_dir)
+                            plotted_refs.add(ref_key)
         
-        processed_modules.add(module.__name__)
+        processed_modules.add(module)
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
@@ -74,20 +80,12 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     # When generating reports, keep in mind that the tests can run in parallel (e.g., using `xdist`).
     # Each report must be generated in a thread-safe and process-safe way.
 
-    # After a test is called, get the test function's containing module and find test cases in it
+    # After a test is called, get the test function's containing module and find test cases in it.
+    # Only direct module-level RenderTestSuite vars are supported.
     module = sys.modules[item.function.__module__]
+    suites = _get_module_suites(module)
     cases = []
-    for name, value in module.__dict__.items():
-        if name.startswith("_") or "case" not in name:
-            continue
-
-        if isinstance(value, (infra.TestCase, infra.RenderCase)):
-            cases.append(value)
-        elif isinstance(value, abc.Iterable):
-            cases.extend([e for e in value if isinstance(e, (infra.TestCase, infra.RenderCase))])
-
-    suite = getattr(module, 'suite', None)
-    if suite:
+    for suite in suites:
         cases.extend(suite.get_cases())
 
     # Extract test ID from square brackets (`item.name` contains "test_func_name[test-id]") and find the case
