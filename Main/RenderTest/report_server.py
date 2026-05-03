@@ -11,17 +11,6 @@ class ReportServer(socketserver.TCPServer):
     allow_reuse_address = True
 
 
-class ReportHandler(http.server.SimpleHTTPRequestHandler):
-    def do_POST(self):
-        if self.path == "/__shutdown":
-            self.send_response(204)
-            self.end_headers()
-            self.server.shutdown_requested = True
-            return
-        self.send_response(404)
-        self.end_headers()
-
-
 def _find_free_port() -> int:
     with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
         sock.bind(("127.0.0.1", 0))
@@ -39,20 +28,18 @@ def main():
         raise FileNotFoundError(f"report file not found: {report_file}")
 
     port = _find_free_port()
-    handler = ReportHandler
+    handler = http.server.SimpleHTTPRequestHandler
 
     os.chdir(report_dir)
 
     with ReportServer(("127.0.0.1", port), handler) as httpd:
-        httpd.shutdown_requested = False
         url = f"http://127.0.0.1:{port}/report.html"
         print(f"Serving RenderTest report at {url}")
-        print("Server stops on shutdown signal from page close or Ctrl+C.")
+        print("Server runs until manually stopped (Ctrl+C or close terminal window).")
         print("Press Ctrl+C to stop.")
         webbrowser.open(url)
         try:
-            while not httpd.shutdown_requested:
-                httpd.handle_request()
+            httpd.serve_forever()
         except KeyboardInterrupt:
             print("\nStopped.")
         finally:
