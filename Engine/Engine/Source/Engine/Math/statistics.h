@@ -35,6 +35,106 @@ inline T sidak_correction(T desiredProb, IntType numTests)
 	return 1 - std::pow(1 - desiredProb, 1 / static_cast<T>(numTests));
 }
 
+/*! @brief Performs one weighted Welford online update step.
+
+For weighted online updates, this follows the numerically stable recurrence from
+Schubert and Gertz @cite Schubert:2018:NumericallyStableCovariance.
+
+The resulting unbiased weighted variance can be computed with
+`weighted_welford_unbiased_variance()`. For probability/reliability style weights,
+the accumulated states are `weightSum`, `weightSquaredSum`, `mean` and `sumSquaredDiff`.
+
+@param weightSum Sum of sample weights.
+@param weightSquaredSum Sum of squared sample weights.
+@param mean Weighted mean.
+@param sumSquaredDiff Weighted sum of squared deviations from mean (`M2`).
+*/
+template<std::floating_point T>
+inline void weighted_welford_add(
+	const T sample,
+	const T weight,
+	T&      weightSum,
+	T&      weightSquaredSum,
+	T&      mean,
+	T&      sumSquaredDiff)
+{
+	PH_ASSERT_GE(weight, 0);
+	if(weight == 0)
+	{
+		return;
+	}
+
+	const T newWeightSum = weightSum + weight;
+	PH_ASSERT_GT(newWeightSum, 0);
+
+	const T delta = sample - mean;
+	const T ratio = weight / newWeightSum;
+	const T newMean = mean + ratio * delta;
+	const T delta2 = sample - newMean;
+
+	sumSquaredDiff += weight * delta * delta2;
+	mean = newMean;
+	weightSum = newWeightSum;
+	weightSquaredSum += weight * weight;
+}
+
+/*! @brief Merges another weighted Welford accumulator into current one.
+See the derivation of equation 21 from @cite Schubert:2018:NumericallyStableCovariance.
+*/
+template<std::floating_point T>
+inline void weighted_welford_merge(
+	const T otherWeightSum,
+	const T otherWeightSquaredSum,
+	const T otherMean,
+	const T otherSumSquaredDiff,
+	T&      weightSum,
+	T&      weightSquaredSum,
+	T&      mean,
+	T&      sumSquaredDiff)
+{
+	PH_ASSERT_GE(otherWeightSum, 0);
+	PH_ASSERT_GE(otherWeightSquaredSum, 0);
+	if(otherWeightSum == 0)
+	{
+		return;
+	}
+
+	const T mergedWeightSum = weightSum + otherWeightSum;
+	PH_ASSERT_GT(mergedWeightSum, 0);
+
+	const T deltaMean = otherMean - mean;
+
+	sumSquaredDiff =
+		sumSquaredDiff + otherSumSquaredDiff +
+		deltaMean * deltaMean * ((weightSum * otherWeightSum) / mergedWeightSum);
+	mean += deltaMean * (otherWeightSum / mergedWeightSum);
+	weightSum = mergedWeightSum;
+	weightSquaredSum += otherWeightSquaredSum;
+}
+
+/*! @brief Computes weighted population variance from weighted Welford accumulator.
+*/
+template<std::floating_point T>
+inline T weighted_welford_population_variance(
+	const T weightSum,
+	const T sumSquaredDiff)
+{
+	const T variance = sumSquaredDiff / weightSum;
+	return std::isfinite(variance) && variance > 0 ? variance : 0;
+}
+
+/*! @brief Computes unbiased weighted variance from weighted Welford accumulator.
+*/
+template<std::floating_point T>
+inline T weighted_welford_unbiased_variance(
+	const T weightSum,
+	const T weightSquaredSum,
+	const T sumSquaredDiff)
+{
+	const T variance = sumSquaredDiff / (weightSum - (weightSquaredSum / weightSum));
+	return std::isfinite(variance) && variance > 0 ? variance : 0;
+}
+
 /*! @brief Computes regularized lower incomplete gamma function.
 "A Set of Algorithms for the Incomplete Gamma Functions" by N. M. Temme is also a good read on
 this topic.

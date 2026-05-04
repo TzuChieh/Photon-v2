@@ -121,3 +121,135 @@ TEST(StatisticsTest, Chi2)
 		EXPECT_EQ(dof, 2 - 1);
 	}
 }
+
+TEST(StatisticsTest, WeightedWelfordAdd)
+{
+	constexpr double smallError = 1e-12;
+
+	double weightSum = 0;
+	double weightSquaredSum = 0;
+	double mean = 0;
+	double sumSquaredDiff = 0;
+
+	weighted_welford_add(1.0, 1.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+	weighted_welford_add(2.0, 1.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+	weighted_welford_add(3.0, 1.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+
+	EXPECT_NEAR(weightSum, 3.0, smallError);
+	EXPECT_NEAR(weightSquaredSum, 3.0, smallError);
+	EXPECT_NEAR(mean, 2.0, smallError);
+	EXPECT_NEAR(sumSquaredDiff, 2.0, smallError);
+
+	EXPECT_NEAR(weighted_welford_population_variance(weightSum, sumSquaredDiff), 2.0 / 3.0, smallError);
+	EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, weightSquaredSum, sumSquaredDiff), 1.0, smallError);
+}
+
+TEST(StatisticsTest, WeightedWelfordAddWithWeights)
+{
+	constexpr double smallError = 1e-12;
+
+	double weightSum = 0;
+	double weightSquaredSum = 0;
+	double mean = 0;
+	double sumSquaredDiff = 0;
+
+	weighted_welford_add(1.0, 1.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+	weighted_welford_add(3.0, 3.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+
+	EXPECT_NEAR(weightSum, 4.0, smallError);
+	EXPECT_NEAR(weightSquaredSum, 10.0, smallError);
+	EXPECT_NEAR(mean, 2.5, smallError);
+	EXPECT_NEAR(sumSquaredDiff, 3.0, smallError);
+
+	EXPECT_NEAR(weighted_welford_population_variance(weightSum, sumSquaredDiff), 0.75, smallError);
+	EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, weightSquaredSum, sumSquaredDiff), 2.0, smallError);
+}
+
+TEST(StatisticsTest, WeightedWelfordZeroWeightIgnored)
+{
+	constexpr double smallError = 1e-12;
+
+	double weightSum = 0;
+	double weightSquaredSum = 0;
+	double mean = 0;
+	double sumSquaredDiff = 0;
+
+	weighted_welford_add(2.0, 0.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+
+	EXPECT_NEAR(weightSum, 0.0, smallError);
+	EXPECT_NEAR(weightSquaredSum, 0.0, smallError);
+	EXPECT_NEAR(mean, 0.0, smallError);
+	EXPECT_NEAR(sumSquaredDiff, 0.0, smallError);
+}
+
+TEST(StatisticsTest, WeightedWelfordMerge)
+{
+	constexpr double smallError = 1e-12;
+
+	// Ground truth accumulation.
+	double gtWeightSum = 0;
+	double gtWeightSquaredSum = 0;
+	double gtMean = 0;
+	double gtSumSquaredDiff = 0;
+
+	weighted_welford_add(1.5, 2.0, gtWeightSum, gtWeightSquaredSum, gtMean, gtSumSquaredDiff);
+	weighted_welford_add(4.0, 1.0, gtWeightSum, gtWeightSquaredSum, gtMean, gtSumSquaredDiff);
+	weighted_welford_add(5.0, 3.0, gtWeightSum, gtWeightSquaredSum, gtMean, gtSumSquaredDiff);
+	weighted_welford_add(-1.0, 2.0, gtWeightSum, gtWeightSquaredSum, gtMean, gtSumSquaredDiff);
+
+	// Split accumulation, then merge.
+	double weightSumA = 0;
+	double weightSquaredSumA = 0;
+	double meanA = 0;
+	double sumSquaredDiffA = 0;
+
+	double weightSumB = 0;
+	double weightSquaredSumB = 0;
+	double meanB = 0;
+	double sumSquaredDiffB = 0;
+
+	weighted_welford_add(1.5, 2.0, weightSumA, weightSquaredSumA, meanA, sumSquaredDiffA);
+	weighted_welford_add(4.0, 1.0, weightSumA, weightSquaredSumA, meanA, sumSquaredDiffA);
+
+	weighted_welford_add(5.0, 3.0, weightSumB, weightSquaredSumB, meanB, sumSquaredDiffB);
+	weighted_welford_add(-1.0, 2.0, weightSumB, weightSquaredSumB, meanB, sumSquaredDiffB);
+
+	weighted_welford_merge(
+		weightSumB, weightSquaredSumB, meanB, sumSquaredDiffB,
+		weightSumA, weightSquaredSumA, meanA, sumSquaredDiffA);
+
+	EXPECT_NEAR(weightSumA, gtWeightSum, smallError);
+	EXPECT_NEAR(weightSquaredSumA, gtWeightSquaredSum, smallError);
+	EXPECT_NEAR(meanA, gtMean, smallError);
+	EXPECT_NEAR(sumSquaredDiffA, gtSumSquaredDiff, smallError);
+}
+
+TEST(StatisticsTest, WeightedWelfordInvalidUnbiasedDenominator)
+{
+	constexpr double smallError = 1e-12;
+
+	double weightSum = 0;
+	double weightSquaredSum = 0;
+	double mean = 0;
+	double sumSquaredDiff = 0;
+
+	weighted_welford_add(10.0, 2.0, weightSum, weightSquaredSum, mean, sumSquaredDiff);
+
+	EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, weightSquaredSum, sumSquaredDiff), 0.0, smallError);
+}
+
+TEST(StatisticsTest, WeightedWelfordInvalidVarianceInputsAreClamped)
+{
+	constexpr double smallError = 1e-12;
+
+	// Population variance: invalid total weight.
+	EXPECT_NEAR(weighted_welford_population_variance(0.0, 10.0), 0.0, smallError);
+
+	// Unbiased variance: invalid denominator (w - w2 / w <= 0).
+	EXPECT_NEAR(weighted_welford_unbiased_variance(0.0, 0.0, 10.0), 0.0, smallError);
+	EXPECT_NEAR(weighted_welford_unbiased_variance(1.0, 1.0, 10.0), 0.0, smallError);
+
+	// Both variance functions clamp negative outputs.
+	EXPECT_NEAR(weighted_welford_population_variance(2.0, -1.0), 0.0, smallError);
+	EXPECT_NEAR(weighted_welford_unbiased_variance(2.0, 1.0, -1.0), 0.0, smallError);
+}

@@ -12,5 +12,6 @@ template<typename Sample>
 class TMergeableFilmProxy;
 
 class HdrRgbFilm;
+class HdrRgbVarianceFilm;
 
 }// end namespace ph
