@@ -97,14 +97,17 @@ void HdrRgbVarianceFilm::addRgbSample(
 	x1y1.x() += 1;
 	x1y1.y() += 1;
 
+	// Keep this weighting close to `HdrRgbFilm` for comparable sample statistics.
+	// Non-positive weight (which should be rare) is clamped to 0 for variance stability.
 	for(int64 y = x0y0.y(); y < x1y1.y(); ++y)
 	{
 		for(int64 x = x0y0.x(); x < x1y1.x(); ++x)
 		{
 			// TODO: factor out the -0.5 part
-			const float64 filterX      = x - (xPx - 0.5);
-			const float64 filterY      = y - (yPx - 0.5);
-			const auto    filterWeight = static_cast<float64>(getFilter().evaluate(filterX, filterY));
+			const float64 filterX = x - (xPx - 0.5);
+			const float64 filterY = y - (yPx - 0.5);
+
+			const auto filterWeight = static_cast<float64>(getFilter().evaluate(filterX, filterY));
 			if(filterWeight <= 0)
 			{
 				continue;
@@ -115,18 +118,9 @@ void HdrRgbVarianceFilm::addRgbSample(
 			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
 			auto&      sensor       = m_pixelVarianceSensors[sensorIndex];
 
-			math::weighted_welford_add(
-				static_cast<float64>(rgb.r()), static_cast<float64>(filterWeight),
-				sensor.weightSumR, sensor.weightSquaredSumR,
-				sensor.meanR, sensor.sumSquaredDiffR);
-			math::weighted_welford_add(
-				static_cast<float64>(rgb.g()), static_cast<float64>(filterWeight),
-				sensor.weightSumG, sensor.weightSquaredSumG,
-				sensor.meanG, sensor.sumSquaredDiffG);
-			math::weighted_welford_add(
-				static_cast<float64>(rgb.b()), static_cast<float64>(filterWeight),
-				sensor.weightSumB, sensor.weightSquaredSumB,
-				sensor.meanB, sensor.sumSquaredDiffB);
+			sensor.r.addSample(static_cast<float64>(rgb.r()), filterWeight);
+			sensor.g.addSample(static_cast<float64>(rgb.g()), filterWeight);
+			sensor.b.addSample(static_cast<float64>(rgb.b()), filterWeight);
 		}
 	}
 }
@@ -146,23 +140,15 @@ void HdrRgbVarianceFilm::setRgbPixel(
 	auto&      sensor = m_pixelVarianceSensors[index];
 
 	sensor = VarianceSensor();
+	// Clamp non-positive weight to 0 in variance path for stability.
 	if(weight <= 0)
 	{
 		return;
 	}
 
-	math::weighted_welford_add(
-		static_cast<float64>(rgb.r()), static_cast<float64>(weight),
-		sensor.weightSumR, sensor.weightSquaredSumR,
-		sensor.meanR, sensor.sumSquaredDiffR);
-	math::weighted_welford_add(
-		static_cast<float64>(rgb.g()), static_cast<float64>(weight),
-		sensor.weightSumG, sensor.weightSquaredSumG,
-		sensor.meanG, sensor.sumSquaredDiffG);
-	math::weighted_welford_add(
-		static_cast<float64>(rgb.b()), static_cast<float64>(weight),
-		sensor.weightSumB, sensor.weightSquaredSumB,
-		sensor.meanB, sensor.sumSquaredDiffB);
+	sensor.r.addSample(static_cast<float64>(rgb.r()), static_cast<float64>(weight));
+	sensor.g.addSample(static_cast<float64>(rgb.g()), static_cast<float64>(weight));
+	sensor.b.addSample(static_cast<float64>(rgb.b()), static_cast<float64>(weight));
 }
 
 void HdrRgbVarianceFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const
@@ -188,19 +174,12 @@ void HdrRgbVarianceFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB
 			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
 			const auto& sensor      = m_pixelVarianceSensors[sensorIndex];
 
-			const auto varianceR = math::weighted_welford_unbiased_variance(
-				sensor.weightSumR, sensor.weightSquaredSumR, sensor.sumSquaredDiffR);
-			const auto varianceG = math::weighted_welford_unbiased_variance(
-				sensor.weightSumG, sensor.weightSquaredSumG, sensor.sumSquaredDiffG);
-			const auto varianceB = math::weighted_welford_unbiased_variance(
-				sensor.weightSumB, sensor.weightSquaredSumB, sensor.sumSquaredDiffB);
-
 			out_frame.setPixel(
 				static_cast<uint32>(x), static_cast<uint32>(y),
 				HdrRgbFrame::PixelType({
-					static_cast<HdrComponent>(varianceR),
-					static_cast<HdrComponent>(varianceG),
-					static_cast<HdrComponent>(varianceB)}));
+					static_cast<HdrComponent>(sensor.r.getUnbiasedVariance()),
+					static_cast<HdrComponent>(sensor.g.getUnbiasedVariance()),
+					static_cast<HdrComponent>(sensor.b.getUnbiasedVariance())}));
 		}
 	}
 }
@@ -239,21 +218,9 @@ void HdrRgbVarianceFilm::mergeWith(const TSamplingFilm<math::Spectrum>& other)
 			auto&             thisSensor = m_pixelVarianceSensors[thisI];
 			const auto&       otherSensor = otherPtr->m_pixelVarianceSensors[otherI];
 
-			math::weighted_welford_merge(
-				otherSensor.weightSumR, otherSensor.weightSquaredSumR,
-				otherSensor.meanR, otherSensor.sumSquaredDiffR,
-				thisSensor.weightSumR, thisSensor.weightSquaredSumR,
-				thisSensor.meanR, thisSensor.sumSquaredDiffR);
-			math::weighted_welford_merge(
-				otherSensor.weightSumG, otherSensor.weightSquaredSumG,
-				otherSensor.meanG, otherSensor.sumSquaredDiffG,
-				thisSensor.weightSumG, thisSensor.weightSquaredSumG,
-				thisSensor.meanG, thisSensor.sumSquaredDiffG);
-			math::weighted_welford_merge(
-				otherSensor.weightSumB, otherSensor.weightSquaredSumB,
-				otherSensor.meanB, otherSensor.sumSquaredDiffB,
-				thisSensor.weightSumB, thisSensor.weightSquaredSumB,
-				thisSensor.meanB, thisSensor.sumSquaredDiffB);
+			thisSensor.r.merge(otherSensor.r);
+			thisSensor.g.merge(otherSensor.g);
+			thisSensor.b.merge(otherSensor.b);
 		}
 	}
 }

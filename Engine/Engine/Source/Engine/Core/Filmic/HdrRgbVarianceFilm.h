@@ -3,6 +3,7 @@
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Core/Filmic/TSamplingFilm.h"
 #include "Engine/Math/Color/Spectrum.h"
+#include "Engine/Math/statistics.h"
 
 #include <Common/primitive_type.h>
 
@@ -51,20 +52,34 @@ public:
 private:
 	struct VarianceSensor
 	{
-		float64 weightSumR = 0;
-		float64 weightSquaredSumR = 0;
-		float64 meanR = 0;
-		float64 sumSquaredDiffR = 0;
+		struct WelfordAccumulator
+		{
+			inline void addSample(const float64 sample, const float64 weight)
+			{
+				math::weighted_welford_add(sample, weight, weightSum, squaredWeightSum, mean, squaredDiffSum);
+			}
 
-		float64 weightSumG = 0;
-		float64 weightSquaredSumG = 0;
-		float64 meanG = 0;
-		float64 sumSquaredDiffG = 0;
+			inline void merge(const WelfordAccumulator& other)
+			{
+				math::weighted_welford_merge(
+					other.weightSum, other.squaredWeightSum, other.mean, other.squaredDiffSum,
+					weightSum, squaredWeightSum, mean, squaredDiffSum);
+			}
 
-		float64 weightSumB = 0;
-		float64 weightSquaredSumB = 0;
-		float64 meanB = 0;
-		float64 sumSquaredDiffB = 0;
+			inline float64 getUnbiasedVariance() const
+			{
+				return math::weighted_welford_unbiased_variance(weightSum, squaredWeightSum, squaredDiffSum);
+			}
+
+			float64 weightSum = 0;
+			float64 squaredWeightSum = 0;
+			float64 mean = 0;
+			float64 squaredDiffSum = 0;
+		};
+
+		WelfordAccumulator r;
+		WelfordAccumulator g;
+		WelfordAccumulator b;
 	};
 
 	void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const override;

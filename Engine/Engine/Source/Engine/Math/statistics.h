@@ -42,21 +42,21 @@ Schubert and Gertz @cite Schubert:2018:NumericallyStableCovariance.
 
 The resulting unbiased weighted variance can be computed with
 `weighted_welford_unbiased_variance()`. For probability/reliability style weights,
-the accumulated states are `weightSum`, `weightSquaredSum`, `mean` and `sumSquaredDiff`.
+the accumulated states are `weightSum`, `squaredWeightSum`, `mean` and `squaredDiffSum`.
 
 @param weightSum Sum of sample weights.
-@param weightSquaredSum Sum of squared sample weights.
+@param squaredWeightSum Sum of squared sample weights.
 @param mean Weighted mean.
-@param sumSquaredDiff Weighted sum of squared deviations from mean (`M2`).
+@param squaredDiffSum Weighted sum of squared deviations from mean (`M2`).
 */
 template<std::floating_point T>
 inline void weighted_welford_add(
 	const T sample,
 	const T weight,
 	T&      weightSum,
-	T&      weightSquaredSum,
+	T&      squaredWeightSum,
 	T&      mean,
-	T&      sumSquaredDiff)
+	T&      squaredDiffSum)
 {
 	PH_ASSERT_GE(weight, 0);
 	if(weight == 0)
@@ -72,10 +72,10 @@ inline void weighted_welford_add(
 	const T newMean = mean + ratio * delta;
 	const T delta2 = sample - newMean;
 
-	sumSquaredDiff += weight * delta * delta2;
+	squaredDiffSum += weight * delta * delta2;
 	mean = newMean;
 	weightSum = newWeightSum;
-	weightSquaredSum += weight * weight;
+	squaredWeightSum += weight * weight;
 }
 
 /*! @brief Merges another weighted Welford accumulator into current one.
@@ -84,16 +84,16 @@ See the derivation of equation 21 from @cite Schubert:2018:NumericallyStableCova
 template<std::floating_point T>
 inline void weighted_welford_merge(
 	const T otherWeightSum,
-	const T otherWeightSquaredSum,
+	const T otherSquaredWeightSum,
 	const T otherMean,
-	const T otherSumSquaredDiff,
+	const T otherSquaredDiffSum,
 	T&      weightSum,
-	T&      weightSquaredSum,
+	T&      squaredWeightSum,
 	T&      mean,
-	T&      sumSquaredDiff)
+	T&      squaredDiffSum)
 {
 	PH_ASSERT_GE(otherWeightSum, 0);
-	PH_ASSERT_GE(otherWeightSquaredSum, 0);
+	PH_ASSERT_GE(otherSquaredWeightSum, 0);
 	if(otherWeightSum == 0)
 	{
 		return;
@@ -104,12 +104,12 @@ inline void weighted_welford_merge(
 
 	const T deltaMean = otherMean - mean;
 
-	sumSquaredDiff =
-		sumSquaredDiff + otherSumSquaredDiff +
+	squaredDiffSum =
+		squaredDiffSum + otherSquaredDiffSum +
 		deltaMean * deltaMean * ((weightSum * otherWeightSum) / mergedWeightSum);
 	mean += deltaMean * (otherWeightSum / mergedWeightSum);
 	weightSum = mergedWeightSum;
-	weightSquaredSum += otherWeightSquaredSum;
+	squaredWeightSum += otherSquaredWeightSum;
 }
 
 /*! @brief Computes weighted population variance from weighted Welford accumulator.
@@ -117,10 +117,13 @@ inline void weighted_welford_merge(
 template<std::floating_point T>
 inline T weighted_welford_population_variance(
 	const T weightSum,
-	const T sumSquaredDiff)
+	const T squaredDiffSum)
 {
-	const T variance = sumSquaredDiff / weightSum;
-	return std::isfinite(variance) && variance > 0 ? variance : 0;
+	PH_ASSERT_GE(weightSum, 0);
+	PH_ASSERT_GE(squaredDiffSum, 0);
+
+	const T variance = squaredDiffSum / weightSum;
+	return std::isfinite(variance) ? variance : 0;
 }
 
 /*! @brief Computes unbiased weighted variance from weighted Welford accumulator.
@@ -128,11 +131,15 @@ inline T weighted_welford_population_variance(
 template<std::floating_point T>
 inline T weighted_welford_unbiased_variance(
 	const T weightSum,
-	const T weightSquaredSum,
-	const T sumSquaredDiff)
+	const T squaredWeightSum,
+	const T squaredDiffSum)
 {
-	const T variance = sumSquaredDiff / (weightSum - (weightSquaredSum / weightSum));
-	return std::isfinite(variance) && variance > 0 ? variance : 0;
+	PH_ASSERT_GE(weightSum, 0);
+	PH_ASSERT_GE(squaredWeightSum, 0);
+	PH_ASSERT_GE(squaredDiffSum, 0);
+
+	const T variance = squaredDiffSum / (weightSum - (squaredWeightSum / weightSum));
+	return std::isfinite(variance) ? variance : 0;
 }
 
 /*! @brief Computes regularized lower incomplete gamma function.
