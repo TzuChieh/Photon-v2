@@ -68,7 +68,8 @@ private:
 
 			inline float64 getUnbiasedVariance() const
 			{
-				return math::weighted_welford_unbiased_variance(weightSum, squaredWeightSum, squaredDiffSum);
+				return math::weighted_welford_unbiased_variance(
+					weightSum, squaredWeightSum, squaredDiffSum);
 			}
 
 			float64 weightSum = 0;

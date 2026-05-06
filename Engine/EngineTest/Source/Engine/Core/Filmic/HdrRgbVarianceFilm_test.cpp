@@ -1,0 +1,143 @@
+#include "engine_test_constants.h"
+
+#include <Engine/Core/Filmic/HdrRgbVarianceFilm.h>
+#include <Engine/Core/Filmic/SampleFilter.h>
+#include <Engine/Frame/TFrame.h>
+
+#include <gtest/gtest.h>
+
+using namespace ph;
+using namespace ph::math;
+
+TEST(HdrRgbVarianceFilmTest, DevelopsUnbiasedVarianceToFrame)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	// Samples are 1 and 3. Unbiased variance is:
+	// mean = 2, M2 = (1 - 2)^2 + (3 - 2)^2 = 2, variance = M2 / (2 - 1) = 2.
+	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(3.0, 3.0, 3.0));
+	film.develop(frame);
+
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 2.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 2.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 2.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, DevelopsVarianceWithZeroValuedSample)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	// Samples are 0 and 2. Unbiased variance is:
+	// mean = 1, M2 = (0 - 1)^2 + (2 - 1)^2 = 2, variance = M2 / (2 - 1) = 2.
+	film.addRgbSample(0.5, 0.5, Vector3D(0.0, 0.0, 0.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(2.0, 2.0, 2.0));
+	film.develop(frame);
+
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 2.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 2.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 2.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, MergeMatchesGroundTruth)
+{
+	const auto filter = SampleFilter::makeBox();
+
+	HdrRgbVarianceFilm filmGroundTruth(1, 1, filter);
+	filmGroundTruth.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	filmGroundTruth.addRgbSample(0.5, 0.5, Vector3D(2.0, 2.0, 2.0));
+	filmGroundTruth.addRgbSample(0.5, 0.5, Vector3D(5.0, 5.0, 5.0));
+
+	HdrRgbVarianceFilm filmA(1, 1, filter);
+	filmA.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	filmA.addRgbSample(0.5, 0.5, Vector3D(2.0, 2.0, 2.0));
+
+	HdrRgbVarianceFilm filmB(1, 1, filter);
+	filmB.addRgbSample(0.5, 0.5, Vector3D(5.0, 5.0, 5.0));
+
+	filmA.mergeWith(filmB);
+
+	HdrRgbFrame mergedFrame(1, 1);
+	HdrRgbFrame groundTruthFrame(1, 1);
+	filmA.develop(mergedFrame);
+	filmGroundTruth.develop(groundTruthFrame);
+
+	const auto mergedPixel = mergedFrame.getPixel({0, 0});
+	const auto gtPixel = groundTruthFrame.getPixel({0, 0});
+	EXPECT_NEAR(mergedPixel[0], gtPixel[0], TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(mergedPixel[1], gtPixel[1], TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(mergedPixel[2], gtPixel[2], TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, SetPixelProducesSingleSampleVariance)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(3.0, 3.0, 3.0));
+
+	// `setRgbPixel()` will overwrite all previous samples
+	film.setRgbPixel(0.5, 0.5, Vector3D(9.0, 9.0, 9.0), 1.0);
+
+	film.develop(frame);
+
+	// Single sample, no variance
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 0.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, ClearResetsFilmState)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(3.0, 3.0, 3.0));
+	film.clear();
+	film.develop(frame);
+
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 0.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, EmptyFilmDevelopsZeroVariance)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	// No sample added
+	film.develop(frame);
+
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 0.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, NegativeWeightSetPixelIgnored)
+{
+	HdrRgbFrame frame(1, 1);
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+
+	// This would normally produce non-zero variance.
+	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(3.0, 3.0, 3.0));
+
+	// `setRgbPixel()` resets the pixel; negative weight then contributes nothing
+	film.setRgbPixel(0.5, 0.5, Vector3D(9.0, 9.0, 9.0), -1.0);
+	film.develop(frame);
+
+	const auto pixel = frame.getPixel({0, 0});
+	EXPECT_NEAR(pixel[0], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[1], 0.0_r, TEST_FLOAT32_EPSILON);
+	EXPECT_NEAR(pixel[2], 0.0_r, TEST_FLOAT32_EPSILON);
+}

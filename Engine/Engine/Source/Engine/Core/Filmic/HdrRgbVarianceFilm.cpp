@@ -140,7 +140,8 @@ void HdrRgbVarianceFilm::setRgbPixel(
 	auto&      sensor = m_pixelVarianceSensors[index];
 
 	sensor = VarianceSensor();
-	// Clamp non-positive weight to 0 in variance path for stability.
+
+	// For stability, see `addRgbSample()` for details
 	if(weight <= 0)
 	{
 		return;
@@ -169,9 +170,9 @@ void HdrRgbVarianceFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB
 	{
 		for(int64 x = frameWindow.getMinVertex().x(); x < frameWindow.getMaxVertex().x(); ++x)
 		{
-			const auto sensorX      = x - getEffectiveWindowPx().getMinVertex().x();
-			const auto sensorY      = y - getEffectiveWindowPx().getMinVertex().y();
-			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
+			const auto  sensorX     = x - getEffectiveWindowPx().getMinVertex().x();
+			const auto  sensorY     = y - getEffectiveWindowPx().getMinVertex().y();
+			const auto  sensorIndex = sensorY * getEffectiveResPx().x() + sensorX;
 			const auto& sensor      = m_pixelVarianceSensors[sensorIndex];
 
 			out_frame.setPixel(
