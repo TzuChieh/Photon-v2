@@ -7,6 +7,7 @@
 #include "Engine/Core/Renderer/PM/ProgressivePMRenderer.h"
 #include "Engine/Core/Renderer/PM/StochasticProgressivePMRenderer.h"
 #include "Engine/Core/Renderer/PM/ProbabilisticProgressivePMRenderer.h"
+#include "Engine/SDL/sdl_exceptions.h"
 
 #include <Common/logging.h>
 
@@ -23,6 +24,12 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 	if(optCropWindow.has_value())
 	{
 		viewport = Viewport(ctx.getFrameSizePx(), *optCropWindow);
+	}
+
+	const auto filmTypes = getFilmTypes();
+	if(filmTypes.size() != 1 || filmTypes[0] != EFilm::Beauty)
+	{
+		throw SdlLoadError("photon mapping visualizer currently supports beauty film only");
 	}
 
 	std::unique_ptr<Renderer> renderer;

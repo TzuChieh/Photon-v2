@@ -5,12 +5,10 @@
 #include "Engine/Core/SampleGenerator/SampleGenerator.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
 #include "Engine/World/VisualWorld.h"
-#include "Engine/Core/Filmic/HdrRgbFilm.h"
 #include "Engine/Core/Renderer/RenderWork.h"
 #include "Engine/Core/Renderer/RenderWorker.h"
 #include "Engine/Core/Renderer/RendererProxy.h"
 #include "Engine/Core/Estimator/Integrand.h"
-#include "Engine/Core/Filmic/Vector3Film.h"
 #include "Engine/Core/Scheduler/PlateScheduler.h"
 #include "Engine/Core/Scheduler/StripeScheduler.h"
 #include "Engine/Core/Scheduler/GridScheduler.h"
@@ -39,11 +37,12 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(EqualSamplingRenderer, Renderer);
 
 EqualSamplingRenderer::EqualSamplingRenderer(
-	std::unique_ptr<IRayEnergyEstimator> estimator,
-	Viewport                             viewport,
-	SampleFilter                         filter,
-	const uint32                         numWorkers,
-	const EScheduler                     scheduler)
+	std::unique_ptr<IRayEnergyEstimator>           estimator,
+	Viewport                                       viewport,
+	SampleFilter                                   filter,
+	const uint32                                   numWorkers,
+	const EScheduler                               scheduler,
+	std::vector<SamplingFilmLayer<math::Spectrum>> filmLayers)
 
 	: SamplingRenderer(
 		std::move(estimator),
@@ -54,10 +53,10 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	, m_scene(nullptr)
 	, m_receiver(nullptr)
 	, m_sampleGenerator(nullptr)
-	, m_mainFilm()
-
+	
 	, m_scheduler(nullptr)
 	, m_schedulerType(scheduler)
+	, m_mainFilmLayers(std::move(filmLayers))
 	, m_blockSize(128, 128)
 	, m_updatedRegionQueue()
 
@@ -70,7 +69,14 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	, m_totalElapsedMs()
 	, m_suppliedFractionBits()
 	, m_submittedFractionBits()
-{}
+{
+	PH_ASSERT(!m_mainFilmLayers.empty());
+	for(const auto& filmLayer : m_mainFilmLayers)
+	{
+		PH_ASSERT(filmLayer.film);
+		PH_ASSERT(!filmLayer.name.empty());
+	}
+}
 
 void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
@@ -85,23 +91,35 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 	m_estimator->setEstimationIndex(EEstimatorAttribute::Energy, 0);
 	m_estimator->update(integrand);
 
-	m_mainFilm = HdrRgbFilm(
-		getRenderWidthPx(), 
-		getRenderHeightPx(), 
-		getRenderRegionPx(),
-		m_filter);
+	for(auto& filmLayer : m_mainFilmLayers)
+	{
+		filmLayer.film->setActualResPx({getRenderWidthPx(), getRenderHeightPx()});
+		filmLayer.film->setEffectiveWindowPx(getRenderRegionPx());
+		filmLayer.film->clear();
+	}
 
 	m_rayProcessors.resize(numWorkers());
 	m_renderWorks.resize(numWorkers());
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
 		// One ray processor for each worker
+		std::vector<std::shared_ptr<RayProcessor::FilmType>> workerFilms;
+		workerFilms.reserve(m_mainFilmLayers.size());
+		for(const auto& mainFilmLayer : m_mainFilmLayers)
+		{
+			auto copiedFilm = mainFilmLayer.film->makeCopy(false);
+			workerFilms.push_back(std::shared_ptr<RayProcessor::FilmType>(std::move(copiedFilm)));
+		}
+
 		m_rayProcessors[workerId] = RayProcessor(
-			1, 
-			integrand, 
-			{std::make_shared<HdrRgbFilm>(0, 0, m_filter)});
+			1,
+			integrand,
+			std::move(workerFilms));
 		m_rayProcessors[workerId].addEstimator(m_estimator->makeCopy());
-		m_rayProcessors[workerId].addFilmEstimation(0, 0);
+		for(std::size_t filmIdx = 0; filmIdx < m_mainFilmLayers.size(); ++filmIdx)
+		{
+			m_rayProcessors[workerId].addFilmEstimation(filmIdx, 0);
+		}
 
 		m_renderWorks[workerId] = ReceiverSamplingWork(m_receiver);
 		m_renderWorks[workerId].addProcessor(&m_rayProcessors[workerId]);
@@ -137,10 +155,13 @@ void EqualSamplingRenderer::doRender()
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-					workerRayProcessor.mergeFilmTo(0, m_mainFilm);
+					for(std::size_t filmIdx = 0; filmIdx < m_mainFilmLayers.size(); ++filmIdx)
+					{
+						workerRayProcessor.mergeFilmTo(filmIdx, *m_mainFilmLayers[filmIdx].film);
+					}
 				}
 
-				workerRayProcessor.clearFilm(0);
+				workerRayProcessor.clearFilms();
 				asyncAddUpdatedRegion(workerRayProcessor.getFilmEffectiveWindowPx(), true);
 			});
 
@@ -224,9 +245,9 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(layerIndex == 0)
+	if(layerIndex < m_mainFilmLayers.size())
 	{
-		m_mainFilm.develop(out_frame, region);
+		m_mainFilmLayers[layerIndex].film->develop(out_frame, region);
 	}
 	else
 	{
@@ -316,9 +337,13 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
 {
 	RenderObservationInfo info;
-	info.setIntegerStat(0, "paths/pixel (avg.)");
-	info.setRealStat   (0, "paths/second");
+	for(std::size_t layerIndex = 0; layerIndex < m_mainFilmLayers.size(); ++layerIndex)
+	{
+		info.setLayer(layerIndex, m_mainFilmLayers[layerIndex].name);
+	}
 
+	info.setIntegerStat(0, "paths/pixel (avg.)");
+	info.setRealStat(0, "paths/second");
 	info.setProgressTimeMeasurement("wall clock time");
 
 	return info;

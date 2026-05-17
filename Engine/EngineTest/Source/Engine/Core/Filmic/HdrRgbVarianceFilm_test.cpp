@@ -141,3 +141,53 @@ TEST(HdrRgbVarianceFilmTest, NegativeWeightSetPixelIgnored)
 	EXPECT_NEAR(pixel[1], 0.0_r, TEST_FLOAT32_EPSILON);
 	EXPECT_NEAR(pixel[2], 0.0_r, TEST_FLOAT32_EPSILON);
 }
+
+TEST(HdrRgbVarianceFilmTest, MakeCopyCanSkipOrCopySamples)
+{
+	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
+	film.addRgbSample(0.5, 0.5, Vector3D(5.0, 5.0, 5.0));
+
+	auto copiedWithoutSamplesRes = film.makeCopy(false);
+	ASSERT_TRUE(copiedWithoutSamplesRes);
+
+	auto copiedWithSamplesRes = film.makeCopy(true);
+	ASSERT_TRUE(copiedWithSamplesRes);
+
+	auto* copiedWithoutSamples = dynamic_cast<HdrRgbVarianceFilm*>(copiedWithoutSamplesRes.get());
+	ASSERT_TRUE(copiedWithoutSamples);
+
+	auto* copiedWithSamples = dynamic_cast<HdrRgbVarianceFilm*>(copiedWithSamplesRes.get());
+	ASSERT_TRUE(copiedWithSamples);
+
+	EXPECT_EQ(copiedWithoutSamples->getActualResPx(), film.getActualResPx());
+	EXPECT_EQ(copiedWithoutSamples->getEffectiveWindowPx(), film.getEffectiveWindowPx());
+	EXPECT_EQ(copiedWithSamples->getActualResPx(), film.getActualResPx());
+	EXPECT_EQ(copiedWithSamples->getEffectiveWindowPx(), film.getEffectiveWindowPx());
+
+	HdrRgbFrame srcFrame(1, 1);
+	HdrRgbFrame copiedWithoutSamplesFrame(1, 1);
+	HdrRgbFrame copiedWithSamplesFrame(1, 1);
+	film.develop(srcFrame);
+	copiedWithoutSamples->develop(copiedWithoutSamplesFrame);
+	copiedWithSamples->develop(copiedWithSamplesFrame);
+
+	// Source has two samples {1, 5}. Unbiased variance is:
+	// mean = 3, M2 = (1 - 3)^2 + (5 - 3)^2 = 8, variance = M2 / (2 - 1) = 8.
+	for(const auto componentValue : srcFrame.getPixel({0, 0}))
+	{
+		EXPECT_NEAR(componentValue, 8.0_r, TEST_FLOAT32_EPSILON);
+	}
+
+	// Copied film without samples starts clean.
+	for(const auto componentValue : copiedWithoutSamplesFrame.getPixel({0, 0}))
+	{
+		EXPECT_NEAR(componentValue, 0.0_r, TEST_FLOAT32_EPSILON);
+	}
+
+	// Copied film with samples has the same developed value.
+	for(const auto componentValue : copiedWithSamplesFrame.getPixel({0, 0}))
+	{
+		EXPECT_NEAR(componentValue, 8.0_r, TEST_FLOAT32_EPSILON);
+	}
+}

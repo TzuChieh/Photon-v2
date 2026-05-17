@@ -76,6 +76,24 @@ void HdrRgbVarianceFilm::setPixel(
 	setRgbPixel(xPx, yPx, spectrum_sample_to_rgb(sample));
 }
 
+std::unique_ptr<TSamplingFilm<math::Spectrum>> HdrRgbVarianceFilm::makeCopy(const bool shouldCopySamples) const
+{
+	auto copiedFilm = std::make_unique<HdrRgbVarianceFilm>(
+		getActualResPx().x(),
+		getActualResPx().y(),
+		getEffectiveWindowPx(),
+		getFilter());
+
+	copiedFilm->setSoftEdge(isSoftEdged());
+	
+	if(shouldCopySamples)
+	{
+		copiedFilm->mergeWith(*this);
+	}
+
+	return copiedFilm;
+}
+
 void HdrRgbVarianceFilm::addRgbSample(
 	const float64         xPx,
 	const float64         yPx,

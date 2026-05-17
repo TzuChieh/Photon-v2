@@ -11,6 +11,8 @@
 
 #include <Common/logging.h>
 
+#include <utility>
+
 namespace ph
 {
 
@@ -26,12 +28,20 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 		viewport = Viewport(ctx.getFrameSizePx(), *cropWindowPx);
 	}
 
+	const auto filter = makeSampleFilter();
+	auto filmLayers = makeFilmLayers(
+		ctx.getFrameSizePx().x(),
+		ctx.getFrameSizePx().y(),
+		viewport.getCroppedRegionPx(),
+		filter);
+
 	auto renderer = std::make_unique<EqualSamplingRenderer>(
 		makeEstimator(),
 		viewport,
-		makeSampleFilter(),
+		filter,
 		ctx.numWorkers(),
-		getScheduler());
+		getScheduler(),
+		std::move(filmLayers));
 
 	cooked.addRenderer(std::move(renderer));
 }

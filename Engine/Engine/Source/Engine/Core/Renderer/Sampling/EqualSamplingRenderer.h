@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Renderer/Sampling/SamplingRenderer.h"
-#include "Engine/Core/Filmic/HdrRgbFilm.h"
+#include "Engine/Core/Filmic/SamplingFilmLayer.h"
 #include "Engine/Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Engine/Core/Renderer/Sampling/TReceiverMeasurementProcessor.h"
 #include "Engine/Core/Scheduler/WorkScheduler.h"
@@ -15,6 +15,7 @@
 #include <memory>
 #include <atomic>
 #include <functional>
+#include <string>
 
 namespace ph
 {
@@ -27,11 +28,12 @@ class EqualSamplingRenderer : public SamplingRenderer
 {
 public:
 	EqualSamplingRenderer(
-		std::unique_ptr<IRayEnergyEstimator> estimator,
-		Viewport                             viewport,
-		SampleFilter                         filter,
-		uint32                               numWorkers,
-		EScheduler                           scheduler);
+		std::unique_ptr<IRayEnergyEstimator>           estimator,
+		Viewport                                       viewport,
+		SampleFilter                                   filter,
+		uint32                                         numWorkers,
+		EScheduler                                     scheduler,
+		std::vector<SamplingFilmLayer<math::Spectrum>> filmLayers);
 
 	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
@@ -54,19 +56,19 @@ private:
 	void asyncAddUpdatedRegion(const Region& region, bool isUpdating);
 	void initScheduler(std::size_t numSamplesPerPixel);
 
-	const Scene*                   m_scene;
-	const Receiver*                m_receiver;
-	SampleGenerator*               m_sampleGenerator;
-	HdrRgbFilm                     m_mainFilm;
-
-	std::unique_ptr<WorkScheduler>          m_scheduler;
-	EScheduler                              m_schedulerType;
-	math::Vector2S                          m_blockSize;
-	TAtomicQuasiQueue<RenderRegionStatus>   m_updatedRegionQueue;
+	const Scene*     m_scene;
+	const Receiver*  m_receiver;
+	SampleGenerator* m_sampleGenerator;
 	
-	std::vector<ReceiverSamplingWork>       m_renderWorks;
-	std::vector<RayProcessor>               m_rayProcessors;
-	std::vector<MetaRecordingProcessor>     m_metaRecorders;
+	std::unique_ptr<WorkScheduler>                 m_scheduler;
+	EScheduler                                     m_schedulerType;
+	std::vector<SamplingFilmLayer<math::Spectrum>> m_mainFilmLayers;
+	math::Vector2S                                 m_blockSize;
+	TAtomicQuasiQueue<RenderRegionStatus>          m_updatedRegionQueue;
+	
+	std::vector<ReceiverSamplingWork>   m_renderWorks;
+	std::vector<RayProcessor>           m_rayProcessors;
+	std::vector<MetaRecordingProcessor> m_metaRecorders;
 	
 	std::mutex           m_rendererMutex;
 	std::atomic_uint64_t m_totalPaths;

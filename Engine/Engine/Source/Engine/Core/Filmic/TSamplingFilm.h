@@ -55,6 +55,13 @@ public:
 	*/
 	virtual void setPixel(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
+	/*! @brief Make a film copy for independent sampling.
+	The copied film should have identical dimensions and sampling-related settings.
+	@param shouldCopySamples Whether to copy all currently stored sample values as well.
+	If `false`, the copied film starts from initial state (no samples).
+	*/
+	virtual std::unique_ptr<TSamplingFilm<Sample>> makeCopy(bool shouldCopySamples) const = 0;
+
 	/*! @brief Merges the samples in this film with samples from another film.
 	Depending on the implementation, merging may not be supported for certain combination of films.
 	@exception IllegalOperationException If merging is not supported.

@@ -1,14 +1,20 @@
 #pragma once
 
 #include "Engine/EngineEnv/Visualizer/Visualizer.h"
+#include "Engine/EngineEnv/Visualizer/FilmSetting.h"
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Geometry/TAABB2D.h"
 #include "Engine/SDL/sdl_interface.h"
 #include "Engine/EngineEnv/Visualizer/sdl_visualizer_types.h"
+#include "Engine/Core/Filmic/filmic_fwd.h"
+#include "Engine/Core/Filmic/SamplingFilmLayer.h"
 
 #include <Common/primitive_type.h>
 
 #include <optional>
+#include <vector>
+#include <memory>
+#include <string>
 
 namespace ph { class SampleFilter; }
 
@@ -22,16 +28,24 @@ public:
 
 	ESampleFilter getSampleFilter() const;
 	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;
+	std::vector<EFilm> getFilmTypes() const;
 
 protected:
 	SampleFilter makeSampleFilter() const;
 
+	std::vector<SamplingFilmLayer<math::Spectrum>> makeFilmLayers(
+		int64                       actualWidthPx,
+		int64                       actualHeightPx,
+		const math::TAABB2D<int64>& effectiveWindowPx,
+		const SampleFilter&         filter) const;
+
 private:
-	ESampleFilter m_sampleFilter;
-	int64         m_cropWindowXPx;
-	int64         m_cropWindowYPx;
-	int64         m_cropWindowWPx;
-	int64         m_cropWindowHPx;
+	ESampleFilter            m_sampleFilter;
+	int64                    m_cropWindowXPx;
+	int64                    m_cropWindowYPx;
+	int64                    m_cropWindowWPx;
+	int64                    m_cropWindowHPx;
+	std::vector<FilmSetting> m_filmSettings;
 
 public:
 	PH_DEFINE_SDL_CLASS(FrameVisualizer, clazz)
@@ -71,6 +85,11 @@ public:
 		cropWindowHPx.defaultTo(0);
 		cropWindowHPx.optional();
 		clazz.addField(cropWindowHPx);
+
+		TSdlStructArray<FilmSetting, OwnerType> films("films", &OwnerType::m_filmSettings);
+		films.description("Ordered list of films for output layers.");
+		films.optional();
+		clazz.addField(films);
 	}
 };
 

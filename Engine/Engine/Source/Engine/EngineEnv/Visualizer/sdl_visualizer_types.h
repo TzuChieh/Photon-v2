@@ -91,6 +91,24 @@ PH_DEFINE_SDL_ENUM(ESampleFilter, e)
 		"The Blackman-Harris filter. A good compromise between smoothness and sharpness.");
 }
 
+enum class EFilm
+{
+	Beauty,
+	Variance
+};
+
+PH_DEFINE_SDL_ENUM(EFilm, e)
+{
+	e.name("film");
+	e.description("Type of film output.");
+
+	e.addEntry(EnumType::Beauty, "beauty",
+		"Standard color output.");
+
+	e.addEntry(EnumType::Variance, "variance",
+		"Per-channel (standard color) variance output.");
+}
+
 enum class ERayEnergyEstimator
 {
 	Unspecified = 0,

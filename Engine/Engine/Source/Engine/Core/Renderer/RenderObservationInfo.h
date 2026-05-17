@@ -10,13 +10,30 @@ namespace ph
 {
 
 /*! @brief Meta information for data related to ongoing render operation.
+Contains three independent groups of metadata:
+1. Output layers (`setLayer()`), usually corresponding to film/layer outputs.
+2. Integer stats (`setIntegerStat()`), names for `RenderStats::getInteger(index)`.
+3. Real stats (`setRealStat()`), names for `RenderStats::getReal(index)`.
+Layer definitions and stat definitions are independent; stats are not required to be per-layer.
 */
 class RenderObservationInfo final
 {
 public:
 	void setProgressTimeMeasurement(const std::string& measurement);
+
+	/*! @brief Set name of an output layer.
+	`index` is the layer index used by frame retrieval APIs.
+	*/
 	void setLayer(std::size_t index, const std::string& name);
+
+	/*! @brief Set display name for `RenderStats::getInteger(index)`.
+	This index space is independent from layer index space.
+	*/
 	void setIntegerStat(std::size_t index, const std::string& name);
+
+	/*! @brief Set display name for `RenderStats::getReal(index)`.
+	This index space is independent from layer index space.
+	*/
 	void setRealStat(std::size_t index, const std::string& name);
 
 	std::string getProgressTimeMeasurement() const;

@@ -101,3 +101,23 @@ Currently we are building documentation using Doxygen 1.11.0. You will also need
 
 > [!warning]
 > As noted by the [Doxygen documentation for output customization](https://www.doxygen.nl/manual/customize.html), `./Main/header.html` may need to be regenerated and updated after upgrading/changing the Doxygen version.
+
+## Appendix C: Troubleshooting
+
+### LNK2019 on SDL type symbols
+
+If you see linker errors similar to:
+
+```text
+error LNK2019: unresolved external symbol ... getSdlClass/getSdlStruct/getSdlEnum ...
+fatal error LNK1120: unresolved externals
+```
+
+this usually means setup was not run (or not re-run) before compiling.
+
+Run setup first, then re-configure and re-compile:
+
+* Windows: `./setup.bat`
+* Linux/macOS: `./setup.sh`
+* Re-run CMake configure/generate step in `./build/`
+* Compile again

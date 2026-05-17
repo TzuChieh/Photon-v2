@@ -30,6 +30,7 @@ public:
 
 	void addSample(float64 xPx, float64 yPx, const math::Vector3R& sample) override;
 	void setPixel(float64 xPx, float64 yPx, const math::Vector3R& sample) override;
+	std::unique_ptr<TSamplingFilm<math::Vector3R>> makeCopy(bool shouldCopySamples) const override;
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
@@ -70,6 +71,24 @@ inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const m
 inline void Vector3Film::setPixel(const float64 xPx, const float64 yPx, const math::Vector3R& sample)
 {
 	m_film.setRgbPixel(xPx, yPx, sample);
+}
+
+inline std::unique_ptr<TSamplingFilm<math::Vector3R>> Vector3Film::makeCopy(const bool shouldCopySamples) const
+{
+	auto copiedFilm = std::make_unique<Vector3Film>(
+		getActualResPx().x(),
+		getActualResPx().y(),
+		getEffectiveWindowPx(),
+		getFilter());
+
+	copiedFilm->setSoftEdge(isSoftEdged());
+	
+	if(shouldCopySamples)
+	{
+		copiedFilm->m_film.mergeWith(m_film);
+	}
+
+	return copiedFilm;
 }
 
 inline void Vector3Film::clear()
