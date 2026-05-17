@@ -18,6 +18,19 @@ or run and produce a [markdown report](https://github.com/TzuChieh/Photon-v2-Tes
 python ./RenderTest/run_and_report.py
 ```
 
+## Viewing HTML Report
+
+To open HTML report after running the test, run
+
+```shell
+./RenderTest/open_report.bat
+```
+
+from the build directory.
+
+> [!warning]
+> Do not open `./RenderTest/report_output/report.html` directly as some browsers may block local resource loading.
+
 ### Using Virtual Environment
 
 Running tests under a Python [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#create-and-use-virtual-environments) can be beneficial, as the packages installed are the exact versions we required and is less likely to interfere with other projects. First, create a virtual environment under the build directory with
