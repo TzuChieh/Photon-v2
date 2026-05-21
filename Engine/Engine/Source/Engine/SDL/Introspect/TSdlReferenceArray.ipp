@@ -10,7 +10,6 @@
 #include "Engine/SDL/sdl_exceptions.h"
 #include "Engine/SDL/sdl_helpers.h"
 #include "Engine/SDL/sdl_parser.h"
-#include "Engine/SDL/Tokenizer.h"
 
 #include <Common/assertion.h>
 #include <Common/Utility/string_utils.h>
@@ -141,7 +140,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		return;
 	}
 
-	// Basically generates a list of reference names  (with proper specifier)
+	// Basically generates a list of reference names (with proper specifier)
 	try
 	{
 		out_clause.value = '{';
@@ -176,8 +175,6 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
-
 	if(!ctx.getSrcResources())
 	{
 		throw SdlLoadError(
@@ -191,21 +188,29 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	}
 	else if(clause.valueType == ESdlClauseValue::General)
 	{
-		std::vector<std::string> tokens;
-		tokenizer.tokenize(clause.value, tokens);
-		if(tokens.size() % 2 != 0)
-		{
-			throw SdlLoadError(
-				"syntax error: unexpected input format");
-		}
+		std::vector<std::shared_ptr<T>> referenceVector;
+		std::string_view remainingStr = clause.value;
 
-		const auto numReferenceTokens = tokens.size() / 2;
-		std::vector<std::shared_ptr<T>> referenceVector(numReferenceTokens);
-		for(std::size_t i = 0; i < numReferenceTokens; ++i)
+		while(true)
 		{
-			const std::string referenceToken = tokens[i * 2] + tokens[i * 2 + 1];
-			const auto reference = sdl_parser::get_reference(referenceToken);
-			referenceVector[i] = TSdlReference<T, Owner>::loadReference(reference, ctx);
+			std::string_view reference;
+			remainingStr = sdl_parser::trim_name(
+				remainingStr,
+				sdl_parser::ESpecifier::Persistent,
+				&reference);
+
+			if(reference.empty())
+			{
+				if(remainingStr.empty())
+				{
+					break;
+				}
+
+				throw_formatted<SdlLoadError>(
+					"syntax error: invalid reference-array target list near <{}>", remainingStr);
+			}
+
+			referenceVector.push_back(TSdlReference<T, Owner>::loadReference(reference, ctx));
 		}
 
 		return referenceVector;

@@ -8,6 +8,16 @@ namespace ph::sdl_parser
 
 inline constexpr char persistent_specifier = '@';
 inline constexpr char cached_specifier = '$';
+static_assert(persistent_specifier != '\0' && cached_specifier != '\0');
+
+enum class ESpecifier
+{
+	None = 0,
+	Persistent,
+	Cached
+};
+
+constexpr char specifier_to_char(ESpecifier specifier);
 
 bool is_specifier(char ch);
 bool starts_with_specifier(std::string_view valueToken);
@@ -37,6 +47,32 @@ enclosed by double quotes, a trimmed `str` is returned.
 std::string_view trim_double_quotes(std::string_view str);
 
 bool is_double_quoted(std::string_view str);
+
+/*! @brief Trim one specifier token from the head of @p valueStr.
+Whitespaces are always trimmed. If no specifier token is found at head, this is a no-op.
+If @p out_trimmedSpecifier is not null, it is always written (`ESpecifier::None` if no specifier is trimmed).
+@return Remaining string after trim.
+*/
+std::string_view trim_specifier(
+	std::string_view valueStr,
+	ESpecifier*      out_trimmedSpecifier = nullptr);
+
+/*! @brief Trim one name token from the head of @p valueStr.
+Whitespaces are always trimmed. If no name token is found at head, this is a no-op.
+If @p out_name is not null, parsed name will be stored there (quotes removed).
+@return Remaining string after trim.
+*/
+std::string_view trim_name(std::string_view valueStr, std::string_view* out_name = nullptr);
+
+/*! @brief Trim one SDL `specifier + name` syntax unit from the head of @p valueStr.
+Whitespaces are always trimmed. If no matching specifier is found at head, this is a no-op.
+This overload follows SDL syntax rules by requiring @p expectedSpecifier before extracting name.
+@return Remaining string after trim.
+*/
+std::string_view trim_name(
+	std::string_view  valueStr,
+	ESpecifier        expectedSpecifier,
+	std::string_view* out_name = nullptr);
 
 }// end namespace ph::sdl_parser
 

@@ -10,7 +10,6 @@
 #include "Engine/SDL/sdl_helpers.h"
 #include "Engine/SDL/sdl_traits.h"
 #include "Engine/SDL/sdl_parser.h"
-#include "Engine/SDL/Tokenizer.h"
 
 #include <Common/assertion.h>
 
@@ -176,8 +175,6 @@ inline std::vector<Struct> TSdlStructArray<Struct, Owner>::loadStructArray(
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
-
 	if(!ctx.getSrcDataPackets())
 	{
 		throw SdlLoadError(
@@ -191,20 +188,29 @@ inline std::vector<Struct> TSdlStructArray<Struct, Owner>::loadStructArray(
 	}
 	else if(clause.valueType == ESdlClauseValue::General)
 	{
-		std::vector<std::string> tokens;
-		tokenizer.tokenize(clause.value, tokens);
-		if(tokens.size() % 2 != 0)
-		{
-			throw SdlLoadError("syntax error: unexpected input format");
-		}
+		std::vector<Struct> structVector;
+		std::string_view remainingStr = clause.value;
 
-		const auto numPacketNameTokens = tokens.size() / 2;
-		std::vector<Struct> structVector(numPacketNameTokens);
-		for(std::size_t i = 0; i < numPacketNameTokens; ++i)
+		while(true)
 		{
-			const std::string packetNameToken = tokens[i * 2] + tokens[i * 2 + 1];
-			const auto packetName = sdl_parser::get_data_packet_name(packetNameToken);
-			structVector[i] = loadStruct(packetName, ctx);
+			std::string_view packetName;
+			remainingStr = sdl_parser::trim_name(
+				remainingStr,
+				sdl_parser::ESpecifier::Cached,
+				&packetName);
+
+			if(packetName.empty())
+			{
+				if(remainingStr.empty())
+				{
+					break;
+				}
+
+				throw_formatted<SdlLoadError>(
+					"syntax error: invalid struct-array target list near <{}>", remainingStr);
+			}
+
+			structVector.push_back(loadStruct(packetName, ctx));
 		}
 
 		return structVector;

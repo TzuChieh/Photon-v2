@@ -191,7 +191,31 @@ A material resource named `diffuse` is being created by referencing an image nam
 
 ### Struct Types
 
-[//TODO]: <> (wip)
+SDL struct types are reusable groups of fields. In PSDL, they can appear in two forms.
+
+1. Flattened fields (no special syntax in scene file):
+   - Some SDL classes embed struct fields directly.
+   - In this case, struct members appear as ordinary clauses on the owner command.
+
+2. `struct-array` fields (explicit struct references):
+   - If an input is documented as `struct-array`, each struct entry is provided via a named data packet.
+   - Packet names are referenced with `$` (cached specifier), not `@`.
+
+Example:
+
+```csharp
+packet $film0 = [enum type beauty];
+packet $film1 = [enum type variance];
+visualizer(path-tracing) @visualizer = [struct-array films {$film0 $film1}];
+```
+
+For a single struct entry, this also works:
+
+```csharp
+visualizer(path-tracing) @visualizer = [struct-array films $film0];
+```
+
+Unlike resources such as `geometry(...) @name = ...`, packet-defined struct entries are not persistent scene resources.
 
 With PSDL, you can create almost all kinds of objects the rendering system has to offer. In later sections, we will see that it is also possible to perform [operations](@ref operations) on these objects via PSDL.
 
@@ -216,7 +240,9 @@ With PSDL, you can create almost all kinds of objects the rendering system has t
 
 ### Struct Types
 
-[//TODO]: <> (wip)
+In C++ binding, SDL struct types are defined with `PH_DEFINE_SDL_STRUCT(...)` and are commonly
+used by class fields like `TSdlStructArray<...>`. They can also be embedded into owner fields
+directly via `addStruct(...)`, where struct members become normal owner fields in PSDL.
 
 ### Enum Types
 
