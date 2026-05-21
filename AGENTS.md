@@ -1,10 +1,10 @@
-# Project Context for AI Agents
+# Photon-v2 Guide
 
-When working on this project, you are allowed to sacrifice grammar for concision.
+Be concise. Local folder `AGENTS.md` rules override this file for their scope.
 
 ## Project Overview
 
-Photon-v2 is a physically based rendering engine written primarily in C++23. It aims to provide a toolset for ultra-realistic image synthesis. The project is cross-platform (Windows, Linux, and macOS). It features its own scene description language (`.p2` files) and includes a Blender add-on for scene creation and export.
+Photon-v2 is a physically based rendering engine written primarily in C++23. It aims to provide a toolset for ultra-realistic image synthesis. The project is cross-platform (Windows, Linux, and macOS). It features its own scene description language  and includes a Blender add-on for scene creation and export.
 
 ## Project Structure
 
@@ -35,19 +35,16 @@ You can find the main entries in `Main/Documentation/`.
 
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
 
-## Technical Scope & Constraints
+## Rules
+- Do not build or run binaries/tests; user handles execution.
+- JNI/PhotonStudio paths are deprecated; avoid expanding legacy usage unless explicitly requested.
+- Keep file line endings consistent with the current OS convention.
 
-- **Research & Code Only:** My role is strictly limited to research and writing code. 
-- **No Building or Running:** Do NOT attempt to build binaries, run executables, or execute test runners (like `EngineTest.exe`). The user will handle the building, compilation, and execution of tests.
+## Git Rules
+- Read-only git by default.
+- Do not stage changes unless user explicitly asks.
+- One explicit LGTM allows one commit only.
 
-## Git
-
-- **Committer Skill:** Always use the `Committer` skill (`Main/AgentSkills/Committer/SKILL.md`) for code reviews, staging, and drafting commit messages. Activate this skill when the user requests a commit or review of staged changes.
-- **One LGTM Per Commit:** You must receive an explicit "LGTM" (or equivalent) for EVERY commit. One "LGTM" grants permission for exactly ONE `git commit` command. Subsequent commits require a new "LGTM".
-- **Stage Before Update:** Always stage existing changes (`git add -A`) before applying new updates or corrections to the code. This ensures the user can see the "delta" (diff) in their IDE (like VSCode) between the staged (old) and unstaged (new) versions.
-- **Linux Style Commit Message:** Prefer a one-line brief summary, followed by a blank line and bullet points for details if necessary.
-- **Read-Only by Default:** Only perform read-only git operations. Write operations are only allowed if requested by the human user.
-
-## Code Review
-
-When asked to review a change, mention the most critical issue first. Other issues can be described as a one-liner and only elaborate on request. 
+## Folder-Specific Guidance
+- See local `AGENTS.md` in subfolders for C-API, SDL, and RenderTest-specific rules.
+- Main docs entry: `Main/Documentation/`.

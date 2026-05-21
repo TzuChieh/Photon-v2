@@ -1,4 +1,4 @@
-# RenderTest Principles (`Main/RenderTest`)
+# RenderTest Guide
 
 Goal: prevent subtle test/report regressions with simple, deterministic rules.
 
