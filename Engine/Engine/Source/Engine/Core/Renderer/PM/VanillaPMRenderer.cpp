@@ -135,7 +135,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 		});
 }
 
-void VanillaPMRenderer::retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame)
+void VanillaPMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	VanillaPMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -162,7 +162,7 @@ RenderProgress VanillaPMRenderer::asyncQueryRenderProgress()
 }
 
 void VanillaPMRenderer::asyncPeekFrame(
-	std::size_t layerIndex,
+	const int32 layerIndex,
 	const Region& region,
 	HdrRgbFrame& out_frame)
 {

@@ -31,13 +31,13 @@ class AdaptiveSamplingRenderer : public SamplingRenderer
 public:
 	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
-	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
+	void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) override;
 
 	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override;
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekFrame(
-		std::size_t   layerIndex,
+		int32 layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame) override;
 

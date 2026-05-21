@@ -10,6 +10,8 @@
 #include "Engine/DataIO/FileSystem/Path.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
 
+#include <Common/primitive_type.h>
+
 #include <string>
 
 namespace ph
@@ -28,7 +30,7 @@ public:
 	void render();
 
 	void retrieveFrame(
-		std::size_t  layerIndex,
+		int32        layerIndex,
 		HdrRgbFrame& out_frame,
 		bool         applyPostProcessing = true);
 
@@ -40,7 +42,7 @@ public:
 	void setNumThreads(uint32 numThreads);
 
 	void asyncPeekFrame(
-		std::size_t   layerIndex,
+		int32         layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame, 
 		bool          applyPostProcessing = true) const;

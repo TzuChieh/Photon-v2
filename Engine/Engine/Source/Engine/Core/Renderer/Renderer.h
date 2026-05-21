@@ -53,7 +53,7 @@ public:
 
 	/*! @brief Get the rendered result.
 	*/
-	virtual void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) = 0;
+	virtual void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) = 0;
 
 	/*! @brief Get the rendering regions that have been updated.
 	Status of a region will always transition to `ERegionStatus::Finished`, and this ordering guarantee
@@ -82,7 +82,7 @@ public:
 	returned frame.
 	*/
 	virtual void asyncPeekFrame(
-		std::size_t   layerIndex,
+		int32         layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame) = 0;
 

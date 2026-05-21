@@ -165,10 +165,12 @@ void Engine::render()
 }
 
 void Engine::retrieveFrame(
-	const std::size_t layerIndex,
+	const int32       layerIndex,
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing)
 {
+	PH_ASSERT_GE(layerIndex, 0);
+
 	Renderer* const renderer = getRenderer();
 	PH_ASSERT(renderer);
 
@@ -200,11 +202,13 @@ void Engine::setNumThreads(uint32 numThreads)
 }
 
 void Engine::asyncPeekFrame(
-	const std::size_t layerIndex,
+	const int32       layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing) const
 {
+	PH_ASSERT_GE(layerIndex, 0);
+
 	getRenderer()->asyncPeekFrame(layerIndex, region, out_frame);
 
 	if(applyPostProcessing)

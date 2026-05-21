@@ -20,14 +20,14 @@ public:
 
 	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override = 0;
 	void doRender() override = 0;
-	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override = 0;
+	void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) override = 0;
 
 	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override = 0;
 	RenderStats asyncQueryRenderStats() override = 0;
 	RenderProgress asyncQueryRenderProgress() override = 0;
 
 	void asyncPeekFrame(
-		std::size_t   layerIndex, 
+		int32         layerIndex, 
 		const Region& region,
 		HdrRgbFrame&  out_frame) override = 0;
 

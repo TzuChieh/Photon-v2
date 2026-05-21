@@ -237,7 +237,7 @@ std::size_t EqualSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionSta
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
 void EqualSamplingRenderer::asyncPeekFrame(
-	const std::size_t layerIndex,
+	const int32       layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
@@ -245,7 +245,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(layerIndex < m_mainFilmLayers.size())
+	if(layerIndex >= 0 && layerIndex < static_cast<int32>(m_mainFilmLayers.size()))
 	{
 		m_mainFilmLayers[layerIndex].film->develop(out_frame, region);
 	}
@@ -255,7 +255,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 	}
 }
 
-void EqualSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
+void EqualSamplingRenderer::retrieveFrame(const int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	PH_PROFILE_SCOPE();
 
@@ -337,7 +337,7 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
 {
 	RenderObservationInfo info;
-	for(std::size_t layerIndex = 0; layerIndex < m_mainFilmLayers.size(); ++layerIndex)
+	for(int32 layerIndex = 0; layerIndex < static_cast<int32>(m_mainFilmLayers.size()); ++layerIndex)
 	{
 		info.setLayer(layerIndex, m_mainFilmLayers[layerIndex].name);
 	}

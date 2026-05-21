@@ -5,6 +5,7 @@
 #include <Common/primitive_type.h>
 #include <Common/Utility/CommandLineArguments.h>
 
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -39,7 +40,7 @@ public:
 	EExecutionMode getExecutionMode() const;
 	std::string    getSceneFilePath() const;
 	std::string    getImageOutputPath() const;
-	std::string    getImageFilePath() const;
+	std::string    getImageFilePath(int32 imageIndex = -1) const;
 	std::string    getImageFileFormat() const;
 	uint32         numThreads() const;
 	bool           isPostProcessRequested() const;
@@ -112,9 +113,14 @@ inline std::string ProcessedArguments::getImageOutputPath() const
 	return m_imageOutputPath;
 }
 
-inline std::string ProcessedArguments::getImageFilePath() const
+inline std::string ProcessedArguments::getImageFilePath(const int32 imageIndex) const
 {
-	return m_imageOutputPath + "." + m_imageFileFormat;
+	if(imageIndex < 0)
+	{
+		return m_imageOutputPath + "." + m_imageFileFormat;
+	}
+
+	return m_imageOutputPath + "_" + std::to_string(imageIndex) + "." + m_imageFileFormat;
 }
 
 inline std::string ProcessedArguments::getImageFileFormat() const
@@ -203,6 +209,8 @@ required in this case).
 Specify image output path. This should be a filename (without extension) for 
 single image or a directory for image series. Note that the application will
 not create the directory for you if it is not already exists.
+If multiple render layers are available, files are written as <path>_0,
+<path>_1, ... with specified extension.
 (default path: "./rendered_scene")
 ===============================================================================
 [-of <format>]

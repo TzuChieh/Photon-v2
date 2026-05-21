@@ -26,15 +26,15 @@ void CliStaticImageRenderer::render()
 		return;
 	}
 
-	phUpdate(getEngine());
+	phUpdate(getSession());
 
 	std::thread renderThread([this]()
 	{
-		phRender(getEngine());
+		phRender(getSession());
 	});
 
 	PhUInt32 imageWidthPx, imageHeightPx;
-	phGetRenderDimension(getEngine(), &imageWidthPx, &imageHeightPx);
+	phGetRenderDimension(getSession(), &imageWidthPx, &imageHeightPx);
 
 	std::atomic<bool> isRenderingCompleted = false;
 
@@ -58,7 +58,7 @@ void CliStaticImageRenderer::render()
 
 			PhFloat32 currentProgress;
 			PhFloat32 samplesPerSecond;
-			phAsyncGetRenderStatistics(getEngine(), &currentProgress, &samplesPerSecond);
+			phAsyncGetRenderStatistics(getSession(), &currentProgress, &samplesPerSecond);
 
 			if(currentProgress - lastProgress > 1.0f)
 			{
@@ -107,11 +107,11 @@ void CliStaticImageRenderer::render()
 
 					if(getArgs().isPostProcessRequested())
 					{
-						phAsyncPeekFrame(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
+						phAsyncPeekFrame(getSession(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
 					}
 					else
 					{
-						phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
+						phAsyncPeekFrameRaw(getSession(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
 					}
 
 					phSaveFrame(queryFrameId, imageFilePath.c_str(), nullptr);
@@ -120,24 +120,41 @@ void CliStaticImageRenderer::render()
 
 			std::this_thread::sleep_for(queryInterval);
 		}// end while
+
+		phDeleteFrame(queryFrameId);
 	});
 
 	renderThread.join();
 	isRenderingCompleted = true;
+	
 	std::cout << "render completed" << std::endl;
+
+	PhSize numOutputLayers = 1;
+	PhRenderObservationInfo observationInfo{};
+	phGetRenderObservationInfo(getSession(), &observationInfo);
+	if(observationInfo.numLayers > 0)
+	{
+		numOutputLayers = observationInfo.numLayers;
+	}
 
 	PhUInt64 frameId;
 	phCreateFrame(&frameId, imageWidthPx, imageHeightPx);
-	if(getArgs().isPostProcessRequested())
+	for(PhSize layerIndex = 0; layerIndex < numOutputLayers; ++layerIndex)
 	{
-		phAquireFrame(getEngine(), 0, frameId);
-	}
-	else
-	{
-		phAquireFrameRaw(getEngine(), 0, frameId);
-	}
+		const auto layerIndexAsInt = static_cast<PhInt32>(layerIndex);
+		if(getArgs().isPostProcessRequested())
+		{
+			phRetrieveFrame(getSession(), layerIndexAsInt, frameId);
+		}
+		else
+		{
+			phRetrieveFrameRaw(getSession(), layerIndexAsInt, frameId);
+		}
 
-	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath());
+		save_frame_with_fail_safe(
+			frameId,
+			numOutputLayers > 1 ? getArgs().getImageFilePath(layerIndexAsInt) : getArgs().getImageFilePath());
+	}
 	phDeleteFrame(frameId);
 
 	queryThread.join();

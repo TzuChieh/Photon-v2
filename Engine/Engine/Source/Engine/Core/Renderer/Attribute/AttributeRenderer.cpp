@@ -117,7 +117,7 @@ std::size_t AttributeRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus>
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
 void AttributeRenderer::asyncPeekFrame(
-	const std::size_t layerIndex,
+	const int32       layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
@@ -133,7 +133,7 @@ void AttributeRenderer::asyncPeekFrame(
 	}
 }
 
-void AttributeRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
+void AttributeRenderer::retrieveFrame(const int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }

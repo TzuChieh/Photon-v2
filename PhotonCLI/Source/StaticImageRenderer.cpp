@@ -6,15 +6,15 @@ namespace ph::cli
 {
 
 StaticImageRenderer::StaticImageRenderer(const ProcessedArguments& args)
-	: m_engineId(0)
+	: m_sessionId(0)
 	, m_args(args)
 {
-	phCreateEngine(&m_engineId, static_cast<PhUInt32>(args.numThreads()));
+	phCreateSession(&m_sessionId, static_cast<PhUInt32>(args.numThreads()));
 }
 
 StaticImageRenderer::~StaticImageRenderer()
 {
-	phDeleteEngine(m_engineId);
+	phDeleteSession(m_sessionId);
 }
 
 void StaticImageRenderer::setSceneFilePath(const std::string& path)
@@ -24,7 +24,7 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 	// Use the directory of the scene file as working directory
 	namespace fs = std::filesystem;
 	const std::string sceneDirectory = fs::path(path).parent_path().string();
-	phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
+	phSetWorkingDirectory(m_sessionId, sceneDirectory.c_str());
 }
 
 void StaticImageRenderer::setImageOutputPath(const std::string& path)
@@ -36,7 +36,7 @@ bool StaticImageRenderer::loadCommandsFromSceneFile() const
 {
 	const auto sceneFilePath = m_args.getSceneFilePath();
 
-	return phLoadCommands(m_engineId, sceneFilePath.c_str()) == PH_TRUE ? true : false;
+	return phLoadCommands(m_sessionId, sceneFilePath.c_str()) == PH_OK;
 }
 
 }// end namespace ph::cli

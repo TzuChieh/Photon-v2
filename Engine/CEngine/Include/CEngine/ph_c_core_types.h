@@ -25,6 +25,18 @@ typedef enum PhBool
 	PH_TRUE
 } PhBool;
 
+/*! @brief Result code for C-API calls.
+*/
+typedef enum PhResult
+{
+	PH_OK = 0,
+	PH_ERROR_INVALID_ARGUMENT,
+	PH_ERROR_NOT_FOUND,
+	PH_ERROR_OUT_OF_RANGE,
+	PH_ERROR_INSUFFICIENT_BUFFER,
+	PH_ERROR_OPERATION_FAILED
+} PhResult;
+
 /*! @brief Indicates the endianness.
 This type is not for detecting endianness of the current platform, but simply
 for representing the endianness for operations that can make use of it.

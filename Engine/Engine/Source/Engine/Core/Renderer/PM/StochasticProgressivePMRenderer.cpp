@@ -258,7 +258,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 	}// end while more pass needed
 }
 
-void StochasticProgressivePMRenderer::retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame)
+void StochasticProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	StochasticProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -285,7 +285,7 @@ RenderProgress StochasticProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void StochasticProgressivePMRenderer::asyncPeekFrame(
-	std::size_t layerIndex,
+	int32 layerIndex,
 	const Region& region,
 	HdrRgbFrame& out_frame)
 {

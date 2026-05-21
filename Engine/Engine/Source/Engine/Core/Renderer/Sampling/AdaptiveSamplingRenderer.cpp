@@ -213,7 +213,7 @@ std::size_t AdaptiveSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegion
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
 void AdaptiveSamplingRenderer::asyncPeekFrame(
-	const std::size_t layerIndex,
+	const int32       layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
@@ -242,7 +242,7 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	}
 }
 
-void AdaptiveSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
+void AdaptiveSamplingRenderer::retrieveFrame(const int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }

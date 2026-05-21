@@ -178,7 +178,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 	}// end while more pass needed
 }
 
-void ProgressivePMRenderer::retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame)
+void ProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	ProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -205,9 +205,9 @@ RenderProgress ProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void ProgressivePMRenderer::asyncPeekFrame(
-	std::size_t layerIndex,
+	int32         layerIndex,
 	const Region& region,
-	HdrRgbFrame& out_frame)
+	HdrRgbFrame&  out_frame)
 {
 	PH_PROFILE_SCOPE();
 

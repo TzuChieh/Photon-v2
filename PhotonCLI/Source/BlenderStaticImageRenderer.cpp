@@ -57,16 +57,16 @@ void BlenderStaticImageRenderer::render()
 		return;
 	}
 
-	phUpdate(getEngine());
+	phUpdate(getSession());
 
 	std::thread renderThread([this]()
 	{
 		PH_PROFILE_NAME_THIS_THREAD("Blender render thread");
 
-		phRender(getEngine());
+		phRender(getSession());
 	});
 
-	phGetRenderDimension(getEngine(), &m_imageWidthPx, &m_imageHeightPx);
+	phGetRenderDimension(getSession(), &m_imageWidthPx, &m_imageHeightPx);
 
 	// Stats thread runs right away, create it after render starts
 	std::jthread statsThread = makeStatsThread();
@@ -89,11 +89,11 @@ void BlenderStaticImageRenderer::render()
 	phCreateFrame(&frameId, m_imageWidthPx, m_imageHeightPx);
 	if(getArgs().isPostProcessRequested())
 	{
-		phAquireFrame(getEngine(), 0, frameId);
+		phRetrieveFrame(getSession(), 0, frameId);
 	}
 	else
 	{
-		phAquireFrameRaw(getEngine(), 0, frameId);
+		phRetrieveFrameRaw(getSession(), 0, frameId);
 	}
 
 	const PhFrameSaveInfo frameInfo = make_frame_save_info_for_blender();
@@ -111,12 +111,11 @@ std::jthread BlenderStaticImageRenderer::makeStatsThread()
 		using namespace std::chrono_literals;
 
 		PhFloat32 lastProgress = 0;
-		PhFloat32 lastOutputProgress = 0;
 		while(!token.stop_requested())
 		{
 			PhFloat32 currentProgress;
 			PhFloat32 samplesPerSecond;
-			phAsyncGetRenderStatistics(getEngine(), &currentProgress, &samplesPerSecond);
+			phAsyncGetRenderStatistics(getSession(), &currentProgress, &samplesPerSecond);
 
 			if(currentProgress - lastProgress > 1.0f)
 			{
@@ -191,7 +190,7 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 
 		// If nothing progresses, do not bother to peek as it is likely the same result
 		lastProgress = currentProgress;
-		phAsyncGetRenderProgress(getEngine(), &currentProgress);
+		phAsyncGetRenderProgress(getSession(), &currentProgress);
 		if(currentProgress.totalWork == lastProgress.totalWork &&
 		   currentProgress.workDone == lastProgress.workDone)
 		{
@@ -200,7 +199,7 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 			continue;
 		}
 
-		phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, m_imageWidthPx, m_imageHeightPx, serverFrameId);
+		phAsyncPeekFrameRaw(getSession(), 0, 0, 0, m_imageWidthPx, m_imageHeightPx, serverFrameId);
 		phSaveFrameToBuffer(serverFrameId, bufferId, PH_BUFFER_FORMAT_EXR_IMAGE, &frameInfo);
 
 		const PhUChar* bytesPtr;

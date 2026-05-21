@@ -254,7 +254,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 	});// end parallel work
 }
 
-void ProbabilisticProgressivePMRenderer::retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame)
+void ProbabilisticProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
 {
 	ProbabilisticProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -281,9 +281,9 @@ RenderProgress ProbabilisticProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void ProbabilisticProgressivePMRenderer::asyncPeekFrame(
-	std::size_t layerIndex,
+	const int32   layerIndex,
 	const Region& region,
-	HdrRgbFrame& out_frame)
+	HdrRgbFrame&  out_frame)
 {
 	PH_PROFILE_SCOPE();
 

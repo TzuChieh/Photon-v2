@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if(!phInit())
+	if(phInit() != PH_OK)
 	{
 		std::cerr << "Photon initializing failed\n";
 		return EXIT_FAILURE;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 
 	// End engine operations
 
-	if(!phExit())
+	if(phExit() != PH_OK)
 	{
 		std::cerr << "Photon exiting failed\n";
 		return EXIT_FAILURE;
