@@ -151,9 +151,17 @@ void CliStaticImageRenderer::render()
 			phRetrieveFrameRaw(getSession(), layerIndexAsInt, frameId);
 		}
 
+		std::string layerName;
+		PhSize layerNameLength = 0;
+		phGetRenderLayerName(getSession(), layerIndexAsInt, nullptr, &layerNameLength);
+		layerName.resize(layerNameLength - 1);
+		phGetRenderLayerName(getSession(), layerIndexAsInt, layerName.data(), nullptr);
+
 		save_frame_with_fail_safe(
 			frameId,
-			numOutputLayers > 1 ? getArgs().getImageFilePath(layerIndexAsInt) : getArgs().getImageFilePath());
+			numOutputLayers > 1 ? getArgs().getImageFilePath(layerIndexAsInt) : getArgs().getImageFilePath(),
+			nullptr,
+			layerName);
 	}
 	phDeleteFrame(frameId);
 

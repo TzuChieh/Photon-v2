@@ -9,9 +9,17 @@ namespace ph::cli
 void save_frame_with_fail_safe(
 	const PhUInt64 frameId, 
 	const std::string& filePath,
-	const PhFrameSaveInfo* const saveInfo)
+	const PhFrameSaveInfo* const saveInfo,
+	const std::string_view layerName)
 {
-	PH_DEFAULT_LOG(Note, "saving image to {}", filePath);
+	if(layerName.empty())
+	{
+		PH_DEFAULT_LOG(Note, "saving image to {}", filePath);
+	}
+	else
+	{
+		PH_DEFAULT_LOG(Note, "saving image to {} (film: {})", filePath, layerName);
+	}
 
 	if(phSaveFrame(frameId, filePath.c_str(), saveInfo) != PH_OK)
 	{

@@ -112,30 +112,43 @@ extern PH_API void phGetRenderObservationInfo(
 @param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
 @param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
 If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
-@return `PH_OK` on success. Output is only available if `PH_OK` is returned.
-`PH_ERROR_INVALID_ARGUMENT` if both @p out_name and @p out_nameLength are `nullptr`.
-`PH_ERROR_NOT_FOUND` if render observation info is unavailable.
-`PH_ERROR_OUT_OF_RANGE` if @p layerIndex is out of range.
+If @p layerIndex is negative, `0` is used.
+If the requested name is unavailable, an empty string is returned.
+If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
-extern PH_API PhResult phGetRenderLayerName(
+extern PH_API void phGetRenderLayerName(
 	PhUInt64 sessionId,
 	PhInt32 layerIndex,
 	PhChar* out_name,
 	PhSize* out_nameLength);
 
 /*! @brief Gets integer render stat display name.
-Uses the same contract as phGetRenderLayerName().
+@param sessionId Render session ID.
+@param statIndex Statistic index.
+@param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
+@param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
+If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
+If @p statIndex is negative, `0` is used.
+If the requested name is unavailable, an empty string is returned.
+If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
-extern PH_API PhResult phGetRenderIntegerStatName(
+extern PH_API void phGetRenderIntegerStatName(
 	PhUInt64 sessionId,
 	PhInt32 statIndex,
 	PhChar* out_name,
 	PhSize* out_nameLength);
 
 /*! @brief Gets real-number render stat display name.
-Uses the same contract as phGetRenderLayerName().
+@param sessionId Render session ID.
+@param statIndex Statistic index.
+@param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
+@param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
+If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
+If @p statIndex is negative, `0` is used.
+If the requested name is unavailable, an empty string is returned.
+If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
-extern PH_API PhResult phGetRenderRealStatName(
+extern PH_API void phGetRenderRealStatName(
 	PhUInt64 sessionId,
 	PhInt32 statIndex,
 	PhChar* out_name,

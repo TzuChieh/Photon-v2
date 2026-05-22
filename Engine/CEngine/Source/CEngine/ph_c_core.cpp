@@ -37,16 +37,11 @@ PH_DEFINE_INTERNAL_LOG_GROUP(CAPI, Engine);
 namespace
 {
 
-PhResult copy_name_to_buffer(
+void copy_name_to_buffer(
 	const std::string& name,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	if(!out_name && !out_nameLength)
-	{
-		return PH_ERROR_INVALID_ARGUMENT;
-	}
-
 	const std::size_t requiredSize = name.size() + 1;
 	if(out_nameLength)
 	{
@@ -58,8 +53,6 @@ PhResult copy_name_to_buffer(
 		std::memcpy(out_name, name.data(), requiredSize - 1);
 		out_name[requiredSize - 1] = '\0';
 	}
-
-	return PH_OK;
 }
 
 bool get_render_observation_info(
@@ -265,88 +258,64 @@ void phGetRenderObservationInfo(
 	out_info->numRealStats = static_cast<PhSize>(info.numRealStats());
 }
 
-PhResult phGetRenderLayerName(
+void phGetRenderLayerName(
 	const PhUInt64 sessionId,
-	const PhInt32 layerIndex,
+	PhInt32 layerIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	if(!out_name && !out_nameLength)
+	if(layerIndex < 0)
 	{
-		return PH_ERROR_INVALID_ARGUMENT;
+		layerIndex = 0;
 	}
 
+	std::string layerName;
 	RenderObservationInfo info;
-	if(!get_render_observation_info(sessionId, &info))
+	if(get_render_observation_info(sessionId, &info) && layerIndex < info.numLayers())
 	{
-		return PH_ERROR_NOT_FOUND;
+		layerName = info.getLayerName(layerIndex);
 	}
 
-	if(layerIndex < 0 || static_cast<std::size_t>(layerIndex) >= info.numLayers())
-	{
-		return PH_ERROR_OUT_OF_RANGE;
-	}
-
-	return copy_name_to_buffer(
-		info.getLayerName(static_cast<std::size_t>(layerIndex)),
-		out_name,
-		out_nameLength);
+	// User's responsibility to ensure enough size
+	copy_name_to_buffer(layerName, out_name, out_nameLength);
 }
 
-PhResult phGetRenderIntegerStatName(
+void phGetRenderIntegerStatName(
 	const PhUInt64 sessionId,
-	const PhInt32 statIndex,
+	PhInt32 statIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	if(!out_name && !out_nameLength)
-	{
-		return PH_ERROR_INVALID_ARGUMENT;
-	}
+	PH_ASSERT_GE(statIndex, 0);
 
+	std::string statName;
 	RenderObservationInfo info;
-	if(!get_render_observation_info(sessionId, &info))
+	if(get_render_observation_info(sessionId, &info) && statIndex < info.numIntegerStats())
 	{
-		return PH_ERROR_NOT_FOUND;
+		statName = info.getIntegerStatName(statIndex);
 	}
 
-	if(statIndex < 0 || static_cast<std::size_t>(statIndex) >= info.numIntegerStats())
-	{
-		return PH_ERROR_OUT_OF_RANGE;
-	}
-
-	return copy_name_to_buffer(
-		info.getIntegerStatName(static_cast<std::size_t>(statIndex)),
-		out_name,
-		out_nameLength);
+	// User's responsibility to ensure enough size
+	copy_name_to_buffer(statName, out_name, out_nameLength);
 }
 
-PhResult phGetRenderRealStatName(
+void phGetRenderRealStatName(
 	const PhUInt64 sessionId,
-	const PhInt32 statIndex,
+	PhInt32 statIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	if(!out_name && !out_nameLength)
-	{
-		return PH_ERROR_INVALID_ARGUMENT;
-	}
-
+	PH_ASSERT_GE(statIndex, 0);
+	
+	std::string statName;
 	RenderObservationInfo info;
-	if(!get_render_observation_info(sessionId, &info))
+	if(get_render_observation_info(sessionId, &info) && statIndex < info.numRealStats())
 	{
-		return PH_ERROR_NOT_FOUND;
+		statName = info.getRealStatName(statIndex);
 	}
 
-	if(statIndex < 0 || static_cast<std::size_t>(statIndex) >= info.numRealStats())
-	{
-		return PH_ERROR_OUT_OF_RANGE;
-	}
-
-	return copy_name_to_buffer(
-		info.getRealStatName(static_cast<std::size_t>(statIndex)),
-		out_name,
-		out_nameLength);
+	// User's responsibility to ensure enough size
+	copy_name_to_buffer(statName, out_name, out_nameLength);
 }
 
 void phCreateFrame(
