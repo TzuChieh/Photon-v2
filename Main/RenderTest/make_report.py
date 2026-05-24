@@ -313,7 +313,8 @@ def _write_html(case_infos, meta, report_warnings):
         "warnings": report_warnings
         }
 
-    payload_json = json.dumps(payload)
+    # Keep inline JSON from closing the surrounding `<script>` tag.
+    payload_json = json.dumps(payload).replace("</", "<\\/")
     report_template = res.get_report_template_text()
     report_file_path.write_text(report_template.replace("__PAYLOAD_JSON__", payload_json), encoding="utf-8")
 

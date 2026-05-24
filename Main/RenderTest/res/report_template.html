@@ -311,7 +311,15 @@ small.kbd-hint { display: block; margin-top: 8px; color: var(--muted); }
 const data = __PAYLOAD_JSON__;
 const qs = (s, p=document) => p.querySelector(s);
 const qsa = (s, p=document) => Array.from(p.querySelectorAll(s));
-const esc = (v) => String(v ?? "");
+const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (ch) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "\"": "&quot;",
+  "'": "&#39;"
+}[ch]));
+const escapeAttr = escapeHtml;
+const toText = (v) => String(v ?? "");
 const hasImg = (v) => typeof v === "string" && v.length > 0;
 const appState = {
   testName: "",
@@ -645,7 +653,7 @@ async function initPfmCompare(block, outputPfmPath, refPfmPath) {
     if (protocol === "file:") {
       setTextMessage(block, "(raw compare blocked by browser local-file security; open report via localhost/http to enable raw PFM compare)");
     } else {
-      setTextMessage(block, `(raw compare load failed: ${esc(error.message || error)})`);
+      setTextMessage(block, `(raw compare load failed: ${toText(error.message || error)})`);
     }
     return false;
   }
@@ -659,19 +667,19 @@ function updateWarningsButtonText() {
 
 function renderSummary() {
   const s = data.summary;
-  qs("#genTime").textContent = `UTC ${esc(s.generation_time_utc)} | ${Math.round(s.total_secs)}s total`;
-  qs("#totalCases").textContent = esc(s.total_cases);
+  qs("#genTime").textContent = `UTC ${toText(s.generation_time_utc)} | ${Math.round(s.total_secs)}s total`;
+  qs("#totalCases").textContent = toText(s.total_cases);
   qs("#passRate").textContent = `${s.pass_ratio.toFixed(2)}%`;
-  qs("#passedCases").textContent = esc(s.passed_cases);
-  qs("#failedCases").textContent = esc(s.failed_cases);
+  qs("#passedCases").textContent = toText(s.passed_cases);
+  qs("#failedCases").textContent = toText(s.failed_cases);
   const warns = data.warnings || [];
-  qs("#warningCount").textContent = esc(warns.length);
+  qs("#warningCount").textContent = toText(warns.length);
   const sys = s.system;
   const sysInfo = qs("#sysInfo");
   sysInfo.textContent = "";
   const sysLines = [
-    `OS: ${esc(sys.os)}`,
-    `CPU: ${esc(sys.cpu)} (${esc(sys.cpu_logical)} logical/${esc(sys.cpu_physical)} physical)`,
+    `OS: ${toText(sys.os)}`,
+    `CPU: ${toText(sys.cpu)} (${toText(sys.cpu_logical)} logical/${toText(sys.cpu_physical)} physical)`,
     `RAM: ${sys.ram_gib.toFixed(2)} GiB`,
     `Disk: ${sys.disk_total_gib.toFixed(2)} GiB total, ${sys.disk_free_gib.toFixed(2)} GiB free`
   ];
@@ -829,23 +837,21 @@ function renderMainViewport() {
     const caseEl = qs("#casePanel");
     const prevVerifierName = appState.verifierName || qs("#verifierButtons .mode-btn.active")?.textContent?.trim() || "";
     const modes = c.verifier_modes || [];
-    const preferredIndex = Number.isInteger(appState.modeIndex) && appState.modeIndex < modes.length
-      ? appState.modeIndex
-      : findPreferredVerifierIndex(modes, prevVerifierName);
+    const preferredIndex = findPreferredVerifierIndex(modes, prevVerifierName);
     appState.modeIndex = Math.max(0, preferredIndex);
     caseEl.dataset.viewMode = appState.viewMode;
     caseEl.dataset.modeIndex = String(appState.modeIndex);
     caseEl.dataset.scaleSetting = appState.scaleSetting;
-    const modeButtons = modes.map((m, i) => `<button class="btn mode-btn ${i===appState.modeIndex ? "active" : ""}" type="button" data-mode-index="${i}">${esc(m.verifier)}</button>`).join("");
+    const modeButtons = modes.map((m, i) => `<button class="btn mode-btn ${i===appState.modeIndex ? "active" : ""}" type="button" data-mode-index="${i}">${escapeHtml(m.verifier)}</button>`).join("");
     qs("#verifierButtons").innerHTML = modeButtons;
     qs("#viewModeButtons").innerHTML = buildViewModeControls(appState.viewMode, appState.scaleSetting);
     caseEl.innerHTML = `
       <div class="row">
-        <h3>${esc(c.name)}</h3>
-        <span class="badge ${c.outcome === "passed" ? "ok" : "bad"}">${esc(c.outcome.toUpperCase())}</span>
+        <h3>${escapeHtml(c.name)}</h3>
+        <span class="badge ${c.outcome === "passed" ? "ok" : "bad"}">${escapeHtml(c.outcome.toUpperCase())}</span>
         <span class="badge">${Math.round(c.secs)}s</span>
       </div>
-      ${c.case_msg ? `<div class="msg">${esc(c.case_msg)}</div>` : ""}
+      ${c.case_msg ? `<div class="msg">${escapeHtml(c.case_msg)}</div>` : ""}
       <div class="mode-content"></div>`;
     caseEl.dataset.verifierModes = JSON.stringify(modes);
     bindModeButtons();
@@ -874,17 +880,17 @@ async function renderMode(caseEl, modeIndex) {
   appState.verifierName = String(m.verifier || "");
   appState.viewMode = viewMode;
   const hasRawPfm = hasImg(m.raw_output_image) && hasImg(m.raw_ref_image);
-  const outputBlock = hasImg(m.plot_output_image) ? `<img loading="lazy" src="${esc(m.plot_output_image)}" alt="output image" />` : "<div class='msg'>(no output image)</div>";
-  const refBlock = hasImg(m.plot_ref_image) ? `<img loading="lazy" src="${esc(m.plot_ref_image)}" alt="reference image" />` : "<div class='msg'>(no reference image)</div>";
-  const debugBlock = hasImg(m.plot_debug_image) ? `<img loading="lazy" src="${esc(m.plot_debug_image)}" alt="debug output image" />` : "<div class='msg'>(no debug output image)</div>";
+  const outputBlock = hasImg(m.plot_output_image) ? `<img loading="lazy" src="${escapeAttr(m.plot_output_image)}" alt="output image" />` : "<div class='msg'>(no output image)</div>";
+  const refBlock = hasImg(m.plot_ref_image) ? `<img loading="lazy" src="${escapeAttr(m.plot_ref_image)}" alt="reference image" />` : "<div class='msg'>(no reference image)</div>";
+  const debugBlock = hasImg(m.plot_debug_image) ? `<img loading="lazy" src="${escapeAttr(m.plot_debug_image)}" alt="debug output image" />` : "<div class='msg'>(no debug output image)</div>";
   const plotCompareBlock = hasImg(m.plot_output_image) && hasImg(m.plot_ref_image) ? `
     <div class="compare">
       <div class="imglabel">Slider Compare (left: output, right: reference)</div>
       <div class="compare-stage">
         <img-comparison-slider value="50">
           <div slot="handle" class="compare-handle" aria-hidden="true"><span class="chev left"></span><span class="bar"></span><span class="chev right"></span></div>
-          <img slot="first" class="compare-overlay-media" src="${esc(m.plot_output_image)}" alt="output image" />
-          <img slot="second" class="compare-base-media" src="${esc(m.plot_ref_image)}" alt="reference image" />
+          <img slot="first" class="compare-overlay-media" src="${escapeAttr(m.plot_output_image)}" alt="output image" />
+          <img slot="second" class="compare-base-media" src="${escapeAttr(m.plot_ref_image)}" alt="reference image" />
         </img-comparison-slider>
       </div>
     </div>` : "";
@@ -899,9 +905,9 @@ async function renderMode(caseEl, modeIndex) {
         </img-comparison-slider>
       </div>
     </div>` : "";
-  const metrics = m.metrics && Object.keys(m.metrics).length ? `<div class="msg">Metrics: ${esc(JSON.stringify(m.metrics))}</div>` : "";
-  const verifierMsg = m.message ? `<div class="msg">Verifier: ${esc(m.message)}</div>` : "";
-  const debugMsg = m.debug_msg ? `<div class="msg">Debug: ${esc(m.debug_msg)}</div>` : "";
+  const metrics = m.metrics && Object.keys(m.metrics).length ? `<div class="msg">Metrics: ${escapeHtml(JSON.stringify(m.metrics))}</div>` : "";
+  const verifierMsg = m.message ? `<div class="msg">Verifier: ${escapeHtml(m.message)}</div>` : "";
+  const debugMsg = m.debug_msg ? `<div class="msg">Debug: ${escapeHtml(m.debug_msg)}</div>` : "";
   const modeContent = qs(".mode-content", caseEl);
   let body = "";
   if (viewMode === "plot") {
@@ -913,7 +919,8 @@ async function renderMode(caseEl, modeIndex) {
       </div>`;
   } else {
     body = rawCompareBlock || plotCompareBlock || "<div class='msg'>(compare view unavailable for this verifier)</div>";
-  }  if (caseEl.dataset.renderToken !== renderToken) return;
+  }
+  if (caseEl.dataset.renderToken !== renderToken) return;
   modeContent.innerHTML = `${body}${metrics}${verifierMsg}${debugMsg}`;
 
   qsa("#verifierButtons .mode-btn").forEach((btn) => btn.classList.remove("active"));
@@ -1090,6 +1097,7 @@ function installKeyboardShortcuts() {
     const target = evt.target;
     const tag = target && target.tagName ? target.tagName.toLowerCase() : "";
     const inEditor = tag === "input" || tag === "textarea" || tag === "select" || (target && target.isContentEditable);
+    if (inEditor) return;
     if (evt.key === "/") {
       evt.preventDefault();
       const search = qs("#search");
@@ -1099,7 +1107,6 @@ function installKeyboardShortcuts() {
       }
       return;
     }
-    if (inEditor) return;
     if (evt.key === "j") {
       evt.preventDefault();
       stepCase(1);
