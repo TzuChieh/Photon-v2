@@ -8,6 +8,7 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
 ref_path = res_dir / "ref_bvpt_8192spp_0"
+ref_var_path = res_dir / "ref_bvpt_8192spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f)" % (case.name, metrics["mse"])
@@ -17,19 +18,21 @@ visual_error_verifier = infra.VisualErrorVerifier(
     error_scale=100.0,
     ref_title="Reference: BVPT 8192 spp")
 
-for case_name, output_name, scene_name in [
-    ("BVPT", "bvpt", "scene_bvpt.p2"),
-    ("BNEEPT", "bneept", "scene_bneept.p2"),
-    ("SPPM", "sppm", "scene_sppm.p2")
+for case_name, output_name, scene_name, sample_count in [
+    ("BVPT", "bvpt", "scene_bvpt.p2", 512),
+    ("BNEEPT", "bneept", "scene_bneept.p2", 512),
+    ("SPPM", "sppm", "scene_sppm.p2", 512)
     ]:
+    verifiers = [
+        infra.MSEVerifier(ref=ref_path, threshold=0.0001),
+        visual_error_verifier,
+        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count)]
+
     suite.add_case(infra.RenderCase(
         case_name,
         res_dir / scene_name,
         renderer_config,
-        [
-            infra.MSEVerifier(ref=ref_path, threshold=0.0001),
-            visual_error_verifier
-        ],
+        verifiers,
         output_filename=output_name,
         output_title=output_title))
 

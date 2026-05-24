@@ -8,6 +8,7 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
 ref_path = res_dir / "ref_no_lerp_bvpt_65536spp_0"
+ref_var_path = res_dir / "ref_no_lerp_bvpt_65536spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -32,7 +33,8 @@ for case_name, output_name, scene_name, max_mse, max_rel_mean, case_msg in [
         [
             infra.MSEVerifier(ref=ref_path, threshold=max_mse),
             infra.RelMeanVerifier(ref=ref_path, threshold=max_rel_mean),
-            visual_error_verifier
+            visual_error_verifier,
+            infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=4000)
         ],
         output_filename=output_name,
         output_title=output_title,

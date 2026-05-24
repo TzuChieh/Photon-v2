@@ -8,6 +8,7 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 num_threads_to_test = [1, 2, 5, 8, 17, 64, 100]
 ref_path = res_dir / "ref_bneept_32768spp_0"
+ref_var_path = res_dir / "ref_bneept_32768spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -25,7 +26,8 @@ for i, num_threads in enumerate(num_threads_to_test):
         [
             infra.MSEVerifier(ref=ref_path, threshold=0.0016),
             infra.RelMeanVerifier(ref=ref_path, threshold=0.005),
-            visual_error_verifier
+            visual_error_verifier,
+            infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=1024)
         ],
         output_filename="bneept_%dt" % num_threads,
         output_title=output_title))

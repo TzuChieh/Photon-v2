@@ -2,17 +2,24 @@ from infra import image
 from infra.core import Verifier, VerificationResult, RenderCase
 from infra.resource_cache import ResourceCache
 
+import math
 import numpy as np
 from pytest import approx
 from pathlib import Path
 from typing import Callable, Union
 
 
-RefImage = Union[Path, image.Image, float]
+RefInput = Union[Path, image.Image, float, int]
 
 
-class RefVerifier(Verifier):
-    def __init__(self, ref: RefImage):
+class RefSource:
+    """
+    Lazily provides a reference image or scalar value.
+    """
+    def __init__(self, ref: RefInput):
+        """
+        @param ref Reference path, in-memory image, or scalar value.
+        """
         self.ref_image_path = None
         self.ref_image = None
         self.ref_scalar = None
@@ -25,17 +32,31 @@ class RefVerifier(Verifier):
             self.ref_scalar = ref
 
     def has_image_ref(self):
+        """
+        @return True if the reference is an image path or in-memory image.
+        """
         return self.ref_image_path is not None or self.ref_image is not None
 
     def has_scalar_ref(self):
+        """
+        @return True if the reference is a scalar value.
+        """
         return self.ref_scalar is not None
 
     def get_image_ref_path(self):
+        """
+        @return Path to the reference image.
+        @exception ValueError If this source is not path-backed.
+        """
         if not self._has_path_ref():
             raise ValueError("verifier does not have a path reference")
         return self.ref_image_path
 
     def get_image_ref(self):
+        """
+        @return Reference image, loaded through `ResourceCache` if path-backed.
+        @exception ValueError If this source is scalar-backed.
+        """
         if not self.has_image_ref():
             raise ValueError("verifier does not have an image reference")
         if self._has_path_ref():
@@ -43,6 +64,10 @@ class RefVerifier(Verifier):
         return self.ref_image
 
     def get_ref_scalar(self):
+        """
+        @return Scalar reference value.
+        @exception ValueError If this source is image-backed.
+        """
         if not self.has_scalar_ref():
             raise ValueError("verifier does not have a scalar reference")
         return self.ref_scalar
@@ -51,6 +76,10 @@ class RefVerifier(Verifier):
         return self.ref_image_path is not None
 
     def get_ref_image_for_output(self, output_img: image.Image):
+        """
+        @param output_img Rendered output image used for scalar-reference dimensions.
+        @return An image reference with the same dimensions/components as `output_img`.
+        """
         if self.has_image_ref():
             return self.get_image_ref()
 
@@ -58,8 +87,28 @@ class RefVerifier(Verifier):
         ref_img.fill(self.get_ref_scalar())
         return ref_img
 
+
+class RefVerifier(Verifier):
+    """
+    Base class for verifiers that compare against an image or scalar reference.
+    """
+    def __init__(self, ref: RefInput):
+        """
+        @param ref Reference path, in-memory image, or scalar value.
+        """
+        self.ref_source = RefSource(ref)
+
+    def get_ref_source(self):
+        """
+        @return Primary reference source.
+        """
+        return self.ref_source
+
     def save_compare_ref_raw(self, output_img: image.Image, output_dir: Path, case: RenderCase):
-        ref_img = self.get_ref_image_for_output(output_img)
+        """
+        Save the primary reference as raw PFM for report comparison.
+        """
+        ref_img = self.get_ref_source().get_ref_image_for_output(output_img)
         ref_raw_filename = f"{case.output_filename}_{type(self).__name__.lower()}_ref_raw"
         ref_img.save_pfm(output_dir / ref_raw_filename)
         case.set_raw_output_image_filename(case.output_filename)
@@ -70,16 +119,17 @@ class MSEVerifier(RefVerifier):
     """
     Checks the Mean Squared Error (MSE) against a reference image or constant.
     """
-    def __init__(self, ref: RefImage, threshold: float):
+    def __init__(self, ref: RefInput, threshold: float):
         super().__init__(ref)
         self.threshold = threshold
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        if self.has_image_ref():
-            ref_img = self.get_image_ref()
+        ref_source = self.get_ref_source()
+        if ref_source.has_image_ref():
+            ref_img = ref_source.get_image_ref()
             mse = image.mse_of(output_img, ref_img)
         else:
-            mse = ((output_img.values - self.get_ref_scalar())**2).mean()
+            mse = ((output_img.values - ref_source.get_ref_scalar())**2).mean()
 
         passed = mse < self.threshold
         
@@ -93,17 +143,18 @@ class RelMeanVerifier(RefVerifier):
     """
     Checks the Relative error of the mean value against a reference or constant.
     """
-    def __init__(self, ref: RefImage, threshold: float):
+    def __init__(self, ref: RefInput, threshold: float):
         super().__init__(ref)
         self.threshold = threshold
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        if self.has_image_ref():
-            ref_img = self.get_image_ref()
+        ref_source = self.get_ref_source()
+        if ref_source.has_image_ref():
+            ref_img = ref_source.get_image_ref()
             rel_mean = image.re_avg_of(output_img, ref_img)
         else:
             avg_actual = np.average(output_img.values)
-            ref_scalar = self.get_ref_scalar()
+            ref_scalar = ref_source.get_ref_scalar()
             rel_mean = (avg_actual - ref_scalar) / ref_scalar
 
         passed = abs(rel_mean) < self.threshold
@@ -123,7 +174,7 @@ class PerPixelVerifier(RefVerifier):
         self.tolerance = tolerance
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        expected_value = self.get_ref_scalar()
+        expected_value = self.get_ref_source().get_ref_scalar()
         passed = True
         for value in np.nditer(output_img.values):
             if value != approx(expected_value, abs=self.tolerance):
@@ -145,7 +196,7 @@ class MeanDiffVerifier(RefVerifier):
         self.threshold = threshold
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        mean_diff = np.mean(output_img.values) - self.get_ref_scalar()
+        mean_diff = np.mean(output_img.values) - self.get_ref_source().get_ref_scalar()
         case.set_debug_msg("mean diff = %.8f, max pixel = %.8f, min pixel = %.8f" % (
             mean_diff, np.max(output_img.values), np.min(output_img.values)))
 
@@ -156,14 +207,147 @@ class MeanDiffVerifier(RefVerifier):
             metrics={"mean_diff": mean_diff})
 
 
+class ZTestVerifier(RefVerifier):
+    """
+    Performs a per-pixel z-test against reference beauty and sample variance images.
+    """
+    def __init__(
+            self,
+            ref: RefInput,
+            ref_variance: RefInput,
+            sample_count: int,
+            significance_level: float = 0.01,
+            min_pass_ratio: float = 0.999,
+            variance_floor: float = 1e-4):
+        """
+        @param ref Reference beauty image path or image object.
+        @param ref_variance Reference sample variance image path or image object. This must use
+        the same dimensions/components as `ref` and `output_img`.
+        @param sample_count Number of independent samples used by the tested render. For photon
+        mapping renderers this is the number of iterations/passes.
+        @param significance_level Family-wise false-positive probability before Sidak correction.
+        @param min_pass_ratio Minimum ratio of scalar image channels whose p-value must pass.
+        @param variance_floor Minimum variance used in the denominator to keep near-zero variance
+        pixels numerically stable.
+        """
+        super().__init__(ref)
+        self.ref_variance = RefSource(ref_variance)
+        self.sample_count = sample_count
+        self.significance_level = significance_level
+        self.min_pass_ratio = min_pass_ratio
+        self.variance_floor = variance_floor
+        self._check_params()
+
+    def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
+        ref_img, ref_var_img = self._get_reference_images(output_img)
+        z_stat = self._calculate_z_stat(output_img, ref_img, ref_var_img)
+        p_value = self._calculate_p_values(z_stat)
+        sidak_alpha = self._calculate_sidak_alpha(p_value.size)
+        pass_ratio = self._calculate_pass_ratio(p_value, sidak_alpha)
+        min_p_value = np.min(p_value)
+
+        self._save_p_value_plot(p_value, sidak_alpha, output_dir, case)
+        passed = pass_ratio >= self.min_pass_ratio
+        metrics = self._make_metrics(sidak_alpha, min_p_value, pass_ratio)
+        message = (
+            f"ZTest pass ratio={pass_ratio:.6f} (min={self.min_pass_ratio:.6f}), "
+            f"min p-value={min_p_value:.6g}, alpha={sidak_alpha:.6g}") if not passed else ""
+
+        return VerificationResult(passed=passed, message=message, metrics=metrics)
+
+    def _check_params(self):
+        if self.sample_count <= 0:
+            raise ValueError("sample_count must be positive")
+        if not 0.0 < self.significance_level < 1.0:
+            raise ValueError("significance_level must be in (0, 1)")
+        if not 0.0 <= self.min_pass_ratio <= 1.0:
+            raise ValueError("min_pass_ratio must be in [0, 1]")
+        if self.variance_floor <= 0.0:
+            raise ValueError("variance_floor must be positive")
+
+    def _get_reference_images(self, output_img: image.Image):
+        ref_img = self.get_ref_source().get_image_ref()
+        ref_var_img = self.ref_variance.get_ref_image_for_output(output_img)
+        self._check_dimensions(output_img, ref_img, "reference beauty")
+        self._check_dimensions(output_img, ref_var_img, "reference variance")
+        return ref_img, ref_var_img
+
+    def _calculate_z_stat(
+            self,
+            output_img: image.Image,
+            ref_img: image.Image,
+            ref_var_img: image.Image):
+        """
+        Calculate `z = |x_bar - mean| / sqrt(s^2 / n)`.
+        """
+        x_bar = output_img.values
+        mean = ref_img.values
+        sample_variance = np.maximum(ref_var_img.values, self.variance_floor)
+        standard_error = np.sqrt(sample_variance / self.sample_count)
+        return np.abs(x_bar - mean) / standard_error
+
+    def _calculate_p_values(self, z_stat):
+        """
+        Calculate two-sided `p = 2 * (1 - Phi(|z|)) = erfc(|z| / sqrt(2))`.
+        """
+        return np.vectorize(math.erfc, otypes=[float])(z_stat / math.sqrt(2.0))
+
+    def _calculate_sidak_alpha(self, num_tests: int):
+        """
+        Calculate Sidak per-test `alpha = 1 - (1 - alpha_family)^(1 / m)`.
+        """
+        return 1.0 - (1.0 - self.significance_level) ** (1.0 / num_tests)
+
+    def _calculate_pass_ratio(self, p_value, sidak_alpha: float):
+        """
+        Calculate `count(p_i > alpha) / m`.
+        """
+        return np.count_nonzero(p_value > sidak_alpha) / p_value.size
+
+    def _make_min_p_value_image(self, p_value):
+        p_value_img = image.Image()
+        if p_value.ndim == 2:
+            p_value_img.values = p_value[:, :, np.newaxis]
+        else:
+            # Show the weakest channel per pixel, so failures are not hidden by other channels.
+            p_value_img.values = p_value.min(axis=2, keepdims=True)
+        return p_value_img
+
+    def _save_p_value_plot(self, p_value, sidak_alpha: float, output_dir: Path, case: RenderCase):
+        case.set_plot_debug_image_filename(f"{case.output_filename}_ztest_pvalue")
+        self._make_min_p_value_image(p_value).save_pseudocolor_plot(
+            output_dir / case.plot_debug_image_filename,
+            f"{case.name} Z-Test Min P-Value",
+            color_min=0.0,
+            color_max=max(sidak_alpha * 8.0, 1e-6),
+            color_map='viridis')
+
+    def _make_metrics(self, sidak_alpha: float, min_p_value: float, pass_ratio: float):
+        return {
+            "sample_count": self.sample_count,
+            "significance_level": self.significance_level,
+            "sidak_alpha": sidak_alpha,
+            "min_p_value": min_p_value,
+            "pass_ratio": pass_ratio,
+            "required_pass_ratio": self.min_pass_ratio,
+            "variance_floor": self.variance_floor
+        }
+
+    def _check_dimensions(self, output_img: image.Image, ref_img: image.Image, ref_name: str):
+        if output_img.get_dimensions() != ref_img.get_dimensions():
+            raise ValueError(
+                f"z-test output and {ref_name} dimensions differ "
+                f"({output_img.get_dimensions()} and {ref_img.get_dimensions()})")
+
+
 class VisualErrorVerifier(RefVerifier):
     """
     Generates scaled error plots for visualization.
-    Reference plots are handled by the infrastructure (conftest.py).
+    Reference plots are handled by the infrastructure (`conftest.py`).
     """
     def __init__(
             self, 
-            ref: RefImage,
+            ref: RefInput,
             error_scale: float = 100.0,
             error_output_filename: str = None,
             ref_output_filename: str = "ref",
@@ -172,10 +356,10 @@ class VisualErrorVerifier(RefVerifier):
             color_max: float = 100.0):
         """
         @param ref Reference image path, image object, or scalar value to compare against.
-                   If this is a path or image object, a reference plot is generated for the report.
-        @param error_output_filename Custom name for error plot. Defaults to {case.output}_error.
-        @param ref_output_filename Name used for reference plot in the report. Defaults to "ref".
-        @param error_title Optional title for the error plot. May be a callable taking the case.
+                     If this is a path or image object, a reference plot is generated for the report.
+        @param error_output_filename Custom name for error plot. Defaults to `{case.output_filename}_error`.
+        @param ref_output_filename Name used for reference plot in the report. Defaults to `"ref"`.
+        @param error_title Optional title for the error plot. May be a callable taking `case`.
         @param ref_title Title for the reference plot.
         @param color_max Maximum color scale value for the error plot.
         """
@@ -188,9 +372,10 @@ class VisualErrorVerifier(RefVerifier):
         self.color_max = color_max
 
     def save_ref_plot(self, output_dir: Path):
-        if not self.has_image_ref():
+        ref_source = self.get_ref_source()
+        if not ref_source.has_image_ref():
             return
-        self.get_image_ref().save_plot(output_dir / self.ref_output_filename, self.ref_title, create_dirs=True)
+        ref_source.get_image_ref().save_plot(output_dir / self.ref_output_filename, self.ref_title, create_dirs=True)
 
     def get_ref_output_filename(self):
         return self.ref_output_filename
@@ -199,22 +384,24 @@ class VisualErrorVerifier(RefVerifier):
         return self.ref_title
 
     def get_ref_key(self):
-        return self.get_image_ref_path() if self._has_path_ref() else self.get_ref_output_filename()
+        ref_source = self.get_ref_source()
+        return ref_source.get_image_ref_path() if ref_source._has_path_ref() else self.get_ref_output_filename()
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
         error_img = image.Image(output_img.get_width(), output_img.get_height(), output_img.num_components())
+        ref_source = self.get_ref_source()
 
-        if self.has_image_ref():
+        if ref_source.has_image_ref():
             case.set_plot_ref_image_filename(self.ref_output_filename)
         else:
             case.clear_plot_ref_image_filename()
         case.set_plot_debug_image_filename(self.error_output_filename or f"{case.output_filename}_error")
 
-        if self.has_image_ref():
-            ref_img = self.get_image_ref()
+        if ref_source.has_image_ref():
+            ref_img = ref_source.get_image_ref()
             error_img.values = (output_img.values - ref_img.values)
         else:
-            error_img.values = (output_img.values - self.get_ref_scalar())
+            error_img.values = (output_img.values - ref_source.get_ref_scalar())
 
         error_img.values = np.abs(error_img.values) * self.error_scale
         error_img = error_img.to_summed_absolute_components()

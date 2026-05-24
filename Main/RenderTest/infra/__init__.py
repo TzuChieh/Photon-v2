@@ -12,6 +12,7 @@ from infra.verifier import (
     RelMeanVerifier,
     PerPixelVerifier,
     MeanDiffVerifier,
+    ZTestVerifier,
     VisualErrorVerifier,
     PseudocolorPlotVerifier
     )

@@ -8,6 +8,7 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
 ref_path = res_dir / "ref_bneept_4096spp_0"
+ref_var_path = res_dir / "ref_bneept_4096spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -17,19 +18,21 @@ visual_error_verifier = infra.VisualErrorVerifier(
     error_scale=100.0,
     ref_title="Reference: BNEEPT 4096 spp")
 
-for case_name, output_name, scene_name, max_mse, max_rel_mean in [
-    ("BNEEPT", "bneept", "scene_bneept.p2", 0.000004, 0.00022),
-    ("SPPM", "sppm", "scene_sppm.p2", 0.0025, 0.007)
+for case_name, output_name, scene_name, sample_count, max_mse, max_rel_mean in [
+    ("BNEEPT", "bneept", "scene_bneept.p2", 512, 0.000004, 0.00022),
+    ("SPPM", "sppm", "scene_sppm.p2", 512, 0.0025, 0.007)
     ]:
+    verifiers = [
+        infra.MSEVerifier(ref=ref_path, threshold=max_mse),
+        infra.RelMeanVerifier(ref=ref_path, threshold=max_rel_mean),
+        visual_error_verifier,
+        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count)]
+
     suite.add_case(infra.RenderCase(
         case_name,
         res_dir / scene_name,
         renderer_config,
-        [
-            infra.MSEVerifier(ref=ref_path, threshold=max_mse),
-            infra.RelMeanVerifier(ref=ref_path, threshold=max_rel_mean),
-            visual_error_verifier
-        ],
+        verifiers,
         output_filename=output_name,
         output_title=output_title))
 

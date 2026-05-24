@@ -105,7 +105,7 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         for suite in suites:
             for case in suite.get_cases():
                 for verifier in case.verifiers:
-                    if isinstance(verifier, infra.VisualErrorVerifier) and verifier.has_image_ref():
+                    if isinstance(verifier, infra.VisualErrorVerifier) and verifier.get_ref_source().has_image_ref():
                         ref_key = verifier.get_ref_key()
 
                         if ref_key not in plotted_refs:

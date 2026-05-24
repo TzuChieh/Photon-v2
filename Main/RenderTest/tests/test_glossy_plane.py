@@ -8,6 +8,7 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=10)
 ref_path = res_dir / "ref_bvpt_1048576spp_0"
+ref_var_path = res_dir / "ref_bvpt_1048576spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -24,7 +25,8 @@ suite.add_case(infra.RenderCase(
     [
         infra.MSEVerifier(ref=ref_path, threshold=0.0036),
         infra.RelMeanVerifier(ref=ref_path, threshold=0.0056),
-        visual_error_verifier
+        visual_error_verifier,
+        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=1500)
     ],
     output_title=output_title))
 suite.add_case(infra.RenderCase(
@@ -34,7 +36,8 @@ suite.add_case(infra.RenderCase(
     [
         infra.MSEVerifier(ref=ref_path, threshold=0.003),
         infra.RelMeanVerifier(ref=ref_path, threshold=0.0034),
-        visual_error_verifier
+        visual_error_verifier,
+        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=800)
     ],
     output_title=output_title))
 

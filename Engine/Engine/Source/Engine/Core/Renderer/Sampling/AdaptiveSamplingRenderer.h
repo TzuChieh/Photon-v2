@@ -58,10 +58,10 @@ private:
 	HdrRgbFilm                 m_allEffortFilm;
 	HdrRgbFilm                 m_halfEffortFilm;
 
-	std::vector<ReceiverSamplingWork>      m_renderWorks;
-	std::vector<RayProcessor>              m_rayProcessors;
+	std::vector<ReceiverSamplingWork>     m_renderWorks;
+	std::vector<RayProcessor>             m_rayProcessors;
 
-	std::vector<MetaRecordingProcessor> m_metaRecorders;
+	std::vector<MetaRecordingProcessor>   m_metaRecorders;
 	HdrRgbFrame m_metaFrame;
 
 	DammertzDispatcher                    m_dispatcher;
