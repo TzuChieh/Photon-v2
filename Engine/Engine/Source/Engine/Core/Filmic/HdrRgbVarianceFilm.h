@@ -13,7 +13,7 @@
 namespace ph
 {
 
-/*! @brief A film that records per-channel variance internally.
+/*! @brief A film that records per-channel sample variance internally.
 Although film samples are added as spectral values, they are automatically converted to linear sRGB
 values for storage.
 */
@@ -67,9 +67,9 @@ private:
 					weightSum, squaredWeightSum, mean, squaredDiffSum);
 			}
 
-			inline float64 getUnbiasedVariance() const
+			inline float64 getSampleVariance() const
 			{
-				return math::weighted_welford_unbiased_variance(
+				return math::weighted_welford_sample_variance(
 					weightSum, squaredWeightSum, squaredDiffSum);
 			}
 

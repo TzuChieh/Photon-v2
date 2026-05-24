@@ -7,7 +7,7 @@ res_dir = paths.test_resources() / "cornell_box_with_gold_sphere"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 num_threads_to_test = [1, 2, 5, 8, 17, 64, 100]
-ref_path = res_dir / "ref_bneept_32768spp"
+ref_path = res_dir / "ref_bneept_32768spp_0"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)

@@ -7,8 +7,8 @@ res_dir = paths.test_resources() / "white_500W_rect_area_light_side"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=10)
-diffuse_ref_path = res_dir / "ref_bvpt_diffuse_sphere_131072spp"
-glass_ref_path = res_dir / "ref_bvpt_glass_sphere_131072spp"
+diffuse_ref_path = res_dir / "ref_bvpt_diffuse_sphere_131072spp_0"
+glass_ref_path = res_dir / "ref_bvpt_glass_sphere_131072spp_0"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)

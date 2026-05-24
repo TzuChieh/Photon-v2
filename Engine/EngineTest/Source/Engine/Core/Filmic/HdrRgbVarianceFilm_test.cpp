@@ -9,12 +9,12 @@
 using namespace ph;
 using namespace ph::math;
 
-TEST(HdrRgbVarianceFilmTest, DevelopsUnbiasedVarianceToFrame)
+TEST(HdrRgbVarianceFilmTest, DevelopsSampleVarianceToFrame)
 {
 	HdrRgbFrame frame(1, 1);
 	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
 
-	// Samples are 1 and 3. Unbiased variance is:
+	// Samples are 1 and 3. Sample variance is:
 	// mean = 2, M2 = (1 - 2)^2 + (3 - 2)^2 = 2, variance = M2 / (2 - 1) = 2.
 	film.addRgbSample(0.5, 0.5, Vector3D(1.0, 1.0, 1.0));
 	film.addRgbSample(0.5, 0.5, Vector3D(3.0, 3.0, 3.0));
@@ -31,7 +31,7 @@ TEST(HdrRgbVarianceFilmTest, DevelopsVarianceWithZeroValuedSample)
 	HdrRgbFrame frame(1, 1);
 	HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
 
-	// Samples are 0 and 2. Unbiased variance is:
+	// Samples are 0 and 2. Sample variance is:
 	// mean = 1, M2 = (0 - 1)^2 + (2 - 1)^2 = 2, variance = M2 / (2 - 1) = 2.
 	film.addRgbSample(0.5, 0.5, Vector3D(0.0, 0.0, 0.0));
 	film.addRgbSample(0.5, 0.5, Vector3D(2.0, 2.0, 2.0));
@@ -172,7 +172,7 @@ TEST(HdrRgbVarianceFilmTest, MakeCopyCanSkipOrCopySamples)
 	copiedWithoutSamples->develop(copiedWithoutSamplesFrame);
 	copiedWithSamples->develop(copiedWithSamplesFrame);
 
-	// Source has two samples {1, 5}. Unbiased variance is:
+	// Source has two samples {1, 5}. Sample variance is:
 	// mean = 3, M2 = (1 - 3)^2 + (5 - 3)^2 = 8, variance = M2 / (2 - 1) = 8.
 	for(const auto componentValue : srcFrame.getPixel({0, 0}))
 	{

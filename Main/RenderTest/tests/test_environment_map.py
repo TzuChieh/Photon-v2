@@ -8,7 +8,7 @@ res_dir = paths.test_resources() / "environment_map"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
-debug_ref_path = res_dir / "ref_debug_bvpt_sphere_16384spp"
+debug_ref_path = res_dir / "ref_debug_bvpt_sphere_16384spp_0"
 white_ref_img = image.Image(128, 64, 3)
 white_ref_img.fill(1.0)
 

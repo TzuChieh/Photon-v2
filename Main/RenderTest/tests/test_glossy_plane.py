@@ -7,7 +7,7 @@ res_dir = paths.test_resources() / "glossy_plane"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=10)
-ref_path = res_dir / "ref_bvpt_1048576spp"
+ref_path = res_dir / "ref_bvpt_1048576spp_0"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)

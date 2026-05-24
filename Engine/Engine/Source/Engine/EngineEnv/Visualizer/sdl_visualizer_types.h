@@ -106,7 +106,7 @@ PH_DEFINE_SDL_ENUM(EFilm, e)
 		"Standard color output.");
 
 	e.addEntry(EnumType::Variance, "variance",
-		"Per-channel (standard color) variance output.");
+		"Per-channel (standard color) sample variance output.");
 }
 
 enum class ERayEnergyEstimator

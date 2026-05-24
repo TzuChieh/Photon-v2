@@ -40,8 +40,8 @@ inline T sidak_correction(T desiredProb, IntType numTests)
 For weighted online updates, this follows the numerically stable recurrence from
 Schubert and Gertz @cite Schubert:2018:NumericallyStableCovariance.
 
-The resulting unbiased weighted variance can be computed with
-`weighted_welford_unbiased_variance()`. For probability/reliability style weights,
+The resulting weighted sample variance can be computed with
+`weighted_welford_sample_variance()`. For probability/reliability style weights,
 the accumulated states are `weightSum`, `squaredWeightSum`, `mean` and `squaredDiffSum`.
 
 @param weightSum Sum of sample weights.
@@ -113,6 +113,8 @@ inline void weighted_welford_merge(
 }
 
 /*! @brief Computes weighted population variance from weighted Welford accumulator.
+Formally, this computes `M2 / sum(w)`, where `M2` is the weighted sum of squared
+deviations from the weighted mean.
 */
 template<std::floating_point T>
 inline T weighted_welford_population_variance(
@@ -126,10 +128,12 @@ inline T weighted_welford_population_variance(
 	return std::isfinite(variance) ? variance : 0;
 }
 
-/*! @brief Computes unbiased weighted variance from weighted Welford accumulator.
+/*! @brief Computes weighted sample variance from weighted Welford accumulator.
+Formally, this computes `M2 / (sum(w) - sum(w^2) / sum(w))`. For equal weights,
+the denominator reduces to `n - 1`, i.e., the usual Bessel-corrected sample variance.
 */
 template<std::floating_point T>
-inline T weighted_welford_unbiased_variance(
+inline T weighted_welford_sample_variance(
 	const T weightSum,
 	const T squaredWeightSum,
 	const T squaredDiffSum)

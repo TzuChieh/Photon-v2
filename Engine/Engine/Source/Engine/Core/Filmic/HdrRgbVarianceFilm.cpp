@@ -196,9 +196,9 @@ void HdrRgbVarianceFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB
 			out_frame.setPixel(
 				static_cast<uint32>(x), static_cast<uint32>(y),
 				HdrRgbFrame::PixelType({
-					static_cast<HdrComponent>(sensor.r.getUnbiasedVariance()),
-					static_cast<HdrComponent>(sensor.g.getUnbiasedVariance()),
-					static_cast<HdrComponent>(sensor.b.getUnbiasedVariance())}));
+					static_cast<HdrComponent>(sensor.r.getSampleVariance()),
+					static_cast<HdrComponent>(sensor.g.getSampleVariance()),
+					static_cast<HdrComponent>(sensor.b.getSampleVariance())}));
 		}
 	}
 }

@@ -6,8 +6,8 @@ import pytest
 res_dir = paths.test_resources() / "single_ply_mesh"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
-quad_ref_path = res_dir / "ref_quad_bvpt_16384spp"
-suzanne_ref_path = res_dir / "ref_suzanne_bneept_16384spp"
+quad_ref_path = res_dir / "ref_quad_bvpt_16384spp_0"
+suzanne_ref_path = res_dir / "ref_suzanne_bneept_16384spp_0"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)

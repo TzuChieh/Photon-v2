@@ -209,6 +209,8 @@ packet $film1 = [enum type variance];
 visualizer(path-tracing) @visualizer = [struct-array films {$film0 $film1}];
 ```
 
+The `variance` film stores per-channel sample variance.
+
 For a single struct entry, this also works:
 
 ```csharp

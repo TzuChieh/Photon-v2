@@ -143,7 +143,7 @@ TEST(StatisticsTest, WeightedWelfordAdd)
 		EXPECT_NEAR(squaredDiffSum, 2.0, smallError);
 
 		EXPECT_NEAR(weighted_welford_population_variance(weightSum, squaredDiffSum), 2.0 / 3.0, smallError);
-		EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, squaredWeightSum, squaredDiffSum), 1.0, smallError);
+		EXPECT_NEAR(weighted_welford_sample_variance(weightSum, squaredWeightSum, squaredDiffSum), 1.0, smallError);
 	}
 
 	// Non-unit weights.
@@ -162,7 +162,7 @@ TEST(StatisticsTest, WeightedWelfordAdd)
 		EXPECT_NEAR(squaredDiffSum, 3.0, smallError);
 
 		EXPECT_NEAR(weighted_welford_population_variance(weightSum, squaredDiffSum), 0.75, smallError);
-		EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, squaredWeightSum, squaredDiffSum), 2.0, smallError);
+		EXPECT_NEAR(weighted_welford_sample_variance(weightSum, squaredWeightSum, squaredDiffSum), 2.0, smallError);
 	}
 
 	// Zero weight should be ignored.
@@ -194,7 +194,7 @@ TEST(StatisticsTest, WeightedWelfordAdd)
 		EXPECT_NEAR(mean, 10.0, smallError);
 		EXPECT_NEAR(squaredDiffSum, 0.0, smallError);
 		EXPECT_NEAR(weighted_welford_population_variance(weightSum, squaredDiffSum), 0.0, smallError);
-		EXPECT_NEAR(weighted_welford_unbiased_variance(weightSum, squaredWeightSum, squaredDiffSum), 0.0, smallError);
+		EXPECT_NEAR(weighted_welford_sample_variance(weightSum, squaredWeightSum, squaredDiffSum), 0.0, smallError);
 	}
 }
 
@@ -249,11 +249,11 @@ TEST(StatisticsTest, WeightedWelfordInvalidVarianceInputsAreClamped)
 		EXPECT_NEAR(weighted_welford_population_variance(0.0, 10.0), 0.0, smallError);
 	}
 
-	// Unbiased variance with invalid denominator (w - w2 / w <= 0).
+	// Sample variance with invalid denominator (w - w2 / w <= 0).
 	{
 		// Manually specified invalid states.
-		EXPECT_NEAR(weighted_welford_unbiased_variance(0.0, 0.0, 10.0), 0.0, smallError);
-		EXPECT_NEAR(weighted_welford_unbiased_variance(1.0, 1.0, 10.0), 0.0, smallError);
+		EXPECT_NEAR(weighted_welford_sample_variance(0.0, 0.0, 10.0), 0.0, smallError);
+		EXPECT_NEAR(weighted_welford_sample_variance(1.0, 1.0, 10.0), 0.0, smallError);
 	}
 
 	// Negative inputs are not tested here since they violate function preconditions.
