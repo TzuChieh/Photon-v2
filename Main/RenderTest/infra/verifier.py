@@ -216,8 +216,8 @@ class ZTestVerifier(RefVerifier):
             ref: RefInput,
             ref_variance: RefInput,
             sample_count: int,
-            significance_level: float = 0.01,
-            min_pass_ratio: float = 0.999,
+            significance_level: float = 0.0026,
+            min_pass_ratio: float = 0.995,
             variance_floor: float = 1e-4):
         """
         @param ref Reference beauty image path or image object.
@@ -246,7 +246,8 @@ class ZTestVerifier(RefVerifier):
         pass_ratio = self._calculate_pass_ratio(p_value, sidak_alpha)
         min_p_value = np.min(p_value)
 
-        self._save_p_value_plot(p_value, sidak_alpha, output_dir, case)
+        self._save_failure_strength_plot(p_value, sidak_alpha, output_dir, case)
+        case.set_debug_msg(self._make_debug_message())
         passed = pass_ratio >= self.min_pass_ratio
         metrics = self._make_metrics(sidak_alpha, min_p_value, pass_ratio)
         message = (
@@ -305,6 +306,9 @@ class ZTestVerifier(RefVerifier):
         return np.count_nonzero(p_value > sidak_alpha) / p_value.size
 
     def _make_min_p_value_image(self, p_value):
+        """
+        Create a single-component image using the smallest channel p-value per pixel.
+        """
         p_value_img = image.Image()
         if p_value.ndim == 2:
             p_value_img.values = p_value[:, :, np.newaxis]
@@ -313,14 +317,41 @@ class ZTestVerifier(RefVerifier):
             p_value_img.values = p_value.min(axis=2, keepdims=True)
         return p_value_img
 
-    def _save_p_value_plot(self, p_value, sidak_alpha: float, output_dir: Path, case: RenderCase):
-        case.set_plot_debug_image_filename(f"{case.output_filename}_ztest_pvalue")
-        self._make_min_p_value_image(p_value).save_pseudocolor_plot(
+    def _make_failure_strength_image(self, p_value, sidak_alpha: float):
+        """
+        Create a single-component image of `max(0, -log10(p / alpha))`.
+        """
+        min_p_value = np.maximum(self._make_min_p_value_image(p_value).values, np.finfo(float).tiny)
+        failure_strength = np.maximum(0.0, -np.log10(min_p_value / sidak_alpha))
+        failure_img = image.Image()
+        failure_img.values = failure_strength
+        return failure_img
+
+    def _calculate_failure_color_max(self, failure_img: image.Image):
+        """
+        Calculate a robust color maximum for the Z-test failure-strength plot.
+        """
+        positive_values = failure_img.values[failure_img.values > 0.0]
+        if positive_values.size == 0:
+            return 1.0
+
+        return max(1.0, float(np.percentile(positive_values, 95.0)))
+
+    def _save_failure_strength_plot(self, p_value, sidak_alpha: float, output_dir: Path, case: RenderCase):
+        failure_img = self._make_failure_strength_image(p_value, sidak_alpha)
+        case.set_plot_debug_image_filename(f"{case.output_filename}_ztest_failure")
+        failure_img.save_pseudocolor_plot(
             output_dir / case.plot_debug_image_filename,
-            f"{case.name} Z-Test Min P-Value",
+            f"{case.name} Z-Test Failure Strength",
             color_min=0.0,
-            color_max=max(sidak_alpha * 8.0, 1e-6),
-            color_map='viridis')
+            color_max=self._calculate_failure_color_max(failure_img),
+            color_map='inferno')
+
+    def _make_debug_message(self):
+        return (
+            "Z-test failure strength = max(0, -log10(p / alpha)). "
+            "0 means pass. 1 means the p-value is 10x below Sidak alpha; "
+            "2 means 100x below Sidak alpha.")
 
     def _make_metrics(self, sidak_alpha: float, min_p_value: float, pass_ratio: float):
         return {

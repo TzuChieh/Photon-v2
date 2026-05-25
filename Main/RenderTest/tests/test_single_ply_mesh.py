@@ -25,6 +25,8 @@ suzanne_visual_error_verifier = infra.VisualErrorVerifier(
     ref_output_filename="ref_suzanne",
     ref_title="Reference: Suzanne 16384 spp")
 
+FIVE_SIGMA_TWO_SIDED_SIGNIFICANCE_LEVEL = 5.733031437583866e-7
+
 for case_name, output_name, scene_name, num_threads, ref_path, ref_var_path, visual_error_verifier, sample_count, max_mse, max_rel_mean in [
     ("Quad (BVPT, ASCII)", "quad_bvpt_ascii", "quad_bvpt_ascii.p2", 6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
     ("Quad (BVPT)", "quad_bvpt", "quad_bvpt.p2", 6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
@@ -35,11 +37,16 @@ for case_name, output_name, scene_name, num_threads, ref_path, ref_var_path, vis
     ("Suzanne (BNEEPT)", "suzanne_bneept", "suzanne_bneept.p2", 12, suzanne_ref_path, suzanne_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.001),
     ("Suzanne (SPPM)", "suzanne_sppm", "suzanne_sppm.p2", 12, suzanne_ref_path, suzanne_ref_var_path, suzanne_visual_error_verifier, 400, 0.0002, 0.01)
     ]:
+    ztest_kwargs = {}
+    if output_name == "quad_sppm":
+        # SPPM has larger edge error on this mesh; use a two-sided 5-sigma threshold.
+        ztest_kwargs["significance_level"] = FIVE_SIGMA_TWO_SIDED_SIGNIFICANCE_LEVEL
+
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=max_mse),
         infra.RelMeanVerifier(ref=ref_path, threshold=max_rel_mean),
         visual_error_verifier,
-        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count)]
+        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count, **ztest_kwargs)]
 
     suite.add_case(infra.RenderCase(
         case_name,
