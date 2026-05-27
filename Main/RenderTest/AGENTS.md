@@ -2,30 +2,46 @@
 
 Goal: prevent subtle test/report regressions with simple, deterministic rules.
 
-## 1) Run Isolation
+## Run Isolation
 - Treat each run as fresh.
 - Never let previous artifacts affect current report correctness.
 
-## 2) Model-First Reports
+## Model-First Reports
 - Report data model is the source of truth (case JSON + run meta).
 - Markdown/HTML are pure projections of that model.
 
-## 3) Deterministic State
+## Deterministic State
 - Recompute from current inputs instead of long-lived cached UI state.
 - Remove state that is written but never read.
 - Persist viewer selections by semantic identity (e.g., verifier name), not fragile transient indexes.
 
-## 4) Stable UX Surface
+## Stable UX Surface
 - Keep primary controls spatially stable during repeated navigation.
 - Avoid reflow that moves controls unexpectedly.
 - For compare overlays on arbitrary images, prefer dual-tone separators (light + dark) for robust visibility.
 
-## 5) Explicit Semantics
+## Explicit Semantics
 - Comparison direction must be explicit and consistent (e.g. slider side meaning).
 - Field names should encode intent (`plot_*` vs `raw_*`).
 
-## 6) Simple Lifecycle Boundaries
+## Simple Lifecycle Boundaries
 - Keep local report-server control explicit and minimal.
 - Prefer explicit stop signals over speculative background policies.
 - Do not rely on browser unload semantics to distinguish close vs refresh/navigation.
 - For report UI-only changes, sync source template and build-side copy so `--report-only` validates quickly.
+
+## Sample Count Semantics
+- `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.
+- For path tracing tests, keep `sample_count` aligned with the scene's `sample-source(...)[integer samples N]`.
+- For photon mapping tests, keep `sample_count` aligned with `[integer num-passes N]`, not `num-samples-per-pixel`.
+
+## CLI Safety
+- `run_and_report.py` currently parses with `parse_known_args()` and forwards unknown args to `pytest.main()`.
+- Cleanup currently happens after RenderTest-owned args are parsed and before `pytest.main()`; `--report-only` skips cleanup.
+- Unknown argument typos can still trigger cleanup before `pytest` rejects them; do not document typo protection unless the parser rejects or explicitly separates pytest args first.
+
+## Report UX
+- Avoid duplicating verifier status/name in the main image area when verifier buttons already show name and state.
+- Keep high-value image space clear; move auxiliary hints to compact controls/tooltips.
+- Keep top controls spatially stable. Test/case selectors and verifier/view controls should split the header evenly on desktop.
+- For focused slider compare, avoid scaling the `img-comparison-slider` element itself; resize it so its internal drag math remains correct.
