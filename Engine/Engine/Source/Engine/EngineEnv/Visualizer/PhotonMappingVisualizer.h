@@ -33,6 +33,8 @@ private:
 	uint64 m_numPasses;
 	uint64 m_numSamplesPerPixel;
 	real m_photonRadius;
+	uint32 m_minPhotonPathLength;
+	uint32 m_maxPhotonPathLength;
 	uint32 m_glossyMergeBeginLengthHint;
 	uint32 m_stochasticViewSampleBeginLengthHint;
 
@@ -85,6 +87,20 @@ public:
 		photonRadius.defaultTo(commonParams.kernelRadius);
 		photonRadius.optional();
 		clazz.addField(photonRadius);
+
+		TSdlUInt32<OwnerType> minPhotonPathLength("min-photon-path-length", &OwnerType::m_minPhotonPathLength);
+		minPhotonPathLength.description(
+			"Minimum photon path length to store. Setting this to 2 skips direct-light photons.");
+		minPhotonPathLength.defaultTo(commonParams.minPhotonPathLength);
+		minPhotonPathLength.optional();
+		clazz.addField(minPhotonPathLength);
+
+		TSdlUInt32<OwnerType> maxPhotonPathLength("max-photon-path-length", &OwnerType::m_maxPhotonPathLength);
+		maxPhotonPathLength.description(
+			"Maximum photon path length to store.");
+		maxPhotonPathLength.defaultTo(commonParams.maxPhotonPathLength);
+		maxPhotonPathLength.optional();
+		clazz.addField(maxPhotonPathLength);
 
 		TSdlUInt32<OwnerType> glossyMergeBeginLengthHint("glossy-merge-begin-length-hint", &OwnerType::m_glossyMergeBeginLengthHint);
 		glossyMergeBeginLengthHint.description(

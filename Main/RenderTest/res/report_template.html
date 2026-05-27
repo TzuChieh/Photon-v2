@@ -74,7 +74,7 @@ input,select { width: 100%; border: 1px solid var(--border); background: var(--s
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .row-space {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   align-items: start;
 }
@@ -171,7 +171,7 @@ input,select { width: 100%; border: 1px solid var(--border); background: var(--s
   width: 100%;
 }
 .selector-row select { width: 100%; min-width: 0; margin: 0; }
-.selector-lines { display: grid; gap: 8px; width: min(860px, 100%); }
+.selector-lines { display: grid; gap: 8px; min-width: 0; width: 100%; }
 .btn-group {
   display: inline-flex;
   border: 1px solid var(--border);
@@ -199,14 +199,15 @@ input,select { width: 100%; border: 1px solid var(--border); background: var(--s
   background: linear-gradient(180deg, #25517c, #183454);
   box-shadow: inset 0 0 18px #75d9ff18;
 }
-.mode-btn { display: inline-flex; align-items: center; gap: 7px; }
+.mode-btn { align-items: center; display: inline-grid; gap: 7px; grid-template-columns: 8px minmax(18ch, 1fr) 4.5ch; justify-items: start; min-width: 28ch; }
 .mode-btn.status-bad { border-color: #ff6b7a99; }
 .mode-btn.status-bad.active { background: linear-gradient(180deg, #623041, #3a1b28); }
 .mode-btn.status-ok.active { border-color: #39d98aaa; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 10px currentColor; }
 .status-dot.ok { background: var(--ok); color: var(--ok); }
 .status-dot.bad { background: var(--bad); color: var(--bad); }
-.mode-state { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+.mode-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mode-state { color: var(--muted); display: inline-block; font-size: 11px; justify-self: center; letter-spacing: .08em; text-align: center; text-transform: uppercase; width: 4.5ch; }
 .btn-warn.active {
   border-color: #d9a66b;
   background: #4a3722;
@@ -242,28 +243,10 @@ input,select { width: 100%; border: 1px solid var(--border); background: var(--s
 }
 .compare-stage canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 .msg { margin-top: 8px; color: var(--muted); white-space: pre-wrap; }
-.verifier-summary,
-.verifier-status {
-  margin-top: 10px;
-  border: 1px solid #315071;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #0b1724, #111f30);
-  padding: 10px;
-  display: grid;
-  gap: 6px;
-}
-.verifier-summary.bad-panel,
-.verifier-status.bad-panel { border-color: #ff6b7a88; box-shadow: inset 0 0 24px #ff31501a; }
-.verifier-summary.ok-panel,
-.verifier-status.ok-panel { border-color: #39d98a66; box-shadow: inset 0 0 24px #39d98a12; }
-.verifier-status-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.verifier-status-title { font-weight: 700; letter-spacing: .02em; }
-.verifier-status-meta { color: var(--muted); font-size: 12px; }
-.image-hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
 .mode-content img,
 .mode-content canvas { cursor: zoom-in; }
-.controls-col { display: grid; gap: 6px; }
-.meta-toggle-row { display: flex; align-items: center; gap: 8px; }
+.controls-col { display: grid; gap: 6px; min-width: 0; }
+.selector-meta { margin-top: 0; }
 .text-expander {
   border: 1px solid var(--border);
   background: var(--surface2);
@@ -308,6 +291,21 @@ input,select { width: 100%; border: 1px solid var(--border); background: var(--s
 .btn-small { font-size: 12px; padding: 5px 10px; }
 .scale-select { width: auto; min-width: 96px; }
 .scale-label { font-size: 12px; color: var(--muted); align-self: center; }
+.info-tip {
+  align-items: center;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 11px;
+  height: 20px;
+  justify-content: center;
+  line-height: 1;
+  width: 20px;
+}
+.info-tip:hover,
+.info-tip:focus-visible { border-color: var(--accent); color: var(--text); outline: none; }
 .sys { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; color: var(--muted); }
 .warns { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; color: var(--warn); white-space: pre-wrap; display: none; }
 .warns.show { display: block; }
@@ -355,6 +353,10 @@ small.kbd-hint { display: block; margin-top: 8px; color: var(--muted); }
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+.lightbox-content.compare-lightbox-content {
+  max-width: none;
+  max-height: none;
+}
 .lightbox-stage img,
 .lightbox-stage img-comparison-slider {
   max-width: 100%;
@@ -376,6 +378,10 @@ small.kbd-hint { display: block; margin-top: 8px; color: var(--muted); }
   --divider-color: rgba(255, 255, 255, 0.98);
   --default-handle-width: 44px;
   --default-handle-color: rgba(255, 255, 255, 0.98);
+}
+.lightbox-content.compare-lightbox-content img-comparison-slider {
+  max-width: none;
+  max-height: none;
 }
 .lightbox-stage img-comparison-slider img {
   width: 100%;
@@ -599,7 +605,20 @@ function mediaToImageSrc(media) {
 function applyLightboxTransform() {
   const content = qs("#lightboxStage .lightbox-content");
   if (!content) return;
-  content.style.transform = `translate(${lightboxState.panX}px, ${lightboxState.panY}px) scale(${lightboxState.zoom})`;
+  const slider = qs("img-comparison-slider", content);
+  if (slider) {
+    const baseWidth = Number(slider.dataset.focusWidth) || slider.offsetWidth || 1;
+    const baseHeight = Number(slider.dataset.focusHeight) || slider.offsetHeight || 1;
+    content.style.width = `${Math.max(1, Math.round(baseWidth * lightboxState.zoom))}px`;
+    content.style.height = `${Math.max(1, Math.round(baseHeight * lightboxState.zoom))}px`;
+    content.style.transform = `translate(${lightboxState.panX}px, ${lightboxState.panY}px)`;
+    slider.style.width = "100%";
+    slider.style.height = "100%";
+  } else {
+    content.style.width = "";
+    content.style.height = "";
+    content.style.transform = `translate(${lightboxState.panX}px, ${lightboxState.panY}px) scale(${lightboxState.zoom})`;
+  }
   qs("#lightboxZoom").textContent = `${Math.round(lightboxState.zoom * 100)}%`;
 }
 
@@ -616,6 +635,9 @@ function setLightboxContent(content, titleText) {
   const title = qs("#lightboxTitle");
   const wrapper = document.createElement("div");
   wrapper.className = "lightbox-content";
+  if (content.matches?.("img-comparison-slider") || qs("img-comparison-slider", content)) {
+    wrapper.classList.add("compare-lightbox-content");
+  }
   wrapper.appendChild(content);
   stage.textContent = "";
   stage.appendChild(wrapper);
@@ -652,6 +674,8 @@ function createFocusedCompare(compareRoot) {
   const stage = qs(".compare-stage", compareRoot);
   const width = stage?.clientWidth || firstMedia.naturalWidth || firstMedia.width || 1200;
   const height = stage?.clientHeight || firstMedia.naturalHeight || firstMedia.height || 800;
+  slider.dataset.focusWidth = String(width);
+  slider.dataset.focusHeight = String(height);
   slider.style.setProperty("--focus-width", `${width}px`);
   slider.style.setProperty("--focus-height", `${height}px`);
   return slider;
@@ -1122,7 +1146,8 @@ function buildViewModeControls(viewMode, scaleSetting) {
         <option value="200" ${scaleSetting === "200" ? "selected" : ""}>200%</option>
         <option value="400" ${scaleSetting === "400" ? "selected" : ""}>400%</option>
       </select>
-      <span class="scale-label" id="scalePct">100%</span>`;
+      <span class="scale-label" id="scalePct">100%</span>
+      <span class="info-tip" id="verifierInfoTip" tabindex="0" role="img" aria-label="Verifier view information" title="">?</span>`;
 }
 
 function renderMainViewport() {
@@ -1145,14 +1170,12 @@ function renderMainViewport() {
               <button class="btn btn-icon" type="button" id="nextCaseBtn" title="Next Case" aria-label="Next Case">&#x203A;</button>
             </div>
           </div>
+          <div id="testMetaSummary" class="meta selector-meta"></div>
         </div>
         <div class="controls-col">
           <div class="verifier-row btn-group-wrap" id="verifierButtons"></div>
           <div class="viewmode-row btn-group-wrap" id="viewModeButtons"></div>
         </div>
-      </div>
-      <div class="meta-toggle-row">
-        <div id="testMetaSummary" class="meta"></div>
       </div>
       <details id="testTextExpander" class="text-expander">
         <summary>
@@ -1219,17 +1242,13 @@ function renderMainViewport() {
     const modes = c.verifier_modes || [];
     const preferredIndex = findPreferredVerifierIndex(modes, prevVerifierName);
     appState.modeIndex = Math.max(0, preferredIndex);
-    const failedNames = failedVerifierNames(c);
-    const verifierSummary = failedNames.length
-      ? `Failed verifier(s): ${escapeHtml(failedNames.join(", "))}`
-      : "All verifiers passed";
     caseEl.dataset.viewMode = appState.viewMode;
     caseEl.dataset.modeIndex = String(appState.modeIndex);
     caseEl.dataset.scaleSetting = appState.scaleSetting;
     const modeButtons = modes.map((m, i) => `
       <button class="btn mode-btn status-${verifierStatusClass(m)} ${i===appState.modeIndex ? "active" : ""}" type="button" data-mode-index="${i}" data-verifier-name="${escapeAttr(m.verifier)}">
         <span class="status-dot ${verifierStatusClass(m)}"></span>
-        <span>${escapeHtml(m.verifier)}</span>
+        <span class="mode-name">${escapeHtml(m.verifier)}</span>
         <span class="mode-state">${verifierStatusText(m)}</span>
       </button>`).join("");
     qs("#verifierButtons").innerHTML = modeButtons;
@@ -1241,12 +1260,6 @@ function renderMainViewport() {
         <span class="badge">${Math.round(c.secs)}s</span>
       </div>
       ${c.case_msg ? `<div class="msg">${escapeHtml(c.case_msg)}</div>` : ""}
-      <div class="verifier-summary ${failedNames.length ? "bad-panel" : "ok-panel"}">
-        <div class="verifier-status-head">
-          <span class="status-dot ${failedNames.length ? "bad" : "ok"}"></span>
-          <span class="verifier-status-title">${verifierSummary}</span>
-        </div>
-      </div>
       <div class="mode-content"></div>`;
     caseEl.dataset.verifierModes = JSON.stringify(modes);
     bindModeButtons();
@@ -1309,16 +1322,6 @@ async function renderMode(caseEl, modeIndex) {
   const metrics = m.metrics && Object.keys(m.metrics).length ? `<div class="msg">Metrics: ${escapeHtml(formatMetrics(m.metrics))}</div>` : "";
   const verifierMsg = m.message ? `<div class="msg">Verifier: ${escapeHtml(m.message)}</div>` : "";
   const debugMsg = m.debug_msg ? `<div class="msg">Debug: ${escapeHtml(m.debug_msg)}</div>` : "";
-  const statusBlock = `
-    <div class="verifier-status ${verifierPassed(m) ? "ok-panel" : "bad-panel"}">
-      <div class="verifier-status-head">
-        <span class="status-dot ${verifierStatusClass(m)}"></span>
-        <span class="verifier-status-title">${escapeHtml(m.verifier)}</span>
-        <span class="badge ${verifierStatusClass(m)}">${verifierStatusText(m)}</span>
-      </div>
-      <div class="verifier-status-meta">${escapeHtml(compareAvailabilityText(m))}</div>
-      <div class="image-hint">Click any image or raw-canvas view to inspect it in the image viewer.</div>
-    </div>`;
   const modeContent = qs(".mode-content", caseEl);
   let body = "";
   if (viewMode === "plot") {
@@ -1332,7 +1335,13 @@ async function renderMode(caseEl, modeIndex) {
     body = rawCompareBlock || plotCompareBlock || "<div class='msg'>(compare view unavailable for this verifier)</div>";
   }
   if (caseEl.dataset.renderToken !== renderToken) return;
-  modeContent.innerHTML = `${statusBlock}${body}${metrics}${verifierMsg}${debugMsg}`;
+  modeContent.innerHTML = `${body}${metrics}${verifierMsg}${debugMsg}`;
+  const verifierInfoTip = qs("#verifierInfoTip");
+  if (verifierInfoTip) {
+    const tipText = `${compareAvailabilityText(m)}. Click any image or raw-canvas view to inspect it in the image viewer.`;
+    verifierInfoTip.title = tipText;
+    verifierInfoTip.setAttribute("aria-label", tipText);
+  }
 
   qsa("#verifierButtons .mode-btn").forEach((btn) => btn.classList.remove("active"));
   const activeBtn = qs(`#verifierButtons .mode-btn[data-mode-index="${appState.modeIndex}"]`);
@@ -1346,7 +1355,7 @@ async function renderMode(caseEl, modeIndex) {
       const ok = await initPfmCompare(rawBlock, m.raw_output_image, m.raw_ref_image);
       if (caseEl.dataset.renderToken !== renderToken) return;
       if (!ok && String(window.location.protocol || "") === "file:" && plotCompareBlock) {
-        modeContent.innerHTML = `${statusBlock}${plotCompareBlock}${metrics}${verifierMsg}${debugMsg}`;
+        modeContent.innerHTML = `${plotCompareBlock}${metrics}${verifierMsg}${debugMsg}`;
       }
     }
   }

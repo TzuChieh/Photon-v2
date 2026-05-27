@@ -113,6 +113,8 @@ PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
 		.numPasses = m_numPasses,
 		.numSamplesPerPixel = m_numSamplesPerPixel,
 		.kernelRadius = m_photonRadius,
+		.minPhotonPathLength = m_minPhotonPathLength,
+		.maxPhotonPathLength = m_maxPhotonPathLength,
 		.glossyMergeBeginLengthHint = m_glossyMergeBeginLengthHint,
 		.stochasticViewSampleBeginLengthHint = m_stochasticViewSampleBeginLengthHint};
 }
