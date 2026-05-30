@@ -228,6 +228,35 @@ With PSDL, you can create almost all kinds of objects the rendering system has t
 > [!tip]
 > Go back and check the hello-world scene description again. You should be able to understand most of the lines now.
 
+## Importing Scene Files {#psdl_import}
+
+PSDL scene files can include other PSDL files with the `#import` directive. Imported commands are expanded at the location of the directive, so resources created by an imported file are available to commands that appear after the import. The import path must be enclosed in double quotes.
+
+```csharp
+#import "materials/common.p2";
+
+actor(model) @object = [geometry geometry @mesh] [material material @sharedMaterial];
+```
+
+Relative import paths are always resolved from the root scene working directory. Nested imports do not change this base directory.
+
+```text
+scene/
+├── main.p2
+├── materials.p2
+└── parts/
+    └── object.p2
+```
+
+If `main.p2` imports `"parts/object.p2"`, then an import inside `object.p2` still uses `scene/` as its base:
+
+```csharp
+// In scene/parts/object.p2
+#import "materials.p2"; // Loads scene/materials.p2
+```
+
+Imported files may contain additional `#import` directives.
+
 ## PSDL Resource Identifier {#psdl_resource_identifier}
 
 [//TODO]: <> (include, PRI, scene working directory)
