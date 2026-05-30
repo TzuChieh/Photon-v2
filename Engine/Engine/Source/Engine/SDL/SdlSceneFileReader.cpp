@@ -1,14 +1,17 @@
 #include "Engine/SDL/SdlSceneFileReader.h"
 #include "Engine/ph_core.h"
 #include "Engine/SDL/SceneDescription.h"
+#include "Engine/DataIO/io_utils.h"
 #include "Engine/DataIO/Stream/FormattedTextInputStream.h"
 #include "Engine/SDL/Introspect/SdlClass.h"
 #include "Engine/SDL/Introspect/SdlInputContext.h"
+#include "Engine/SDL/sdl_exceptions.h"
 #include "Engine/Utility/utility.h"
 #include "Engine/SDL/sdl_helpers.h"
 #include "Engine/Utility/Timer.h"
 
 #include <Common/assertion.h>
+#include <Common/io_exceptions.h>
 #include <Common/logging.h>
 
 #include <utility>
@@ -158,11 +161,6 @@ void SdlSceneFileReader::runExecutor(
 	targetClass->call(executorName, targetResource, clauses, ctx);
 }
 
-void SdlSceneFileReader::commandVersionSet(
-	const SemanticVersion& /* version */,
-	const SdlInputContext& /* ctx */)
-{}
-
 void SdlSceneFileReader::storeNamedDataPacket(
 	std::string_view packetName,
 	const SdlInputClauses& packet,
@@ -227,6 +225,31 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 		PH_LOG(SdlSceneFileReader, Note,
 			"command file loaded, time elapsed = {} ms", timer.getDeltaMs());
 	}
+}
+
+std::string SdlSceneFileReader::loadImported(
+	std::string_view importPath,
+	const SdlInputContext& /* ctx */)
+{
+	Path importedFile(importPath);
+	if(importedFile.isRelative())
+	{
+		importedFile = getSceneWorkingDirectory() / importedFile;
+	}
+
+	std::string importedCommands;
+	try
+	{
+		importedCommands = io_utils::load_text(importedFile);
+	}
+	catch(const FileIOError& e)
+	{
+		throw_formatted<SdlLoadError>(
+			"failed to load imported SDL file <{}> -> {}",
+			importedFile.toAbsolute(), e.whatStr());
+	}
+
+	return importedCommands;
 }
 
 void SdlSceneFileReader::setSceneFile(Path sceneFile)

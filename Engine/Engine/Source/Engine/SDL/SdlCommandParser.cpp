@@ -44,12 +44,13 @@ SdlCommandParser::SdlCommandParser(
 	, m_packetInterface(std::make_unique<SdlInlinePacketInterface>())
 
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_isInSingleLineComment(false)
-	, m_processedCommandCache()
+	, m_parseStateStack(1)
 	, m_generatedNameCounter(0)
 	, m_numParsedCommands(0)
 	, m_numParseErrors(0)
 {
+	m_parseStateStack.reserve(32);
+
 	for(const SdlClass* clazz : targetClasses)
 	{
 		if(!clazz)
@@ -92,7 +93,7 @@ void SdlCommandParser::parse(std::string_view rawCommandSegment)
 	std::string_view remainingSegment = rawCommandSegment;
 	while(!remainingSegment.empty())
 	{
-		if(m_isInSingleLineComment)
+		if(currentParseState().isInSingleLineComment)
 		{
 			const auto newlinePos = remainingSegment.find('\n');
 			if(newlinePos == std::string_view::npos)
@@ -106,7 +107,7 @@ void SdlCommandParser::parse(std::string_view rawCommandSegment)
 				enterProcessed("\n");
 
 				remainingSegment = remainingSegment.substr(newlinePos + 1);
-				m_isInSingleLineComment = false;
+				currentParseState().isInSingleLineComment = false;
 			}
 		}
 		else
@@ -115,7 +116,7 @@ void SdlCommandParser::parse(std::string_view rawCommandSegment)
 			if(keyCharPos == std::string_view::npos)
 			{
 				// Submit all since no special character is met
-				PH_ASSERT(!m_isInSingleLineComment);
+				PH_ASSERT(!currentParseState().isInSingleLineComment);
 				enterProcessed(remainingSegment);
 				remainingSegment = "";
 			}
@@ -127,7 +128,7 @@ void SdlCommandParser::parse(std::string_view rawCommandSegment)
 				case '\n':
 				{
 					// Submit with the newline as it is part of the syntax (separator)
-					PH_ASSERT(!m_isInSingleLineComment);
+					PH_ASSERT(!currentParseState().isInSingleLineComment);
 					enterProcessed(remainingSegment.substr(0, keyCharPos + 1));
 
 					remainingSegment = remainingSegment.substr(keyCharPos + 1);
@@ -146,8 +147,8 @@ void SdlCommandParser::parse(std::string_view rawCommandSegment)
 					// Requires two slashes for a single-line comment
 					if(isNextCharSlash)
 					{
-						PH_ASSERT(!m_isInSingleLineComment);
-						m_isInSingleLineComment = true;
+						PH_ASSERT(!currentParseState().isInSingleLineComment);
+						currentParseState().isInSingleLineComment = true;
 					}
 					// Just a standalone slash, then it should be part of the command
 					else
@@ -185,13 +186,13 @@ void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment)
 		if(semicolonPos == std::string_view::npos)
 		{
 			// Cache all since the command is not finished yet
-			m_processedCommandCache += remainingSegment;
+			currentParseState().processedCommandCache += remainingSegment;
 			remainingSegment = "";
 		}
 		else
 		{
 			// Excluding the semicolon
-			m_processedCommandCache += remainingSegment.substr(0, semicolonPos);
+			currentParseState().processedCommandCache += remainingSegment.substr(0, semicolonPos);
 			remainingSegment = remainingSegment.substr(semicolonPos + 1);
 
 			// Flush when a full command is entered
@@ -202,11 +203,21 @@ void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment)
 
 void SdlCommandParser::flush()
 {
-	// OPT: use view
-	parseCommand(m_processedCommandCache);
+	ParseState& parseState = currentParseState();
 
-	m_processedCommandCache.clear();
-	m_processedCommandCache.shrink_to_fit();// TODO: reconsider, maybe only reset if too large
+	// Hold the command separately since parsing may recursively enter an imported parse state.
+	std::string flushedCommand = std::move(parseState.processedCommandCache);
+	parseState.processedCommandCache.clear();
+
+	parseCommand(flushedCommand);
+
+	// Imported parse states are temporary. Only keep root state memory usage bounded (1 MiB).
+	if(m_parseStateStack.size() == 1 &&
+	   parseState.processedCommandCache.empty() &&
+	   parseState.processedCommandCache.capacity() > 1024 * 1024)
+	{
+		parseState.processedCommandCache.shrink_to_fit();
+	}
 }
 
 void SdlCommandParser::parseCommand(const std::string& command)
@@ -275,6 +286,25 @@ void SdlCommandParser::parseSingleCommand(const CommandHeader& command)
 	}
 
 	++m_numParsedCommands;
+}
+
+void SdlCommandParser::parseImported(std::string_view importedText)
+{
+	pushParseState();
+
+	try
+	{
+		parse(importedText);
+		flush();
+	}
+	catch(const SdlException& e)
+	{
+		popParseState();
+		throw_formatted<SdlLoadError>(
+			"failed to parse imported SDL text -> {}", e.whatStr());
+	}
+
+	popParseState();
 }
 
 void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
@@ -418,7 +448,7 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 {
 	static const Tokenizer directiveTokenizer(
 		{' ', '\t', '\n', '\r'}, 
-		{});
+		{{'"', '"'}});
 
 	PH_SCOPED_TIMER(ParseDirectiveCommand);
 
@@ -448,10 +478,10 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 
 	if(tokens[0] == "version")
 	{
-		if(tokens.size() < 2)
+		if(tokens.size() != 2)
 		{
 			throw SdlLoadError(
-				"no version supplied when specifying PSDL version");
+				"syntax error: no version or unknown element supplied when specifying PSDL version");
 		}
 
 		const std::string_view versionStr = tokens[1];
@@ -460,20 +490,45 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 		if(loadedVersion != m_commandVersion)
 		{
 			PH_LOG(SdlCommandParser, Warning,
-				"switching PSDL version: old={}, new={} (engine native PSDL={})", 
+				"switching PSDL version: old={}, new={} (engine native PSDL={})",
 				m_commandVersion.toString(), loadedVersion.toString(), PH_PSDL_VERSION);
 		}
 
 		m_commandVersion = loadedVersion;
 		commandVersionSet(loadedVersion, ctx);
+		endCommand();
+	}
+	else if(tokens[0] == "import")
+	{
+		if(tokens.size() != 2)
+		{
+			throw SdlLoadError(
+				"syntax error: no path or unknown element supplied when importing");
+		}
+
+		const std::string importedText = loadImported(tokens[1], ctx);
+		endCommand();
+
+		parseImported(importedText);
 	}
 	else
 	{
 		throw SdlLoadError(
 			"unknown SDL directive: " + tokens[0] + ", ignoring");
 	}
+}
 
-	endCommand();
+void SdlCommandParser::commandVersionSet(
+	const SemanticVersion& /* version */,
+	const SdlInputContext& /* ctx */)
+{}
+
+std::string SdlCommandParser::loadImported(
+	std::string_view importPath,
+	const SdlInputContext& /* ctx */)
+{
+	throw_formatted<SdlLoadError>(
+		"import is not supported by this parser; cannot load <{}>", importPath);
 }
 
 void SdlCommandParser::parseNamedDataPacketCommand(const CommandHeader& command)
@@ -825,6 +880,33 @@ const SdlClass* SdlCommandParser::getSdlClass(const std::string_view categoryNam
 	std::string mangledClassName;
 	getMangledName(categoryName, typeName, &mangledClassName);
 	return getSdlClass(mangledClassName);
+}
+
+auto SdlCommandParser::currentParseState() -> ParseState&
+{
+	PH_ASSERT(!m_parseStateStack.empty());
+
+	return m_parseStateStack.back();
+}
+
+void SdlCommandParser::pushParseState()
+{
+	constexpr std::size_t maxParseDepth = 32;
+	if(m_parseStateStack.size() >= maxParseDepth)
+	{
+		throw_formatted<SdlLoadError>(
+			"max parse depth {} reached; watch out for cyclic imports or reduce nested imports",
+			maxParseDepth);
+	}
+
+	m_parseStateStack.emplace_back();
+}
+
+void SdlCommandParser::popParseState()
+{
+	PH_ASSERT_GE(m_parseStateStack.size(), 2);
+
+	m_parseStateStack.pop_back();
 }
 
 }// end namespace ph

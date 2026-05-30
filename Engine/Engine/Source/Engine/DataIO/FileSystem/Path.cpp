@@ -125,6 +125,11 @@ Path Path::toCanonical() const
 	return Path(std::filesystem::canonical(m_path));
 }
 
+Path Path::toWeaklyCanonical() const
+{
+	return Path(std::filesystem::weakly_canonical(m_path));
+}
+
 std::string Path::toString() const
 {
 	return m_path.generic_string();

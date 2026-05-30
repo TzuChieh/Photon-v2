@@ -12,6 +12,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <memory>
+#include <vector>
 
 namespace ph
 {
@@ -77,7 +78,9 @@ protected:
 		const SdlClass* targetClass,
 		SdlInputContext* out_ctx) = 0;
 
-	/*! @brief Called when the parser finishes processing a command.
+	/*! @brief Called when the parser finishes processing a command successfully.
+	@note If `beginCommand()` returns false or later command processing throws, `endCommand()` will not be called.
+	The begin/end pair is only balanced for commands that finish successfully.
 	*/
 	virtual void endCommand() = 0;
 
@@ -120,7 +123,15 @@ protected:
 
 	virtual void commandVersionSet(
 		const SemanticVersion& version,
-		const SdlInputContext& ctx) = 0;
+		const SdlInputContext& ctx);
+
+	/*! @brief Loads the SDL text referenced by an import directive.
+	@param importPath The import target path.
+	@return The SDL text loaded from `importPath`.
+	*/
+	virtual std::string loadImported(
+		std::string_view importPath,
+		const SdlInputContext& ctx);
 
 	virtual void storeNamedDataPacket(
 		std::string_view packetName,
@@ -142,14 +153,19 @@ private:
 		bool isRecognized() const;
 	};
 
+	struct ParseState final
+	{
+		bool isInSingleLineComment = false;
+		std::string processedCommandCache;
+	};
+
 	SemanticVersion m_commandVersion;
 
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
 	std::unique_ptr<SdlDataPacketInterface> m_packetInterface;
 
 	Path m_sceneWorkingDirectory;
-	bool m_isInSingleLineComment;
-	std::string m_processedCommandCache;
+	std::vector<ParseState> m_parseStateStack;
 	std::size_t m_generatedNameCounter;
 	std::size_t m_numParsedCommands;
 	std::size_t m_numParseErrors;
@@ -163,6 +179,7 @@ private:
 
 	void parseCommand(const std::string& command);
 	void parseSingleCommand(const CommandHeader& command);
+	void parseImported(std::string_view importedText);
 
 	void parseLoadCommand(const CommandHeader& command);
 	void parseExecutionCommand(const CommandHeader& command);
@@ -180,6 +197,9 @@ private:
 
 	const SdlClass* getSdlClass(const std::string& mangledClassName) const;
 	const SdlClass* getSdlClass(std::string_view categoryName, std::string_view typeName) const;
+	auto currentParseState() -> ParseState&;
+	void pushParseState();
+	void popParseState();
 
 private:
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);

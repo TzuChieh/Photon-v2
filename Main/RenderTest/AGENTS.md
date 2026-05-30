@@ -28,7 +28,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Keep local report-server control explicit and minimal.
 - Prefer explicit stop signals over speculative background policies.
 - Do not rely on browser unload semantics to distinguish close vs refresh/navigation.
-- For report UI-only changes, sync source template and build-side copy so `--report-only` validates quickly.
+- For report UI-only changes and test case updates, sync source template and build-side copy so `--report-only` validates quickly.
 
 ## Sample Count Semantics
 - `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.

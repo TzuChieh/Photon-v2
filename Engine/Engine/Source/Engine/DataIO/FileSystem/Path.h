@@ -67,6 +67,7 @@ public:
 
 	Path toAbsolute() const;
 	Path toCanonical() const;
+	Path toWeaklyCanonical() const;
 
 	/*! @brief Get a string representation of this path in generic format.
 	*/

@@ -81,8 +81,8 @@ protected:
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) override;
 
-	void commandVersionSet(
-		const SemanticVersion& version,
+	std::string loadImported(
+		std::string_view importPath,
 		const SdlInputContext& ctx) override;
 
 	void storeNamedDataPacket(

@@ -1,4 +1,5 @@
 #include <Engine/DataIO/FileSystem/Path.h>
+#include <Engine/DataIO/FileSystem/TResourcePath.h>
 #include <Common/os.h>
 
 #include <gtest/gtest.h>
@@ -47,22 +48,6 @@ TEST(FileSystemPathTest, ToStringHasGenericForm)
 
 TEST(FileSystemPathTest, PathOperation)
 {
-	{
-		Path relativePath("./some/path");
-		EXPECT_TRUE(relativePath.isRelative());
-		EXPECT_FALSE(relativePath.isAbsolute());
-	}
-
-	{
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-		Path absolutePath("D:/some/path");
-#else
-		Path absolutePath("/some/path");
-#endif
-		EXPECT_FALSE(absolutePath.isRelative());
-		EXPECT_TRUE(absolutePath.isAbsolute());
-	}
-
 	// Remove single leading separator
 	{
 		const Path leadingSeparatorPath("/some/path/");
@@ -102,6 +87,58 @@ TEST(FileSystemPathTest, PathOperation)
 		EXPECT_STREQ(
 			fullPath.toString().c_str(),
 			Path("C:/first/second/third/fourth/").toString().c_str());
+	}
+}
+
+TEST(FileSystemPathTest, AbsoluteAndRelativePath)
+{
+	{
+		Path relativePath("./some/path");
+		EXPECT_TRUE(relativePath.isRelative());
+		EXPECT_FALSE(relativePath.isAbsolute());
+	}
+
+	{
+		Path relativePath("../some/path");
+		EXPECT_TRUE(relativePath.isRelative());
+		EXPECT_FALSE(relativePath.isAbsolute());
+	}
+
+	{
+		Path relativePath("some/path");
+		EXPECT_TRUE(relativePath.isRelative());
+		EXPECT_FALSE(relativePath.isAbsolute());
+	}
+
+	{
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+		Path absolutePath("D:/some/path");
+#else
+		Path absolutePath("/some/path");
+#endif
+		EXPECT_FALSE(absolutePath.isRelative());
+		EXPECT_TRUE(absolutePath.isAbsolute());
+	}
+}
+
+TEST(FileSystemPathTest, WeaklyCanonicalPath)
+{
+	{
+		const Path canonicalCurrent = Path(".").toCanonical();
+		const Path weaklyCanonicalCurrent = Path(".").toWeaklyCanonical();
+		EXPECT_STREQ(weaklyCanonicalCurrent.toString().c_str(), canonicalCurrent.toString().c_str());
+	}
+
+	{
+		const Path weaklyCanonicalExisting = EngineTestResource("Text").getPath().toWeaklyCanonical();
+		EXPECT_TRUE(weaklyCanonicalExisting.isAbsolute());
+	}
+
+	{
+		const Path weaklyCanonicalMissing = (Path(".") / "nonexistent-path-for-weakly-canonical").toWeaklyCanonical();
+		EXPECT_STREQ(
+			weaklyCanonicalMissing.getTrailingElement().toString().c_str(),
+			"nonexistent-path-for-weakly-canonical");
 	}
 }
 
