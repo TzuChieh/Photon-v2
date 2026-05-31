@@ -18,15 +18,17 @@ visual_error_verifier = infra.VisualErrorVerifier(
     error_scale=100.0,
     ref_title="Reference: BVPT 8192 spp")
 
-for case_name, output_name, scene_name, sample_count in [
+for case_name, output_name, scene_name, z_sample_count in [
     ("BVPT", "bvpt", "scene_bvpt.p2", 512),
     ("BNEEPT", "bneept", "scene_bneept.p2", 512),
-    ("SPPM", "sppm", "scene_sppm.p2", 512)
+    ("SPPM", "sppm", "scene_sppm.p2", None)
     ]:
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=0.0001),
-        visual_error_verifier,
-        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count)]
+        visual_error_verifier]
+    if z_sample_count is not None:
+        verifiers.append(infra.ZTestVerifier(
+            ref=ref_path, ref_variance=ref_var_path, sample_count=z_sample_count))
 
     suite.add_case(infra.RenderCase(
         case_name,

@@ -217,14 +217,13 @@ class ZTestVerifier(RefVerifier):
             ref_variance: RefInput,
             sample_count: int,
             significance_level: float = 0.0026,
-            min_pass_ratio: float = 0.995,
+            min_pass_ratio: float = 0.999,
             variance_floor: float = 1e-4):
         """
         @param ref Reference beauty image path or image object.
         @param ref_variance Reference sample variance image path or image object. This must use
         the same dimensions/components as `ref` and `output_img`.
-        @param sample_count Number of independent samples used by the tested render. For photon
-        mapping renderers this is the number of iterations/passes.
+        @param sample_count Number of independent samples used by the tested render.
         @param significance_level Family-wise false-positive probability before Sidak correction.
         @param min_pass_ratio Minimum ratio of scalar image channels whose p-value must pass.
         @param variance_floor Minimum variance used in the denominator to keep near-zero variance

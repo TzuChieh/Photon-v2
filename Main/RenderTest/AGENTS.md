@@ -33,8 +33,12 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 ## Sample Count Semantics
 - `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.
 - For path tracing tests, keep `sample_count` aligned with the scene's `sample-source(...)[integer samples N]`.
-- For photon mapping tests, keep `sample_count` aligned with `[integer num-passes N]`, not `num-samples-per-pixel`.
+- Do not use `ZTestVerifier` for photon-mapping methods. Their progressive biased estimators do not share the independent-sample variance model used by path tracing.
 - Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
+
+## Scene Resource Organization
+- Keep each RenderTest resource folder standalone. Split repeated SDL into render-config roots and local data fragments; do not create cross-folder common scenes or extract small one-off scenes.
+- Prefer one direct `#import` per scene root. Avoid nesting unless a substantial local base is shared by multiple variants, such as `gray_furnace_box/large_furnace_box.p2`.
 
 ## CLI Safety
 - `run_and_report.py` currently parses with `parse_known_args()` and forwards unknown args to `pytest.main()`.

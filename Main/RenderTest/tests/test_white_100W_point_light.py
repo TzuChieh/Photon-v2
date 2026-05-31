@@ -18,15 +18,17 @@ visual_error_verifier = infra.VisualErrorVerifier(
     error_scale=100.0,
     ref_title="Reference: BNEEPT 65536 spp")
 
-for case_name, output_name, scene_name, sample_count, max_mse, max_rel_mean in [
+for case_name, output_name, scene_name, z_sample_count, max_mse, max_rel_mean in [
     ("BNEEPT", "bneept", "scene_bneept.p2", 5000, 0.000036, 0.001),
-    ("SPPM", "sppm", "scene_sppm.p2", 1000, 0.000169, 0.012)
+    ("SPPM", "sppm", "scene_sppm.p2", None, 0.000169, 0.012)
     ]:
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=max_mse),
         infra.RelMeanVerifier(ref=ref_path, threshold=max_rel_mean),
-        visual_error_verifier,
-        infra.ZTestVerifier(ref=ref_path, ref_variance=ref_var_path, sample_count=sample_count)]
+        visual_error_verifier]
+    if z_sample_count is not None:
+        verifiers.append(infra.ZTestVerifier(
+            ref=ref_path, ref_variance=ref_var_path, sample_count=z_sample_count))
 
     suite.add_case(infra.RenderCase(
         case_name,
