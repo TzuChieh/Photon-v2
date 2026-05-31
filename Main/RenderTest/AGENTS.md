@@ -34,6 +34,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.
 - For path tracing tests, keep `sample_count` aligned with the scene's `sample-source(...)[integer samples N]`.
 - For photon mapping tests, keep `sample_count` aligned with `[integer num-passes N]`, not `num-samples-per-pixel`.
+- Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
 
 ## CLI Safety
 - `run_and_report.py` currently parses with `parse_known_args()` and forwards unknown args to `pytest.main()`.

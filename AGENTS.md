@@ -18,12 +18,12 @@ The project is organized into several libraries and applications:
   - End-to-end rendering tests.
 * Under `PhotonCLI/`
   - A command-line interface for the renderer.
-* Under `PhotonBlend/`
+* Under `BlenderAddon/`
   - A Blender add-on for scene creation, material editing, and rendering within Blender.
 * Under `SDLInterface/`
   - `SDLGen` is for generating SDL textual commands and documentation. `SDLPyBind` is for generating Python bindings for functions exposed by SDL.
-* Under `Tools/`
-  - `FilmMerger` is for combinding different render outputs.
+* Under `Tool/`
+  - `FilmMerger` is for combining different render outputs.
 
 The JNI (Java Native Interface) portion of the project is deprecated.
 
@@ -45,6 +45,14 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 - Do not stage changes unless user explicitly asks.
 - One explicit LGTM allows one commit only.
 
+## External Resources
+- Setup downloads `Photon-v2-Resource` into the ignored `build/Photon-v2-Resource/` copy via `scripts/resource_downloader.py`.
+- Add or update test fixtures and render scenes in the separate `Photon-v2-Resource` source repo, not only the build copy. Ask the user for its local path when needed.
+
 ## Folder-Specific Guidance
-- See local `AGENTS.md` in subfolders for C-API, SDL, and RenderTest-specific rules.
+- `Engine/CEngine/AGENTS.md`: C-API contract rules.
+- `Engine/Engine/Source/Engine/SDL/AGENTS.md`: SDL parser and import rules.
+- `Engine/Engine/Source/Engine/Core/Renderer/PM/AGENTS.md`: photon-mapping details.
+- `Main/RenderTest/AGENTS.md`: end-to-end test and report rules.
+- `Main/AgentSkills/AGENTS.md`: project-local skill maintenance.
 - Main docs entry: `Main/Documentation/`.

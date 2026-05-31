@@ -8,6 +8,10 @@
 - Prefer clear fallback semantics at higher-level loaders with precise warnings.
 - Keep grammar expectations explicit and deterministic.
 
+## Imports
+- Write import paths as double-quoted tokens: `#import "path.p2";`. `SdlSceneFileReader::loadImported()` resolves relative paths from the root scene working directory, including nested imports.
+- Recursive imports use `SdlCommandParser::m_parseStateStack`: index 0 is the root incremental state; imported text pushes an isolated state. `parseImported()` flushes at imported EOF and `pushParseState()` limits nesting to 32.
+
 ## Testing
 - Test low-level parser helpers by contract (no-op, trim success, corner cases).
 - Keep high-level array/field tests focused on integration behavior, not helper internals.
