@@ -1,37 +1,31 @@
 ---
 name: committer
-description: Photon-v2 committer for code review and git staging. Use when you need to review staged changes, stage files with "git add -A", and draft concise, impactful commit messages for non-master branches.
+description: Use this skill when the user wants to prepare or create a git commit, including reviewing commit scope, staging approved changes, or drafting a commit message. Do not use it for standalone code review without commit preparation.
 ---
 
 # Committer
 
-This skill provides a specialized workflow for high-quality code reviews and commits in the Photon-v2 project.
+Follow the repo and scoped `AGENTS.md` rules first. Git is read-only unless the user explicitly requests staging or committing.
 
-## Core Workflow
+## Workflow
 
-- **One LGTM Per Commit:** You must receive an explicit "LGTM" (or equivalent) for EVERY commit. One "LGTM" grants permission for exactly ONE `git commit` command. Subsequent commits require a new "LGTM".
-- **No Unauthorized Commit:** NEVER commit changes without explicit user consent.
-- **No Push:** Do not push changes to a remote repository unless specifically requested.
+### 1. Review
 
-### 1. Code Review (Sanity Check)
-Before staging, use `git diff` to perform a quick review based on the project's coding standards and **modern C++ best practices**:
-- **Resource Management:** No `new` or `delete`; use RAII and smart pointers.
-- **Type Safety:** Use `nullptr`, strongly-typed enums (`enum class`), and `auto` only where it improves clarity.
-- **`const` Correctness:** Apply `const` and `constexpr` rigorously to variables and methods.
-- **Modern Features:** Leverage C++20/23 features (concepts, ranges, etc.) when they simplify logic.
-- **Formatting & Naming:** Follow the `m_` prefix for members and PascalCase for classes.
-- **Minimalism:** Ensure no "just-in-case" code or redundant logic is included.
+- Inspect `git status`, unstaged and staged diffs, and relevant scoped `AGENTS.md` files.
+- Prioritize correctness, regressions, unintended files, and missing tests. Use [review-checklist.md](references/review-checklist.md) and the [coding standard](../../Documentation/coding_standard.md).
+- Report blocking findings before staging or committing.
 
-### 2. Staging & Draft
-- **Git Add:** Use `git add -A` to stage all changes in the current project.
-- **Linux Style Message:** Use a concise one-line summary (e.g., "Add documentation for SdlFunction"), followed by a blank line and bullet points for additional details if necessary.
-- **Branch Check:** If the current branch is not `master`, proceed with the commit. If it is `master`, suggest running tests (`EngineTest`, `RenderTest`) before finality.
+### 2. Stage and Draft
 
-### 3. Execution
-Apply the commit using sequential tool calls.
-*(Note: Do NOT use `&&` or `;` on Windows/PowerShell for command chaining.)*
+- Stage only after an explicit user request. Confirm the intended scope; use `git add -A` only when the request covers all changes.
+- Review the staged diff and draft a concise one-line imperative summary. After a blank line, add short bullet points only when they carry useful context.
 
-## References
-- [review-checklist.md](references/review-checklist.md): A technical checklist for code quality.
-- [Main/Documentation/coding_standard.md](../Main/Documentation/coding_standard.md): The project's overall coding standard.
-- [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines): The industry standard for modern C++ best practices.
+### 3. Commit
+
+- Require one explicit `LGTM` or equivalent for each `git commit`. One approval permits exactly one commit.
+- Do not push unless explicitly requested. Run PowerShell commands sequentially without `&&` or `;`.
+- Report the commit hash, message, and any verification not run.
+
+## Project Rule
+
+Do not build or run binaries or tests; the user handles execution.

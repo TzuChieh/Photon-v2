@@ -1,6 +1,6 @@
 ---
 name: update-agents-md
-description: Maintain Photon-v2 AGENTS.md files as concise, evidence-based project memory. Use when asked to update agent notes, capture session learnings, compact project knowledge, or review AGENTS.md guidance for staleness.
+description: Use this skill when the user wants to maintain AGENTS.md files: capture evidence-based session learnings, compact project knowledge, update agent notes, or review existing guidance for staleness.
 ---
 
 # Update AGENTS.md

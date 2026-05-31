@@ -1,38 +1,26 @@
 ---
 name: doc-expert
-description: Documentation writing expert for C++ code in Photon-v2. Use when you need to find undocumented code, update stale documentation, or improve doc clarity. It uses git to prioritize work based on recent changes and call frequency.
+description: Use this skill when the user wants to add, review, or update Markdown guides and C++ Doxygen documentation. For AGENTS.md project-memory maintenance, use update-agents-md instead.
 ---
 
-# Doc-Expert
+# Documentation Expert
 
-This skill provides a specialized workflow for maintaining high-quality Doxygen documentation in the Photon-v2 project.
+Document verified behavior, not assumptions.
 
-## Core Workflow
+## Workflow
 
-### 1. Identify Target Areas
-- **Git-Driven Selection:** Use `git diff HEAD` or `git status` to find files the user have recently modified. Focus on public headers (`.h`) first.
-- **Skip Already Documented:** Before starting, check [documented-classes.md](references/documented-classes.md) to ensure the target symbols are not already well-documented.
-- **Priority by Usage (Impact Prioritization):** For undocumented or changed symbols, use `grep_search` to count occurrences across the codebase. Higher frequency symbols (more call sites) take priority.
-- **Stale Check:** Compare Doxygen `@param` and `@return` tags against the actual function signature. Flag any mismatches.
+### 1. Select Targets
 
-## Gold Standard Documentation
-Refer to [style-examples.md](references/style-examples.md) and [documented-classes.md](references/documented-classes.md) for "Gold Standard" examples from the project.
+- Read scoped `AGENTS.md`. Use `git status`, `git diff`, recent history, and `git blame` to find changed or stale documentation.
+- Prioritize the requested surface, then public headers, guide entry points, and frequently used symbols. Use `rg` for references and check [documented-classes.md](references/documented-classes.md) for known C++ examples.
 
-### 2. Analysis & Drafting
-- **Verify Intent:** Read the implementation (`.cpp`) to understand side effects, units, and corner cases.
-- **Drafting:** Use `/*! @brief ... */` for summaries. Use `@param` for all parameters and `@return` for non-void functions.
-- **Clarity Check:** Ensure descriptions are concise and technically precise. Mention units (e.g., "Radiance in $W \cdot sr^{-1} \cdot m^{-2}$") and coordinate systems where relevant.
+### 2. Verify and Write
 
-### 3. Execution
-- Apply changes using the `replace` tool.
-- Follow the formatting in `doc-expert/references/style-examples.md`.
+- Read supporting code, call sites, and referenced workflows to verify claims, side effects, units, coordinate systems, ownership, and corner cases.
+- Match nearby Markdown or Doxygen style. For C++, prefer concise `/*! @brief ... */` comments and add `@param` or `@return` details when they clarify the contract.
+- For C++ docs, use [style-examples.md](references/style-examples.md) and the [coding standard](../../Documentation/coding_standard.md).
 
-### 4. Human Consultation
-**Stop and ask the user if:**
-- You are unsure of a parameter's purpose after reading the code.
-- A mathematical formula or paper reference is missing but seems necessary for clarity.
-- You encounter ambiguous legacy code where "correctness" is unclear.
+### 3. Check
 
-## References
-- [style-examples.md](references/style-examples.md): Gold-standard documentation snippets from the project.
-- [Main/Documentation/coding_standard.md](../Main/Documentation/coding_standard.md): The project's overall coding standard.
+- Edit with the available patch tool, review the diff, and run `git diff --check`.
+- Ask the user when code intent remains ambiguous after inspection.

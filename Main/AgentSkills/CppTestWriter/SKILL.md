@@ -1,49 +1,34 @@
 ---
 name: cpp-test-writer
-description: Senior C++ test engineer. Use to draft high-quality, idiomatic unit tests using standard testing frameworks (e.g., Google Test), following local project style and using precise inline comments for logic derivation.
+description: Use this skill when the user wants to create, repair, extend, or assess focused C++ unit tests and test coverage using local Google Test style.
 ---
 
-# C++ Test Writer Skill
+# C++ Test Writer
 
-You are a senior C++ test engineer. Your goal is to draft high-quality, idiomatic unit tests that provide robust verification through intuitive ground truths and clear documentation.
+Write focused tests with independently understandable expected results.
 
-## Step-by-Step Workflow
+## Workflow
 
-### 1. Item Discovery & Prioritization
-- Compare source headers with existing test suites to identify untested items.
-- Prioritize items based on their architectural impact and use frequency.
-- If human user specified a target item, you should focus on that.
+### 1. Map Context
 
-### 2. Contextual Style Mapping
-- Analyze 2-3 existing test files to identify local style guides for formatting, namespace usage, and include ordering.
-- Ensure the new tests blend seamlessly with the existing codebase.
+- Read scoped `AGENTS.md`, the public API and documentation, and 2-3 nearby tests for local style.
+- Focus on the requested behavior. Otherwise prioritize public contracts and shared interfaces.
 
-### 3. Ground Truth Formulation
-- Avoid simply repeating the implementation's logic or formulas in the test cases to prevent "echoing" bugs.
-- Select test values that are intuitively verifiable and easy to understand without deep domain expertise.
-- Draft a plan for what to test. Discuss with human user before executing further steps.
+### 2. Design Coverage
 
-### 4. Surgical Implementation
-- Implement test cases for all primary methods and their overloads.
-  - When suitable, verify the component's behavior under stress or invalid input.
-  - Explicitly target edge cases, including empty states, null references, extreme values, and potential failure points.
-  - Use modern language standards where they improve clarity.
-- With concise comments.
-  - Embed precise inline comments immediately above each logical block or assertion.
-  - Explain *how* the expected value was derived and why it represents a correct "ground truth."
-  - Ensure the explanation is clear enough for a non-expert to follow the derivation.
-- Ensure different input types and code paths are uniquely exercised.
-- Draft the test file. Discuss with human user before executing further steps.
+- Derive expected behavior from the public contract before inspecting implementation details. Do not repeat implementation logic in assertions.
+- Cover normal behavior and relevant edge, error, or lifetime cases with stable, controlled inputs. Inspect implementation afterward only to identify missed risks and branches.
+- Ask the user only when ambiguity prevents a reliable expected result.
 
-### 5. Test Execution
-- Do **not** try to build or attempt to run the tests.
+### 3. Implement and Check
 
-## When Confidence is Low for Writing a Good Test
-- Halt and consult human user for guidance.
+- Match nearby Google Test structure, include ordering, naming, and formatting.
+- Add new test data to the separate `Photon-v2-Resource` repo, not only the ignored `build/Photon-v2-Resource` setup copy. Ask the user for the source repo location when needed.
+- Add comments only when they clarify a non-obvious derivation.
+- Review the diff and run `git diff --check`. Do not build or run tests; report the command the user should run when useful.
 
-## Appendix
-- Project -> Project Test mappings:
-  - `Engine/Common` -> `Engine/CommonTest`
-  - `Engine/Engine` -> `Engine/EngineTest`
-  - `Editor/EditorLib` -> `Editor/EditorLibTest`
-  
+## Project Test Mapping
+
+- `Engine/Common` -> `Engine/CommonTest`
+- `Engine/Engine` -> `Engine/EngineTest`
+- `Editor/EditorLib` -> `Editor/EditorLibTest`
