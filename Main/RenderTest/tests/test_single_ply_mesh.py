@@ -8,8 +8,10 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 quad_ref_path = res_dir / "ref_quad_bvpt_16384spp_0"
 suzanne_ref_path = res_dir / "ref_suzanne_bneept_16384spp_0"
-quad_ref_var_path = res_dir / "ref_quad_bvpt_16384spp_1"
-suzanne_ref_var_path = res_dir / "ref_suzanne_bneept_16384spp_1"
+quad_bvpt_ref_var_path = res_dir / "ref_quad_bvpt_16384spp_1"
+quad_bneept_ref_var_path = res_dir / "ref_quad_bneept_16384spp_1"
+suzanne_bvpt_ref_var_path = res_dir / "ref_suzanne_bvpt_16384spp_1"
+suzanne_bneept_ref_var_path = res_dir / "ref_suzanne_bneept_16384spp_1"
 
 sppm_msg = (
     "This SPPM case intentionally uses the Blackman-Harris sample filter because "
@@ -35,21 +37,21 @@ suzanne_visual_error_verifier = infra.VisualErrorVerifier(
 
 for case_name, output_name, scene_name, num_threads, ref_path, ref_var_path, visual_error_verifier, z_sample_count, max_mse, max_rel_mean in [
     ("Quad (BVPT, ASCII)", "quad_bvpt_ascii", "quad_bvpt_ascii.p2", 
-     6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
+     6, quad_ref_path, quad_bvpt_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.0015),
     ("Quad (BVPT)", "quad_bvpt", "quad_bvpt.p2", 
-     6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
+     6, quad_ref_path, quad_bvpt_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.0015),
     ("Quad (BNEEPT, ASCII)", "quad_bneept_ascii", "quad_bneept_ascii.p2", 
-     6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
+     6, quad_ref_path, quad_bneept_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.0014),
     ("Quad (BNEEPT)", "quad_bneept", "quad_bneept.p2", 
-     6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.002),
+     6, quad_ref_path, quad_bneept_ref_var_path, quad_visual_error_verifier, 200, 0.000074, 0.0014),
     ("Quad (SPPM)", "quad_sppm", "quad_sppm.p2", 
-     6, quad_ref_path, quad_ref_var_path, quad_visual_error_verifier, None, 0.0014, 0.01),
+     6, quad_ref_path, None, quad_visual_error_verifier, None, 0.0014, 0.01),
     ("Suzanne (BVPT)", "suzanne_bvpt", "suzanne_bvpt.p2", 
-     12, suzanne_ref_path, suzanne_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.001),
+     12, suzanne_ref_path, suzanne_bvpt_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.001),
     ("Suzanne (BNEEPT)", "suzanne_bneept", "suzanne_bneept.p2", 
-     12, suzanne_ref_path, suzanne_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.001),
+     12, suzanne_ref_path, suzanne_bneept_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.00026),
     ("Suzanne (SPPM)", "suzanne_sppm", "suzanne_sppm.p2", 
-     12, suzanne_ref_path, suzanne_ref_var_path, suzanne_visual_error_verifier, None, 0.0002, 0.01)
+     12, suzanne_ref_path, None, suzanne_visual_error_verifier, None, 0.00009, 0.0045)
     ]:
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=max_mse),

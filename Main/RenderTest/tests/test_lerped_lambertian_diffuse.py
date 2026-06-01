@@ -8,7 +8,11 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
 ref_path = res_dir / "ref_no_lerp_bvpt_65536spp_0"
-ref_var_path = res_dir / "ref_no_lerp_bvpt_65536spp_1"
+factor0p0_bvpt_ref_var_path = res_dir / "ref_no_lerp_bvpt_65536spp_1"
+factor0p5_bvpt_ref_var_path = res_dir / "ref_factor0p5_bvpt_65536spp_1"
+factor0p8_bvpt_ref_var_path = res_dir / "ref_factor0p8_bvpt_65536spp_1"
+factor0p0_bneept_ref_var_path = res_dir / "ref_no_lerp_bneept_65536spp_1"
+factor0p5_bneept_ref_var_path = res_dir / "ref_factor0p5_bneept_65536spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -19,12 +23,12 @@ visual_error_verifier = infra.VisualErrorVerifier(
     ref_title="Reference: BVPT (no lerp) 65536 spp",
     color_max=70)
 
-for case_name, output_name, scene_name, max_mse, max_rel_mean, case_msg in [
-    ("BVPT (factor = 50 percent)", "bvpt_factor0p5", "scene_factor0p5_bvpt.p2", 0.00012, 0.00082, ""),
-    ("BVPT (factor = 80 percent)", "bvpt_factor0p8", "scene_factor0p8_bvpt.p2", 0.00012, 0.0008, ""),
-    ("BVPT (factor = 0 percent)", "bvpt_factor0p0", "scene_factor0p0_bvpt.p2", 0.00012, 0.00074, "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."),
-    ("BNEEPT (factor = 50 percent)", "bneept_factor0p5", "scene_factor0p5_bneept.p2", 0.00012, 0.00080, ""),
-    ("BNEEPT (factor = 0 percent)", "bneept_factor0p0", "scene_factor0p0_bneept.p2", 0.00012, 0.00052, "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0).")
+for case_name, output_name, scene_name, ref_var_path, max_mse, max_rel_mean, case_msg in [
+    ("BVPT (factor = 50 percent)", "bvpt_factor0p5", "scene_factor0p5_bvpt.p2", factor0p5_bvpt_ref_var_path, 0.00012, 0.00016, ""),
+    ("BVPT (factor = 80 percent)", "bvpt_factor0p8", "scene_factor0p8_bvpt.p2", factor0p8_bvpt_ref_var_path, 0.00012, 0.0001, ""),
+    ("BVPT (factor = 0 percent)", "bvpt_factor0p0", "scene_factor0p0_bvpt.p2", factor0p0_bvpt_ref_var_path, 0.00012, 0.00074, "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."),
+    ("BNEEPT (factor = 50 percent)", "bneept_factor0p5", "scene_factor0p5_bneept.p2", factor0p5_bneept_ref_var_path, 0.00012, 0.00080, ""),
+    ("BNEEPT (factor = 0 percent)", "bneept_factor0p0", "scene_factor0p0_bneept.p2", factor0p0_bneept_ref_var_path, 0.00012, 0.00012, "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0).")
     ]:
     suite.add_case(infra.RenderCase(
         case_name,

@@ -33,6 +33,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 ## Sample Count Semantics
 - `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.
 - For path tracing tests, keep `sample_count` aligned with the scene's `sample-source(...)[integer samples N]`.
+- Variance references may be shared only when the tested sampling distributions are intentionally equivalent. Always split `bvpt` and `bneept` variance; generally split material, geometry, lighting, filter, and relevant renderer-config variants unless equivalence is justified.
 - Do not use `ZTestVerifier` for photon-mapping methods. Their progressive biased estimators do not share the independent-sample variance model used by path tracing.
 - Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
 

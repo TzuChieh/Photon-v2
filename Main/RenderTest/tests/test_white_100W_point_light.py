@@ -19,8 +19,8 @@ visual_error_verifier = infra.VisualErrorVerifier(
     ref_title="Reference: BNEEPT 65536 spp")
 
 for case_name, output_name, scene_name, z_sample_count, max_mse, max_rel_mean in [
-    ("BNEEPT", "bneept", "scene_bneept.p2", 5000, 0.000036, 0.001),
-    ("SPPM", "sppm", "scene_sppm.p2", None, 0.000169, 0.012)
+    ("BNEEPT", "bneept", "scene_bneept.p2", 5000, 0.000016, 0.001),
+    ("SPPM", "sppm", "scene_sppm.p2", None, 0.00008, 0.01)
     ]:
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=max_mse),

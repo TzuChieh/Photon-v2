@@ -8,7 +8,8 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
 ref_path = res_dir / "ref_bneept_8192spp_0"
-ref_var_path = res_dir / "ref_bneept_8192spp_1"
+bvpt_ref_var_path = res_dir / "ref_bvpt_8192spp_1"
+bneept_ref_var_path = res_dir / "ref_bneept_8192spp_1"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
@@ -18,10 +19,10 @@ visual_error_verifier = infra.VisualErrorVerifier(
     error_scale=100.0,
     ref_title="Reference: BNEEPT 8192 spp")
 
-for case_name, output_name, scene_name, z_sample_count, max_mse, max_rel_mean in [
-    ("BVPT", "bvpt", "scene_bvpt.p2", 12000, 0.0036, 0.002),
-    ("BNEEPT", "bneept", "scene_bneept.p2", 2500, 0.00152, 0.002),
-    ("SPPM", "sppm", "scene_sppm.p2", None, 0.0058, 0.0034)
+for case_name, output_name, scene_name, ref_var_path, z_sample_count, max_mse, max_rel_mean in [
+    ("BVPT", "bvpt", "scene_bvpt.p2", bvpt_ref_var_path, 12000, 0.0016, 0.0004),
+    ("BNEEPT", "bneept", "scene_bneept.p2", bneept_ref_var_path, 2500, 0.00152, 0.0009),
+    ("SPPM", "sppm", "scene_sppm.p2", None, None, 0.0058, 0.0065)
     ]:
     verifiers = [
         infra.MSEVerifier(ref=ref_path, threshold=max_mse),

@@ -19,7 +19,7 @@ visual_error_verifier = infra.VisualErrorVerifier(
 
 for case_name, output_name, scene_name, z_sample_count, max_mse, max_rel_mean in [
     ("BNEEPT", "bneept", "scene_bneept.p2", 512, 0.000004, 0.00022),
-    ("SPPM", "sppm", "scene_sppm.p2", None, 0.0025, 0.006)
+    ("SPPM", "sppm", "scene_sppm.p2", None, 0.0001, 0.006)
     ]:
     num_threads = 10 if "SPPM" in case_name else 4
     verifiers = [
