@@ -53,7 +53,7 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
         vert_position_indices=pos_indices,
         vert_loop_indices=loop_indices,
         tri_mat_ids=mat_ids
-    )
+        )
     
     assert ply_path.exists()
 
@@ -105,25 +105,89 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
     read_mat_ids = np.frombuffer(binary_data, dtype=np.uint32, count=1, offset=offset)
     assert np.array_equal(read_mat_ids, mat_ids)
 
-def test_blender_ply_inconsistent_data(engine, tmp_path):
+def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path):
     try:
         import numpy as np
     except ImportError:
         pytest.skip("numpy not found, skipping call test")
 
     mesh_class = engine.GBlenderPlyPolygonMesh
-    
-    # Inconsistent data: 2 positions but 3 indices
-    positions = np.array([0, 0, 0, 1, 0, 0], dtype=np.float32)
-    pos_indices = np.array([0, 1, 2], dtype=np.uint32)
-    
+    ply_path = tmp_path / "quad.ply"
+
+    positions = np.array([0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0], dtype=np.float32)
+    normals = np.array([0, 0, 1] * 4, dtype=np.float32)
+    uvs = np.array([0, 0, 1, 0, 1, 1, 0, 1], dtype=np.float32)
+    pos_indices = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
+    loop_indices = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
+    mat_ids = np.array([0, 0], dtype=np.uint32)
+
+    mesh_class.write_ply(
+        path=ply_path,
+        raw_vert_positions=positions,
+        raw_vert_loop_normals=normals,
+        raw_vert_loop_uvs=uvs,
+        vert_position_indices=pos_indices,
+        vert_loop_indices=loop_indices,
+        tri_mat_ids=mat_ids
+        )
+
+    content = ply_path.read_bytes()
+    header_end_marker = b'end_header\n'
+    header_end_idx = content.find(header_end_marker) + len(header_end_marker)
+    header = content[:header_end_idx].decode('ascii')
+    binary_data = content[header_end_idx:]
+
+    assert "element raw_vert_positions 4" in header
+    assert "element raw_vert_loop_normals 4" in header
+    assert "element raw_vert_loop_uvs 4" in header
+    assert "element position_indices 6" in header
+    assert "element loop_indices 6" in header
+    assert "element mat_ids 2" in header
+    assert binary_data == b''.join(array.tobytes() for array in (
+        positions,
+        normals,
+        uvs,
+        pos_indices,
+        loop_indices,
+        mat_ids
+        ))
+
+@pytest.mark.parametrize(
+    "malformed_values",
+    [
+        {"raw_vert_positions": ([0, 0], "float32")},
+        {"raw_vert_loop_normals": ([0, 0], "float32")},
+        {"raw_vert_loop_uvs": ([0], "float32")},
+        {"raw_vert_loop_uvs": ([0, 0, 1, 0], "float32")},
+        {"vert_position_indices": ([0, 1], "uint32")},
+        {
+            "vert_position_indices": ([0, 1], "uint32"),
+            "vert_loop_indices": ([0, 1], "uint32"),
+            "tri_mat_ids": ([], "uint32"),
+        },
+        {"tri_mat_ids": ([], "uint32")},
+    ])
+def test_blender_ply_inconsistent_data(engine, tmp_path, malformed_values):
+    try:
+        import numpy as np
+    except ImportError:
+        pytest.skip("numpy not found, skipping call test")
+
+    mesh_class = engine.GBlenderPlyPolygonMesh
+
+    data = {
+        "raw_vert_positions": np.array([0, 0, 0, 1, 0, 0, 0, 1, 0], dtype=np.float32),
+        "raw_vert_loop_normals": np.array([0, 0, 1, 0, 0, 1, 0, 0, 1], dtype=np.float32),
+        "raw_vert_loop_uvs": np.array([0, 0, 1, 0, 0, 1], dtype=np.float32),
+        "vert_position_indices": np.array([0, 1, 2], dtype=np.uint32),
+        "vert_loop_indices": np.array([0, 1, 2], dtype=np.uint32),
+        "tri_mat_ids": np.array([0], dtype=np.uint32),
+        }
+    for field_name, (values, dtype) in malformed_values.items():
+        data[field_name] = np.array(values, dtype=dtype)
+
     with pytest.raises(RuntimeError, match="Inconsistent Blender PLY polygon data sizes"):
         mesh_class.write_ply(
             path=tmp_path / "error.ply",
-            raw_vert_positions=positions,
-            raw_vert_loop_normals=np.array([], dtype=np.float32),
-            raw_vert_loop_uvs=np.array([], dtype=np.float32),
-            vert_position_indices=pos_indices,
-            vert_loop_indices=pos_indices,
-            tri_mat_ids=np.array([0], dtype=np.uint32)
-        )
+            **data
+            )

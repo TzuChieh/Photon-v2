@@ -1,9 +1,9 @@
 ---
-name: update-agents-md
+name: agents-md-updater
 description: Use this skill when the user wants to maintain AGENTS.md files: capture evidence-based session learnings, compact project knowledge, update agent notes, or review existing guidance for staleness.
 ---
 
-# Update AGENTS.md
+# AGENTS.md Updater
 
 Act as a fast, professional note taker and summarizer. Preserve durable project knowledge that will make future investigation faster.
 
@@ -18,13 +18,14 @@ Act as a fast, professional note taker and summarizer. Preserve durable project 
 ### 2. Choose Scope
 
 - Put each learning in the closest appropriate `AGENTS.md`. Create a scoped file when no suitable one exists, without excessive fragmentation.
-- Maintain a note hierarchy: parent `AGENTS.md` files should compactly summarize or index relevant child `AGENTS.md` guidance so readers can navigate from the repo root.
+- Keep parent guides at their own abstraction level. Compactly summarize relevant child areas so agents know where to dig deeper; do not list deeply nested paths from high-level guides.
 
 ### 3. Write Compact Notes
 
 - Be concise and direct. Write agent- and human-readable bullets.
-- Capture non-obvious architecture, invariants, workflows, test locations, and efficient lookup paths with enough evidence references for quick verification.
-- Omit transient status, one-off details, speculation, and redundant guidance. Preserve existing notes unless evidence shows they are stale.
+- Record only high-leverage rules that change how future work should be done.
+- Omit implementation narration, examples, pending-task lists, transient status, speculation, and details that are easy to recover from nearby code.
+- Preserve existing notes unless evidence shows they are stale.
 
 ### 4. Audit Existing Notes
 

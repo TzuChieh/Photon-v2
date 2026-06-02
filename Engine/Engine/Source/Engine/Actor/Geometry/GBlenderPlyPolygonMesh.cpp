@@ -21,10 +21,13 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 	const auto numLoopVerts = rawVertLoopNormals.size() / 3;
 	const auto numTris = vertLoopIndices.size() / 3;
 
-	if(numLoopVerts != rawVertLoopUVs.size() / 2 || 
+	if(rawVertPositions.size() % 3 != 0 ||
+	   rawVertLoopNormals.size() % 3 != 0 ||
+	   rawVertLoopUVs.size() % 2 != 0 ||
+	   vertLoopIndices.size() % 3 != 0 ||
+	   numLoopVerts != rawVertLoopUVs.size() / 2 ||
 	   vertPositionIndices.size() != vertLoopIndices.size() ||
-	   triMatIds.size() != vertLoopIndices.size() / 3 ||
-	   numLoopVerts != vertLoopIndices.size())
+	   triMatIds.size() != numTris)
 	{
 		throw_formatted<InvalidArgumentException>(
 			"Inconsistent Blender PLY polygon data sizes: "

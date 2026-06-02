@@ -36,7 +36,7 @@ You can find the main entries in `Main/Documentation/`.
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
 
 ## Rules
-- Do not build or run binaries/tests; user handles execution.
+- Do not build or run binaries/tests; user handles execution unless they explicitly request a binary refresh. For binary refreshes, use the `binary-updater` skill.
 - JNI/PhotonStudio paths are deprecated; avoid expanding legacy usage unless explicitly requested.
 - Keep file line endings consistent with the current OS convention.
 
@@ -49,10 +49,6 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 - Setup downloads `Photon-v2-Resource` into the ignored `build/Photon-v2-Resource/` copy via `scripts/resource_downloader.py`.
 - Add or update test fixtures and render scenes in the separate `Photon-v2-Resource` source repo, not only the build copy. Ask the user for its local path when needed.
 
-## Folder-Specific Guidance
-- `Engine/CEngine/AGENTS.md`: C-API contract rules.
-- `Engine/Engine/Source/Engine/SDL/AGENTS.md`: SDL parser and import rules.
-- `Engine/Engine/Source/Engine/Core/Renderer/PM/AGENTS.md`: photon-mapping details.
-- `Main/RenderTest/AGENTS.md`: end-to-end test and report rules.
-- `Main/AgentSkills/AGENTS.md`: project-local skill maintenance.
-- Main docs entry: `Main/Documentation/`.
+## Scoped Guidance
+- Under `Engine/`: C API contracts, SDL internals, geometry actors, and renderer-specific details.
+- Under `Main/`: end-to-end render tests and project-local skill maintenance.

@@ -1,6 +1,6 @@
 ---
 name: doc-expert
-description: Use this skill when the user wants to add, review, or update Markdown guides and C++ Doxygen documentation. For AGENTS.md project-memory maintenance, use update-agents-md instead.
+description: Use this skill when the user wants to add, review, or update Markdown guides and C++ Doxygen documentation. For AGENTS.md project-memory maintenance, use agents-md-updater instead.
 ---
 
 # Documentation Expert
