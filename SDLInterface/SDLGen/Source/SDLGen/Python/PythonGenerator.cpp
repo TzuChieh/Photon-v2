@@ -4,7 +4,7 @@
 #include "SDLGen/ph_sdlgen.h"
 
 #include <Common/Utility/Timestamp.h>
-#include <Engine/ph_core.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/DataIO/io_utils.h>
 #include <Engine/SDL/Introspect/SdlClass.h>
 #include <Engine/SDL/Introspect/SdlFunction.h>
@@ -187,9 +187,7 @@ void PythonGenerator::generate(
 
 Path PythonGenerator::makeResourcePath(const std::string& fileSubPath) const
 {
-	return get_internal_resource_directory(EEngineProject::SDLGen)
-		.append(Path("PythonGenerator"))
-		.append(Path(fileSubPath));
+	return SDLGenInternalResourcePath("PythonGenerator").getPath() / fileSubPath;
 }
 
 namespace

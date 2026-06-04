@@ -1,5 +1,5 @@
 #include <Engine/DataIO/FileSystem/Path.h>
-#include <Engine/DataIO/FileSystem/TResourcePath.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Common/os.h>
 
 #include <gtest/gtest.h>
@@ -130,7 +130,7 @@ TEST(FileSystemPathTest, WeaklyCanonicalPath)
 	}
 
 	{
-		const Path weaklyCanonicalExisting = EngineTestResource("Text").getPath().toWeaklyCanonical();
+		const Path weaklyCanonicalExisting = EngineTestResourcePath("Text").getPath().toWeaklyCanonical();
 		EXPECT_TRUE(weaklyCanonicalExisting.isAbsolute());
 	}
 

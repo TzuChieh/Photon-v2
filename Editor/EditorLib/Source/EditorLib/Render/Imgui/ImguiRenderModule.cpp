@@ -18,9 +18,9 @@
 
 #include <Common/profiling.h>
 #include <Common/os.h>
-#include <Engine/ph_core.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 
 #include <variant>
 #include <string_view>
@@ -315,7 +315,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 	ImGuiIO& io = ImGui::GetIO();
 
-	const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
+	const Path fontDirectory = EditorLibInternalResourcePath("Font");
 	const float fontSizePx = editor.dimensionHints.fontSize;
 	const float iconFontSizePx = fontSizePx * 1.2f;
 	const float largeFontRatio = editor.dimensionHints.largeFontSize / editor.dimensionHints.fontSize;
@@ -371,7 +371,7 @@ void ImguiRenderModule::initializeImguiImages(Editor& editor)
 	PH_LOG(DearImGui, Note, "setting-up images...");
 
 	m_imageLibrary = std::make_unique<ImguiImageLibrary>();
-	Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
+	const Path imageDirectory = EditorLibInternalResourcePath("Image");
 
 	m_imageLibrary->loadImage(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
 	m_imageLibrary->loadImage(EImguiImage::Folder, imageDirectory / "open-folder.png");

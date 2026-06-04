@@ -24,6 +24,10 @@ class CookingContext final
 	friend class VisualWorld;
 
 public:
+	CookingContext(
+		CookedResourceCollection* resources,
+		TransientResourceCache* cache);
+
 	explicit CookingContext(const VisualWorld* world);
 
 	const CookingConfig& getConfig() const;

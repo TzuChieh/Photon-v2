@@ -16,21 +16,25 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 
-CookingContext::CookingContext(const VisualWorld* const world)
+CookingContext::CookingContext(
+	CookedResourceCollection* const resources,
+	TransientResourceCache* const cache)
 	: m_config()
-	, m_world(world)
-	, m_resources(nullptr)
-	, m_cache(nullptr)
+	, m_world(nullptr)
+	, m_resources(resources)
+	, m_cache(cache)
 {
-	if(world)
-	{
-		m_resources = getWorld().getCookedResources();
-		m_cache = getWorld().getCache();
-	}
-	
 	PH_LOG(CookingContext, Note,
 		"created context, contains resource storage: {}, contains transient cache: {}",
 		m_resources != nullptr, m_cache != nullptr);
+}
+
+CookingContext::CookingContext(const VisualWorld* const world)
+	: CookingContext(
+		world ? world->getCookedResources() : nullptr,
+		world ? world->getCache() : nullptr)
+{
+	m_world = world;
 }
 
 const CookingConfig& CookingContext::getConfig() const

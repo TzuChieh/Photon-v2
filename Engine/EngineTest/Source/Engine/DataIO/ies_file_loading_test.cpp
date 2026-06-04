@@ -2,7 +2,7 @@
 #include <Engine/DataIO/Data/IesData.h>
 #include <Engine/Frame/TFrame.h>
 #include <Engine/Math/math.h>
-#include <Engine/DataIO/FileSystem/TResourcePath.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 
 #include <gtest/gtest.h>
 
@@ -17,7 +17,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 1
 
-	IesFile file1(EngineTestResource("IES/1.ies"));
+	IesFile file1(EngineTestResourcePath("IES/1.ies"));
 	ASSERT_TRUE(file1.load());
 	
 	EXPECT_TRUE(file1.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -61,7 +61,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 2
 
-	IesFile file2(EngineTestResource("IES/7.ies"));
+	IesFile file2(EngineTestResourcePath("IES/7.ies"));
 	ASSERT_TRUE(file2.load());
 	
 	EXPECT_TRUE(file2.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -100,7 +100,7 @@ TEST(IesFileLoadingTest, Parse1995Files)
 	///////////////////////////////////////////////////////////////////////////
 	// file 3
 
-	IesFile file3(EngineTestResource("IES/L1768-65BR30FL_FL55.ies"));
+	IesFile file3(EngineTestResourcePath("IES/L1768-65BR30FL_FL55.ies"));
 	ASSERT_TRUE(file3.load());
 	
 	EXPECT_TRUE(file3.getIesFileType() == IesFile::EIesFileType::LM_63_1995);
@@ -146,7 +146,7 @@ TEST(IesFileLoadingTest, DataProcessing)
 
 	// This file describes a light emitting 0.5 energy unit everywhere.
 	//
-	IesData iesData1(EngineTestResource("IES/constant_point5_candela.IES"));
+	IesData iesData1(EngineTestResourcePath("IES/constant_point5_candela.IES"));
 
 	// sampled degrees: 0, 90, 180
 	//

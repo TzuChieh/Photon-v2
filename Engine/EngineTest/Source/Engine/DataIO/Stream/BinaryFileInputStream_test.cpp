@@ -1,5 +1,5 @@
 #include <Engine/DataIO/Stream/BinaryFileInputStream.h>
-#include <Engine/DataIO/FileSystem/TResourcePath.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 
 #include <gtest/gtest.h>
 
@@ -9,7 +9,7 @@ TEST(BinaryFileInputStreamTest, FileStreamReadData)
 {
 	{
 		auto stream = BinaryFileInputStream(
-			EngineTestResource("Binary/test_binary_ascii.dat"));
+			EngineTestResourcePath("Binary/test_binary_ascii.dat"));
 		
 		unsigned char ch;
 		ASSERT_NO_THROW(stream.readData(&ch));
@@ -31,7 +31,7 @@ TEST(BinaryFileInputStreamTest, FileStreamReadData)
 
 	{
 		auto stream = BinaryFileInputStream(
-			EngineTestResource("Binary/test_binary_hex.dat"));
+			EngineTestResourcePath("Binary/test_binary_hex.dat"));
 
 		std::byte byte;
 		ASSERT_NO_THROW(stream.read(1, &byte));
@@ -49,7 +49,7 @@ TEST(BinaryFileInputStreamTest, SeekTellConsistency)
 {
 	{
 		auto stream = BinaryFileInputStream(
-			EngineTestResource("Binary/test_binary_ascii.dat"));
+			EngineTestResourcePath("Binary/test_binary_ascii.dat"));
 
 		EXPECT_EQ(stream.tellGet(), 0);
 
@@ -77,7 +77,7 @@ TEST(BinaryFileInputStreamTest, ValidityCheck)
 
 	{
 		auto stream = BinaryFileInputStream(
-			EngineTestResource("Text/empty.txt"));
+			EngineTestResourcePath("Text/empty.txt"));
 		EXPECT_TRUE(stream);
 	}
 }

@@ -97,7 +97,7 @@ public:
 
 	/*! @brief Get a standard path representation of this path.
 	*/
-	std::filesystem::path toStdPath() const;
+	const std::filesystem::path& toStdPath() const;
 
 	Path removeLeadingSeparator() const;
 
@@ -174,7 +174,7 @@ inline void Path::clear()
 	m_path.clear();
 }
 
-inline std::filesystem::path Path::toStdPath() const
+inline const std::filesystem::path& Path::toStdPath() const
 {
 	return m_path;
 }

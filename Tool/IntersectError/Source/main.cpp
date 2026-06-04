@@ -2,6 +2,7 @@
 #include <Common/logging.h>
 #include <Common/Utility/string_utils.h>
 #include <Engine/ph_core.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/Core/Intersection/PTriangle.h>
 #include <Engine/Core/Intersection/PLatLong01Sphere.h>
 #include <Engine/Core/Intersection/TransformedIntersectable.h>
@@ -988,12 +989,9 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	mergedBins.errorVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-		/ Path("error_vs_dist.csv"));
-	mergedBins.errorVsSize.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-		/ Path("error_vs_size.csv"));
-	mergedBins.offsetVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-		/ Path("offset_vs_dist.csv"));
+	mergedBins.errorVsDist.saveAsCsv(IntersectErrorIntermediatePath("error_vs_dist.csv"));
+	mergedBins.errorVsSize.saveAsCsv(IntersectErrorIntermediatePath("error_vs_size.csv"));
+	mergedBins.offsetVsDist.saveAsCsv(IntersectErrorIntermediatePath("offset_vs_dist.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

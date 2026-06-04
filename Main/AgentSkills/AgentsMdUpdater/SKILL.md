@@ -11,28 +11,28 @@ Act as a fast, professional note taker and summarizer. Preserve durable project 
 
 ### 1. Gather Evidence
 
-- Review the current session and inspect supporting code, logs, tests, and documentation before writing notes.
+- Review the full session, including corrections and rejected designs, and inspect supporting code, logs, tests, and documentation before writing notes.
 - Use `git status`, `git diff`, recent history, and `git blame` as useful clues. Do not assume uncommitted diffs exist.
 - Record durable conclusions supported by evidence. Generalize from the observed case and keep useful lookup references such as paths, symbols, and commands.
 
 ### 2. Choose Scope
 
-- Put each learning in the closest appropriate `AGENTS.md`. Create a scoped file when no suitable one exists, without excessive fragmentation.
+- Group learnings by subsystem and put each in the closest appropriate `AGENTS.md`. Create a scoped file when multiple durable rules belong together, without excessive fragmentation.
 - Keep parent guides at their own abstraction level. Compactly summarize relevant child areas so agents know where to dig deeper; do not list deeply nested paths from high-level guides.
 
 ### 3. Write Compact Notes
 
 - Be concise and direct. Write agent- and human-readable bullets.
-- Record only high-leverage rules that change how future work should be done.
-- Omit implementation narration, examples, pending-task lists, transient status, speculation, and details that are easy to recover from nearby code.
-- Preserve existing notes unless evidence shows they are stale.
+- Record high-level, durable rules that change how future work should be done. Generalize implementation details into subsystem boundaries, invariants, or preferred patterns.
+- Prefer one invariant over several explanatory bullets. Omit implementation narration, code-level mechanics, examples, pending-task lists, transient status, speculation, and details that are easy to recover from nearby code.
+- Preserve existing notes unless evidence shows they are stale; record corrected boundaries such as deprecated areas.
 
 ### 4. Audit Existing Notes
 
 For each `AGENTS.md` file modified:
 
 - Randomly select 3 existing notes outside the new material, or all notes if fewer exist.
-- Verify them against current code, documentation, or logs; update or remove stale notes.
+- Verify them against current code, documentation, or logs; update or remove stale notes and consolidate duplication across parent and child scopes.
 
 ### 5. Verify
 

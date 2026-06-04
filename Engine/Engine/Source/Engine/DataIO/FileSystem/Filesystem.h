@@ -62,6 +62,12 @@ public:
 		const Path& dstPath,
 		bool overwriteExisting = false);
 
+	/*! @brief Remove a file or directory.
+	@param isRecursive Whether to recursively remove a directory and its contents.
+	@exception FilesystemError If an error occurred.
+	*/
+	static void remove(const Path& path, bool isRecursive = false);
+
 	static Path makeRelative(const Path& src, const Path& base);
 
 	/*! @brief Get path to the render engine root.

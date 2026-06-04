@@ -25,8 +25,6 @@ The project is organized into several libraries and applications:
 * Under `Tool/`
   - `FilmMerger` is for combining different render outputs.
 
-The JNI (Java Native Interface) portion of the project is deprecated.
-
 ## Project Documentation
 
 You can find the main entries in `Main/Documentation/`.
@@ -37,7 +35,7 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 
 ## Rules
 - Do not build or run binaries/tests; user handles execution unless they explicitly request a binary refresh. For binary refreshes, use the `binary-updater` skill.
-- JNI/PhotonStudio paths are deprecated; avoid expanding legacy usage unless explicitly requested.
+- JNI/PhotonStudio and `scripts/SDL_Interface/` paths are deprecated; avoid expanding legacy usage unless explicitly requested.
 - Keep file line endings consistent with the current OS convention.
 
 ## Git Rules
@@ -50,5 +48,5 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 - Add or update test fixtures and render scenes in the separate `Photon-v2-Resource` source repo, not only the build copy. Ask the user for its local path when needed.
 
 ## Scoped Guidance
-- Under `Engine/`: C API contracts, SDL internals, geometry actors, and renderer-specific details.
-- Under `Main/`: end-to-end render tests and project-local skill maintenance.
+- Under `Engine/`: C API contracts, filesystem paths, engine tests, SDL internals, geometry actors, and renderer-specific details.
+- Under `Main/`: end-to-end render tests and project-local skills in `Main/AgentSkills/`.

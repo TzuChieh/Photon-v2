@@ -20,6 +20,12 @@ public:
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx) const override;
 
+protected:
+	IndexedTriangleBuffer loadTriangleBuffer(PlyFile& file) const;
+
+private:
+	static IndexedTriangleBuffer loadDirectlyExpandedBlenderTriangleBuffer(PlyFile& file);
+
 public:
 	struct SdlWritePly
 	{

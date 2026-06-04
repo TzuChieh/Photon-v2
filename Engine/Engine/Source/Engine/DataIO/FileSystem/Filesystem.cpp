@@ -141,6 +141,26 @@ void Filesystem::copy(
 	}
 }
 
+void Filesystem::remove(const Path& path, const bool isRecursive)
+{
+	std::error_code errorCode;
+	if(isRecursive)
+	{
+		std::filesystem::remove_all(path.toStdPath(), errorCode);
+	}
+	else
+	{
+		std::filesystem::remove(path.toStdPath(), errorCode);
+	}
+
+	if(errorCode)
+	{
+		throw FilesystemError(std::format(
+			"Error removing path \"{}\".", path),
+			errorCode);
+	}
+}
+
 Path Filesystem::makeRelative(const Path& src, const Path& base)
 {
 	return Path(std::filesystem::relative(src.toStdPath(), base.toStdPath()));

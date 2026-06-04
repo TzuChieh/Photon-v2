@@ -6,6 +6,7 @@
 #include "Engine/Core/Intersection/data_structure_fwd.h"
 
 #include <string_view>
+#include <utility>
 
 namespace ph
 {
@@ -23,6 +24,9 @@ public:
 
 	std::shared_ptr<Geometry> genTransformed(
 		const StaticAffineTransform& transform) const override;
+
+	const ResourceIdentifier& getPlyFile() const;
+	void setPlyFile(Path plyFile);
 
 protected:
 	/*!
@@ -65,5 +69,15 @@ public:
 		clazz.addField(plyFile);
 	}
 };
+
+inline const ResourceIdentifier& GPlyPolygonMesh::getPlyFile() const
+{
+	return m_plyFile;
+}
+
+inline void GPlyPolygonMesh::setPlyFile(Path plyFile)
+{
+	m_plyFile.setPath(std::move(plyFile));
+}
 
 }// end namespace ph

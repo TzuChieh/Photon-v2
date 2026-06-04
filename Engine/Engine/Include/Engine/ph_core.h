@@ -47,7 +47,7 @@ Path get_config_directory(EEngineProject project);
 Path get_internal_resource_directory(EEngineProject project);
 
 /*! @brief Directory to additional/optional resources used by the project.
-Consider using `TResourcePath` and its aliases if applicable.
+Consider using `TProjectPath` and its aliases if applicable.
 */
 Path get_resource_directory(EEngineProject project);
 

@@ -27,9 +27,9 @@ the expected frequencies.
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
 #include <Engine/Core/Intersection/TMetaInjectionPrimitive.h>
 #include <Engine/Core/Texture/constant_textures.h>
-#include <Engine/ph_core.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/DataIO/Stream/FormattedTextOutputStream.h>
 
 // Optics to test
@@ -324,7 +324,7 @@ inline void write_report(
 {
 	PH_ASSERT_EQ(observedFreq.size(), expectedFreq.size());
 
-	const Path reportDir = get_intermediate_directory(EEngineProject::EngineDeepTest) / "bsdf_sampling_chi2";
+	const Path reportDir = EngineDeepTestIntermediatePath("bsdf_sampling_chi2");
 	Filesystem::createDirectories(reportDir);
 
 	FormattedTextOutputStream out{reportDir / (reportName + ".html")};

@@ -1,5 +1,5 @@
 #include <Engine/DataIO/Stream/FormattedTextInputStream.h>
-#include <Engine/DataIO/FileSystem/TResourcePath.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Common/os.h>
 
 #include <gtest/gtest.h>
@@ -181,7 +181,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 {
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_text.txt"));
+			EngineTestResourcePath("Text/simple_text.txt"));
 
 		std::string content;
 		ASSERT_NO_THROW(stream.readAllTightly(&content));
@@ -191,7 +191,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_multi_line.txt"));
+			EngineTestResourcePath("Text/simple_multi_line.txt"));
 
 		std::string content;
 		ASSERT_NO_THROW(stream.readAllTightly(&content));
@@ -204,7 +204,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 {
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_text.txt"));
+			EngineTestResourcePath("Text/simple_text.txt"));
 
 		std::string line;
 
@@ -216,7 +216,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_multi_line.txt"));
+			EngineTestResourcePath("Text/simple_multi_line.txt"));
 
 		std::string line;
 
@@ -237,7 +237,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 {
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_multi_line.txt"));
+			EngineTestResourcePath("Text/simple_multi_line.txt"));
 
 		std::byte byte;
 		ASSERT_NO_THROW(stream.read(1, &byte));
@@ -256,7 +256,7 @@ TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 {
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/simple_multi_line.txt"));
+			EngineTestResourcePath("Text/simple_multi_line.txt"));
 
 		EXPECT_EQ(stream.tellGet(), 0);
 
@@ -284,7 +284,7 @@ TEST(FormattedTextInputStreamTest, ValidityCheck)
 
 	{
 		auto stream = FormattedTextInputStream(
-			EngineTestResource("Text/empty.txt"));
+			EngineTestResourcePath("Text/empty.txt"));
 		EXPECT_TRUE(stream);
 	}
 }

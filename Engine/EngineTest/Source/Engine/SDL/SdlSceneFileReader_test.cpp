@@ -1,7 +1,7 @@
 #include "engine_test_util.h"
 #include "Engine/SDL/Introspect/TSdlReferenceArray_test.h"
 
-#include <Engine/DataIO/FileSystem/TResourcePath.h>
+#include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/SDL/Introspect/SdlClass.h>
 #include <Engine/SDL/SceneDescription.h>
 #include <Engine/SDL/SdlSceneFileReader.h>
@@ -32,7 +32,7 @@ TEST(SdlSceneFileReaderTest, ImportExpandsInPlace)
 {
 	SceneDescription scene;
 	auto reader = make_import_test_reader(
-		EngineTestResource("SDL_parser_import/direct_main.p2"));
+		EngineTestResourcePath("SDL_parser_import/direct_main.p2"));
 
 	reader.read(&scene);
 
@@ -45,7 +45,7 @@ TEST(SdlSceneFileReaderTest, NestedImportResolvesRelativeToSceneWorkingDirectory
 {
 	SceneDescription scene;
 	auto reader = make_import_test_reader(
-		EngineTestResource("SDL_parser_import/nested_main.p2"));
+		EngineTestResourcePath("SDL_parser_import/nested_main.p2"));
 
 	reader.read(&scene);
 
@@ -59,7 +59,7 @@ TEST(SdlSceneFileReaderTest, ImportPathCanContainSpaces)
 {
 	SceneDescription scene;
 	auto reader = make_import_test_reader(
-		EngineTestResource("SDL_parser_import/space_path_main.p2"));
+		EngineTestResourcePath("SDL_parser_import/space_path_main.p2"));
 
 	reader.read(&scene);
 
@@ -72,7 +72,7 @@ TEST(SdlSceneFileReaderTest, MissingImportReportsParseError)
 {
 	SceneDescription scene;
 	auto reader = make_import_test_reader(
-		EngineTestResource("SDL_parser_import/missing_main.p2"));
+		EngineTestResourcePath("SDL_parser_import/missing_main.p2"));
 
 	reader.read(&scene);
 
@@ -83,7 +83,7 @@ TEST(SdlSceneFileReaderTest, UnknownDirectiveReportsParseError)
 {
 	SceneDescription scene;
 	auto reader = make_import_test_reader(
-		EngineTestResource("SDL_parser_import/unknown_directive.p2"));
+		EngineTestResourcePath("SDL_parser_import/unknown_directive.p2"));
 
 	reader.read(&scene);
 
