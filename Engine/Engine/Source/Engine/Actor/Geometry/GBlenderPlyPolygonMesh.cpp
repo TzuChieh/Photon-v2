@@ -28,6 +28,53 @@ inline uint32 load_uint32(const std::byte* const bytes)
 	return value;
 }
 
+inline TIndexRangeMap<uint64, uint32> load_face_id_to_material_slot_map(PlyFile& file)
+{
+	const PlyElement& matIdElement = *file.findElement("mat_ids");
+	const auto numFaces = static_cast<uint32>(matIdElement.numElements);
+	const std::byte* const matIdBytes = matIdElement.rawBuffer.data();
+
+	if(numFaces == 0)
+	{
+		return TIndexRangeMap<uint64, uint32>();
+	}
+
+	const auto materialSlotAt = [matIdBytes](const uint32 faceId)
+	{
+		return load_uint32(matIdBytes + faceId * sizeof(uint32));
+	};
+
+	// `TIndexRangeMap` stores face ranges, which can outnumber unique material IDs.
+	uint32 numMaterialSlotRanges = 1;
+	uint32 previousMaterialSlot = materialSlotAt(0);
+	for(uint32 faceId = 1; faceId < numFaces; ++faceId)
+	{
+		const uint32 faceMaterialSlot = materialSlotAt(faceId);
+		if(faceMaterialSlot != previousMaterialSlot)
+		{
+			++numMaterialSlotRanges;
+		}
+		previousMaterialSlot = faceMaterialSlot;
+	}
+
+	TIndexRangeMap<uint64, uint32> faceIdToMaterialSlot(numMaterialSlotRanges);
+	uint32 currentRangeIndex = 0;
+	uint32 rangeMaterialSlot = materialSlotAt(0);
+	for(uint32 faceId = 1; faceId < numFaces; ++faceId)
+	{
+		const uint32 faceMaterialSlot = materialSlotAt(faceId);
+		if(faceMaterialSlot != rangeMaterialSlot)
+		{
+			faceIdToMaterialSlot.setRangeMap(currentRangeIndex, faceId - 1, rangeMaterialSlot);
+			++currentRangeIndex;
+			rangeMaterialSlot = faceMaterialSlot;
+		}
+	}
+	faceIdToMaterialSlot.setRangeMap(currentRangeIndex, numFaces - 1, rangeMaterialSlot);
+
+	return faceIdToMaterialSlot;
+}
+
 }// end anonymous namespace
 
 void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
@@ -171,6 +218,7 @@ void GBlenderPlyPolygonMesh::storeCooked(
 
 	PlyFile file(getPlyFile().getPath());
 	*triangleBuffer = loadTriangleBuffer(file);
+	out_geometry.faceIdToMetadataSlot = load_face_id_to_material_slot_map(file);
 
 	auto* kdTreeMesh = ctx.getResources().makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
 		triangleBuffer);

@@ -5,3 +5,6 @@
 
 ## Cooking Tests
 - Prefer direct resource/context setup over bootstrapping `VisualWorld` when a unit test only needs cooked-resource allocation.
+
+## Fixture Design
+- For compact mappings or transformed data, choose fixtures where source count, unique value count, and encoded output count differ so the storage contract is tested.

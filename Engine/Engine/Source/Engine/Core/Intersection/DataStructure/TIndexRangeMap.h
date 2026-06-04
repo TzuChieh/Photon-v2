@@ -10,8 +10,9 @@
 namespace ph
 {
 
-/*!
-Maps a range of indices to a value.
+/*! @brief Maps contiguous index ranges to values.
+Each entry stores the inclusive max index of one range. The number of entries is
+the number of contiguous ranges, not the number of source indices or unique values.
 */
 template<typename Index, typename Value>
 class TIndexRangeMap final
@@ -46,7 +47,8 @@ public:
 		return entryPtr->value;
 	}
 
-	/*! @brief Sets a range mapping for a value by its max index.
+	/*! @brief Sets a range entry by its inclusive max index.
+	Entries must be set in ascending max-index order.
 	*/
 	void setRangeMap(uint32 entryIndex, Index maxIndex, Value value)
 	{

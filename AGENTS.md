@@ -48,5 +48,5 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 - Add or update test fixtures and render scenes in the separate `Photon-v2-Resource` source repo, not only the build copy. Ask the user for its local path when needed.
 
 ## Scoped Guidance
-- Under `Engine/`: C API contracts, filesystem paths, engine tests, SDL internals, geometry actors, and renderer-specific details.
+- Under `Engine/`: C API contracts, filesystem paths, engine tests, SDL internals, geometry actors, intersection primitives/data structures, and renderer-specific details.
 - Under `Main/`: end-to-end render tests and project-local skills in `Main/AgentSkills/`.

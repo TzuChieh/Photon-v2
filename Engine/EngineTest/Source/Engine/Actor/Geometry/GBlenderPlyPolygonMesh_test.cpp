@@ -132,5 +132,6 @@ TEST(GBlenderPlyPolygonMeshTest, StoreCooked)
 	EXPECT_EQ(cooked->triangleView->numFaces(), 2);
 	EXPECT_EQ(cooked->triangleView->getVertexBuffer().numVertices(), 4);
 	EXPECT_EQ(cooked->triangleView->getIndexBuffer().numUInts(), 6);
-
+	EXPECT_EQ(cooked->faceIdToMetadataSlot.get(0), 4);
+	EXPECT_EQ(cooked->faceIdToMetadataSlot.get(1), 7);
 }
