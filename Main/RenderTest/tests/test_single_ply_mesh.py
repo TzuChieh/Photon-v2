@@ -6,12 +6,12 @@ import pytest
 res_dir = paths.test_resources() / "single_ply_mesh"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
-quad_ref_path = res_dir / "ref_quad_bvpt_16384spp_0"
-suzanne_ref_path = res_dir / "ref_suzanne_bneept_16384spp_0"
-quad_bvpt_ref_var_path = res_dir / "ref_quad_bvpt_16384spp_1"
-quad_bneept_ref_var_path = res_dir / "ref_quad_bneept_16384spp_1"
-suzanne_bvpt_ref_var_path = res_dir / "ref_suzanne_bvpt_16384spp_1"
-suzanne_bneept_ref_var_path = res_dir / "ref_suzanne_bneept_16384spp_1"
+quad_ref_path = res_dir / "ref_quad_bvpt_16384spp_beauty"
+suzanne_ref_path = res_dir / "ref_suzanne_bneept_16384spp_beauty"
+quad_bvpt_ref_var_path = res_dir / "ref_quad_bvpt_16384spp_var"
+quad_bneept_ref_var_path = res_dir / "ref_quad_bneept_16384spp_var"
+suzanne_bvpt_ref_var_path = res_dir / "ref_suzanne_bvpt_16384spp_var"
+suzanne_bneept_ref_var_path = res_dir / "ref_suzanne_bneept_16384spp_var"
 
 sppm_msg = (
     "This SPPM case intentionally uses the Blackman-Harris sample filter because "

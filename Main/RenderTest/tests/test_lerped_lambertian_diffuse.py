@@ -7,12 +7,12 @@ res_dir = paths.test_resources() / "lerped_lambertian_diffuse"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
-ref_path = res_dir / "ref_no_lerp_bvpt_65536spp_0"
-factor0p0_bvpt_ref_var_path = res_dir / "ref_no_lerp_bvpt_65536spp_1"
-factor0p5_bvpt_ref_var_path = res_dir / "ref_factor0p5_bvpt_65536spp_1"
-factor0p8_bvpt_ref_var_path = res_dir / "ref_factor0p8_bvpt_65536spp_1"
-factor0p0_bneept_ref_var_path = res_dir / "ref_no_lerp_bneept_65536spp_1"
-factor0p5_bneept_ref_var_path = res_dir / "ref_factor0p5_bneept_65536spp_1"
+ref_path = res_dir / "ref_no_lerp_bvpt_65536spp_beauty"
+factor0p0_bvpt_ref_var_path = res_dir / "ref_no_lerp_bvpt_65536spp_var"
+factor0p5_bvpt_ref_var_path = res_dir / "ref_factor0p5_bvpt_65536spp_var"
+factor0p8_bvpt_ref_var_path = res_dir / "ref_factor0p8_bvpt_65536spp_var"
+factor0p0_bneept_ref_var_path = res_dir / "ref_no_lerp_bneept_65536spp_var"
+factor0p5_bneept_ref_var_path = res_dir / "ref_factor0p5_bneept_65536spp_var"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)

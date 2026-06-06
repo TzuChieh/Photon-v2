@@ -7,9 +7,9 @@ res_dir = paths.test_resources() / "white_100W_rect_area_light"
 suite = infra.RenderTestSuite(__name__, res_dir)
 
 renderer_config = infra.RendererConfig(num_threads=4)
-ref_path = res_dir / "ref_bneept_8192spp_0"
-bvpt_ref_var_path = res_dir / "ref_bvpt_8192spp_1"
-bneept_ref_var_path = res_dir / "ref_bneept_8192spp_1"
+ref_path = res_dir / "ref_bneept_8192spp_beauty"
+bvpt_ref_var_path = res_dir / "ref_bvpt_8192spp_var"
+bneept_ref_var_path = res_dir / "ref_bneept_8192spp_var"
 
 def output_title(case, metrics):
     return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
