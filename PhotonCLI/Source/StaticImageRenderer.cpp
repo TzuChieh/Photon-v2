@@ -27,9 +27,9 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 	phSetWorkingDirectory(m_sessionId, sceneDirectory.c_str());
 }
 
-void StaticImageRenderer::setImageOutputPath(const std::string& path)
+void StaticImageRenderer::setImageOutputStem(const std::string& imageOutputStem)
 {
-	m_args.setImageOutputPath(path);
+	m_args.setImageOutputStem(imageOutputStem);
 }
 
 bool StaticImageRenderer::loadCommandsFromSceneFile() const

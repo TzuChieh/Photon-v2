@@ -36,6 +36,11 @@ public:
 	*/
 	std::vector<std::string> retrieveStrings(std::size_t numValues);
 
+	/*! @brief Get the first argument as a comma-separated list and remove it from the internal buffer.
+	Entries are trimmed. Empty entries are kept.
+	*/
+	std::vector<std::string> retrieveCommaSeparatedStrings(const std::string& defaultString = "");
+
 	/*! @brief Get the arguments for an option.
 	This method assumes that the options specified are of the form 
 	"{- | --}<optionName> <arg0> <arg1> ...", i.e., options have a single or

@@ -70,7 +70,7 @@ void CliStaticImageRenderer::render()
 			if(getArgs().isIntermediateOutputRequested())
 			{
 				bool shouldSaveImage = false;
-				std::string imageFilePath = getArgs().getImageOutputPath() + "_intermediate_";
+				std::string imageFilePath = getArgs().getPrimaryImageOutputStem() + "_intermediate_";
 				if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Percentage)
 				{
 					if(currentProgress - lastOutputProgress > getArgs().getIntermediateOutputInterval())
@@ -159,7 +159,7 @@ void CliStaticImageRenderer::render()
 
 		save_frame_with_fail_safe(
 			frameId,
-			numOutputLayers > 1 ? getArgs().getImageFilePath(layerIndexAsInt) : getArgs().getImageFilePath(),
+			getArgs().getImageFilePath(layerIndexAsInt, static_cast<int32>(numOutputLayers)),
 			nullptr,
 			layerName);
 	}

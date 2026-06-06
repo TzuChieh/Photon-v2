@@ -1,9 +1,10 @@
 #include "ProcessedArguments.h"
 
+#include <Common/assertion.h>
 #include <Common/logging.h>
 
-#include <string_view>
 #include <limits>
+#include <utility>
 
 namespace ph::cli
 {
@@ -17,7 +18,8 @@ ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 	: m_executionMode                 (EExecutionMode::SingleImage)
 	, m_sceneFilePath                 ("./scene.p2")
-	, m_imageOutputPath               ("./rendered_scene")
+	, m_defaultImageOutputStem        (DEFAULT_IMAGE_OUTPUT_STEM)
+	, m_imageOutputStemOverrides      ()
 	, m_imageFileFormat               ("png")
 	, m_numThreads                    (1)
 	, m_isPostProcessRequested        (true)
@@ -44,7 +46,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 		}
 		else if(argument == "-o")
 		{
-			m_imageOutputPath = arguments.retrieveString();
+			setImageOutputStemOverrides(arguments.retrieveCommaSeparatedStrings());
 		}
 		else if(argument == "-of")
 		{
@@ -174,6 +176,30 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 	}// end while more arguments exist
 
 	// TODO: argument sanity check
+}
+
+std::string ProcessedArguments::getImageFilePath(const int32 imageIndex, const int32 numImages) const
+{
+	return getImageOutputStem(imageIndex, numImages) + "." + m_imageFileFormat;
+}
+
+std::string ProcessedArguments::getImageOutputStem(const int32 imageIndex, const int32 numImages) const
+{
+	const auto stemIndex = static_cast<std::size_t>(imageIndex);
+	if(stemIndex < m_imageOutputStemOverrides.size() && !m_imageOutputStemOverrides[stemIndex].empty())
+	{
+		return m_imageOutputStemOverrides[stemIndex];
+	}
+
+	PH_ASSERT_GE(numImages, 1);
+	return numImages == 1
+		? m_defaultImageOutputStem
+		: m_defaultImageOutputStem + "_" + std::to_string(imageIndex);
+}
+
+void ProcessedArguments::setImageOutputStemOverrides(std::vector<std::string> imageOutputStemOverrides)
+{
+	m_imageOutputStemOverrides = std::move(imageOutputStemOverrides);
 }
 
 }// end namespace ph::cli

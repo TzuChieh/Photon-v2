@@ -147,3 +147,75 @@ TEST(CommandLineArgumentsTest, RetrieveStrings)
 	EXPECT_EQ(args.retrieveString(), "trailing");
 	EXPECT_TRUE(args.isEmpty());
 }
+
+TEST(CommandLineArgumentsTest, RetrieveCommaSeparatedStrings)
+{
+	char arg0[] = "list_app.exe";
+	char arg1[] = "beauty,variance,albedo";
+	char arg2[] = "  first , second,third  ";
+	char arg3[] = "a,,c";
+	char arg4[] = ",,only-value,,";
+	char arg5[] = "a,b,   ";
+	char* argv[] = {arg0, arg1, arg2, arg3, arg4, arg5};
+	int argc = 6;
+
+	CommandLineArguments args(argc, argv);
+
+	std::vector<std::string> values = args.retrieveCommaSeparatedStrings();
+	ASSERT_EQ(values.size(), 3);
+	EXPECT_EQ(values[0], "beauty");
+	EXPECT_EQ(values[1], "variance");
+	EXPECT_EQ(values[2], "albedo");
+
+	values = args.retrieveCommaSeparatedStrings();
+	ASSERT_EQ(values.size(), 3);
+	EXPECT_EQ(values[0], "first");
+	EXPECT_EQ(values[1], "second");
+	EXPECT_EQ(values[2], "third");
+
+	values = args.retrieveCommaSeparatedStrings();
+	ASSERT_EQ(values.size(), 3);
+	EXPECT_EQ(values[0], "a");
+	EXPECT_TRUE(values[1].empty());
+	EXPECT_EQ(values[2], "c");
+
+	values = args.retrieveCommaSeparatedStrings();
+	ASSERT_EQ(values.size(), 4);
+	EXPECT_TRUE(values[0].empty());
+	EXPECT_TRUE(values[1].empty());
+	EXPECT_EQ(values[2], "only-value");
+	EXPECT_TRUE(values[3].empty());
+
+	values = args.retrieveCommaSeparatedStrings();
+	ASSERT_EQ(values.size(), 2);
+	EXPECT_EQ(values[0], "a");
+	EXPECT_EQ(values[1], "b");
+	EXPECT_TRUE(args.isEmpty());
+}
+
+TEST(CommandLineArgumentsTest, RetrieveCommaSeparatedStringsUsesDefault)
+{
+	char arg0[] = "list_app.exe";
+	char* argv[] = {arg0};
+	int argc = 1;
+
+	CommandLineArguments args(argc, argv);
+
+	const std::vector<std::string> values = args.retrieveCommaSeparatedStrings("a,b");
+	ASSERT_EQ(values.size(), 2);
+	EXPECT_EQ(values[0], "a");
+	EXPECT_EQ(values[1], "b");
+}
+
+TEST(CommandLineArgumentsTest, RetrieveCommaSeparatedStringsEmptyInput)
+{
+	char arg0[] = "list_app.exe";
+	char arg1[] = "";
+	char* argv[] = {arg0, arg1};
+	int argc = 2;
+
+	CommandLineArguments args(argc, argv);
+
+	EXPECT_TRUE(args.retrieveCommaSeparatedStrings().empty());
+	EXPECT_TRUE(args.retrieveCommaSeparatedStrings("").empty());
+}

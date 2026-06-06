@@ -7,8 +7,8 @@ Photon-v2 comes with an application called `PhotonCLI`, which is a command-line 
 | Options  | Effects |
 | -------- | ------- |
 | `-s <path>` | Specify path to scene file. To render an image series, you can specify `"myScene*.p2"` as `<path>` where `*` is a wildcard for any string (`--series` is required in this case). (default path: `"./scene.p2"`) |
-| `-o <path>` | Specify image output path. This should be a filename for single image and a directory for image series. (default path: `"./rendered_scene.png"`) |
-| `-of <format>` | Specify the format of output image. Supported formats are: `png`, `jpg`, `bmp`, `tga`, `hdr`, `exr`. If this option is omitted, format is deduced from filename extension. |
+| `-o <path>` | Specify output stem(s), e.g., `-o beauty,variance`. Empty or omitted stems use the default name for that image index. In `--series` mode, this is the output directory. (default stem: `"./rendered_scene"`) |
+| `-of <format>` | Specify the format of output image. Supported formats are: `png`, `jpg`, `bmp`, `tga`, `hdr`, `exr`, `pfm`. (default: `png`) |
 | `-t <number>` | Set number of threads used for rendering. (default: `1`, single thread) |
 | `-p <number>` | Output an intermediate image whenever the render has progressed `<number>`%. (default: never output intermediate image) |
 | `--raw` | Do not perform any post-processing. (default: perform post-processing) |
@@ -24,7 +24,7 @@ All following commands are expected to be executed from the build/install direct
 Rendering a scene file named `./ocean.p2` using 4 threads and save the rendered image as `./my_image.jpg`:
 
 ```shell
-./bin/PhotonCLI -s "./ocean.p2" -o "./my_image.jpg" -t 4
+./bin/PhotonCLI -s "./ocean.p2" -o "./my_image" -of jpg -t 4
 ```
 
 For animations, assuming there is a folder `gif_animation` containing scene files for a 3-frame animation: `pose1.p2`, `pose2.p2`, `pose3.p2`, to render and save the images (.png) to a folder `gif_images`, you can specify:

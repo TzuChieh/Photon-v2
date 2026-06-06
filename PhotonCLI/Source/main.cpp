@@ -143,7 +143,7 @@ void renderImageSeries(const ProcessedArguments& args)
 	}
 	std::sort(sceneFiles.begin(), sceneFiles.end());
 
-	fs::create_directories(args.getImageOutputPath());
+	fs::create_directories(args.getPrimaryImageOutputStem());
 
 	auto sceneBegin = std::find_if(sceneFiles.begin(), sceneFiles.end(), 
 		[&args](const std::pair<std::string, std::string>& sceneFile)
@@ -173,9 +173,9 @@ void renderImageSeries(const ProcessedArguments& args)
 		renderer.setSceneFilePath(sceneFile.second);
 
 		const std::string imageFilename = sceneFile.first;
-		const fs::path    imageFilePath = fs::path(args.getImageOutputPath()) / imageFilename;
-		renderer.setImageOutputPath(imageFilePath.string());
-		
+		const fs::path    imageOutputStem = fs::path(args.getPrimaryImageOutputStem()) / imageFilename;
+		renderer.setImageOutputStem(imageOutputStem.string());
+
 		renderer.render();
 	}
 }

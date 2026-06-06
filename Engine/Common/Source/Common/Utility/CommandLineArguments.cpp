@@ -2,6 +2,7 @@
 #include "Common/assertion.h"
 
 #include <algorithm>
+#include <string_view>
 
 namespace ph
 {
@@ -34,6 +35,20 @@ std::vector<std::string> CommandLineArguments::retrieveStrings(const std::size_t
 	{
 		arguments.push_back(retrieveString());
 	}
+	return arguments;
+}
+
+std::vector<std::string> CommandLineArguments::retrieveCommaSeparatedStrings(const std::string& defaultString)
+{
+	const std::string values = retrieveString(defaultString);
+
+	std::vector<std::string> arguments;
+	std::string_view remaining = values;
+	while(!remaining.empty())
+	{
+		arguments.push_back(std::string(string_utils::next_token(remaining, ",", &remaining)));
+	}
+
 	return arguments;
 }
 

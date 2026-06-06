@@ -7,11 +7,14 @@
 
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <iostream>
 
 namespace ph::cli
 {
+
+inline constexpr std::string_view DEFAULT_IMAGE_OUTPUT_STEM = "./rendered_scene";
 
 enum class EIntervalUnit
 {
@@ -30,6 +33,8 @@ enum class EExecutionMode
 class ProcessedArguments
 {
 	// TODO: a parameter telling whether intermediate output is requested
+	friend class StaticImageRenderer;
+
 public:
 	static void printHelpMessage();
 
@@ -39,8 +44,8 @@ public:
 
 	EExecutionMode getExecutionMode() const;
 	std::string    getSceneFilePath() const;
-	std::string    getImageOutputPath() const;
-	std::string    getImageFilePath(int32 imageIndex = -1) const;
+	std::string    getPrimaryImageOutputStem() const;
+	std::string    getImageFilePath(int32 imageIndex, int32 numImages) const;
 	std::string    getImageFileFormat() const;
 	uint32         numThreads() const;
 	bool           isPostProcessRequested() const;
@@ -53,11 +58,6 @@ public:
 	uint16         getPort() const;
 	float32        getBlenderPeekInterval() const;
 	EIntervalUnit  getBlenderPeekIntervalUnit() const;
-
-	void setSceneFilePath(const std::string& sceneFilePath);
-	void setImageOutputPath(const std::string& imageOutputPath);
-
-	// TODO: other setters
 
 	// HACK
 	bool isFrameDiagRequested() const
@@ -74,21 +74,27 @@ public:
 	}
 
 private:
-	EExecutionMode m_executionMode;
-	std::string    m_sceneFilePath;
-	std::string    m_imageOutputPath;
-	std::string    m_imageFileFormat;
-	uint32         m_numThreads;
-	bool           m_isPostProcessRequested;
-	std::string    m_wildcardStart;
-	std::string    m_wildcardFinish;
-	bool           m_isIntermediateOutputRequested;
-	float32        m_intermediateOutputInterval;
-	EIntervalUnit  m_intermediateOutputIntervalUnit;
-	bool           m_isOverwriteRequested;
-	uint16         m_port;
-	float32        m_blenderPeekInterval;
-	EIntervalUnit  m_blenderPeekIntervalUnit;
+	void setSceneFilePath(const std::string& sceneFilePath);
+	void setImageOutputStem(const std::string& imageOutputStem);
+	void setImageOutputStemOverrides(std::vector<std::string> imageOutputStemOverrides);
+	std::string getImageOutputStem(int32 imageIndex, int32 numImages) const;
+
+	EExecutionMode           m_executionMode;
+	std::string              m_sceneFilePath;
+	std::string              m_defaultImageOutputStem;
+	std::vector<std::string> m_imageOutputStemOverrides;
+	std::string              m_imageFileFormat;
+	uint32                   m_numThreads;
+	bool                     m_isPostProcessRequested;
+	std::string              m_wildcardStart;
+	std::string              m_wildcardFinish;
+	bool                     m_isIntermediateOutputRequested;
+	float32                  m_intermediateOutputInterval;
+	EIntervalUnit            m_intermediateOutputIntervalUnit;
+	bool                     m_isOverwriteRequested;
+	uint16                   m_port;
+	float32                  m_blenderPeekInterval;
+	EIntervalUnit            m_blenderPeekIntervalUnit;
 
 	// FIXME: this should move to other utilities such as the editor
 	bool m_isFrameDiagRequested;
@@ -108,19 +114,11 @@ inline std::string ProcessedArguments::getSceneFilePath() const
 	return m_sceneFilePath;
 }
 
-inline std::string ProcessedArguments::getImageOutputPath() const
+inline std::string ProcessedArguments::getPrimaryImageOutputStem() const
 {
-	return m_imageOutputPath;
-}
-
-inline std::string ProcessedArguments::getImageFilePath(const int32 imageIndex) const
-{
-	if(imageIndex < 0)
-	{
-		return m_imageOutputPath + "." + m_imageFileFormat;
-	}
-
-	return m_imageOutputPath + "_" + std::to_string(imageIndex) + "." + m_imageFileFormat;
+	return !m_imageOutputStemOverrides.empty() && !m_imageOutputStemOverrides.front().empty()
+		? m_imageOutputStemOverrides.front()
+		: m_defaultImageOutputStem;
 }
 
 inline std::string ProcessedArguments::getImageFileFormat() const
@@ -188,9 +186,10 @@ inline void ProcessedArguments::setSceneFilePath(const std::string& sceneFilePat
 	m_sceneFilePath = sceneFilePath;
 }
 
-inline void ProcessedArguments::setImageOutputPath(const std::string& imageOutputPath)
+inline void ProcessedArguments::setImageOutputStem(const std::string& imageOutputStem)
 {
-	m_imageOutputPath = imageOutputPath;
+	m_defaultImageOutputStem = imageOutputStem;
+	m_imageOutputStemOverrides.clear();
 }
 
 inline void ProcessedArguments::printHelpMessage()
@@ -206,12 +205,10 @@ required in this case).
 ===============================================================================
 [-o <path>]
 
-Specify image output path. This should be a filename (without extension) for 
-single image or a directory for image series. Note that the application will
-not create the directory for you if it is not already exists.
-If multiple render layers are available, files are written as <path>_0,
-<path>_1, ... with specified extension.
-(default path: "./rendered_scene")
+Specify output stem(s), e.g., "-o beauty,variance". Empty or omitted stems use
+the default name for that image index. In --series mode, this is the output
+directory.
+(default stem: "./rendered_scene")
 ===============================================================================
 [-of <format>]
 

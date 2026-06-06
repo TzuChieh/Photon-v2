@@ -18,7 +18,7 @@ public:
 	virtual void render() = 0;
 
 	void setSceneFilePath(const std::string& path);
-	void setImageOutputPath(const std::string& path);
+	void setImageOutputStem(const std::string& imageOutputStem);
 
 protected:
 	PhUInt64 getSession() const;

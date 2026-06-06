@@ -33,22 +33,52 @@ TEST(StringUtilsTest, NextToken)
 		EXPECT_TRUE(next_token("   \t\nA B \t C ", &remainingStr) == "A");
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr) == "B");
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr) == "C");
+
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr) == "");
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr) == "");
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr) == "");
 	}
 
 	{
-		constexpr std::string_view sep = ";, ";
+		constexpr std::string_view sep = ";,";
 
 		std::string_view remainingStr;
-		EXPECT_TRUE(next_token("A, B, C,;;; D ", &remainingStr, sep) == "A");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "B");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "C");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "D");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "");
-		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "");
+		EXPECT_TRUE(next_token("A, B, C,;;; D ", sep, &remainingStr) == "A");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "B");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "C");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "D");
+
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+	}
+
+	{
+		constexpr std::string_view sep = ",";
+
+		std::string_view remainingStr;
+		EXPECT_TRUE(next_token(" a,, c ", sep, &remainingStr) == "a");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "c");
+		EXPECT_TRUE(remainingStr.empty());
+	}
+
+	{
+		constexpr std::string_view sep = ",";
+
+		std::string_view remainingStr;
+		EXPECT_TRUE(next_token("a,", sep, &remainingStr) == "a");
+		EXPECT_TRUE(remainingStr.empty());
+
+		EXPECT_TRUE(next_token("a,,", sep, &remainingStr) == "a");
+		EXPECT_TRUE(next_token(remainingStr, sep, &remainingStr) == "");
+		EXPECT_TRUE(remainingStr.empty());
+
+		EXPECT_TRUE(next_token("a,   ", sep, &remainingStr) == "a");
+		EXPECT_TRUE(remainingStr.empty());
 	}
 }
 

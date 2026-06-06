@@ -226,19 +226,19 @@ inline std::string_view trim(const std::string_view srcStr)
 	return trim_head<TYPE>(trim_tail<TYPE>(srcStr));
 }
 
-/*! @brief Retrieve a token from a string.
-
-@param srcStr The string that token is going to be retrieved from.
-@param[out] out_remainingStr If not null, stores the string with the retrieved token and its separator
-removed. Pointing to @p srcStr is valid, e.g., `next_token(str, &str)`.
-@param tokenSeparators Charactors that separate the tokens. Defaults to whitespace characters.
-*/
-inline std::string_view next_token(
-	std::string_view        srcStr, 
-	std::string_view* const out_remainingStr = nullptr,
-	const std::string_view  tokenSeparators = get_whitespaces<>())
+namespace detail
 {
-	srcStr = cut_head(srcStr, tokenSeparators);
+
+inline std::string_view next_token_impl(
+	std::string_view        srcStr, 
+	std::string_view* const out_remainingStr,
+	const std::string_view  tokenSeparators,
+	const bool              shouldSkipLeadingSeparators)
+{
+	if(shouldSkipLeadingSeparators)
+	{
+		srcStr = cut_head(srcStr, tokenSeparators);
+	}
 
 	const auto separatorPos = srcStr.find_first_of(tokenSeparators);
 	if(separatorPos != std::string_view::npos)
@@ -247,15 +247,71 @@ inline std::string_view next_token(
 		if(out_remainingStr)
 		{
 			// `separatorPos + 1` as we do not want to include the separator
-			*out_remainingStr = srcStr.substr(separatorPos + 1);
+			auto remainingStr = srcStr.substr(separatorPos + 1);
+			if(!shouldSkipLeadingSeparators && trim(remainingStr).empty())
+			{
+				remainingStr = "";
+			}
+
+			*out_remainingStr = remainingStr;
 		}
 
-		return nextToken;
+		return trim(nextToken);
 	}
 	else
 	{
-		return srcStr;
+		if(out_remainingStr)
+		{
+			*out_remainingStr = "";
+		}
+
+		return trim(srcStr);
 	}
+}
+
+}// end namespace detail
+
+/*! @brief Get the next whitespace-separated token.
+
+Leading whitespace is skipped. The returned token is trimmed.
+
+@param srcStr The string that token is going to be retrieved from.
+@param[out] out_remainingStr If not null, stores the string with the retrieved token and its separator
+removed. Pointing to @p srcStr is valid, e.g., `next_token(str, &str)`.
+*/
+inline std::string_view next_token(
+	const std::string_view  srcStr,
+	std::string_view* const out_remainingStr = nullptr)
+{
+	return detail::next_token_impl(
+		srcStr, out_remainingStr, get_whitespaces<>(), true);
+}
+
+/*! @brief Get the next token split by any separator character.
+
+The returned token is trimmed. Whitespace-only separators skip leading separators; other separators
+preserve empty middle fields and ignore trailing empty fields.
+
+@param srcStr The string that token is going to be retrieved from.
+@param tokenSeparators Characters that separate the tokens.
+@param[out] out_remainingStr If not null, stores the string with the retrieved token and its separator
+removed. Pointing to @p srcStr is valid, e.g., `next_token(str, &str)`.
+*/
+inline std::string_view next_token(
+	const std::string_view  srcStr,
+	const std::string_view  tokenSeparators,
+	std::string_view* const out_remainingStr = nullptr)
+{
+	const bool hasOnlyWhitespaceSeparators = tokenSeparators == get_whitespaces<>() || std::all_of(
+		tokenSeparators.begin(),
+		tokenSeparators.end(),
+		[](const char ch)
+		{
+			return is_whitespace(ch);
+		});
+
+	return detail::next_token_impl(
+		srcStr, out_remainingStr, tokenSeparators, hasOnlyWhitespaceSeparators);
 }
 
 /*! @brief Convert lower-case characters to upper-case.

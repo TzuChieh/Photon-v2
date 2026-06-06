@@ -97,7 +97,7 @@ void BlenderStaticImageRenderer::render()
 	}
 
 	const PhFrameSaveInfo frameInfo = make_frame_save_info_for_blender();
-	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath(), &frameInfo);
+	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath(0, 1), &frameInfo);
 
 	phDeleteFrame(frameId);
 }
