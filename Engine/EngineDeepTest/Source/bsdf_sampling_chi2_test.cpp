@@ -24,8 +24,8 @@ the expected frequencies.
 #include <Engine/Core/SampleGenerator/SGHalton.h>
 #include <Engine/Core/SurfaceHit.h>
 #include <Engine/Core/Intersection/PTriangle.h>
+#include <Engine/Core/Intersection/PrimitiveBuilder.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
-#include <Engine/Core/Intersection/TMetaInjectionPrimitive.h>
 #include <Engine/Core/Texture/constant_textures.h>
 #include <Engine/DataIO/FileSystem/Path.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
@@ -132,9 +132,9 @@ inline FictionalScene make_scene(const SurfaceOptics* optics)
 	triangle.setUVWb({-1, 0, -1});
 	triangle.setUVWc({0, 0, 1});
 
-	TMetaInjectionPrimitive metaPrimitive{
-		EmbeddedPrimitiveMetaGetter{metadata},
-		TEmbeddedPrimitiveGetter<PTriangle>{triangle}};
+	auto metaPrimitive = PrimitiveBuilder::embedding<PTriangle>(std::move(triangle))
+		.injectMetadataCopy(std::move(metadata))
+		.build();
 
 	FictionalScene scene;
 	scene.unitObj = std::make_unique<decltype(metaPrimitive)>(metaPrimitive);

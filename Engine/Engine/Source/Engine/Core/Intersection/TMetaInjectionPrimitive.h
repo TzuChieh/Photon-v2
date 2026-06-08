@@ -2,15 +2,16 @@
 
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
+#include "Engine/Core/Intersection/DataStructure/TIndexRangeMap.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Utility/traits.h"
 
 #include <Common/assertion.h>
+#include <Common/compiler.h>
 
 #include <concepts>
-#include <utility>
-#include <array>
 #include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -19,7 +20,7 @@ namespace detail
 {
 
 template<typename GetterType>
-concept CPrimitiveMetaGetter = requires (const GetterType getter, uint32 slot)
+concept CPrimitiveMetadataGetter = requires (const GetterType getter, uint32 slot)
 {
 	{ getter(slot) } -> std::same_as<const PrimitiveMetadata&>;
 };
@@ -30,13 +31,23 @@ concept CPrimitiveGetter = requires (const GetterType getter)
 	{ getter() } -> std::convertible_to<const Primitive&>;
 };
 
+template<typename MapperType, typename PrimitiveGetter>
+concept CMetadataSlotMapper = requires (
+	const MapperType mapper,
+	const PrimitiveGetter& primitiveGetter,
+	uint64 faceID)
+{
+	{ mapper.numMetadataSlots(primitiveGetter) } -> std::same_as<uint32>;
+	{ mapper.toMetadataSlot(primitiveGetter, faceID) } -> std::same_as<uint32>;
+};
+
 }// end namespace detail
 
-struct ReferencedPrimitiveMetaGetter final
+struct ReferencedPrimitiveMetadataGetter final
 {
 	const PrimitiveMetadata* metadata;
 
-	explicit ReferencedPrimitiveMetaGetter(const PrimitiveMetadata* const metadata)
+	explicit ReferencedPrimitiveMetadataGetter(const PrimitiveMetadata* const metadata)
 		: metadata(metadata)
 	{}
 
@@ -47,12 +58,12 @@ struct ReferencedPrimitiveMetaGetter final
 	}
 };
 
-struct EmbeddedPrimitiveMetaGetter final
+struct EmbeddedPrimitiveMetadataGetter final
 {
 	PrimitiveMetadata metadata;
 
 	template<typename... DeducedArgs>
-	explicit EmbeddedPrimitiveMetaGetter(DeducedArgs&&... args)
+	explicit EmbeddedPrimitiveMetadataGetter(DeducedArgs&&... args)
 		: metadata(std::forward<DeducedArgs>(args)...)
 	{}
 
@@ -62,12 +73,12 @@ struct EmbeddedPrimitiveMetaGetter final
 	}
 };
 
-struct ReferencedPrimitiveMetaArrayGetter final
+struct ReferencedPrimitiveMetadataArrayGetter final
 {
 	std::unique_ptr<const PrimitiveMetadata*[]> metadatas;
 	uint32 numMetadatas;
 
-	ReferencedPrimitiveMetaArrayGetter(std::unique_ptr<const PrimitiveMetadata*[]> metadatas, uint32 numMetadatas)
+	ReferencedPrimitiveMetadataArrayGetter(std::unique_ptr<const PrimitiveMetadata*[]> metadatas, uint32 numMetadatas)
 		: metadatas(std::move(metadatas))
 		, numMetadatas(numMetadatas)
 	{}
@@ -80,12 +91,12 @@ struct ReferencedPrimitiveMetaArrayGetter final
 	}
 };
 
-struct EmbeddedPrimitiveMetaArrayGetter final
+struct EmbeddedPrimitiveMetadataArrayGetter final
 {
 	std::unique_ptr<PrimitiveMetadata[]> metadatas;
 	uint32 numMetadatas;
 
-	EmbeddedPrimitiveMetaArrayGetter(std::unique_ptr<PrimitiveMetadata[]> metadatas, uint32 numMetadatas)
+	EmbeddedPrimitiveMetadataArrayGetter(std::unique_ptr<PrimitiveMetadata[]> metadatas, uint32 numMetadatas)
 		: metadatas(std::move(metadatas))
 		, numMetadatas(numMetadatas)
 	{}
@@ -94,6 +105,53 @@ struct EmbeddedPrimitiveMetaArrayGetter final
 	{
 		PH_ASSERT_LT(slot, numMetadatas);
 		return metadatas[slot];
+	}
+};
+
+struct NativeMetadataSlotMapper final
+{
+	template<typename PrimitiveGetter>
+	uint32 numMetadataSlots(const PrimitiveGetter& primitiveGetter) const
+	{
+		return primitiveGetter().numMetadataSlots();
+	}
+
+	template<typename PrimitiveGetter>
+	uint32 toMetadataSlot(const PrimitiveGetter& primitiveGetter, const uint64 faceID) const
+	{
+		return primitiveGetter().toMetadataSlot(faceID);
+	}
+};
+
+struct FaceIdToMetadataSlotMapper final
+{
+	const TIndexRangeMap<uint64, uint32>* faceIdToMetadataSlot;
+	uint32 numSlots;
+
+	FaceIdToMetadataSlotMapper(
+		const TIndexRangeMap<uint64, uint32>* const faceIdToMetadataSlot,
+		const uint32 numSlots)
+
+		: faceIdToMetadataSlot(faceIdToMetadataSlot)
+		, numSlots(numSlots)
+	{}
+
+	template<typename PrimitiveGetter>
+	uint32 numMetadataSlots(const PrimitiveGetter& /* primitiveGetter */) const
+	{
+		return numSlots;
+	}
+
+	template<typename PrimitiveGetter>
+	uint32 toMetadataSlot(const PrimitiveGetter& /* primitiveGetter */, const uint64 faceID) const
+	{
+		PH_ASSERT(faceIdToMetadataSlot);
+		if(faceIdToMetadataSlot->isEmpty())
+		{
+			return 0;
+		}
+
+		return faceIdToMetadataSlot->get(faceID);
 	}
 };
 
@@ -129,21 +187,38 @@ struct TEmbeddedPrimitiveGetter final
 	}
 };
 
-template<typename PrimitiveMetaGetter, typename PrimitiveGetter>
+template<
+	typename PrimitiveMetadataGetter,
+	typename PrimitiveGetter,
+	typename MetadataSlotMapper = NativeMetadataSlotMapper>
 class TMetaInjectionPrimitive : public Primitive
 {
-	static_assert(detail::CPrimitiveMetaGetter<PrimitiveMetaGetter>,
-		"Input type does not fulfill the requirements of a PrimitiveMetaGetter.");
+	static_assert(detail::CPrimitiveMetadataGetter<PrimitiveMetadataGetter>,
+		"Input type does not fulfill the requirements of a PrimitiveMetadataGetter.");
 	static_assert(detail::CPrimitiveGetter<PrimitiveGetter>,
 		"Input type does not fulfill the requirements of a PrimitiveGetter.");
-
-	// TODO: could use EBO on some cases
+	static_assert(detail::CMetadataSlotMapper<MetadataSlotMapper, PrimitiveGetter>,
+		"Input type does not fulfill the requirements of a MetadataSlotMapper.");
 
 public:
-	TMetaInjectionPrimitive(PrimitiveMetaGetter metaGetter, PrimitiveGetter primitiveGetter)
+	TMetaInjectionPrimitive(PrimitiveMetadataGetter metadataGetter, PrimitiveGetter primitiveGetter)
+		requires std::same_as<MetadataSlotMapper, NativeMetadataSlotMapper>
+
+		: TMetaInjectionPrimitive(
+			std::move(metadataGetter),
+			std::move(primitiveGetter),
+			NativeMetadataSlotMapper{})
+	{}
+
+	TMetaInjectionPrimitive(
+		PrimitiveMetadataGetter metadataGetter,
+		PrimitiveGetter primitiveGetter,
+		MetadataSlotMapper slotMapper)
+
 		: Primitive()
-		, m_metaGetter(std::move(metaGetter))
+		, m_metadataGetter(std::move(metadataGetter))
 		, m_primitiveGetter(std::move(primitiveGetter))
+		, m_slotMapper(std::move(slotMapper))
 	{}
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override final
@@ -239,19 +314,19 @@ public:
 
 	uint32 numMetadataSlots() const override final
 	{
-		return m_primitiveGetter().numMetadataSlots();
+		return m_slotMapper.numMetadataSlots(m_primitiveGetter);
 	}
 
 	uint32 toMetadataSlot(const uint64 faceID) const override final
 	{
-		return m_primitiveGetter().toMetadataSlot(faceID);
+		return m_slotMapper.toMetadataSlot(m_primitiveGetter, faceID);
 	}
 
 	const PrimitiveMetadata& getMetadata(const uint32 slot) const override final
 	{
 		// Metadata from `m_primitiveGetter()->getMetadata()` (if any) is intentionally overridden
 		// by the injected one
-		return m_metaGetter(slot);
+		return m_metadataGetter(slot);
 	}
 
 	/*! @brief Gets the primitive that has got metadata injected.
@@ -263,8 +338,14 @@ public:
 	}
 
 private:
-	PrimitiveMetaGetter m_metaGetter;
+	[[PH_NO_UNIQUE_ADDRESS]]
+	PrimitiveMetadataGetter m_metadataGetter;
+
+	[[PH_NO_UNIQUE_ADDRESS]]
 	PrimitiveGetter m_primitiveGetter;
+
+	[[PH_NO_UNIQUE_ADDRESS]]
+	MetadataSlotMapper m_slotMapper;
 };
 
 }// end namespace ph

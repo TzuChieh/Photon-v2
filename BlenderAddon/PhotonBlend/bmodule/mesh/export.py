@@ -1,6 +1,8 @@
 """
 @brief Convert Blender mesh data block to Photon's format.
 """
+from pathlib import Path
+
 from utility import blender, material
 from psdl import sdl, SdlConsole
 from bmodule import naming
@@ -98,12 +100,40 @@ def _export_model_actor(
     console.queue_command(masked_creator)
 
 
+def _queue_transform_commands(console: SdlConsole, actor_name, position, rotation, scale):
+    translator = sdl.CallTranslate()
+    translator.set_target_name(actor_name)
+    translator.set_amount(sdl.Vector3(position))
+    console.queue_command(translator)
+
+    rotator = sdl.CallRotate()
+    rotator.set_target_name(actor_name)
+    rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+    console.queue_command(rotator)
+
+    scaler = sdl.CallScale()
+    scaler.set_target_name(actor_name)
+    scaler.set_amount(sdl.Vector3(scale))
+    console.queue_command(scaler)
+
+
 def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: SdlConsole):
     """
-    Export Blender original mesh object. This will group faces with the same material, then export each
-    material-faces pair as a Photon actor. This version bulk exports vertex attributes to C++ for faster I/O.
+    Export Blender original mesh object as one PLY geometry and one model actor with a material array.
+    This version bulk exports vertex attributes to C++ for faster I/O.
     """
     b_mesh = b_mesh_object.data
+
+    for material_idx, b_material in enumerate(b_mesh.materials):
+        if b_material is None:
+            print(f"warning: mesh object {b_mesh_object.name} has empty material slot {material_idx}, using legacy mesh export")
+            _export_original_mesh_object_v3p6(b_mesh_object, console)
+            return
+
+        if material.is_emissive(b_material) or material.is_masked(b_material):
+            print(f"mesh object {b_mesh_object.name} uses masked or emissive material slot {material_idx}, using legacy mesh export")
+            _export_original_mesh_object_v3p6(b_mesh_object, console)
+            return
 
     # TODO: maybe we can avoid this by exporting ngon
     b_mesh.calc_loop_triangles()
@@ -145,8 +175,9 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
     tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
-    ply_path = (console.get_working_dir() / "Mesh_data" / b_mesh_object.name).with_suffix(".ply")
+    ply_path = console.get_working_dir() / "Mesh_data" / f"{b_mesh_object.name}.ply"
     ply_path.parent.mkdir(parents=True, exist_ok=True)
+    bundled_ply_path = console.get_bundled_path(ply_path)
     psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
         path=ply_path,
         raw_vert_positions=raw_vert_positions,
@@ -155,6 +186,29 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
         vert_position_indices=vert_position_indices,
         vert_loop_indices=vert_loop_indices,
         tri_mat_ids=tri_mat_ids)
+
+    geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=b_mesh_object.name)
+
+    geometry_creator = sdl.BlenderPlyGeometryCreator()
+    geometry_creator.set_data_name(geometry_name)
+    ply_file = sdl.ResourceIdentifier()
+    ply_file.set_bundled_path(bundled_ply_path)
+    geometry_creator.set_ply_file(ply_file)
+    console.queue_command(geometry_creator)
+
+    model_actor_name = naming.get_mangled_object_name(b_mesh_object)
+    material_refs = sdl.ReferenceArray("material")
+    for b_material in b_mesh.materials:
+        material_refs.add(sdl.Material(naming.get_mangled_material_name(b_material)))
+
+    actor_creator = sdl.BlenderPlyModelActorCreator()
+    actor_creator.set_data_name(model_actor_name)
+    actor_creator.set_geometry(sdl.Geometry(geometry_name))
+    actor_creator.set_materials(material_refs)
+    console.queue_command(actor_creator)
+
+    pos, rot, scale = blender.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
+    _queue_transform_commands(console, model_actor_name, pos, rot, scale)
 
 
 def _export_original_mesh_object_v3p6(b_mesh_object: bpy.types.Object, console: SdlConsole):

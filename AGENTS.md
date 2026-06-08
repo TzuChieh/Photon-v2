@@ -36,7 +36,7 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 ## Rules
 - Do not build or run binaries/tests; user handles execution unless they explicitly request a binary refresh. For binary refreshes, use the `binary-updater` skill.
 - JNI/PhotonStudio and `scripts/SDL_Interface/` paths are deprecated; avoid expanding legacy usage unless explicitly requested.
-- Keep file line endings consistent with the current OS convention.
+- Keep file line endings consistent with the current OS convention. Must be CRLF on Windows.
 
 ## Git Rules
 - Read-only git by default.

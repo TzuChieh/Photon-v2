@@ -10,8 +10,8 @@
 #include "Engine/Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "Engine/Core/Texture/Pixel/TScalarPixelTexture2D.h"
 #include "Engine/Core/Texture/Function/unary_texture_operators.h"
+#include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -108,9 +108,9 @@ TransientVisualElement AIesAttenuatedLight::cook(
 			for(auto* pi : sourceElement.primitivesView)
 			{
 				auto* iesPrimitive = ctx.getResources().copyIntersectable(
-					TMetaInjectionPrimitive(
-						ReferencedPrimitiveMetaGetter(iesMetadata),
-						TReferencedPrimitiveGetter<Primitive>(pi)));
+					PrimitiveBuilder::referencing(pi)
+						.injectMetadata(iesMetadata)
+						.build());
 
 				result.add(iesPrimitive);
 			}
@@ -125,9 +125,9 @@ TransientVisualElement AIesAttenuatedLight::cook(
 				iesMetadata->surface().setEmitter(result.surfaceEmitters[i]);
 
 				auto* iesPrimitive = ctx.getResources().copyIntersectable(
-					TMetaInjectionPrimitive(
-						ReferencedPrimitiveMetaGetter(iesMetadata),
-						TReferencedPrimitiveGetter<Primitive>(sourceElement.primitivesView[i])));
+					PrimitiveBuilder::referencing(sourceElement.primitivesView[i])
+						.injectMetadata(iesMetadata)
+						.build());
 
 				result.add(iesPrimitive);
 			}

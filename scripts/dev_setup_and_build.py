@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +20,9 @@ def main():
         "--no-cmake",
         action="store_true",
         help="Skip CMake project configuration and generation steps.")
+    parser.add_argument(
+        "--py-ver",
+        help="Python version for setup's virtual environment, e.g. 3.11.")
     args = parser.parse_args()
 
     project_dir = Path(__file__).resolve().parent.parent
@@ -31,16 +34,21 @@ def main():
     else:
         setup_command = ["bash", str(project_dir / "setup.sh")]
 
+    if args.py_ver:
+        setup_command += ["--py-ver", args.py_ver]
+
     if not args.no_setup:
         subprocess.run(
             setup_command,
             cwd=project_dir,
             check=True)
+        
     if not args.no_cmake:
         subprocess.run(
             ["cmake", "--fresh", "-S", str(project_dir), "-B", str(build_dir),
              "-DCMAKE_BUILD_TYPE=Release", "-DPH_BUILD_EDITOR_JNI=OFF"],
             check=True)
+        
     build_command = ["cmake", "--build", str(build_dir), "--config", "Release"]
     if args.target:
         build_command += ["--target", args.target]

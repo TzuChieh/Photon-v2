@@ -24,6 +24,9 @@ public:
 	*/
 	CookedMaterial* createCooked(const CookingContext& ctx) const;
 
+	/*! @brief Priority for resolving overlapping volume optics.
+	A value of 0 means the material does not contribute volume optics during actor cooking.
+	*/
 	virtual uint16 getOverlapPriority() const;
 
 public:

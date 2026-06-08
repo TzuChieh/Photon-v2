@@ -53,6 +53,7 @@ public:
 	void setRangeMap(uint32 entryIndex, Index maxIndex, Value value)
 	{
 		PH_ASSERT_LT(entryIndex, m_numEntries);
+		PH_ASSERT(entryIndex == 0 || m_runLengthToValue[entryIndex - 1].maxIndex < maxIndex);
 
 		m_runLengthToValue[entryIndex] = ValueRunLength{maxIndex, value};
 	}
@@ -60,6 +61,15 @@ public:
 	bool isEmpty() const
 	{
 		return m_numEntries == 0;
+	}
+
+	template<typename PerEntryOperation>
+	void forEachEntry(PerEntryOperation op) const
+	{
+		for(uint32 entryIndex = 0; entryIndex < m_numEntries; ++entryIndex)
+		{
+			op(m_runLengthToValue[entryIndex].maxIndex, m_runLengthToValue[entryIndex].value);
+		}
 	}
 
 	uint32 size() const

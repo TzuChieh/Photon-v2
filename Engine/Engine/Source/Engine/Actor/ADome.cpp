@@ -12,7 +12,7 @@
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-#include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
+#include "Engine/Core/Intersection/PrimitiveBuilder.h"
 
 #include <Common/logging.h>
 
@@ -84,9 +84,10 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 		// TODO: volume optics
 	}
 
-	auto* domePrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
-		ReferencedPrimitiveMetaGetter(metadata), 
-		TEmbeddedPrimitiveGetter<PLatLongEnvSphere>(domeRadius, localToWorld, worldToLocal)));
+	auto* domePrimitive = ctx.getResources().copyIntersectable(
+		PrimitiveBuilder::embedding<PLatLongEnvSphere>(domeRadius, localToWorld, worldToLocal)
+			.injectMetadata(metadata)
+			.build());
 	
 	DomeRadianceFunctionInfo radianceFunctionInfo;
 	auto radianceFunction = loadRadianceFunction(ctx, &radianceFunctionInfo);

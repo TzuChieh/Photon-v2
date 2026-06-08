@@ -1,8 +1,8 @@
 #include "Engine/Actor/AModel.h"
 #include "Engine/Math/math.h"
+#include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/TransformedIntersectable.h"
-#include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -59,9 +59,10 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto* metaPrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
-			ReferencedPrimitiveMetaGetter(metadata),
-			TReferencedPrimitiveGetter<Primitive>(primitive)));
+		auto* metaPrimitive = ctx.getResources().copyIntersectable(
+			PrimitiveBuilder::referencing(primitive)
+				.injectMetadata(metadata)
+				.build());
 
 		result.add(metaPrimitive);
 	}

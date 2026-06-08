@@ -61,6 +61,19 @@ class SdlConsole:
 		"""
 		return self.__working_dir
 
+	def get_bundled_path(self, path):
+		"""
+		@return SDL bundled path segment normalized relative to the working directory.
+		"""
+		bundled_path = Path(path)
+		if bundled_path.is_absolute():
+			bundled_path = bundled_path.relative_to(self.get_working_dir())
+
+		if os.path.sep == '\\':
+			return PureWindowsPath(bundled_path).as_posix()
+		else:
+			return str(bundled_path)
+
 	def create_resource_folder(self, sdl_resource_identifier):
 		if not sdl_resource_identifier.is_valid():
 			print("SDL resource identifier is invalid: %s" % sdl_resource_identifier)
@@ -90,13 +103,7 @@ class SdlConsole:
 		dst_file_path = dst_folder_path / src_file_path.name
 		shutil.copyfile(src_file_path, dst_file_path)
 
-		bundled_file_path = bundled_folder_path / src_file_path.name
-		
-		# Make Windows path more cross-platform (basically removing backslashes)
-		if os.path.sep == '\\':
-			bundled_file_path = PureWindowsPath(bundled_file_path).as_posix()
-
-		return bundled_file_path
+		return self.get_bundled_path(bundled_folder_path / src_file_path.name)
 
 	def queue_command(self, command):
 		"""

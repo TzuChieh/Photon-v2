@@ -2,10 +2,10 @@
 #include "Engine/Math/math.h"
 #include "Engine/Actor/Material/MatteOpaque.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
+#include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/TransformedIntersectable.h"
 #include "Engine/Core/Intersection/TransformedPrimitive.h"
-#include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/World/Foundation/PreCookReport.h"
@@ -96,9 +96,10 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	lightPrimitives.reserve(cookedGeometry->primitives.size());
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto* metaPrimitive = ctx.getResources().copyIntersectable(TMetaInjectionPrimitive(
-			ReferencedPrimitiveMetaGetter(metadata),
-			TReferencedPrimitiveGetter<Primitive>(primitive)));
+		auto* metaPrimitive = ctx.getResources().copyIntersectable(
+			PrimitiveBuilder::referencing(primitive)
+				.injectMetadata(metadata)
+				.build());
 
 		lightPrimitives.push_back(metaPrimitive);
 	}

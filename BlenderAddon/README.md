@@ -1,4 +1,4 @@
-# Blender Add-on for Photon-v2 {#photonblend_index}
+﻿# Blender Add-on for Photon-v2 {#photonblend_index}
 
 [//TODO]: # (add a tutorial on how to install)
 
@@ -18,6 +18,21 @@ The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only
 * It can be useful to have [fake bpy modules](https://github.com/nutti/fake-bpy-module) around so that `import bpy` and its equivalent no longer trigger errors in your IDE (and autocomplete is now possible).
 * By enabling `Edit > Preferences > Interface > Developer Extras` and `Python Tooltips`, you gain more information for developer from Blender's UI.
 * To avoid opening Blender console manually everytime on startup, pass `-con` to the Blender executable.
+
+### Blender Python Versions
+
+Blender ships with its own Python version. Use the matching Python version when setting up, building, or updating PhotonBlend.
+
+| Blender version | Bundled Python version |
+| --- | --- |
+| Blender 4.5.7 LTS | Python 3.11 |
+| Blender 3.6.5 LTS | Python 3.10 |
+
+For setup/build scripts, pass the matching version to setup's virtual environment, for example:
+
+```shell
+python ./scripts/dev_setup_and_build.py --py-ver 3.11 --target SDLGenCLI
+```
 
 ### Enum Property
 
