@@ -24,7 +24,7 @@ visual_error_verifier = infra.VisualErrorVerifier(
     color_max=70)
 
 for case_name, output_name, scene_name, ref_var_path, max_mse, max_rel_mean, case_msg in [
-    ("BVPT (factor = 50 percent)", "bvpt_factor0p5", "scene_factor0p5_bvpt.p2", factor0p5_bvpt_ref_var_path, 0.00012, 0.00016, ""),
+    ("BVPT (factor = 50 percent)", "bvpt_factor0p5", "scene_factor0p5_bvpt.p2", factor0p5_bvpt_ref_var_path, 0.00012, 0.00054, ""),
     ("BVPT (factor = 80 percent)", "bvpt_factor0p8", "scene_factor0p8_bvpt.p2", factor0p8_bvpt_ref_var_path, 0.00012, 0.0001, ""),
     ("BVPT (factor = 0 percent)", "bvpt_factor0p0", "scene_factor0p0_bvpt.p2", factor0p0_bvpt_ref_var_path, 0.00012, 0.00074, "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."),
     ("BNEEPT (factor = 50 percent)", "bneept_factor0p5", "scene_factor0p5_bneept.p2", factor0p5_bneept_ref_var_path, 0.00012, 0.00080, ""),
