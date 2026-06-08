@@ -45,7 +45,7 @@ class RefSource:
 
     def get_image_ref_path(self):
         """
-        @return Path to the reference image.
+        @return Source path of the reference image used for comparison.
         @exception ValueError If this source is not path-backed.
         """
         if not self._has_path_ref():
@@ -386,7 +386,7 @@ class VisualErrorVerifier(RefVerifier):
             color_max: float = 100.0):
         """
         @param ref Reference image path, image object, or scalar value to compare against.
-                     If this is a path or image object, a reference plot is generated for the report.
+                   If this is a path or image object, a reference plot is generated for the report.
         @param error_output_filename Custom name for error plot. Defaults to `{case.output_filename}_error`.
         @param ref_output_filename Name used for reference plot in the report. Defaults to `"ref"`.
         @param error_title Optional title for the error plot. May be a callable taking `case`.
@@ -408,14 +408,13 @@ class VisualErrorVerifier(RefVerifier):
         ref_source.get_image_ref().save_plot(output_dir / self.ref_output_filename, self.ref_title, create_dirs=True)
 
     def get_ref_output_filename(self):
+        """
+        @return Output stem for the generated reference plot in test/report output.
+        """
         return self.ref_output_filename
 
     def get_ref_title(self):
         return self.ref_title
-
-    def get_ref_key(self):
-        ref_source = self.get_ref_source()
-        return ref_source.get_image_ref_path() if ref_source._has_path_ref() else self.get_ref_output_filename()
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
         error_img = image.Image(output_img.get_width(), output_img.get_height(), output_img.num_components())

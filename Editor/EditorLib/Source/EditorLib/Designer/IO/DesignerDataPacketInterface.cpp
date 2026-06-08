@@ -203,9 +203,9 @@ void DesignerDataPacketInterface::parseSingleClause(
 	// <type-name>, <value-name>, <tag-name> (ignore angle brackets)
 	// where the tag-name part may be optional
 	//
-	out_clause.type = trim(next_token(valueInfoStr, &valueInfoStr, ","));
-	out_clause.name = trim(next_token(valueInfoStr, &valueInfoStr, ","));
-	out_clause.tag = trim(next_token(valueInfoStr, &valueInfoStr, ","));
+	out_clause.type = trim(next_token(valueInfoStr, ",", &valueInfoStr));
+	out_clause.name = trim(next_token(valueInfoStr, ",", &valueInfoStr));
+	out_clause.tag = trim(next_token(valueInfoStr, ",", &valueInfoStr));
 
 	out_clause.value = trim(valueStr);
 }

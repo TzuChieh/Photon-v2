@@ -100,17 +100,11 @@ def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config
         output_dir = infra.paths.test_output() / module.__name__
         
         # Reference plots are written once by the controller process before xdist workers run tests.
-        plotted_refs = set()
-
         for suite in suites:
             for case in suite.get_cases():
                 for verifier in case.verifiers:
                     if isinstance(verifier, infra.VisualErrorVerifier) and verifier.get_ref_source().has_image_ref():
-                        ref_key = verifier.get_ref_key()
-
-                        if ref_key not in plotted_refs:
                             verifier.save_ref_plot(output_dir)
-                            plotted_refs.add(ref_key)
         
         processed_modules.add(module)
 

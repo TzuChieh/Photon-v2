@@ -226,3 +226,6 @@ sdl_def_tool.generate(setup_config)
 # Create a `docs` sub-folder under `./Main/` so doxygen can place generated docs under `./Main/docs/<project-name>/`
 # (a workaround since doxygen cannot create directories recursively, only the topmost layer)
 Path("./Main/docs/").mkdir(exist_ok=True)
+
+# Install repo-wide pytest settings
+shutil.copy("./Main/pytest.ini", build_dir / "pytest.ini")
