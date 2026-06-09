@@ -100,7 +100,7 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 	ABlenderPlyModel actor;
 	actor.setBaseTransform(TDecomposedTransform<real>());
 	actor.setGeometry(geometry);
-	actor.setMaterials(make_material_slots(2));
+	actor.setMaterials(make_material_slots(16));
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
@@ -112,7 +112,7 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 	ASSERT_NE(primitive, nullptr);
 
 	// Face IDs should resolve to the original material slot IDs exported in the PLY.
-	EXPECT_EQ(primitive->numMetadataSlots(), 2);
+	EXPECT_EQ(primitive->numMetadataSlots(), 16);
 	for(uint64 faceID = 0; faceID < faceMaterialSlots.size(); ++faceID)
 	{
 		EXPECT_EQ(primitive->toMetadataSlot(faceID), faceMaterialSlots[faceID]);

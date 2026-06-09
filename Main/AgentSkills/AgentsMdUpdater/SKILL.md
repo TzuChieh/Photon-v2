@@ -23,8 +23,8 @@ Act as a fast, professional note taker and summarizer. Preserve durable project 
 ### 3. Write Compact Notes
 
 - Be concise and direct. Write agent- and human-readable bullets.
-- Record high-level, durable rules that change how future work should be done. Generalize implementation details into subsystem boundaries, invariants, or preferred patterns.
-- Prefer one invariant over several explanatory bullets. Omit implementation narration, code-level mechanics, examples, pending-task lists, transient status, speculation, and details that are easy to recover from nearby code.
+- Record high-level, durable rules that are not already obvious in code, tests, or docs. Generalize implementation details into subsystem boundaries, invariants, or preferred patterns.
+- Prefer one invariant over several explanatory bullets. Omit implementation narration, code-level mechanics, examples, pending fixes, local workaround notes, transient status, speculation, and details that belong in source comments, test names, plans, issue tracking, or nearby code.
 - Preserve existing notes unless evidence shows they are stale; record corrected boundaries such as deprecated areas.
 
 ### 4. Audit Existing Notes

@@ -243,6 +243,34 @@ class Reference(AbstractData):
         return f"@\"{self.__ref_name}\""
 
 
+class ReferenceArray(AbstractData):
+    def __init__(self, ref_type="", references=None):
+        super().__init__()
+        self.__ref_type = ref_type
+        if references is None:
+            self.__references = []
+        else:
+            self.__references = references
+
+    def get_type(self):
+        return f"{self.__ref_type}-array"
+
+    def generate_data(self):
+        fragments = ["{"]
+        for reference in self.__references:
+            fragments.append(f"{reference.generate_data()} ")
+        fragments.append("}")
+        return "".join(fragments)
+
+    def set_references(self, references):
+        self.__references = references
+        return self
+
+    def add(self, reference: Reference):
+        self.__references.append(reference)
+        return self
+
+
 class StructArray(AbstractData):
     def __init__(self, packets=None):
         super().__init__()
