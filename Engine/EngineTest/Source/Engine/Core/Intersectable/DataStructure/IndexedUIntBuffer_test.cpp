@@ -119,3 +119,19 @@ TEST(IndexedUIntBufferTest, BufferIO)
 		}
 	}
 }
+
+TEST(IndexedUIntBufferTest, GetUIntWithFullWidthTypes)
+{
+	IndexedUIntBuffer buffer;
+	buffer.declareUIntFormat<uint32>();
+	buffer.allocate(4);
+
+	const uint32 values[] = {0, 17, 65536, 123456789};
+	buffer.setUInts(values, 4);
+
+	for(std::size_t i = 0; i < 4; ++i)
+	{
+		EXPECT_EQ(buffer.getUIntAs<uint32>(i), values[i]);
+		EXPECT_EQ(buffer.getUInt(i), values[i]);
+	}
+}

@@ -56,8 +56,13 @@ public:
 
 	void setUInts(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
 
-	// TODO: templatize
 	uint64 getUInt(std::size_t index) const;
+
+	/*! @brief Directly fetch a full-width unsigned integer.
+	The buffer's integer bit width must exactly match `IntegerType`.
+	*/
+	template<std::unsigned_integral IntegerType>
+	IntegerType getUIntAs(std::size_t index) const;
 
 	std::size_t numUInts() const;
 	std::size_t memoryUsage() const;
@@ -198,6 +203,15 @@ inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 {
 	PH_ASSERT(isAllocated());
 
+	switch(m_numBitsPerUInt)
+	{
+	case sizeof_in_bits<uint8>():  return getUIntAs<uint8>(index);
+	case sizeof_in_bits<uint16>(): return getUIntAs<uint16>(index);
+	case sizeof_in_bits<uint32>(): return getUIntAs<uint32>(index);
+	case sizeof_in_bits<uint64>(): return getUIntAs<uint64>(index);
+	default: break;
+	}
+
 	const std::size_t firstByteIndex     = index * m_numBitsPerUInt / CHAR_BIT;
 	const std::size_t firstByteBitOffset = index * m_numBitsPerUInt - firstByteIndex * CHAR_BIT;
 	const std::size_t numStraddledBytes  = (firstByteBitOffset + m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
@@ -229,6 +243,20 @@ inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 		value |= (static_cast<uint64>(remainingRawBits) << (64 - firstByteBitOffset));
 	}
 
+	return value;
+}
+
+template<std::unsigned_integral IntegerType>
+inline IntegerType IndexedUIntBuffer::getUIntAs(const std::size_t index) const
+{
+	PH_ASSERT(isAllocated());
+	PH_ASSERT_EQ(m_numBitsPerUInt, sizeof_in_bits<IntegerType>());
+
+	const std::size_t byteIndex = index * sizeof(IntegerType);
+	PH_ASSERT_LE(byteIndex + sizeof(IntegerType), m_byteBufferSize);
+
+	IntegerType value;
+	std::memcpy(&value, &(m_byteBuffer[byteIndex]), sizeof(IntegerType));
 	return value;
 }
 

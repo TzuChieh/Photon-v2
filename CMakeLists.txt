@@ -102,13 +102,30 @@ if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(PH_BUILD_SDL_GEN         "Build SDL automation tool."               ${BUILD_SDL_GEN_DEFAULT})
-option(PH_BUILD_PHOTON_CLI      "Build command-line application."          ${BUILD_PHOTON_CLI_DEFAULT})
-option(PH_BUILD_EDITOR          "Build editor application."                ${BUILD_EDITOR_DEFAULT})
-option(PH_BUILD_TESTS           "Build unit tests for the project."        ${BUILD_TESTS_DEFAULT})
-option(PH_BUILD_EDITOR_JNI      "Build JNI for GUI."                       ${BUILD_EDITOR_JNI_DEFAULT})
-option(PH_BUILD_OPTIONAL_TOOLS  "Build additional tools for the renderer." ${BUILD_OPTIONAL_TOOLS_DEFAULT})
-option(PH_BUILD_PYTHON_BINDINGS "Build Python bindings for the renderer."  ON)
+option(PH_BUILD_SDL_GEN
+    "Build SDL automation tool."
+    ${BUILD_SDL_GEN_DEFAULT})
+option(PH_BUILD_PHOTON_CLI
+    "Build command-line application."
+    ${BUILD_PHOTON_CLI_DEFAULT})
+option(PH_BUILD_EDITOR
+    "Build editor application."
+    ${BUILD_EDITOR_DEFAULT})
+option(PH_BUILD_TESTS
+    "Build unit tests for the project."
+    ${BUILD_TESTS_DEFAULT})
+option(PH_BUILD_EDITOR_JNI
+    "Build JNI for GUI."
+    ${BUILD_EDITOR_JNI_DEFAULT})
+option(PH_BUILD_OPTIONAL_TOOLS
+    "Build additional tools for the renderer."
+    ${BUILD_OPTIONAL_TOOLS_DEFAULT})
+option(PH_BUILD_PYTHON_BINDINGS
+    "Build Python bindings for the renderer."
+    ON)
+option(PH_USE_MULTITHREADED_COMPILATION
+    "Use multi-threaded compilation where supported."
+    ON)
 
 set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
@@ -171,8 +188,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Use PDB files for debugging, which also provides potential optimizations
     add_compile_options(/Zi)
 
-    # Use multithreaded compilation
-    add_compile_options(/MP)
+    if(PH_USE_MULTITHREADED_COMPILATION)
+        # Use compiler-level multi-threaded compilation.
+        add_compile_options(/MP)
+    endif()
 
     # Use intrinsic functions
     add_compile_options(/Oi)
