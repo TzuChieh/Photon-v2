@@ -6,7 +6,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/Core/Intersection/TransformedIntersectable.h"
+#include "Engine/Core/Intersection/TTransformedIntersectable.h"
 #include "Engine/Actor/MotionSource/MotionSource.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Actor/ModelBuilder.h"
@@ -47,10 +47,11 @@ TransientVisualElement ATransformedInstance::cook(const CookingContext& ctx, con
 	auto baseLW = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_localToWorld));
 	auto baseWL = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeInverse(m_localToWorld));
 
-	auto transformedTarget = std::make_unique<TransformedIntersectable>(
-		phantom->intersectables().front().get(),
-		baseLW.get(),
-		baseWL.get());
+	auto transformedTarget = std::make_unique<
+		TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
+			TReferencedIntersectableGetter<Intersectable>(phantom->intersectables().front().get()),
+			baseLW.get(),
+			baseWL.get());
 
 	cooked.addIntersectable(std::move(transformedTarget));
 	cooked.addTransform(std::move(baseLW));

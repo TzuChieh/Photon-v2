@@ -16,6 +16,8 @@ python .\scripts\dev_setup_and_build.py
 python .\scripts\dev_setup_and_build.py --target <target>
 ```
 
+Prefer conservative build parallelism during validation unless the user asks for a faster parallel build.
+
 Use incremental builds only if explicitly requested:
 
 ```powershell

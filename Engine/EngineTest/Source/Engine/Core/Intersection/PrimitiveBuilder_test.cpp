@@ -10,23 +10,6 @@
 
 using namespace ph;
 
-namespace
-{
-
-auto make_metadata_refs(
-	const PrimitiveMetadata* const metadata0,
-	const PrimitiveMetadata* const metadata1,
-	const PrimitiveMetadata* const metadata2)
-{
-	auto metadatas = std::make_unique<const PrimitiveMetadata*[]>(3);
-	metadatas[0] = metadata0;
-	metadatas[1] = metadata1;
-	metadatas[2] = metadata2;
-	return metadatas;
-}
-
-}// end namespace
-
 TEST(PrimitiveBuilderTest, BuildsFromReferencedAndEmbeddedPrimitives)
 {
 	PrimitiveMetadata metadata;
@@ -67,6 +50,10 @@ TEST(PrimitiveBuilderTest, InjectsOwnedAndMappedMetadata)
 		PrimitiveMetadata metadata0;
 		PrimitiveMetadata metadata1;
 		PrimitiveMetadata metadata2;
+		auto metadatas = std::make_unique<const PrimitiveMetadata*[]>(3);
+		metadatas[0] = &metadata0;
+		metadatas[1] = &metadata1;
+		metadatas[2] = &metadata2;
 
 		TIndexRangeMap<uint64, uint32> faceIdToMetadataSlot(2);
 		faceIdToMetadataSlot.setRangeMap(0, 5, 2);
@@ -85,7 +72,7 @@ TEST(PrimitiveBuilderTest, InjectsOwnedAndMappedMetadata)
 
 		auto builtPrimitive = PrimitiveBuilder::embedding<PEmpty>()
 			.injectMetadataArray(
-				make_metadata_refs(&metadata0, &metadata1, &metadata2),
+				std::move(metadatas),
 				3,
 				faceIdToMetadataSlot)
 			.build();

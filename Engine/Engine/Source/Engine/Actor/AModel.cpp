@@ -2,7 +2,7 @@
 #include "Engine/Math/math.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Core/Intersection/TransformedIntersectable.h"
+#include "Engine/Core/Intersection/TTransformedIntersectable.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -77,8 +77,11 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources().makeIntersectable<TransformedIntersectable>(
-				intersectable, localToWorld, worldToLocal);
+			auto* transformedIntersectable = ctx.getResources().makeIntersectable<
+				TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
+					TReferencedIntersectableGetter<Intersectable>(intersectable),
+					localToWorld,
+					worldToLocal);
 
 			intersectable = transformedIntersectable;
 		}
@@ -97,8 +100,11 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources().makeIntersectable<TransformedIntersectable>(
-				intersectable, localToWorld, worldToLocal);
+			auto* transformedIntersectable = ctx.getResources().makeIntersectable<
+				TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
+					TReferencedIntersectableGetter<Intersectable>(intersectable),
+					localToWorld,
+					worldToLocal);
 
 			intersectable = transformedIntersectable;
 		}

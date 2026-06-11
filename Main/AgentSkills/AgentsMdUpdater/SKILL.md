@@ -11,21 +11,20 @@ Act as a fast, professional note taker and summarizer. Preserve durable project 
 
 ### 1. Gather Evidence
 
-- Review the full session, including corrections and rejected designs, and inspect supporting code, logs, tests, and documentation before writing notes.
-- Use `git status`, `git diff`, recent history, and `git blame` as useful clues. Do not assume uncommitted diffs exist.
-- Record durable conclusions supported by evidence. Generalize from the observed case and keep useful lookup references such as paths, symbols, and commands.
+- Review the full session, including corrections and rejected designs, then inspect supporting code, tests, docs, logs, and git state (`status`, `diff`, history/blame when useful).
+- Record only evidence-backed conclusions. Generalize from the observed case before writing guide text.
 
 ### 2. Choose Scope
 
-- Group learnings by subsystem and put each in the closest appropriate `AGENTS.md`. Create a scoped file when multiple durable rules belong together, without excessive fragmentation.
-- Keep parent guides at their own abstraction level. Compactly summarize relevant child areas so agents know where to dig deeper; do not list deeply nested paths from high-level guides.
+- Put each learning in the closest appropriate `AGENTS.md`; use nested guides for progressive disclosure.
+- Keep parent guides broad. Move symbol/path/command/format/workflow details into a deeper existing guide or a new scoped guide when they would make the parent implementation-heavy.
+- Create scoped guides for clusters of durable local rules, not one-off facts.
 
 ### 3. Write Compact Notes
 
-- Be concise and direct. Write agent- and human-readable bullets.
-- Record high-level, durable rules that are not already obvious in code, tests, or docs. Generalize implementation details into subsystem boundaries, invariants, or preferred patterns.
-- Prefer one invariant over several explanatory bullets. Omit implementation narration, code-level mechanics, examples, pending fixes, local workaround notes, transient status, speculation, and details that belong in source comments, test names, plans, issue tracking, or nearby code.
-- Preserve existing notes unless evidence shows they are stale; record corrected boundaries such as deprecated areas.
+- Write concise bullets with durable boundaries, invariants, ownership rules, or preferred patterns.
+- Omit implementation narration, code mechanics, concrete examples, pending fixes, local workarounds, transient status, speculation, and details better kept in source comments, tests, plans, or issues.
+- Preserve existing notes unless evidence shows they are stale; update corrected boundaries such as deprecated areas.
 
 ### 4. Audit Existing Notes
 
