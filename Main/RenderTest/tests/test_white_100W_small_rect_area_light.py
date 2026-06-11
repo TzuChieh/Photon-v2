@@ -9,8 +9,11 @@ suite = infra.RenderTestSuite(__name__, res_dir)
 ref_path = res_dir / "ref_bneept_4096spp_beauty"
 ref_var_path = res_dir / "ref_bneept_4096spp_var"
 
-def output_title(case, metrics):
-    return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
+def output_title(case, verifier_reports):
+    return "%s Output (MSE: %f, Δ: %f%%)" % (
+        case.name,
+        infra.get_metric(verifier_reports, infra.MSEVerifier.METRIC_MSE),
+        infra.get_metric(verifier_reports, infra.RelMeanVerifier.METRIC_REL_MEAN) * 100)
 
 visual_error_verifier = infra.VisualErrorVerifier(
     ref=ref_path,

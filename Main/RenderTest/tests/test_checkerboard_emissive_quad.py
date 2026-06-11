@@ -11,8 +11,10 @@ ref_path = res_dir / "ref_bvpt_8192spp_beauty"
 bvpt_ref_var_path = res_dir / "ref_bvpt_8192spp_var"
 bneept_ref_var_path = res_dir / "ref_bneept_8192spp_var"
 
-def output_title(case, metrics):
-    return "%s Output (MSE: %f)" % (case.name, metrics["mse"])
+def output_title(case, verifier_reports):
+    return "%s Output (MSE: %f)" % (
+        case.name,
+        infra.get_metric(verifier_reports, infra.MSEVerifier.METRIC_MSE))
 
 visual_error_verifier = infra.VisualErrorVerifier(
     ref=ref_path,

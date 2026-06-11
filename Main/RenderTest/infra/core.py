@@ -47,6 +47,11 @@ class Verifier(ABC):
     """
     Interface for verifying the correctness of a rendered image.
     """
+    def save_report_artifacts(self, output_img: image.Image, output_dir: Path, case: 'RenderCase'):
+        """
+        Save optional report artifacts before verification.
+        """
+
     @abstractmethod
     def verify(self, output_img: image.Image, output_dir: Path, case: 'RenderCase') -> VerificationResult:
         """
@@ -87,9 +92,16 @@ class VerifierReport:
             }
 
 
+def get_metric(verifier_reports: List[VerifierReport], metric_name: str):
+    for report in verifier_reports:
+        if metric_name in report.metrics:
+            return report.metrics[metric_name]
+    raise KeyError(f"cannot find verifier metric <{metric_name}>")
+
+
 class RenderCase:
     """
-    A single test case representing a scene to be rendered and verified.
+    A single render test case. Also stores transient report state while the case is running.
     """
     def __init__(
             self, 
@@ -98,7 +110,7 @@ class RenderCase:
             renderer_config: RendererConfig, 
             verifiers: Union[Verifier, List[Verifier]],
             output_filename: str = None,
-            output_title: Union[str, Callable[['RenderCase', dict], str]] = None,
+            output_title: Union[str, Callable[['RenderCase', List[VerifierReport]], str]] = None,
             case_msg: str = ""):
         """
         @param name A unique name for this test case.
@@ -108,8 +120,8 @@ class RenderCase:
         @param output_filename Optional custom name for the output image file (without extension).
                If not provided, the case name will be used (lowercase, underscores instead of spaces).
         @param output_title Optional title for the rendered output plot. This can be either a fixed
-               string or a callable with signature (case, metrics) -> str. The callable form is useful
-               when the title should include verifier metrics, such as MSE or relative average error.
+               string or a callable with signature (case, verifier_reports) -> str. The callable form
+               is useful when the title should include verifier metrics.
         @param case_msg Optional message shown in the report for this case.
         """
         self.name = name
@@ -134,6 +146,7 @@ class RenderCase:
         self.debug_msg = ""
         self.verifier_reports: List[VerifierReport] = []
         self._active_verifier_name = None
+        self._active_verifier_file_stem = None
 
     def set_module_name(self, module_name: str):
         self.module_name = module_name
@@ -163,13 +176,12 @@ class RenderCase:
             raise ValueError("reference filename is not set")
         return self.get_output_dir() / self.plot_ref_image_filename
 
-    def get_output_title(self, metrics: dict):
+    def get_output_title(self):
         """
-        @param metrics Verification metrics collected for this case.
         @return The title to use when saving the rendered output plot.
         """
         if callable(self.output_title):
-            return self.output_title(self, metrics)
+            return self.output_title(self, self.verifier_reports)
         if self.output_title:
             return self.output_title
         return f"{self.name} Output"
@@ -182,14 +194,21 @@ class RenderCase:
         self.raw_ref_image_filename = ""
         self.verifier_reports = []
         self._active_verifier_name = None
+        self._active_verifier_file_stem = None
 
-    def begin_verifier_report(self, verifier_name: str):
+    def begin_verifier_report(self, verifier_name: str, verifier_index: int):
         self.plot_ref_image_filename = None
         self.plot_debug_image_filename = None
         self.debug_msg = ""
         self.raw_output_image_filename = self.output_filename
         self.raw_ref_image_filename = ""
-        self._active_verifier_name = verifier_name
+        self._active_verifier_name = f"{verifier_name} {verifier_index + 1}"
+        self._active_verifier_file_stem = f"{self.output_filename}_{verifier_index + 1:02d}_{verifier_name.lower()}"
+
+    def get_active_verifier_file_stem(self):
+        if not self._active_verifier_file_stem:
+            raise ValueError("active verifier file stem is not set")
+        return self._active_verifier_file_stem
 
     def set_plot_ref_image_filename(self, filename: str):
         self.plot_ref_image_filename = filename
@@ -209,7 +228,7 @@ class RenderCase:
     def set_raw_ref_image_filename(self, filename: str):
         self.raw_ref_image_filename = filename
 
-    def finalize_verifier_report(self, result: VerificationResult):
+    def end_verifier_report(self, result: VerificationResult):
         if not self._active_verifier_name:
             raise ValueError("active verifier name is not set")
 
@@ -227,8 +246,12 @@ class RenderCase:
             ))
 
         self._active_verifier_name = None
+        self._active_verifier_file_stem = None
 
-    def finalize_primary_report_fields(self):
+    def sync_primary_report_fields(self):
+        """
+        Sync case-level summary fields from the collected per-verifier reports.
+        """
         self.plot_ref_image_filename = None
         self.plot_debug_image_filename = None
         self.debug_msg = ""

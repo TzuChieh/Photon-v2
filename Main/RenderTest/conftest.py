@@ -78,36 +78,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
     Called after whole test run finished, right before returning the exit status to the system.
     """
 
-@pytest.hookimpl()
-def pytest_collection_modifyitems(session: pytest.Session, config: pytest.Config, items: list[pytest.Item]):
-    """
-    Called after collection has been performed. This runs ONLY in the Master process
-    before any workers are spawned. We use this to generate all reference plots.
-    """
-    # Track modules to avoid redundant processing
-    processed_modules = set()
-
-    for item in items:
-        module = sys.modules[item.function.__module__]
-        if module in processed_modules:
-            continue
-
-        suites = _get_module_suites(module)
-        if not suites:
-            processed_modules.add(module)
-            continue
-
-        output_dir = infra.paths.test_output() / module.__name__
-        
-        # Reference plots are written once by the controller process before xdist workers run tests.
-        for suite in suites:
-            for case in suite.get_cases():
-                for verifier in case.verifiers:
-                    if isinstance(verifier, infra.VisualErrorVerifier) and verifier.get_ref_source().has_image_ref():
-                            verifier.save_ref_plot(output_dir)
-        
-        processed_modules.add(module)
-
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     # Before `yield`: run prior to any other `pytest_runtest_makereport()` hook wrapper

@@ -21,8 +21,11 @@ sppm_msg = (
     "matched with a box filter."
     )
 
-def output_title(case, metrics):
-    return "%s Output (MSE: %f, Δ: %f%%)" % (case.name, metrics["mse"], metrics["rel_mean"] * 100)
+def output_title(case, verifier_reports):
+    return "%s Output (MSE: %f, Δ: %f%%)" % (
+        case.name,
+        infra.get_metric(verifier_reports, infra.MSEVerifier.METRIC_MSE),
+        infra.get_metric(verifier_reports, infra.RelMeanVerifier.METRIC_REL_MEAN) * 100)
 
 quad_visual_error_verifier = infra.VisualErrorVerifier(
     ref=quad_ref_path,

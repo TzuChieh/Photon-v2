@@ -104,12 +104,12 @@ class RefVerifier(Verifier):
         """
         return self.ref_source
 
-    def save_compare_ref_raw(self, output_img: image.Image, output_dir: Path, case: RenderCase):
+    def save_report_artifacts(self, output_img: image.Image, output_dir: Path, case: RenderCase):
         """
         Save the primary reference as raw PFM for report comparison.
         """
         ref_img = self.get_ref_source().get_ref_image_for_output(output_img)
-        ref_raw_filename = f"{case.output_filename}_{type(self).__name__.lower()}_ref_raw"
+        ref_raw_filename = f"{case.get_active_verifier_file_stem()}_ref_raw"
         ref_img.save_pfm(output_dir / ref_raw_filename)
         case.set_raw_output_image_filename(case.output_filename)
         case.set_raw_ref_image_filename(ref_raw_filename)
@@ -119,6 +119,8 @@ class MSEVerifier(RefVerifier):
     """
     Checks the Mean Squared Error (MSE) against a reference image or constant.
     """
+    METRIC_MSE = "mse"
+
     def __init__(self, ref: RefInput, threshold: float):
         super().__init__(ref)
         self.threshold = threshold
@@ -136,13 +138,15 @@ class MSEVerifier(RefVerifier):
         return VerificationResult(
             passed=passed,
             message=f"MSE={mse:.6f} (max={self.threshold:.6f})" if not passed else "",
-            metrics={"mse": mse})
+            metrics={self.METRIC_MSE: mse})
 
 
 class RelMeanVerifier(RefVerifier):
     """
     Checks the Relative error of the mean value against a reference or constant.
     """
+    METRIC_REL_MEAN = "rel_mean"
+
     def __init__(self, ref: RefInput, threshold: float):
         super().__init__(ref)
         self.threshold = threshold
@@ -162,13 +166,15 @@ class RelMeanVerifier(RefVerifier):
         return VerificationResult(
             passed=passed,
             message=f"RelMean={rel_mean*100:.3f}% (max={self.threshold*100:.3f}%)" if not passed else "",
-            metrics={"rel_mean": rel_mean})
+            metrics={self.METRIC_REL_MEAN: rel_mean})
 
 
 class PerPixelVerifier(RefVerifier):
     """
     Performs a strict per-pixel comparison against a constant value.
     """
+    METRIC_EXPECTED = "expected"
+
     def __init__(self, expected_value: float, tolerance: float = 1e-8):
         super().__init__(expected_value)
         self.tolerance = tolerance
@@ -184,13 +190,15 @@ class PerPixelVerifier(RefVerifier):
         return VerificationResult(
             passed=passed,
             message=f"Per-pixel check failed (expected {expected_value}, tol={self.tolerance})" if not passed else "",
-            metrics={"expected": expected_value})
+            metrics={self.METRIC_EXPECTED: expected_value})
 
 
 class MeanDiffVerifier(RefVerifier):
     """
     Checks image mean against an expected value and stores useful extrema in case debug info.
     """
+    METRIC_MEAN_DIFF = "mean_diff"
+
     def __init__(self, expected_value: float, threshold: float):
         super().__init__(expected_value)
         self.threshold = threshold
@@ -204,13 +212,21 @@ class MeanDiffVerifier(RefVerifier):
         return VerificationResult(
             passed=passed,
             message=f"MeanDiff={mean_diff:.8f} (max={self.threshold:.8f})" if not passed else "",
-            metrics={"mean_diff": mean_diff})
+            metrics={self.METRIC_MEAN_DIFF: mean_diff})
 
 
 class ZTestVerifier(RefVerifier):
     """
     Performs a per-pixel z-test against reference beauty and sample variance images.
     """
+    METRIC_SAMPLE_COUNT = "sample_count"
+    METRIC_SIGNIFICANCE_LEVEL = "significance_level"
+    METRIC_SIDAK_ALPHA = "sidak_alpha"
+    METRIC_MIN_P_VALUE = "min_p_value"
+    METRIC_PASS_RATIO = "pass_ratio"
+    METRIC_REQUIRED_PASS_RATIO = "required_pass_ratio"
+    METRIC_VARIANCE_FLOOR = "variance_floor"
+
     def __init__(
             self,
             ref: RefInput,
@@ -338,7 +354,7 @@ class ZTestVerifier(RefVerifier):
 
     def _save_failure_strength_plot(self, p_value, sidak_alpha: float, output_dir: Path, case: RenderCase):
         failure_img = self._make_failure_strength_image(p_value, sidak_alpha)
-        case.set_plot_debug_image_filename(f"{case.output_filename}_ztest_failure")
+        case.set_plot_debug_image_filename(f"{case.get_active_verifier_file_stem()}_failure")
         failure_img.save_pseudocolor_plot(
             output_dir / case.plot_debug_image_filename,
             f"{case.name} Z-Test Failure Strength",
@@ -354,13 +370,13 @@ class ZTestVerifier(RefVerifier):
 
     def _make_metrics(self, sidak_alpha: float, min_p_value: float, pass_ratio: float):
         return {
-            "sample_count": self.sample_count,
-            "significance_level": self.significance_level,
-            "sidak_alpha": sidak_alpha,
-            "min_p_value": min_p_value,
-            "pass_ratio": pass_ratio,
-            "required_pass_ratio": self.min_pass_ratio,
-            "variance_floor": self.variance_floor
+            self.METRIC_SAMPLE_COUNT: self.sample_count,
+            self.METRIC_SIGNIFICANCE_LEVEL: self.significance_level,
+            self.METRIC_SIDAK_ALPHA: sidak_alpha,
+            self.METRIC_MIN_P_VALUE: min_p_value,
+            self.METRIC_PASS_RATIO: pass_ratio,
+            self.METRIC_REQUIRED_PASS_RATIO: self.min_pass_ratio,
+            self.METRIC_VARIANCE_FLOOR: self.variance_floor
         }
 
     def _check_dimensions(self, output_img: image.Image, ref_img: image.Image, ref_name: str):
@@ -373,14 +389,13 @@ class ZTestVerifier(RefVerifier):
 class VisualErrorVerifier(RefVerifier):
     """
     Generates scaled error plots for visualization.
-    Reference plots are handled by the infrastructure (`conftest.py`).
     """
     def __init__(
             self, 
             ref: RefInput,
             error_scale: float = 100.0,
             error_output_filename: str = None,
-            ref_output_filename: str = "ref",
+            ref_output_filename: str = None,
             error_title=None,
             ref_title: str = "Reference Image",
             color_max: float = 100.0):
@@ -388,7 +403,7 @@ class VisualErrorVerifier(RefVerifier):
         @param ref Reference image path, image object, or scalar value to compare against.
                    If this is a path or image object, a reference plot is generated for the report.
         @param error_output_filename Custom name for error plot. Defaults to `{case.output_filename}_error`.
-        @param ref_output_filename Name used for reference plot in the report. Defaults to `"ref"`.
+        @param ref_output_filename Custom name for reference plot. Defaults to a verifier-specific name.
         @param error_title Optional title for the error plot. May be a callable taking `case`.
         @param ref_title Title for the reference plot.
         @param color_max Maximum color scale value for the error plot.
@@ -401,30 +416,23 @@ class VisualErrorVerifier(RefVerifier):
         self.ref_title = ref_title
         self.color_max = color_max
 
-    def save_ref_plot(self, output_dir: Path):
-        ref_source = self.get_ref_source()
-        if not ref_source.has_image_ref():
-            return
-        ref_source.get_image_ref().save_plot(output_dir / self.ref_output_filename, self.ref_title, create_dirs=True)
+    def _get_ref_output_filename(self, case: RenderCase):
+        return self.ref_output_filename or f"{case.get_active_verifier_file_stem()}_ref"
 
-    def get_ref_output_filename(self):
-        """
-        @return Output stem for the generated reference plot in test/report output.
-        """
-        return self.ref_output_filename
-
-    def get_ref_title(self):
-        return self.ref_title
+    def _get_error_output_filename(self, case: RenderCase):
+        return self.error_output_filename or f"{case.get_active_verifier_file_stem()}_error"
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
         error_img = image.Image(output_img.get_width(), output_img.get_height(), output_img.num_components())
         ref_source = self.get_ref_source()
 
         if ref_source.has_image_ref():
-            case.set_plot_ref_image_filename(self.ref_output_filename)
+            ref_output_filename = self._get_ref_output_filename(case)
+            ref_source.get_image_ref().save_plot(output_dir / ref_output_filename, self.ref_title, create_dirs=True)
+            case.set_plot_ref_image_filename(ref_output_filename)
         else:
             case.clear_plot_ref_image_filename()
-        case.set_plot_debug_image_filename(self.error_output_filename or f"{case.output_filename}_error")
+        case.set_plot_debug_image_filename(self._get_error_output_filename(case))
 
         if ref_source.has_image_ref():
             ref_img = ref_source.get_image_ref()
@@ -465,7 +473,7 @@ class PseudocolorPlotVerifier(Verifier):
         self.color_map = color_map
 
     def verify(self, output_img: image.Image, output_dir: Path, case: RenderCase) -> VerificationResult:
-        case.set_plot_debug_image_filename(self.output_filename or f"{case.output_filename}_error")
+        case.set_plot_debug_image_filename(self.output_filename or f"{case.get_active_verifier_file_stem()}_debug")
         debug_img = self.transform(output_img)
         title = self.title(case) if callable(self.title) else (self.title or f"{case.name} Debug Output")
         debug_img.save_pseudocolor_plot(

@@ -4,6 +4,7 @@ from infra.core import (
     RendererConfig,
     VerificationResult,
     Verifier,
+    get_metric,
     RenderCase,
     RenderTestSuite
     )
