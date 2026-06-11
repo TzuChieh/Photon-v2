@@ -14,6 +14,7 @@ import sys
 import shutil
 import argparse
 import subprocess
+import os
 from pathlib import Path
 
 
@@ -99,6 +100,21 @@ def _generate_build_info(output_dir: Path):
         json.dump(build_info, f, indent=4)
         
     print(f"Build info saved to <{output_file}>.")
+
+
+def _setup_codex_skill_links():
+    source_root = Path("./Main/AgentSkills")
+    link_root = Path("./.agents/skills")
+
+    filesystem.delete_folder_with_contents(link_root.parent)
+    link_root.parent.mkdir(parents=True, exist_ok=True)
+
+    relative_source = os.path.relpath(source_root.resolve(), link_root.parent.resolve())
+    try:
+        link_root.symlink_to(relative_source, target_is_directory=True)
+        print(f"Linked Codex skills <{link_root}> -> <{relative_source}>.")
+    except OSError as e:
+        print(f"Unable to link Codex skills <{link_root}>: {e}")
 
 
 # Read and parse setup config
@@ -229,3 +245,6 @@ Path("./Main/docs/").mkdir(exist_ok=True)
 
 # Install repo-wide pytest settings
 shutil.copy("./Main/pytest.ini", build_dir / "pytest.ini")
+
+# Setup Codex skill discovery links
+_setup_codex_skill_links()

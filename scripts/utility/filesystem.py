@@ -4,14 +4,21 @@ import time
 import warnings
 
 
-def delete_folder_with_contents(folder_path):
+def delete_folder_with_contents(folder_path, failure_ok=False):
     """
     @brief Delete the folder, all contents inside are also deleted recursively.
     @return Whether the folder is deleted.
     """
-    print("Deleting folder <%s>..." % folder_path)
+    print(f"Deleting folder <{folder_path}>...")
 
-    if not os.path.isdir(folder_path):
+    if os.path.exists(folder_path) and not os.path.isdir(folder_path):
+        message = f"Path <{folder_path}> is not a folder"
+        if failure_ok:
+            warnings.warn(message, stacklevel=16)
+            return False
+        else:
+            raise OSError(message)
+    elif not os.path.isdir(folder_path):
         return False
 
     max_retries = 10
@@ -34,7 +41,11 @@ def delete_folder_with_contents(folder_path):
                 break
 
     if num_retries == max_retries:
-        warnings.warn("Cannot delete folder <%s>" % folder_path, stacklevel=16)
+        message = f"Cannot delete folder <{folder_path}>"
+        if failure_ok:
+            warnings.warn(message, stacklevel=16)
+        else:
+            raise OSError(message)
 
     return not os.path.isdir(folder_path)
 
@@ -43,7 +54,6 @@ def rename_folder(src_folder_path, dst_folder_path):
     @brief Rename the folder.
     @return Whether the folder is renamed.
     """
-
     if not os.path.isdir(src_folder_path):
         return False
     
