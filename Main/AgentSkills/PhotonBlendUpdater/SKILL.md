@@ -1,4 +1,4 @@
-﻿---
+---
 name: photonblend-updater
 description: Use this skill when the user wants to update PhotonBlend, Blender add-on SDL bindings, BlenderAddon/PhotonBlend/generated/pysdl.py, or regenerate Blender's Python SDL interface from SDLGen/SDLGenCLI.
 ---

@@ -1,5 +1,7 @@
 import os
 import shutil
+import subprocess
+import sys
 import time
 import warnings
 
@@ -48,6 +50,24 @@ def delete_folder_with_contents(folder_path, failure_ok=False):
             raise OSError(message)
 
     return not os.path.isdir(folder_path)
+
+def create_directory_link(link_path, target_path):
+    """
+    @brief Create a directory symbolic link. Falls back to Windows junctions if symlink privilege is unavailable.
+    @note Relative `target_path` uses link semantics: it is resolved from `link_path`'s parent, not the process working directory.
+    """
+    try:
+        os.symlink(target_path, link_path, target_is_directory=True)
+    except OSError as e:
+        if sys.platform != 'win32' or e.winerror != 1314:
+            raise
+
+        if not os.path.isabs(target_path):
+            target_path = os.path.join(os.path.dirname(link_path), target_path)
+        target_path = os.path.abspath(target_path)
+        subprocess.run(
+            ['cmd', '/c', 'mklink', '/J', str(link_path), str(target_path)],
+            check=True)
 
 def rename_folder(src_folder_path, dst_folder_path):
     """
