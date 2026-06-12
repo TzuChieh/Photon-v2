@@ -6,7 +6,6 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/Core/Intersection/TTransformedIntersectable.h"
 #include "Engine/Actor/MotionSource/MotionSource.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Actor/ModelBuilder.h"

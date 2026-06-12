@@ -1,7 +1,6 @@
 #include "Engine/Actor/ModelBuilder.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/Core/Intersection/TTransformedIntersectable.h"
 
 namespace ph
 {

@@ -1,9 +1,9 @@
 #include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Core/Intersection/TTransformedIntersectable.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
@@ -120,7 +120,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 				.injectMetadataArray(
 					std::move(copiedMetadatas),
 					numMetadataSlots,
-					cookedGeometry->faceIdToMetadataSlot)
+					&cookedGeometry->faceIdToMetadataSlot)
 				.build());
 
 		result.add(metaPrimitive);
@@ -135,11 +135,10 @@ TransientVisualElement ABlenderPlyModel::cook(
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources().makeIntersectable<
-				TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
-					TReferencedIntersectableGetter<Intersectable>(intersectable),
-					localToWorld,
-					worldToLocal);
+			auto* transformedIntersectable = ctx.getResources().copyIntersectable(
+				IntersectableBuilder::referencing(intersectable)
+					.transform(localToWorld, worldToLocal)
+					.build());
 
 			intersectable = transformedIntersectable;
 		}

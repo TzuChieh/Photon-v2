@@ -79,6 +79,11 @@ struct TEmbeddedPrimitiveGetter final
 	{
 		return primitive;
 	}
+
+	PrimitiveType&& claimEmbedded() &&
+	{
+		return std::move(primitive);
+	}
 };
 
 template<CDerived<Intersectable> IntersectableType>
@@ -110,6 +115,11 @@ struct TEmbeddedIntersectableGetter final
 	const IntersectableType& operator () () const
 	{
 		return intersectable;
+	}
+
+	IntersectableType&& claimEmbedded() &&
+	{
+		return std::move(intersectable);
 	}
 };
 

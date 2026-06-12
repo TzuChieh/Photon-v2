@@ -50,7 +50,7 @@ TEST(TTransformedPrimitiveTest, ForwardsMetadataSlots)
 		.injectMetadataArray(
 			std::move(metadatas),
 			3,
-			faceIdToMetadataSlot)
+			&faceIdToMetadataSlot)
 		.build();
 
 	StaticRigidTransform localToWorld;
