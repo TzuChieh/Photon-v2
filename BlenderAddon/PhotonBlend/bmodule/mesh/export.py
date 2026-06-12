@@ -117,6 +117,52 @@ def _queue_transform_commands(console: SdlConsole, actor_name, position, rotatio
     console.queue_command(scaler)
 
 
+def _write_blender_ply_file(
+    ply_path,
+    raw_vert_positions,
+    raw_vert_loop_normals,
+    raw_vert_loop_uvs,
+    vert_position_indices,
+    vert_loop_indices,
+    tri_mat_ids):
+    psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
+        path=ply_path,
+        raw_vert_positions=raw_vert_positions,
+        raw_vert_loop_normals=raw_vert_loop_normals,
+        raw_vert_loop_uvs=raw_vert_loop_uvs,
+        vert_position_indices=vert_position_indices,
+        vert_loop_indices=vert_loop_indices,
+        tri_mat_ids=tri_mat_ids)
+
+
+def _queue_blender_ply_geometry(console: SdlConsole, geometry_name, bundled_ply_path):
+    geometry_creator = sdl.BlenderPlyGeometryCreator()
+    geometry_creator.set_data_name(geometry_name)
+
+    ply_file = sdl.ResourceIdentifier()
+    ply_file.set_bundled_path(bundled_ply_path)
+    geometry_creator.set_ply_file(ply_file)
+
+    console.queue_command(geometry_creator)
+
+
+def _queue_blender_ply_model_actor(
+    console: SdlConsole,
+    actor_name,
+    geometry_name,
+    b_materials):
+    material_refs = sdl.ReferenceArray("material")
+    for b_material in b_materials:
+        material_refs.add(sdl.Material(naming.get_mangled_material_name(b_material)))
+
+    actor_creator = sdl.BlenderPlyModelActorCreator()
+    actor_creator.set_data_name(actor_name)
+    actor_creator.set_geometry(sdl.Geometry(geometry_name))
+    actor_creator.set_materials(material_refs)
+
+    console.queue_command(actor_creator)
+
+
 def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: SdlConsole):
     """
     Export Blender original mesh object as one PLY geometry and one model actor with a material array.
@@ -178,34 +224,20 @@ def _export_original_mesh_object_v4p5(b_mesh_object: bpy.types.Object, console: 
     ply_path = console.get_working_dir() / "Mesh_data" / f"{b_mesh_object.name}.ply"
     ply_path.parent.mkdir(parents=True, exist_ok=True)
     bundled_ply_path = console.get_bundled_path(ply_path)
-    psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
-        path=ply_path,
-        raw_vert_positions=raw_vert_positions,
-        raw_vert_loop_normals=raw_vert_loop_normals,
-        raw_vert_loop_uvs=raw_vert_loop_uvs,
-        vert_position_indices=vert_position_indices,
-        vert_loop_indices=vert_loop_indices,
-        tri_mat_ids=tri_mat_ids)
+    _write_blender_ply_file(
+        ply_path,
+        raw_vert_positions,
+        raw_vert_loop_normals,
+        raw_vert_loop_uvs,
+        vert_position_indices,
+        vert_loop_indices,
+        tri_mat_ids)
 
     geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=b_mesh_object.name)
-
-    geometry_creator = sdl.BlenderPlyGeometryCreator()
-    geometry_creator.set_data_name(geometry_name)
-    ply_file = sdl.ResourceIdentifier()
-    ply_file.set_bundled_path(bundled_ply_path)
-    geometry_creator.set_ply_file(ply_file)
-    console.queue_command(geometry_creator)
+    _queue_blender_ply_geometry(console, geometry_name, bundled_ply_path)
 
     model_actor_name = naming.get_mangled_object_name(b_mesh_object)
-    material_refs = sdl.ReferenceArray("material")
-    for b_material in b_mesh.materials:
-        material_refs.add(sdl.Material(naming.get_mangled_material_name(b_material)))
-
-    actor_creator = sdl.BlenderPlyModelActorCreator()
-    actor_creator.set_data_name(model_actor_name)
-    actor_creator.set_geometry(sdl.Geometry(geometry_name))
-    actor_creator.set_materials(material_refs)
-    console.queue_command(actor_creator)
+    _queue_blender_ply_model_actor(console, model_actor_name, geometry_name, b_mesh.materials)
 
     pos, rot, scale = blender.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
     _queue_transform_commands(console, model_actor_name, pos, rot, scale)
