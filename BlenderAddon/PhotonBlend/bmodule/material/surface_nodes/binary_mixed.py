@@ -4,9 +4,6 @@ from ..node_base import (
         PhColorSocket,
         PhSurfaceMaterialSocket)
 from psdl import sdl
-from bmodule import naming
-from .pure_absorber import PhPureAbsorberNode
-from utility import material
 
 import bpy
 import mathutils
@@ -29,25 +26,22 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        mat0_socket = self.inputs[0]
-        mat1_socket = self.inputs[1]
-        factor_socket = self.inputs[2] if self.factor_type == 'FLOAT' else self.inputs[3]
-        surface_mat_socket = self.outputs[0]
-
-        mat0_res_name = mat0_socket.get_from_res_name(b_material)
-        mat1_res_name = mat1_socket.get_from_res_name(b_material)
+        mat0_res_name = self.get_linked_input_resource_name(b_material, 0)
+        mat1_res_name = self.get_linked_input_resource_name(b_material, 1)
         # TODO: use the default_value defined albedo
         if mat0_res_name is None or mat1_res_name is None:
-            print("warning: material <%s>'s binary mixed surface node is incomplete" % b_material.name)
+            self.warn_incomplete_node(b_material, "material A or material B input is not linked")
+            self.queue_fallback_material(sdlconsole, self.get_output_resource_name(b_material))
             return
 
-        factor_res_name = factor_socket.get_from_res_name(b_material)
+        factor_input_index = 2 if self.factor_type == 'FLOAT' else 3
+        factor_res_name = self.get_linked_input_resource_name(b_material, factor_input_index)
         if not factor_res_name:
             image_creator = sdl.ConstantImageCreator()
-            factor_res_name = naming.get_mangled_input_node_socket_name(factor_socket, b_material)
+            factor_res_name = self.get_default_input_resource_name(b_material, factor_input_index)
             image_creator.set_data_name(factor_res_name)
 
-            factor = factor_socket.default_value
+            factor = self.get_default_input_value(factor_input_index)
             if self.factor_type == 'FLOAT':
                 image_creator.set_values(sdl.RealArray([factor]))
             else:
@@ -56,7 +50,7 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
             sdlconsole.queue_command(image_creator)
 
         creator = sdl.BinaryMixedSurfaceMaterialCreator()
-        creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material))
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_mode(sdl.Enum("lerp"))
         creator.set_material_0(sdl.Material(mat0_res_name))
         creator.set_material_1(sdl.Material(mat1_res_name))

@@ -6,7 +6,6 @@ from ..node_base import (
     PhFloatFactorSocket,
     )
 from psdl import sdl
-from bmodule import naming
 
 
 class PhOutputNode(PhMaterialOutputNode):
@@ -14,21 +13,19 @@ class PhOutputNode(PhMaterialOutputNode):
     bl_label = "Output"
 
     def to_sdl(self, b_material, sdlconsole):
-        surface_mat_socket = self.inputs[0]
-        surface_mat_res_name = surface_mat_socket.get_from_res_name(b_material)
-
-        volume_mat_socket = self.inputs[1]
-        volume_mat_res_name = volume_mat_socket.get_from_res_name(b_material)
+        surface_mat_res_name = self.get_linked_input_resource_name(b_material, 0)
+        volume_mat_res_name = self.get_linked_input_resource_name(b_material, 1)
 
         if not surface_mat_res_name and not volume_mat_res_name:
-            if not self.get_surface_emission_res_name():
-                print(f"material {b_material.name}'s primary output nodes are not linked, ignoring")
+            if not self.get_surface_emission_res_name(b_material):
+                self.warn_incomplete_node(b_material, "surface and volume inputs are not linked")
+            self.queue_fallback_material(sdlconsole, self.get_material_resource_name(b_material))
             return
 
         assert surface_mat_res_name or volume_mat_res_name
 
         creator = sdl.FullMaterialCreator()
-        creator.set_data_name(naming.get_mangled_material_name(b_material))
+        creator.set_data_name(self.get_material_resource_name(b_material))
         if surface_mat_res_name:
             creator.set_surface(sdl.Material(surface_mat_res_name))
         if volume_mat_res_name:
@@ -49,9 +46,7 @@ class PhOutputNode(PhMaterialOutputNode):
         self.inputs[3].link_only = True
 
     def get_surface_emission_res_name(self, b_material):
-        surface_emission_socket = self.inputs[2]
-        return surface_emission_socket.get_from_res_name(b_material)
+        return self.get_linked_input_resource_name(b_material, 2)
     
     def get_surface_mask_res_name(self, b_material):
-        surface_mask_socket = self.inputs[3]
-        return surface_mask_socket.get_from_res_name(b_material)
+        return self.get_linked_input_resource_name(b_material, 3)

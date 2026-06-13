@@ -3,7 +3,6 @@ from ..node_base import (
     PhSurfaceMaterialSocket,
     PhFloatFactorSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -40,19 +39,16 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
-
         creator = sdl.AbradedOpaqueMaterialCreator()
-        creator.set_data_name(surface_mat_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_microsurface(sdl.Enum("ggx"))
         creator.set_f0(sdl.Spectrum(self.f0))
 
         if not self.is_anisotropic:
-            creator.set_roughness(sdl.Real(self.inputs[0].default_value))
+            creator.set_roughness(sdl.Real(self.get_default_input_value(0)))
         else:
-            creator.set_roughness(sdl.Real(self.inputs[1].default_value))
-            creator.set_roughness_v(sdl.Real(self.inputs[2].default_value))
+            creator.set_roughness(sdl.Real(self.get_default_input_value(1)))
+            creator.set_roughness_v(sdl.Real(self.get_default_input_value(2)))
 
         if self.mapping_type == 'SQUARED':
             creator.set_roughness_to_alpha(sdl.Enum("squared"))

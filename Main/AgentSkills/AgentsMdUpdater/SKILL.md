@@ -23,6 +23,9 @@ Act as a fast, professional note taker and summarizer. Preserve durable project 
 ### 3. Write Compact Notes
 
 - Write concise bullets with durable boundaries, invariants, ownership rules, or preferred patterns.
+- Merge closely related facts into one note; avoid separate bullets that share the same owner, path, workflow, or invariant.
+- Remove or consolidate duplicated guidance across parent/child guides and within the same guide before adding new material.
+- Prefer one dense, readable sentence over multiple bullets when the facts are inseparable.
 - Omit implementation narration, code mechanics, concrete examples, pending fixes, local workarounds, transient status, speculation, and details better kept in source comments, tests, plans, or issues.
 - Preserve existing notes unless evidence shows they are stale; update corrected boundaries such as deprecated areas.
 
@@ -35,5 +38,6 @@ For each `AGENTS.md` file modified:
 
 ### 5. Verify
 
-- Review the final diff for scope, hierarchy, concision, and duplicated guidance, then run `git diff --check` on edited `AGENTS.md` files.
+- Review the final diff for scope, hierarchy, concision, duplicated guidance, and mergeable adjacent bullets; compact again before finishing if any edited section reads like a changelog.
+- Run `git diff --check` on edited `AGENTS.md` files.
 - Report updated and newly created files, evidence for new notes, and the 3-note stale audit results.

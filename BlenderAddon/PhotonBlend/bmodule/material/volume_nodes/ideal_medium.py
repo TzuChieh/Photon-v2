@@ -2,7 +2,6 @@ from ..node_base import (
     PhVolumeMaterialNode,
     PhVolumeMaterialSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -24,11 +23,8 @@ class PhIdealMediumNode(PhVolumeMaterialNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        mat_socket = self.outputs[0]
-        mat_res_name = naming.get_mangled_output_node_socket_name(mat_socket, b_material)
-
         creator = sdl.IdealMediumMaterialCreator()
-        creator.set_data_name(mat_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_absorption_coeff(sdl.Spectrum(self.absorption_coeff))
 
         sdlconsole.queue_command(creator)

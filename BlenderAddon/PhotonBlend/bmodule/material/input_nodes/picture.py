@@ -2,7 +2,6 @@ from ..node_base import (
         PhMaterialInputNode,
         PhColorSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -60,8 +59,7 @@ class PhPictureNode(PhMaterialInputNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        image_socket = self.outputs[0]
-        image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material) 
+        image_res_name = self.get_output_resource_name(b_material)
 
         # TODO: not bundle/copy the same file if already present
 

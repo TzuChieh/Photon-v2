@@ -3,7 +3,6 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         )
 from psdl import sdl
-from bmodule import naming
 
 
 class PhPureAbsorberNode(PhSurfaceMaterialNode):
@@ -11,11 +10,8 @@ class PhPureAbsorberNode(PhSurfaceMaterialNode):
     bl_label = "Pure Absorber"
 
     def to_sdl(self, b_material, sdlconsole):
-        surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
-
         creator = sdl.IdealSubstanceMaterialCreator()
-        creator.set_data_name(surface_mat_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_substance(sdl.Enum("absorber"))
         sdlconsole.queue_command(creator)
 

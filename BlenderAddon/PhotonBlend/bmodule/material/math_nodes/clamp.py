@@ -3,7 +3,6 @@ from ..node_base import (
         PhColorSocket,
         PhColorSocketWithFloatDefault)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -13,37 +12,31 @@ class PhClampNode(PhMaterialMathNode):
     bl_label = "Clamp"
 
     def to_sdl(self, b_material, sdlconsole):
-        value_socket       = self.inputs[0]
-        lower_bound_socket = self.inputs[1]
-        upper_bound_socket = self.inputs[2]
-        output_socket      = self.outputs[0]
-
-        value_color_res_name = value_socket.get_from_res_name(b_material)
+        value_color_res_name = self.get_linked_input_resource_name(b_material, 0)
         if not value_color_res_name:
-            value_color_res_name = naming.get_mangled_input_node_socket_name(value_socket, b_material)
+            value_color_res_name = self.get_default_input_resource_name(b_material, 0)
             creator = sdl.ConstantImageCreator()
             creator.set_data_name(value_color_res_name)
-            creator.set_values(sdl.RealArray([value_socket.default_value]))
+            creator.set_values(sdl.RealArray([self.get_default_input_value(0)]))
             sdlconsole.queue_command(creator)
 
-        lower_bound_color_res_name = lower_bound_socket.get_from_res_name(b_material)
-        upper_bound_color_res_name = upper_bound_socket.get_from_res_name(b_material)
-        output_color_res_name = naming.get_mangled_output_node_socket_name(output_socket, b_material)
+        lower_bound_color_res_name = self.get_linked_input_resource_name(b_material, 1)
+        upper_bound_color_res_name = self.get_linked_input_resource_name(b_material, 2)
 
         creator = sdl.MathImageCreator()
-        creator.set_data_name(output_color_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_math_image_op(sdl.Enum("clamp"))
         creator.set_operand(sdl.Image(value_color_res_name))
 
         if lower_bound_color_res_name:
             creator.set_input_0(sdl.Image(lower_bound_color_res_name))
         else:
-            creator.set_scalar_input_0(sdl.Real(lower_bound_socket.default_value))
+            creator.set_scalar_input_0(sdl.Real(self.get_default_input_value(1)))
 
         if upper_bound_color_res_name:
             creator.set_input_1(sdl.Image(upper_bound_color_res_name))
         else:
-            creator.set_scalar_input_1(sdl.Real(upper_bound_socket.default_value))
+            creator.set_scalar_input_1(sdl.Real(self.get_default_input_value(2)))
 
         sdlconsole.queue_command(creator)
 

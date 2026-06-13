@@ -3,7 +3,6 @@ from ..node_base import (
         PhColorSocket,
         PhColorSocketWithFloatDefault)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -29,30 +28,24 @@ class PhArithmeticNode(PhMaterialMathNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        operand_socket = self.inputs[0]
-        input0_socket  = self.inputs[1]
-        output_socket  = self.outputs[0]
-
-        operand_color_res_name = operand_socket.get_from_res_name(b_material)
+        operand_color_res_name = self.get_linked_input_resource_name(b_material, 0)
         if not operand_color_res_name:
-            operand_color_res_name = naming.get_mangled_input_node_socket_name(operand_socket, b_material)
+            operand_color_res_name = self.get_default_input_resource_name(b_material, 0)
             creator = sdl.ConstantImageCreator()
             creator.set_data_name(operand_color_res_name)
-            creator.set_values(sdl.RealArray([operand_socket.default_value]))
+            creator.set_values(sdl.RealArray([self.get_default_input_value(0)]))
             sdlconsole.queue_command(creator)
 
-        input0_color_res_name = input0_socket.get_from_res_name(b_material)
-        output_color_res_name = naming.get_mangled_output_node_socket_name(output_socket, b_material)
-
         creator = sdl.MathImageCreator()
-        creator.set_data_name(output_color_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_math_image_op(sdl.Enum(self.operation_type))
         creator.set_operand(sdl.Image(operand_color_res_name))
 
+        input0_color_res_name = self.get_linked_input_resource_name(b_material, 1)
         if input0_color_res_name:
             creator.set_input_0(sdl.Image(input0_color_res_name))
         else:
-            creator.set_scalar_input_0(sdl.Real(input0_socket.default_value))
+            creator.set_scalar_input_0(sdl.Real(self.get_default_input_value(1)))
 
         sdlconsole.queue_command(creator)
 
