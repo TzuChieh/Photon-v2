@@ -1,21 +1,13 @@
 from infra import renderer, image
 from infra.core import RenderCase, VerificationResult
-from infra.verifier import RefVerifier
 
 import inspect
-from pathlib import Path
 
 
 class TestRunner:
     """
     Orchestrates the rendering and verification of test cases.
     """
-    def __init__(self, output_base_dir: Path = None):
-        """
-        @param output_base_dir The root directory for test outputs. Defaults to infra.paths.test_output().
-        """
-        self.output_base_dir = output_base_dir
-
     def run(self, case: RenderCase) -> VerificationResult:
         """
         Execute a test case: render the scene, save standard plots, and run all verifiers.
@@ -29,8 +21,6 @@ class TestRunner:
             case.set_module_name(caller_module.__name__)
 
         case_output_dir = case.get_output_dir()
-        if self.output_base_dir:
-            case_output_dir = self.output_base_dir / case.module_name
         case_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Output file path (e.g., .../bvpt.pfm)
@@ -57,27 +47,24 @@ class TestRunner:
         # 3. Verify (Run all verifiers)
         combined_passed = True
         combined_msg = []
-        combined_metrics = {}
         case.reset_report_state()
 
-        for verifier in case.verifiers:
-            case.begin_verifier_report(type(verifier).__name__)
-            if isinstance(verifier, RefVerifier):
-                verifier.save_compare_ref_raw(output_img, case_output_dir, case)
+        for verifier_index, verifier in enumerate(case.verifiers):
+            case.begin_verifier_report(type(verifier).__name__, verifier_index)
+            verifier.save_report_artifacts(output_img, case_output_dir, case)
             result = verifier.verify(output_img, case_output_dir, case)
             if not result.passed:
                 combined_passed = False
                 if result.message:
                     combined_msg.append(result.message)
-            combined_metrics.update(result.metrics)
-            case.finalize_verifier_report(result)
+            case.end_verifier_report(result)
 
-        case.finalize_primary_report_fields()
+        case.sync_primary_report_fields()
 
         # 4. Save standard plot for report after metrics are available.
-        output_img.save_plot(output_path, case.get_output_title(combined_metrics))
+        output_img.save_plot(output_path, case.get_output_title())
         
         return VerificationResult(
             passed=combined_passed,
             message="; ".join(combined_msg),
-            metrics=combined_metrics)
+            metrics={})

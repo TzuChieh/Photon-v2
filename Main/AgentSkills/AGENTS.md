@@ -2,6 +2,7 @@
 
 ## Layout
 - Skill sources live under `Main/AgentSkills/<Skill>/`. Sibling `Main/AgentSkills/*.skill` ZIP packages are ignored by git; regenerate local packages after source edits when needed.
+- Setup recreates ignored `.agents/skills` as a directory link to `Main/AgentSkills`; keep durable skill content in `Main/AgentSkills`, not under `.agents`.
 - Keep `SKILL.md` concise. Put detailed reusable guidance in linked `references/` files only when it earns the indirection.
 
 ## Writing

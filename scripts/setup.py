@@ -14,6 +14,7 @@ import sys
 import shutil
 import argparse
 import subprocess
+import os
 from pathlib import Path
 
 
@@ -101,6 +102,18 @@ def _generate_build_info(output_dir: Path):
     print(f"Build info saved to <{output_file}>.")
 
 
+def _setup_codex_skill_links():
+    source_root = Path("./Main/AgentSkills")
+    link_root = Path("./.agents/skills")
+
+    filesystem.delete_folder_with_contents(link_root.parent)
+    link_root.parent.mkdir(parents=True, exist_ok=True)
+
+    relative_source = os.path.relpath(source_root.resolve(), link_root.parent.resolve())
+    filesystem.create_directory_link(link_root, relative_source)
+    print(f"Linked Codex skills <{link_root}> -> <{relative_source}>.")
+
+
 # Read and parse setup config
 setup_config = config.get_setup_config()
 
@@ -126,6 +139,9 @@ build_dir.mkdir(parents=True, exist_ok=True)
 print(f"Using build directory: {build_dir}")
 
 _prepare_python_env(args, build_dir)
+
+# Setup Codex skill discovery links
+_setup_codex_skill_links()
 
 # Download engine data to build directory
 if not args.skip_dl:

@@ -1,6 +1,6 @@
 ---
 name: agents-md-updater
-description: Use this skill when the user wants to maintain AGENTS.md files: capture evidence-based session learnings, compact project knowledge, update agent notes, or review existing guidance for staleness.
+description: "Use this skill when the user wants to maintain AGENTS.md files: capture evidence-based session learnings, compact project knowledge, update agent notes, or review existing guidance for staleness."
 ---
 
 # AGENTS.md Updater
