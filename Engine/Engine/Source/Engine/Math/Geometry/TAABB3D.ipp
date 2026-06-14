@@ -67,12 +67,14 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 	const TLineSegment<T>& segment,
 	const TVector3<T>& rcpSegmentDir,
 	T* const out_nearHitT,
-	T* const out_farHitT) const
+	T* const out_farHitT,
+	const std::array<bool, 3>* const isNegativeDir) const
 {
 	PH_ASSERT(out_nearHitT);
 	PH_ASSERT(out_farHitT);
 
-	const auto [tMin, tMax] = isIntersectingVolume<IS_ROBUST>(segment, rcpSegmentDir);
+	const auto [tMin, tMax] = isIntersectingVolume<IS_ROBUST>(
+		segment, rcpSegmentDir, isNegativeDir);
 
 	*out_nearHitT = tMin;
 	*out_farHitT  = tMax;
@@ -84,11 +86,25 @@ template<typename T>
 template<bool IS_ROBUST>
 inline std::pair<T, T> TAABB3D<T>::isIntersectingVolume(
 	const TLineSegment<T>& segment,
-	const TVector3<T>& rcpSegmentDir) const
+	const TVector3<T>& rcpSegmentDir,
+	const std::array<bool, 3>* const isNegativeDir) const
 {
 	if constexpr(IS_ROBUST)
 	{
-		return intersectVolumeRobust(segment, rcpSegmentDir);
+		if(isNegativeDir)
+		{
+			return intersectVolumeRobust(
+				segment,
+				rcpSegmentDir,
+				*isNegativeDir);
+		}
+		else
+		{
+			return intersectVolumeRobust(
+				segment,
+				rcpSegmentDir,
+				{segment.getDir().x() < 0, segment.getDir().y() < 0, segment.getDir().z() < 0});
+		}
 	}
 	else
 	{
@@ -390,27 +406,36 @@ inline std::pair<T, T> TAABB3D<T>::intersectVolumeTavian(
 template<typename T>
 inline std::pair<T, T> TAABB3D<T>::intersectVolumeRobust(
 	const TLineSegment<T>& segment,
-	const TVector3<T>& rcpSegmentDir) const
+	const TVector3<T>& rcpSegmentDir,
+	const std::array<bool, 3>& isNegativeDir) const
 {
 	PH_ASSERT(!std::isnan(segment.getMinT()) && !std::isnan(segment.getMaxT()));
+
+	const TVector3<T>& origin = segment.getOrigin();
 
 	T tMin = segment.getMinT();
 	T tMax = segment.getMaxT();
 
-	// Find ray-slab hitting interval in the i-th dimension then intersect with (tMin, tMax)
-	for(std::size_t i = 0; i < 3; ++i)
-	{
-		const std::array<T, 2> minMaxSlabDist{
-			m_minVertex[i] - segment.getOrigin()[i],
-			m_maxVertex[i] - segment.getOrigin()[i]};
+	// Find ray-slab hitting interval in one dimension then intersect with (tMin, tMax)
+	const auto intersect1D =
+		[&tMin, &tMax](T minVertex, T maxVertex, T origin, T rcpDir, bool isNegative)
+		{
+			if(isNegative)
+			{
+				std::swap(minVertex, maxVertex);
+			}
 
-		const bool isNegDir = segment.getDir()[i] < 0;
-		const T    minDist  = minMaxSlabDist[    isNegDir] * rcpSegmentDir[i];
-		const T    maxDist  = minMaxSlabDist[1 - isNegDir] * rcpSegmentDir[i];
+			// Convert slab distances back to parametric distances
+			const T minDist = (minVertex - origin) * rcpDir;
+			const T maxDist = (maxVertex - origin) * rcpDir;
 
-		tMin = minDist > tMin ? minDist : tMin;// safe max: fallback to `tMin` in case of NaN
-		tMax = maxDist < tMax ? maxDist : tMax;// safe min: fallback to `tMax` in case of NaN
-	}
+			tMin = minDist > tMin ? minDist : tMin;// safe max: fallback to `tMin` in case of NaN
+			tMax = maxDist < tMax ? maxDist : tMax;// safe min: fallback to `tMax` in case of NaN
+		};
+
+	intersect1D(m_minVertex.x(), m_maxVertex.x(), origin.x(), rcpSegmentDir.x(), isNegativeDir[0]);
+	intersect1D(m_minVertex.y(), m_maxVertex.y(), origin.y(), rcpSegmentDir.y(), isNegativeDir[1]);
+	intersect1D(m_minVertex.z(), m_maxVertex.z(), origin.z(), rcpSegmentDir.z(), isNegativeDir[2]);
 
 	// C++ defined `epsilon()` as the interval machine epsilon (e_i), while the paper defined
 	// the epsilon as rounding machine epsilon (e_r). The relation between them is "2 * e_r = e_i".

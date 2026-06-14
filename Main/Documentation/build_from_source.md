@@ -89,6 +89,7 @@ and substitute `SOME_OPTION` and `SOME_VALUE` with the options listed below.
 | `PH_DOUBLE_PRECISION_REAL` | `ON`, `OFF` (default: `OFF`) | Use double precision type for real numbers. |
 | `PH_USE_FAST_MATH` | `ON`, `OFF` (default: `OFF`) | More room for optimizations. This may not preserve strict IEEE compliance. |
 | `PH_USE_SIMD` | `ON`, `OFF` (default: `ON`) | Use vector instruction set found on the target hardware to accelerate computing. |
+| `PH_EMIT_ASSEMBLY` | `ON`, `OFF` (default: `OFF`) | Emit compiler assembly listings for translation units when available. This is for code generation inspection only; it increases build artifacts/build time and should not affect runtime performance. |
 
 > [!tip]
 > You can also obtain a complete list of options with descriptions by running `cmake -LAH ../` in the build folder.

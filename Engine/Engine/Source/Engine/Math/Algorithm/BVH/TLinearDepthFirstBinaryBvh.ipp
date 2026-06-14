@@ -9,6 +9,7 @@
 #include <Common/assertion.h>
 
 #include <limits>
+#include <array>
 
 namespace ph::math
 {
@@ -63,7 +64,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 
 	// Precompute common values
 
-	const bool isNegDir[3] = {
+	const std::array<bool, 3> isNegDir = {
 		segment.getDir().x() < 0,
 		segment.getDir().y() < 0,
 		segment.getDir().z() < 0};
@@ -77,7 +78,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 		const NodeType& node = m_nodes[currentNodeIndex];
 
 		const auto [aabbMinT, aabbMaxT] = node.getAABB().template isIntersectingVolume<IS_ROBUST>(
-			longestSegment, rcpSegmentDir);
+			longestSegment, rcpSegmentDir, &isNegDir);
 		if(aabbMinT <= aabbMaxT)
 		{
 			if(node.isLeaf())

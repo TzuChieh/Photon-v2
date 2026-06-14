@@ -126,6 +126,9 @@ option(PH_BUILD_PYTHON_BINDINGS
 option(PH_USE_MULTITHREADED_COMPILATION
     "Use multi-threaded compilation where supported."
     ON)
+option(PH_EMIT_ASSEMBLY
+    "Emit compiler assembly listings for translation units when available. This is for codegen inspection and can slow compilation."
+    OFF)
 
 set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
@@ -226,6 +229,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Disable security checks on Release as they have slight overhead (~0.01% on my machine) 
     add_compile_options($<$<CONFIG:Release>:/GS->)
 
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(/FAcs)
+    endif()
+
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
@@ -236,6 +243,10 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-ffast-math)
     endif()
 
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(-save-temps=obj -fverbose-asm)
+    endif()
+
 # Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
@@ -244,6 +255,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
+    endif()
+
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(-save-temps=obj -fverbose-asm)
     endif()
 
 else()

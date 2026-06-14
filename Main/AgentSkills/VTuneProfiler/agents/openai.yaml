@@ -1,0 +1,4 @@
+interface:
+  display_name: "VTune Profiler"
+  short_description: "Profile Photon-v2 native code with Intel VTune."
+  default_prompt: "Use $vtune-profiler to profile a Photon-v2 executable with Intel VTune and generate reports."

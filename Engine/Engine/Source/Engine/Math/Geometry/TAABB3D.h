@@ -126,6 +126,7 @@ public:
 	/*!
 	Variant of `isIntersectingVolume()` that can benefit from a precalculated reciprocal of
 	segment direction `rcpSegmentDir`.
+	@param isNegativeDir Optional precomputed sign mask for segment direction.
 	*/
 	template<bool IS_ROBUST = true>
 	[[PH_ALWAYS_INLINE]]
@@ -133,12 +134,14 @@ public:
 		const TLineSegment<T>& segment,
 		const TVector3<T>& rcpSegmentDir,
 		T* out_nearHitT, 
-		T* out_farHitT) const;
+		T* out_farHitT,
+		const std::array<bool, 3>* isNegativeDir = nullptr) const;
 
 	/*!
 	Variant of `isIntersectingVolume()` that returns the near and far hit distances rather
 	than returning a boolean. This can potentially remove a branch if the returned distances
 	are all the caller needs.
+	@param isNegativeDir Optional precomputed sign mask for segment direction.
 	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
 	@f$ t_{near} <= t_{far} @f$.
 	*/
@@ -146,7 +149,8 @@ public:
 	[[PH_ALWAYS_INLINE]]
 	std::pair<T, T> isIntersectingVolume(
 		const TLineSegment<T>& segment,
-		const TVector3<T>& rcpSegmentDir) const;
+		const TVector3<T>& rcpSegmentDir,
+		const std::array<bool, 3>* isNegativeDir = nullptr) const;
 
 	/*! @brief Checks whether another bound intersects this volume.
 
@@ -260,7 +264,8 @@ private:
 	[[PH_ALWAYS_INLINE]]
 	std::pair<T, T> intersectVolumeRobust(
 		const TLineSegment<T>& segment,
-		const TVector3<T>& rcpSegmentDir) const;
+		const TVector3<T>& rcpSegmentDir,
+		const std::array<bool, 3>& isNegativeDir) const;
 
 	TVector3<T> m_minVertex;
 	TVector3<T> m_maxVertex;
