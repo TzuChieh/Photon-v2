@@ -13,7 +13,6 @@
 
 #include <cstddef>
 #include <utility>
-#include <cmath>
 
 namespace ph { class Primitive; }
 
@@ -107,8 +106,8 @@ private:
 	uint64           m_faceID;
 	uint64           m_globalPrimitiveID;
 	FaceTopology     m_faceTopology;
-	int8             m_meanDistanceErrorFactorExp2;
-	int8             m_maxDistanceErrorFactorExp2;
+	float32          m_meanDistanceErrorFactor;
+	float32          m_maxDistanceErrorFactor;
 };
 
 // In-header Implementations:
@@ -203,8 +202,8 @@ inline HitInfo& HitDetail::hitInfo(const ECoordSys coordSys)
 inline std::pair<real, real> HitDetail::getDistanceErrorFactors() const
 {
 	return {
-		static_cast<real>(std::exp2(m_meanDistanceErrorFactorExp2)),
-		static_cast<real>(std::exp2(m_maxDistanceErrorFactorExp2))};
+		static_cast<real>(m_meanDistanceErrorFactor),
+		static_cast<real>(m_maxDistanceErrorFactor)};
 }
 
 inline void HitDetail::updatePrimitive(const Primitive* primitive)
@@ -218,8 +217,8 @@ inline void HitDetail::updateDistanceErrorFactors(const real meanFactor, const r
 	PH_ASSERT_GE(meanFactor, 0.0_r);
 	PH_ASSERT_GE(maxFactor, 0.0_r);
 
-	m_meanDistanceErrorFactorExp2 = static_cast<int8>(std::round(std::log2(meanFactor)));
-	m_maxDistanceErrorFactorExp2 = static_cast<int8>(std::ceil(std::log2(maxFactor)));
+	m_meanDistanceErrorFactor = static_cast<float32>(meanFactor);
+	m_maxDistanceErrorFactor = static_cast<float32>(maxFactor);
 }
 
 inline void HitDetail::updateGlobalPrimitiveID(uint64 id)
