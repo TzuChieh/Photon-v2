@@ -3,7 +3,6 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhSurfaceLayerSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -42,13 +41,15 @@ class PhLayeredSurfaceNode(PhSurfaceMaterialNode):
             sdlconsole.queue_command(layer_node.make_cached_packet_command(packet_name))
             packets.append(sdl.CachedPacket(packet_name))
 
+        if not packets:
+            self.warn_incomplete_node(b_material, "no surface layer input is linked")
+            self.queue_fallback_material(sdlconsole, self.get_output_resource_name(b_material))
+            return
+
         # Generate layered surface material
 
-        surface_mat_socket = self.outputs[0]
-        surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
-
         creator = sdl.LayeredSurfaceMaterialCreator()
-        creator.set_data_name(surface_mat_res_name)
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_layers(sdl.StructArray(packets))
         sdlconsole.queue_command(creator)
 

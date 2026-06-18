@@ -36,7 +36,7 @@ public:
 		TSdlReference<Image, OwnerType> map("map", &OwnerType::m_map);
 		map.description(
 			"A map that records the perturbed orientation of surface normal.");
-		material.required();
+		map.required();
 		clazz.addField(map);
 	}
 };

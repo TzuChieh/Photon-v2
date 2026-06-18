@@ -74,7 +74,7 @@ public:
 private:
 	math::Spectrum estimateRadianceWithPhotonMap(
 		const SurfaceHit& X,
-		const BsdfQueryContext& bsdfContext,
+		const BsdfQueryContext& radianceMeasureContext,
 		const math::Spectrum& viewPathThroughput);
 
 	const PhotonMap*               m_photonMap;
@@ -190,15 +190,15 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 		   isSufficientlyDiffuse)
 		{
-			BsdfQueryContext photonMapContext{
-				ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
-			photonMapContext.key = residualContext.key;
+			BsdfQueryContext radianceMeasureContext{
+				ALL_SURFACE_ELEMENTALS, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
+			radianceMeasureContext.key = residualContext.key;
 
 			// For path length = N, we can construct light transport path lengths with photon map,
 			// all at once, for the range [N_min, N_max] = 
 			// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
 			m_sampledRadiance += estimateRadianceWithPhotonMap(
-				surfaceHit, photonMapContext, pathThroughput);
+				surfaceHit, radianceMeasureContext, pathThroughput);
 
 			const auto unaccountedEnergy = residualEnergy.lostEnergyForMerging(
 				pathLength,
@@ -227,15 +227,15 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 		   !phenomenaToMerge.isEmpty())
 		{
-			BsdfQueryContext photonMapContext{
-				phenomenaToMerge, lta::ETransport::Importance, lta::ESidednessPolicy::Strict};
-			photonMapContext.key = residualContext.key;
+			BsdfQueryContext radianceMeasureContext{
+				phenomenaToMerge, lta::ETransport::Radiance, lta::ESidednessPolicy::Strict};
+			radianceMeasureContext.key = residualContext.key;
 
 			// For path length = N, we can construct light transport path lengths with photon map,
 			// all at once, for the range [N_min, N_max] = 
 			// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
 			m_sampledRadiance += estimateRadianceWithPhotonMap(
-				surfaceHit, photonMapContext, pathThroughput);
+				surfaceHit, radianceMeasureContext, pathThroughput);
 
 			// Same as the non-aggressive case if all phenomena are merged
 			if(phenomena.hasNo(ESurfacePhenomenon::Delta) && phenomenaToMerge == phenomena)
@@ -329,27 +329,29 @@ template<CPhoton Photon, typename PhotonMap>
 inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 ::estimateRadianceWithPhotonMap(
 	const SurfaceHit& X,
-	const BsdfQueryContext& bsdfContext,
+	const BsdfQueryContext& radianceMeasureContext,
 	const math::Spectrum& viewPathThroughput)
 {
 	m_photonCache.clear();
 	m_photonMap->find(X.getPos(), m_kernelRadius, m_photonCache);
 
+	PH_ASSERT_EQ(radianceMeasureContext.transport, lta::ETransport::Radiance);
+
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
-	const math::Vector3R L  = X.getIncidentRay().getDir().mul(-1);
+	const math::Vector3R V  = X.getIncidentRay().getDir().mul(-1);
 	const math::Vector3R Ns = X.getShadingNormal();
 	const math::Vector3R Ng = X.getGeometryNormal();
 
 	// If the key selects different BSDF components stochastically, radiance estimation is still
 	// valid. See `TPPMRadianceEvaluationWork::doWork()` for comment on a similar situation.
-	BsdfEvalQuery bsdfEval(bsdfContext);
+	BsdfEvalQuery bsdfEval(radianceMeasureContext);
 
 	math::Spectrum radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
-		const math::Vector3R V = photon.template get<EPhotonData::FromDir>();
-		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, bsdfContext.sidedness))
+		const math::Vector3R L = photon.template get<EPhotonData::FromDir>();
+		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, radianceMeasureContext.sidedness))
 		{
 			continue;
 		}
@@ -362,8 +364,6 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 
 		math::Spectrum throughput(viewPathThroughput);
 		throughput.mulLocal(bsdfEval.outputs.getBsdf());
-		throughput.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
-
 		radiance.addLocal(throughput * photon.template get<EPhotonData::ThroughputRadiance>());
 	}
 	radiance.mulLocal(m_kernelDensityNormalizer);

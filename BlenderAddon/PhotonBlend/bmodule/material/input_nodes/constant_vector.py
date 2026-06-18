@@ -2,7 +2,6 @@ from ..node_base import (
         PhMaterialInputNode,
         PhFloatVectorSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -30,9 +29,8 @@ class PhConstantVectorInputNode(PhMaterialInputNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        output_socket = self.outputs[0]
         creator = sdl.ConstantImageCreator()
-        creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_values(sdl.RealArray(self.values[:self.size]))
         sdlconsole.queue_command(creator)
 

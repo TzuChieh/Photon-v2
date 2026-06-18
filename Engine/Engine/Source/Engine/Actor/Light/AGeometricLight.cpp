@@ -4,8 +4,6 @@
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Core/Intersection/TransformedIntersectable.h"
-#include "Engine/Core/Intersection/TransformedPrimitive.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/World/Foundation/PreCookReport.h"
@@ -143,8 +141,10 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		{
 			for(auto& lightPrimitive : lightPrimitives)
 			{
-				auto* transformedPrimitive = ctx.getResources().makeIntersectable<TransformedPrimitive>(
-					lightPrimitive, localToWorld, worldToLocal);
+				auto* transformedPrimitive = ctx.getResources().copyIntersectable(
+					PrimitiveBuilder::referencing(lightPrimitive)
+						.rigidTransform(localToWorld, worldToLocal)
+						.build());
 
 				lightPrimitive = transformedPrimitive;
 			}

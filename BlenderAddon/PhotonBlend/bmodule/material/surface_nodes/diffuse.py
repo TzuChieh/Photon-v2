@@ -3,7 +3,6 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhColorSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 import mathutils
@@ -31,28 +30,25 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
         )
 
     def to_sdl(self, b_material, sdlconsole):
-        albedo_socket = self.inputs[0]
-        surface_material_socket = self.outputs[0]
-
-        albedo_img_name = albedo_socket.get_from_res_name(b_material)
+        albedo_img_name = self.get_linked_input_resource_name(b_material, 0)
         if albedo_img_name is None:
-            albedo_img_name = naming.get_mangled_input_node_socket_name(albedo_socket, b_material)
+            albedo_img_name = self.get_default_input_resource_name(b_material, 0)
             albedo_img = sdl.ConstantImageCreator()
             albedo_img.set_data_name(albedo_img_name)
-            albedo_img.set_values(sdl.RealArray(albedo_socket.default_value))
+            albedo_img.set_values(sdl.RealArray(self.get_default_input_value(0)))
             albedo_img.set_color_space(sdl.Enum('LSRGB'))
             sdlconsole.queue_command(albedo_img)
 
         sigma_img_name = None
         if self.diffusion_type == 'OREN_NAYAR':
-            sigma_img_name = naming.get_mangled_node_name(self, b_material)
+            sigma_img_name = self.get_node_resource_name(b_material, suffix="sigma")
             sigma_img = sdl.ConstantImageCreator()
             sigma_img.set_data_name(sigma_img_name)
             sigma_img.set_values(sdl.RealArray([self.roughness * 180.0]))
             sdlconsole.queue_command(sigma_img)
 
         creator = sdl.MatteOpaqueMaterialCreator()
-        creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_material_socket, b_material))
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_albedo(sdl.Image(albedo_img_name))
 
         if sigma_img_name:

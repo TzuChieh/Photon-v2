@@ -25,25 +25,14 @@ namespace ph::editor
 PH_DECLARE_GETTER_FOR_ALL_SDL_CLASSES(gather_all_editor_SDL_classes, outerScope=editor);
 PH_DECLARE_GETTER_FOR_ALL_SDL_ENUMS(gather_all_editor_SDL_enums, outerScope=editor);
 
-namespace
-{
-
-/*!
-Important note: At this point the engine has not been initialized yet--creation of the settings must
-not invoke any engine functionalities.
-*/
-inline EngineInitSettings get_editor_engine_init_settings()
-{
-	auto settings = EngineInitSettings::loadStandardConfig();
-	settings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
-	return settings;
-}
-
-}// end anonymous namespace
-
 int application_entry_point(int argc, char* argv[])
 {
-	if(!init_render_engine(get_editor_engine_init_settings()))
+	// At this point the engine has not been initialized yet; creation of the settings must
+	// not invoke any engine functionality.
+	auto engineInitSettings = EngineInitSettings::loadStandardConfig();
+	engineInitSettings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
+
+	if(!init_render_engine(engineInitSettings))
 	{
 		return EXIT_FAILURE;
 	}

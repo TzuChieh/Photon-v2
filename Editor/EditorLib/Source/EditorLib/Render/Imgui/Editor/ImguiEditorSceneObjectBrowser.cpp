@@ -22,33 +22,6 @@
 namespace ph::editor
 {
 
-namespace
-{
-
-inline const char* get_visibility_icon(const bool isVisible)
-{
-	return isVisible ? PH_IMGUI_VISIBLE_ICON : PH_IMGUI_INVISIBLE_ICON;
-}
-
-inline bool visibility_toggle_button(const char* const strId, const bool isVisible)
-{
-	// When using the same icon font for the button, they will have the same ID and conflict. 
-	// Use label for unique ID.
-	ImGui::PushID(strId);
-
-	bool isClicked = false;
-	if(ImGui::SmallButton(get_visibility_icon(isVisible)))
-	{
-		isClicked = true;
-	}
-
-	ImGui::PopID();
-
-	return isClicked;
-}
-
-}// end anonymous namespace
-
 ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser(ImguiEditorUIProxy editorUI)
 
 	: ImguiEditorPanel(editorUI)
@@ -464,17 +437,15 @@ void ImguiEditorSceneObjectBrowser::buildStatsContent(DesignerScene& scene)
 
 void ImguiEditorSceneObjectBrowser::buildVisibilityToggle(DesignerObject& obj)
 {
-	if(visibility_toggle_button(obj.getName().c_str(), obj.isVisible()))
+	// When using the same icon font for the button, they will have the same ID and conflict.
+	// Use object name for unique ID.
+	ImGui::PushID(obj.getName().c_str());
+	const char* const icon = obj.isVisible() ? PH_IMGUI_VISIBLE_ICON : PH_IMGUI_INVISIBLE_ICON;
+	if(ImGui::SmallButton(icon))
 	{
-		if(obj.isVisible())
-		{
-			obj.setVisibility(false);
-		}
-		else
-		{
-			obj.setVisibility(true);
-		}
+		obj.setVisibility(!obj.isVisible());
 	}
+	ImGui::PopID();
 }
 
 std::string_view ImguiEditorSceneObjectBrowser::getDisplayTypeName(const DesignerObject* obj) const

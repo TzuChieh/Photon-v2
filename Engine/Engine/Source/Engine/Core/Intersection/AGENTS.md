@@ -6,3 +6,4 @@
 
 ## Data Structures
 - `TIndexRangeMap` stores contiguous index ranges, not source elements or unique values. Allocate one entry per range and use tests where source count, unique value count, and range count differ.
+- Keep index-buffer reads format-agnostic at generic geometry boundaries. Use exact-width typed fetches only where the encoded index width is already established.

@@ -1,7 +1,6 @@
 #include "Engine/Actor/ModelBuilder.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/Core/Intersection/TransformedIntersectable.h"
 
 namespace ph
 {
@@ -31,9 +30,11 @@ namespace ph
 //	for(auto& intersectable : m_cookedResults.intersectables())
 //	{
 //		auto oldIsable = std::move(intersectable);
-//		auto newIsable = std::make_unique<TransformedIntersectable>(oldIsable.get(), 
-//		                                                            LtoW.get(),
-//		                                                            WtoL.get());
+//		auto newIsable = std::make_unique<
+//			TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
+//				TReferencedIntersectableGetter<Intersectable>(oldIsable.get()),
+//				LtoW.get(),
+//				WtoL.get());
 //		m_cookedResults.addBackend(std::move(oldIsable));
 //		intersectable = std::move(newIsable);
 //	}

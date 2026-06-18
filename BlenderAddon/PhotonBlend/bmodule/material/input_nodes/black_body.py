@@ -2,7 +2,6 @@ from ..node_base import (
         PhMaterialInputNode,
         PhColorSocket)
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -28,9 +27,8 @@ class PhBlackBodyInputNode(PhMaterialInputNode):
     )
 
     def to_sdl(self, b_material, sdlconsole):
-        output_socket = self.outputs[0]
         creator = sdl.BlackBodyImageCreator()
-        creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
+        creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_temperature_k(sdl.Real(self.kelvin))
         creator.set_energy(sdl.Real(self.energy))
         sdlconsole.queue_command(creator)

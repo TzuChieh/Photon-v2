@@ -9,7 +9,6 @@ from bmodule.material import (
     group_nodes,
     )
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 import nodeitems_utils
@@ -34,7 +33,7 @@ def to_sdl(b_material, sdlconsole):
     if output_node is None:
         print(f"material {b_material.name} has no output node, generating fallback material for it")
         fallback_creator = sdl.MatteOpaqueMaterialCreator()
-        fallback_creator.set_data_name(naming.get_mangled_material_name(b_material))
+        fallback_creator.set_data_name(node_base.get_material_resource_name(b_material))
         sdlconsole.queue_command(fallback_creator)
         return
 
@@ -65,6 +64,7 @@ class MaterialNodes(blender.BlenderModule):
         surface_nodes.PhAbradedTranslucentNode,
         surface_nodes.PhLayeredSurfaceNode,
         surface_nodes.PhSurfaceLayerNode,
+        surface_nodes.PhNormalMappedSurfaceNode,
         surface_nodes.PhIdealSubstanceNode,
         surface_nodes.PhPureAbsorberNode,
         surface_nodes.PhThinDielectricSurfaceNode,

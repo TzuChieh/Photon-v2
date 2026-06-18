@@ -12,18 +12,14 @@ namespace ph::editor
 namespace
 {
 
-inline const char* get_visibility_icon(const bool isVisible)
-{
-	return isVisible ? PH_IMGUI_VISIBLE_ICON : PH_IMGUI_INVISIBLE_ICON;
-}
-
 inline void build_visibility_toggle_widget(const char* const label, bool& visibilityState)
 {
 	// When using the same icon font for the button, they will have the same ID and conflict. 
 	// Use label for unique ID.
 	ImGui::PushID(label);
 
-	if(ImGui::Button(get_visibility_icon(visibilityState)))
+	const char* const icon = visibilityState ? PH_IMGUI_VISIBLE_ICON : PH_IMGUI_INVISIBLE_ICON;
+	if(ImGui::Button(icon))
 	{
 		visibilityState = !visibilityState;
 	}

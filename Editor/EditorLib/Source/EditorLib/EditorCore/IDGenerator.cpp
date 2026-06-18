@@ -15,12 +15,6 @@ namespace
 
 std::atomic<uint64> counter(0);
 
-math::Pcg64DXSM make_rng()
-{
-	std::random_device rd;
-	return math::Pcg64DXSM(rd(), rd(), rd(), rd());
-}
-
 }// end anonymous namespace
 
 uint64 IDGenerator::nextCount()
@@ -35,7 +29,11 @@ uint64 IDGenerator::nextTimestampedCount()
 
 uint64 IDGenerator::nextRandomNumber()
 {
-	static thread_local math::Pcg64DXSM rng = make_rng();
+	static thread_local math::Pcg64DXSM rng = []()
+	{
+		std::random_device rd;
+		return math::Pcg64DXSM(rd(), rd(), rd(), rd());
+	}();
 	return rng.generate();
 }
 

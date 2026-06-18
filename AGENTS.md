@@ -23,7 +23,7 @@ The project is organized into several libraries and applications:
 * Under `SDLInterface/`
   - `SDLGen` is for generating SDL textual commands and documentation. `SDLPyBind` is for generating Python bindings for functions exposed by SDL.
 * Under `Tool/`
-  - `FilmMerger` is for combining different render outputs.
+  - `FilmMerger` combines different render outputs. `IntersectError` estimates ray-primitive intersection accuracy.
 
 ## Project Documentation
 
@@ -34,7 +34,7 @@ You can find the main entries in `Main/Documentation/`.
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
 
 ## Rules
-- Do not build or run binaries/tests; user handles execution unless they explicitly request a binary refresh. For binary refreshes, use the `binary-updater` skill.
+- Do not build or run binaries/tests unless requested; use `test-runner` with `python .\scripts\dev_setup_and_build.py` for validation, and `binary-updater` for binary refreshes.
 - JNI/PhotonStudio and `scripts/SDL_Interface/` paths are deprecated; avoid expanding legacy usage unless explicitly requested.
 - Keep file line endings consistent with the current OS convention. Must be CRLF on Windows.
 

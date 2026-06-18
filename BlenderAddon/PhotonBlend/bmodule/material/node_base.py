@@ -4,9 +4,17 @@ Basic definitions and data for node-based materials and node editor.
 
 from utility import settings, blender, material
 from bmodule import naming
+from psdl import sdl
 
 import bpy
 import nodeitems_utils
+
+
+def get_material_resource_name(b_material):
+    """
+    Get the SDL resource name for a Blender material.
+    """
+    return naming.get_mangled_material_name(b_material)
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocket):
@@ -280,6 +288,59 @@ class PhMaterialNode(bpy.types.Node):
 
     def to_sdl(self, b_material, sdlconsole):
         raise NotImplementedError("to_sdl() must be implemented to support SDL generation")
+
+    def get_linked_input_resource_name(self, b_material, input_index, link_index=0):
+        """
+        Get the SDL resource name provided by a linked input socket.
+        """
+        return self.inputs[input_index].get_from_res_name(b_material, link_index)
+
+    def get_default_input_resource_name(self, b_material, input_index):
+        """
+        Get the SDL resource name for this node's unlinked input value.
+        """
+        return naming.get_mangled_input_node_socket_name(self.inputs[input_index], b_material)
+
+    def get_default_input_value(self, input_index):
+        """
+        Get this node's default socket value for an unlinked input.
+        """
+        return self.inputs[input_index].default_value
+
+    def get_output_resource_name(self, b_material, output_index=0):
+        """
+        Get the SDL resource name created for this node's output socket.
+        """
+        return naming.get_mangled_output_node_socket_name(self.outputs[output_index], b_material)
+
+    def get_node_resource_name(self, b_material, suffix=None):
+        """
+        Get this node's SDL resource name, optionally for a node-owned helper resource.
+        """
+        if suffix is None:
+            return naming.get_mangled_node_name(self, b_material)
+
+        return naming.get_mangled_node_name(self, b_material, suffix=suffix)
+
+    def get_material_resource_name(self, b_material):
+        """
+        Get the SDL resource name for the owning Blender material.
+        """
+        return get_material_resource_name(b_material)
+
+    def warn_incomplete_node(self, b_material, message=None):
+        warning = f"warning: material <{b_material.name}>'s {self.bl_label} node is incomplete"
+        if message:
+            warning = f"{warning}: {message}"
+        print(warning)
+
+    def queue_fallback_material(self, sdlconsole, resource_name):
+        """
+        Queue a valid fallback material with the specified SDL resource name.
+        """
+        creator = sdl.MatteOpaqueMaterialCreator()
+        creator.set_data_name(resource_name)
+        sdlconsole.queue_command(creator)
 
     @classmethod
     def poll(cls, b_node_tree):

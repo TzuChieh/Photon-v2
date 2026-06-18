@@ -1,9 +1,9 @@
 #include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Core/Intersection/TransformedIntersectable.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
@@ -23,24 +23,6 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ABlenderPlyModel, Actor);
-
-namespace
-{
-
-auto copy_metadata_refs(
-	const std::unique_ptr<const PrimitiveMetadata*[]>& metadatas,
-	const uint32 numMetadatas)
-{
-	auto copiedMetadatas = std::make_unique<const PrimitiveMetadata*[]>(numMetadatas);
-	for(uint32 slotIndex = 0; slotIndex < numMetadatas; ++slotIndex)
-	{
-		copiedMetadatas[slotIndex] = metadatas[slotIndex];
-	}
-
-	return copiedMetadatas;
-}
-
-}// end namespace
 
 PreCookReport ABlenderPlyModel::preCook(const CookingContext& ctx) const
 {
@@ -102,7 +84,6 @@ TransientVisualElement ABlenderPlyModel::cook(
 
 	const auto numMetadataSlots = static_cast<uint32>(m_materials.size());
 	auto metadatas = std::make_unique<const PrimitiveMetadata*[]>(numMetadataSlots);
-
 	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
 	{
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
@@ -128,12 +109,18 @@ TransientVisualElement ABlenderPlyModel::cook(
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
+		auto copiedMetadatas = std::make_unique<const PrimitiveMetadata*[]>(numMetadataSlots);
+		for(uint32 slotIndex = 0; slotIndex < numMetadataSlots; ++slotIndex)
+		{
+			copiedMetadatas[slotIndex] = metadatas[slotIndex];
+		}
+
 		auto* metaPrimitive = ctx.getResources().copyIntersectable(
 			PrimitiveBuilder::referencing(primitive)
 				.injectMetadataArray(
-					copy_metadata_refs(metadatas, numMetadataSlots),
+					std::move(copiedMetadatas),
 					numMetadataSlots,
-					cookedGeometry->faceIdToMetadataSlot)
+					&cookedGeometry->faceIdToMetadataSlot)
 				.build());
 
 		result.add(metaPrimitive);
@@ -148,8 +135,10 @@ TransientVisualElement ABlenderPlyModel::cook(
 
 		for(auto& intersectable : result.intersectables)
 		{
-			auto* transformedIntersectable = ctx.getResources().makeIntersectable<TransformedIntersectable>(
-				intersectable, localToWorld, worldToLocal);
+			auto* transformedIntersectable = ctx.getResources().copyIntersectable(
+				IntersectableBuilder::referencing(intersectable)
+					.transform(localToWorld, worldToLocal)
+					.build());
 
 			intersectable = transformedIntersectable;
 		}

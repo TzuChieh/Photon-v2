@@ -6,7 +6,6 @@ from ..node_base import (
     PhSurfaceMaterialSocket,
     )
 from psdl import sdl
-from bmodule import naming
 
 import bpy
 
@@ -42,22 +41,16 @@ class PhThinDielectricSurfaceNode(PhSurfaceMaterialNode):
         )
 
     def to_sdl(self, b_material, sdlconsole):
-        thickness_socket = self.inputs[0]
-        sigma_t_socket = self.inputs[1]
-        reflection_scale_socket = self.inputs[2]
-        transmission_scale_socket = self.inputs[3]
-        surface_material_socket = self.outputs[0]
-
-        thickness_img_name = thickness_socket.get_from_res_name(b_material)
-        if not thickness_img_name and thickness_socket.default_value > 0:
-            thickness_img_name = naming.get_mangled_input_node_socket_name(thickness_socket, b_material)
+        thickness_img_name = self.get_linked_input_resource_name(b_material, 0)
+        if not thickness_img_name and self.get_default_input_value(0) > 0:
+            thickness_img_name = self.get_default_input_resource_name(b_material, 0)
             thickness_img = sdl.ConstantImageCreator()
             thickness_img.set_data_name(thickness_img_name)
-            thickness_img.set_values(sdl.RealArray([thickness_socket.default_value]))
+            thickness_img.set_values(sdl.RealArray([self.get_default_input_value(0)]))
             sdlconsole.queue_command(thickness_img)
 
         material = sdl.ThinDielectricSurfaceMaterialCreator()
-        material.set_data_name(naming.get_mangled_output_node_socket_name(surface_material_socket, b_material))
+        material.set_data_name(self.get_output_resource_name(b_material))
 
         material.set_fresnel(sdl.Enum(self.fresnel_type))
         material.set_ior_outer(sdl.Real(self.ior_outer))
@@ -66,21 +59,21 @@ class PhThinDielectricSurfaceNode(PhSurfaceMaterialNode):
         if thickness_img_name:
             material.set_thickness(sdl.Image(thickness_img_name))
 
-            sigma_t_img_name = sigma_t_socket.get_from_res_name(b_material)
+            sigma_t_img_name = self.get_linked_input_resource_name(b_material, 1)
             if not sigma_t_img_name:
-                sigma_t_img_name = naming.get_mangled_input_node_socket_name(sigma_t_socket, b_material)
+                sigma_t_img_name = self.get_default_input_resource_name(b_material, 1)
                 sigma_t_img = sdl.ConstantImageCreator()
                 sigma_t_img.set_data_name(sigma_t_img_name)
-                sigma_t_img.set_values(sdl.RealArray([sigma_t_socket.default_value]))
+                sigma_t_img.set_values(sdl.RealArray([self.get_default_input_value(1)]))
                 sdlconsole.queue_command(sigma_t_img)
 
             material.set_sigma_t(sdl.Image(sigma_t_img_name))
         
-        reflection_scale_img_name = reflection_scale_socket.get_from_res_name(b_material)
+        reflection_scale_img_name = self.get_linked_input_resource_name(b_material, 2)
         if reflection_scale_img_name:
             material.set_reflection_scale(sdl.Image(reflection_scale_img_name))
 
-        transmission_scale_img_name = transmission_scale_socket.get_from_res_name(b_material)
+        transmission_scale_img_name = self.get_linked_input_resource_name(b_material, 3)
         if transmission_scale_img_name:
             material.set_transmission_scale(sdl.Image(transmission_scale_img_name))
 
