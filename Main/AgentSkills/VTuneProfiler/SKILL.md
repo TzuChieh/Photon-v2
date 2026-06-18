@@ -15,6 +15,12 @@ Do not build Photon-v2 unless explicitly asked. If needed, use the project build
 python .\scripts\dev_setup_and_build.py --target PhotonCLI
 ```
 
+For profiling builds, disable assertions unless the task specifically investigates debug checks:
+
+```powershell
+python .\scripts\dev_setup_and_build.py -DPH_ENABLE_DEBUG=OFF --target PhotonCLI
+```
+
 ## Inputs
 
 VTune needs a target executable and workload args. For `PhotonCLI`, pass the scene/workload arguments used to reproduce the slow path. The script does not infer workloads.
@@ -58,6 +64,8 @@ Results and reports default to ignored `Main\AgentSkills\VTuneProfiler\Generated
 ## Reading Results
 
 Start with the Hotspots report, then inspect call paths in VTune GUI or with `vtune -report callstacks` if top functions are tiny helpers. Optimize clusters, not isolated leaf names; for Photon render workloads, expect ray/geometry intersection clusters such as BVH traversal, AABB tests, triangle tests, transforms, and vector math.
+
+Use the renderer's internal timing report as supporting context when available. It can help connect VTune hotspots to renderer phases, but VTune profiles remain the primary evidence for CPU optimization.
 
 For low-level hotspot changes, confirm codegen with assembly before trusting timings alone. See `references/assembly-investigation.md`.
 

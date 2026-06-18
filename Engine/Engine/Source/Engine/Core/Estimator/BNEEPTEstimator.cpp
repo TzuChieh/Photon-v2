@@ -30,10 +30,10 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_TIMER_STAT(FullEstimation, Render_BNEEPTEstimator);
-PH_DEFINE_INTERNAL_TIMER_STAT(ZeroBounceDirect, Render_BNEEPTEstimator);
-PH_DEFINE_INTERNAL_TIMER_STAT(DirectLightSampling, Render_BNEEPTEstimator);
-PH_DEFINE_INTERNAL_TIMER_STAT(BSDFAndIndirectLightSampling, Render_BNEEPTEstimator);
+PH_DEFINE_INTERNAL_TIMER_STAT(FullEstimation, Engine.Render.BNEEPTEstimator);
+PH_DEFINE_INTERNAL_TIMER_STAT(ZeroBounceDirect, Engine.Render.BNEEPTEstimator.FullEstimation);
+PH_DEFINE_INTERNAL_TIMER_STAT(DirectLightSampling, Engine.Render.BNEEPTEstimator.FullEstimation);
+PH_DEFINE_INTERNAL_TIMER_STAT(BSDFAndIndirectLightSampling, Engine.Render.BNEEPTEstimator.FullEstimation);
 
 void BNEEPTEstimator::update(const Integrand& integrand)
 {}

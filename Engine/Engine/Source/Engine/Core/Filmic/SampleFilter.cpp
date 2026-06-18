@@ -12,11 +12,16 @@ namespace ph
 SampleFilter SampleFilter::makeBox()
 {
 	constexpr float64 constantValue = 1.0;
+	constexpr float64 filterSize = 1.0;
 
-	return make(math::TConstant2D<float64>(constantValue), 1.0, 1.0);
+	return make(
+		math::TConstant2D<float64>(constantValue),
+		filterSize,
+		filterSize,
+		false);
 }
 
-SampleFilter SampleFilter::makeGaussian()
+SampleFilter SampleFilter::makeGaussian(const bool useTabulated)
 {
 	constexpr float64 sigmaX     = 0.5;
 	constexpr float64 sigmaY     = 0.5;
@@ -33,10 +38,14 @@ SampleFilter SampleFilter::makeGaussian()
 	// https://developer.blender.org/D1453
 	gaussianFunc.setSubmergeAmount(edgeValue);
 
-	return make(gaussianFunc, filterSize, filterSize);
+	return make(
+		gaussianFunc,
+		filterSize,
+		filterSize,
+		useTabulated);
 }
 
-SampleFilter SampleFilter::makeMitchellNetravali()
+SampleFilter SampleFilter::makeMitchellNetravali(const bool useTabulated)
 {
 	// Reference: Mitchell & Netravali's paper,
 	// Reconstruction Filters in Computer Graphics (1998), they 
@@ -45,17 +54,27 @@ SampleFilter SampleFilter::makeMitchellNetravali()
 
 	constexpr float64 b = 1.0 / 3.0;
 	constexpr float64 c = 1.0 / 3.0;
+	constexpr float64 filterSize = 4.0;
 
 	math::TMitchellNetravaliCubic2D<float64> mnCubicFunc(b, c);
-	return make(mnCubicFunc, 4.0, 4.0);
+	return make(
+		mnCubicFunc,
+		filterSize,
+		filterSize,
+		useTabulated);
 }
 
-SampleFilter SampleFilter::makeBlackmanHarris()
+SampleFilter SampleFilter::makeBlackmanHarris(const bool useTabulated)
 {
 	constexpr float64 radius = 2.0;
+	constexpr float64 filterSize = radius * 2.0;
 
 	math::TBlackmanHarris2D<float64> bhFunc(radius);
-	return make(bhFunc, radius * 2.0, radius * 2.0);
+	return make(
+		bhFunc,
+		filterSize,
+		filterSize,
+		useTabulated);
 }
 
 SampleFilter::SampleFilter()

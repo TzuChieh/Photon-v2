@@ -9,6 +9,8 @@ For agents running requested validation. Run commands yourself, use clean builds
 
 ## Build
 
+Clean/full builds can take a long time on Windows; set command timeouts to at least 60 minutes for full build commands before assuming the build is hung.
+
 From repo root:
 
 ```powershell
