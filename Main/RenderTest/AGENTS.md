@@ -25,7 +25,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Field names should encode intent (`plot_*` vs `raw_*`).
 
 ## Simple Lifecycle Boundaries
-- Keep local report-server control explicit and minimal.
+- Keep local report-server control explicit and minimal; report viewers should serve already generated artifacts.
 - Prefer explicit stop signals over speculative background policies.
 - Do not rely on browser unload semantics to distinguish close vs refresh/navigation.
 - For report UI-only changes and test case updates, sync source template and build-side copy so `--report-only` validates quickly.
@@ -37,7 +37,8 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Variance references are keyed by sampling distribution, not by test row. Share them for intentionally equivalent variants such as thread count, scene format, or rigid scene shifts; split `bvpt`/`bneept`, material, geometry, lighting, filter, and renderer-config variants unless equivalence is justified.
 - Do not use `ZTestVerifier` for photon-mapping methods. Their progressive biased estimators do not share the independent-sample variance model used by path tracing.
 - Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
-- Reference image stems should use semantic suffixes (`_beauty`, `_var`). Keep batch ref generation explicit with a scene-to-output map.
+- Prefer stronger references and appropriate tested sample counts before loosening verifier tolerances; record metric/threshold usage when retuning.
+- Reference image stems should use semantic suffixes (`_beauty`, `_var`). Keep batch ref generation explicit with a scene-to-output map that matches the active ref set.
 
 ## Scene Resource Organization
 - Keep each RenderTest resource folder standalone. Split repeated SDL into render-config roots and local data fragments; do not create cross-folder common scenes or extract small one-off scenes.

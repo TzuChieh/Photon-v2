@@ -493,6 +493,7 @@ const appState = {
 };
 let suppressHashSync = false;
 let fitResizeTimer = 0;
+let refreshMainSelectionForFilter = () => {};
 const lightboxState = {
   zoom: 1,
   panX: 0,
@@ -506,6 +507,28 @@ const lightboxState = {
 
 function findTestByName(name) {
   return data.tests.find((t) => t.name === name) || null;
+}
+
+function filteredTestEntries() {
+  const text = String(appState.searchText || "").trim().toLowerCase();
+  const outcomeFilter = appState.outcomeFilter || "all";
+  const sortedTests = data.tests.slice().sort((a, b) => b.failed - a.failed);
+  return sortedTests
+    .map((test) => {
+      const testName = test.name.toLowerCase();
+      const cases = (test.cases || []).filter((c) => {
+        const matchText = testName.includes(text) || c.name.toLowerCase().includes(text);
+        return matchText && (outcomeFilter === "all" || c.outcome === outcomeFilter);
+      });
+      return { test, cases };
+    })
+    .filter((entry) => entry.cases.length > 0);
+}
+
+function filteredCasesForTest(test) {
+  if (!test) return [];
+  const entry = filteredTestEntries().find((candidate) => candidate.test.name === test.name);
+  return entry ? entry.cases : [];
 }
 
 function readStateFromHash() {
@@ -1104,17 +1127,19 @@ function renderSummary() {
 }
 
 function selectedTest() {
-  return findTestByName(appState.testName) || data.tests[0] || null;
+  const entries = filteredTestEntries();
+  return entries.find((entry) => entry.test.name === appState.testName)?.test || entries[0]?.test || null;
 }
 
 function selectedCase(test) {
-  return (test.cases || []).find((c) => c.name === appState.caseName) || test.cases[0] || null;
+  const cases = filteredCasesForTest(test);
+  return cases.find((c) => c.name === appState.caseName) || cases[0] || null;
 }
 
 function renderCaseSelector(test) {
   const caseSel = qs("#caseSelect");
   caseSel.innerHTML = "";
-  for (const c of test.cases) {
+  for (const c of filteredCasesForTest(test)) {
     const opt = document.createElement("option");
     opt.value = c.name;
     opt.textContent = `${c.name} [${c.outcome.toUpperCase()}]`;
@@ -1191,24 +1216,35 @@ function renderMainViewport() {
   </section>`;
 
   const testSel = qs("#testSelect");
-  for (const t of data.tests) {
-    const opt = document.createElement("option");
-    opt.value = t.name;
-    opt.textContent = `${t.name} (${t.cases.length})`;
-    testSel.appendChild(opt);
-  }
-  if (!findTestByName(appState.testName) && data.tests.length) {
-    appState.testName = data.tests[0].name;
-  }
-  testSel.value = appState.testName;
+  const renderTestSelector = () => {
+    testSel.innerHTML = "";
+    for (const entry of filteredTestEntries()) {
+      const opt = document.createElement("option");
+      opt.value = entry.test.name;
+      opt.textContent = `${entry.test.name} (${entry.cases.length})`;
+      testSel.appendChild(opt);
+    }
+  };
 
   const applySelection = () => {
+    renderTestSelector();
     const test = selectedTest();
-    if (!test) return;
+    const caseSel = qs("#caseSelect");
+    if (!test) {
+      appState.testName = "";
+      appState.caseName = "";
+      testSel.value = "";
+      caseSel.innerHTML = "";
+      qs("#testMetaSummary").textContent = "0 case(s) shown";
+      qs("#testTextPreview").textContent = "(no matching test)";
+      qs("#testTextBody").textContent = "(adjust the search or filter)";
+      qs("#casePanel").innerHTML = "<div class='msg'>No test cases match the current filter.</div>";
+      syncStateToHash();
+      return;
+    }
     appState.testName = test.name;
     testSel.value = test.name;
     renderCaseSelector(test);
-    const caseSel = qs("#caseSelect");
     const existing = Array.from(caseSel.options).find((o) => o.value === appState.caseName);
     caseSel.value = existing ? existing.value : (caseSel.options[0]?.value || "");
     appState.caseName = caseSel.value;
@@ -1274,6 +1310,7 @@ function renderMainViewport() {
     appState.caseName = qs("#caseSelect").value;
     renderSelectedCase();
   });
+  refreshMainSelectionForFilter = applySelection;
   applySelection();
 }
 
@@ -1472,55 +1509,47 @@ function applyFilter() {
   let visibleSuites = 0;
   let visibleCases = 0;
 
-  const sortedTests = data.tests.slice().sort((a, b) => b.failed - a.failed);
-  for (const test of sortedTests) {
-    const testName = test.name.toLowerCase();
-    const matchingCases = test.cases.filter((c) => {
-      const matchText = testName.includes(text) || c.name.toLowerCase().includes(text);
-      return matchText && (outcomeFilter === "all" || c.outcome === outcomeFilter);
-    });
-
-    if (matchingCases.length > 0) {
-      visibleSuites += 1;
-      visibleCases += matchingCases.length;
-      const item = document.createElement("button");
-      item.type = "button";
-      item.className = "item";
-      const name = document.createElement("div");
-      name.className = "name";
-      name.textContent = test.name;
-      const tiny = document.createElement("div");
-      tiny.className = "tiny";
-      tiny.textContent = `${matchingCases.length} visible case(s)`;
-      item.appendChild(name);
-      item.appendChild(tiny);
-      const failedDetails = matchingCases
-        .map((c) => {
-          const names = failedVerifierNames(c);
-          return names.length ? `${c.name}: ${names.join(", ")}` : "";
-        })
-        .filter((line) => line.length > 0);
-      if (failedDetails.length) {
-        const failed = document.createElement("div");
-        failed.className = "tiny bad";
-        failed.textContent = `Failed verifier(s): ${failedDetails.join("; ")}`;
-        item.appendChild(failed);
-      }
-      item.addEventListener("click", () => {
-        const testSelect = qs("#testSelect");
-        testSelect.value = test.name;
-        testSelect.dispatchEvent(new Event("change"));
-        const caseSelect = qs("#caseSelect");
-        const preferred = matchingCases[0]?.name;
-        const options = Array.from(caseSelect.options);
-        const hasPreferred = options.find((o) => o.value === preferred);
-        if (hasPreferred) caseSelect.value = preferred;
-        caseSelect.dispatchEvent(new Event("change"));
-      });
-      list.appendChild(item);
+  for (const { test, cases: matchingCases } of filteredTestEntries()) {
+    visibleSuites += 1;
+    visibleCases += matchingCases.length;
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "item";
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = test.name;
+    const tiny = document.createElement("div");
+    tiny.className = "tiny";
+    tiny.textContent = `${matchingCases.length} visible case(s)`;
+    item.appendChild(name);
+    item.appendChild(tiny);
+    const failedDetails = matchingCases
+      .map((c) => {
+        const names = failedVerifierNames(c);
+        return names.length ? `${c.name}: ${names.join(", ")}` : "";
+      })
+      .filter((line) => line.length > 0);
+    if (failedDetails.length) {
+      const failed = document.createElement("div");
+      failed.className = "tiny bad";
+      failed.textContent = `Failed verifier(s): ${failedDetails.join("; ")}`;
+      item.appendChild(failed);
     }
+    item.addEventListener("click", () => {
+      const testSelect = qs("#testSelect");
+      testSelect.value = test.name;
+      testSelect.dispatchEvent(new Event("change"));
+      const caseSelect = qs("#caseSelect");
+      const preferred = matchingCases[0]?.name;
+      const options = Array.from(caseSelect.options);
+      const hasPreferred = options.find((o) => o.value === preferred);
+      if (hasPreferred) caseSelect.value = preferred;
+      caseSelect.dispatchEvent(new Event("change"));
+    });
+    list.appendChild(item);
   }
   qs("#listSummary").textContent = `${visibleSuites} suite(s), ${visibleCases} case(s) shown`;
+  refreshMainSelectionForFilter();
   syncStateToHash();
 }
 

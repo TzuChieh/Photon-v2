@@ -229,13 +229,13 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 		return;
 	}
 
-	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto transport = lta::ETransport::Radiance;
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SurfaceHit>();
-	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::ViewDir>();
+	const math::Vector3R V          = m_viewpoint->template get<EViewpointData::ViewDir>();
 	const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
 	const math::Vector3R Ns         = surfaceHit.getShadingNormal();
 	const real           R          = m_viewpoint->template get<EViewpointData::Radius>();
@@ -251,15 +251,15 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-	BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
-	bsdfContext.key = BsdfKey::makeRandom();
+	BsdfQueryContext radianceMeasureContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	radianceMeasureContext.key = BsdfKey::makeRandom();
 
 	math::Spectrum tauM(0);
-	BsdfEvalQuery  bsdfEval(bsdfContext);
+	BsdfEvalQuery  bsdfEval(radianceMeasureContext);
 	for(const auto& photon : m_photonCache)
 	{
-		const math::Vector3R V = photon.template get<EPhotonData::FromDir>();
-		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, bsdfContext.sidedness))
+		const math::Vector3R L = photon.template get<EPhotonData::FromDir>();
+		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, radianceMeasureContext.sidedness))
 		{
 			continue;
 		}
@@ -272,8 +272,6 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 
 		math::Spectrum tau = photon.template get<EPhotonData::ThroughputRadiance>();
 		tau.mulLocal(bsdfEval.outputs.getBsdf());
-		tau.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
-
 		tauM.addLocal(tau);
 	}
 	tauM.mulLocal(m_viewpoint->template get<EViewpointData::ViewThroughput>());

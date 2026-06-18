@@ -58,16 +58,16 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 	sanitizeVariables();
 
-	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto transport = lta::ETransport::Radiance;
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
-	BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
+	BsdfQueryContext radianceMeasureContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 
 	// Share key across viewpoints. If the key selects different BSDF components stochastically,
 	// PPM radiance evaluation is still valid as the tau summation can be reordered and
 	// is effectively doing multiple PPM radiance evaluations at the same time. The variance will,
 	// of course, increase accordingly.
-	bsdfContext.key = BsdfKey::makeRandom();
+	radianceMeasureContext.key = BsdfKey::makeRandom();
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
@@ -79,7 +79,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	for(Viewpoint& viewpoint : m_viewpoints)
 	{
 		const SurfaceHit&    surfaceHit = viewpoint.template get<EViewpointData::SurfaceHit>();
-		const math::Vector3R L          = viewpoint.template get<EViewpointData::ViewDir>();
+		const math::Vector3R V          = viewpoint.template get<EViewpointData::ViewDir>();
 		const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
 		const math::Vector3R Ns         = surfaceHit.getShadingNormal();
 		const real           R          = viewpoint.template get<EViewpointData::Radius>();
@@ -93,11 +93,11 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
 		math::Spectrum tauM(0);
-		BsdfEvalQuery  bsdfEval(bsdfContext);
+		BsdfEvalQuery  bsdfEval(radianceMeasureContext);
 		for(const auto& photon : photonCache)
 		{
-			const math::Vector3R V = photon.get<EPhotonData::FromDir>();
-			if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, bsdfContext.sidedness))
+			const math::Vector3R L = photon.get<EPhotonData::FromDir>();
+			if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, radianceMeasureContext.sidedness))
 			{
 				continue;
 			}
@@ -110,8 +110,6 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 			math::Spectrum tau = photon.get<EPhotonData::ThroughputRadiance>();
 			tau.mulLocal(bsdfEval.outputs.getBsdf());
-			tau.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
-
 			tauM.addLocal(tau);
 		}
 		const math::Spectrum tauN   = viewpoint.template get<EViewpointData::Tau>();
