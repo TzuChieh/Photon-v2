@@ -252,10 +252,14 @@ def _export_original_mesh_object_v3p6(b_mesh_object: bpy.types.Object, console: 
     """
     b_mesh = b_mesh_object.data
     b_mesh.calc_loop_triangles()
-    if not b_mesh.has_custom_normals:
-        b_mesh.calc_normals()
-    else:
-        b_mesh.calc_normals_split()
+
+    b_mesh_corner_normals = getattr(b_mesh, "corner_normals", None)
+    if b_mesh_corner_normals is None:
+        # Older Blender needs explicit normal preparation.
+        if not b_mesh.has_custom_normals:
+            b_mesh.calc_normals()
+        else:
+            b_mesh.calc_normals_split()
 
     # TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
     # TODO: material can link to mesh or object, distinguish them
@@ -304,7 +308,8 @@ def _export_original_mesh_object_v3p6(b_mesh_object: bpy.types.Object, console: 
             loop_triangles,
             b_mesh.vertices,
             b_active_uv_layer.data if b_active_uv_layer is not None else None,
-            b_mesh.has_custom_normals)
+            b_mesh.has_custom_normals,
+            b_mesh_corner_normals)
 
         # Creating actor (can be either model or light depending on emissivity)
         pos, rot, scale = blender.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
