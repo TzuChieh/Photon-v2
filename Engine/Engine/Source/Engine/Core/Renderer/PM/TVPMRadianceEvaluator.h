@@ -335,7 +335,7 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 	m_photonCache.clear();
 	m_photonMap->find(X.getPos(), m_kernelRadius, m_photonCache);
 
-	PH_ASSERT_EQ(radianceMeasureContext.transport, lta::ETransport::Radiance);
+	PH_ASSERT(radianceMeasureContext.transport == lta::ETransport::Radiance);
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 

@@ -51,6 +51,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 
 ## Report UX
 - Avoid duplicating verifier status/name in the main image area when verifier buttons already show name and state.
+- Keep filtered report navigation coherent: side lists, dropdowns, buttons, and keyboard shortcuts should share the same visible test/case set.
 - Keep high-value image space clear; move auxiliary hints to compact controls/tooltips.
 - Keep top controls spatially stable. Test/case selectors and verifier/view controls should split the header evenly on desktop.
 - For focused slider compare, avoid scaling the `img-comparison-slider` element itself; resize it so its internal drag math remains correct.
