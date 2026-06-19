@@ -17,6 +17,7 @@ class TBinaryBvhIntersector : public Intersector
 public:
 	void update(TSpanView<const Intersectable*> intersectables) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isOccluding(const Ray& ray) const override;
 	math::AABB3D calcAABB() const override;
 
 	void rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables);

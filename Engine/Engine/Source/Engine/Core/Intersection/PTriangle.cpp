@@ -48,6 +48,11 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return true;
 }
 
+bool PTriangle::isOccluding(const Ray& ray) const
+{
+	return m_triangle.isIntersecting(ray.getSegment());
+}
+
 bool PTriangle::reintersect(
 	const Ray& ray,
 	HitProbe& probe,

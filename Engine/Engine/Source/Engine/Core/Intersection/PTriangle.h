@@ -19,6 +19,7 @@ public:
 	PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isOccluding(const Ray& ray) const override;
 
 	bool reintersect(
 		const Ray& ray,

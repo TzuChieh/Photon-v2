@@ -10,6 +10,7 @@
 
 #include <limits>
 #include <array>
+#include <utility>
 
 namespace ph::math
 {
@@ -45,6 +46,26 @@ template<typename Item, typename Index>
 template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
+	return generalTraversal<TesterFunc, false, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<typename Item, typename Index>
+template<typename TesterFunc, bool IS_ROBUST>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
+	return generalTraversal<TesterFunc, true, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<typename Item, typename Index>
+template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 
@@ -90,8 +111,15 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 					const auto optHitT = intersectionTester(item, longestSegment);
 					if(optHitT)
 					{
-						longestSegment.setMaxT(*optHitT);
-						hasHit = true;
+						if constexpr(IS_OCCLUSION_ONLY)
+						{
+							return true;
+						}
+						else
+						{
+							longestSegment.setMaxT(*optHitT);
+							hasHit = true;
+						}
 					}
 				}
 

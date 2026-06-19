@@ -51,6 +51,26 @@ inline bool TBinaryBvhIntersector<Index>
 }
 
 template<typename Index>
+inline bool TBinaryBvhIntersector<Index>
+::isOccluding(const Ray& ray) const
+{
+	return m_bvh.occlusionTraversal(
+		ray.getSegment(),
+		[ray](
+			const Intersectable* const      intersectable,
+			const math::TLineSegment<real>& segment)
+		-> std::optional<real>
+		{
+			PH_ASSERT(intersectable);
+
+			const Ray raySegment(segment, ray.getTime());
+			return intersectable->isOccluding(raySegment)
+				? std::make_optional(segment.getMinT())
+				: std::nullopt;
+		});
+}
+
+template<typename Index>
 inline auto TBinaryBvhIntersector<Index>
 ::calcAABB() const
 -> math::AABB3D

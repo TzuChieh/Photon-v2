@@ -8,6 +8,7 @@
 ## Profiling Evidence
 - Keep profiling artifacts in the relevant ignored `Generated/` folder: workload copies, timing logs, reports, and target assembly listing paths or minimal excerpts.
 - For low-level optimization skills, compare project-generated listings from the measured target library or executable. Prefer the original compiled body on the hot path; create standalone repro code only when the target build cannot expose the needed assembly.
+- For renderer optimization claims, use the renderer's finished-render log time from the same scene/thread count/configuration, disable assertions unless they are the target, and compare repeated runs by minimum time to reduce noise.
 
 ## Writing
 - Frontmatter descriptions drive activation. State user intent and important near-miss boundaries explicitly.

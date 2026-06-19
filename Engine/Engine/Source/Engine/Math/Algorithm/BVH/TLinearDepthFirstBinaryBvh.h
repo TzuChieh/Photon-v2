@@ -35,6 +35,9 @@ public:
 	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
+	template<typename TesterFunc, bool IS_ROBUST = true>
+	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
 	std::size_t numNodes() const;
@@ -42,6 +45,9 @@ public:
 	std::size_t memoryUsage() const;
 
 private:
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY = false, bool IS_ROBUST = true>
+	bool generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
 	void buildNodesRecursive(
 		const TBvhInfoNode<2, Item>* infoNode);
 

@@ -275,19 +275,19 @@ inline bool TBasicTriangle<T>::isDegenerate() const
 }
 
 template<typename T>
-inline TVector3<T> TBasicTriangle<T>::getVa() const
+inline const TVector3<T>& TBasicTriangle<T>::getVa() const
 {
 	return m_vA;
 }
 
 template<typename T>
-inline TVector3<T> TBasicTriangle<T>::getVb() const
+inline const TVector3<T>& TBasicTriangle<T>::getVb() const
 {
 	return m_vB;
 }
 
 template<typename T>
-inline TVector3<T> TBasicTriangle<T>::getVc() const
+inline const TVector3<T>& TBasicTriangle<T>::getVc() const
 {
 	return m_vC;
 }
