@@ -69,9 +69,29 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<bool IS_ROBUST, typename TesterFunc>
+template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
+	return generalTraversal<TesterFunc, false, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<typename TesterFunc, bool IS_ROBUST>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
+::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
+	return generalTraversal<TesterFunc, true, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
+::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 	static_assert(std::numeric_limits<real>::has_infinity);
@@ -92,13 +112,13 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	{
 	// TODO: this order is not specialized/optimized yet
 	case EBvhSplitAxisOrder::Unbalanced:
-		return nearestTraversalGeneral<IS_ROBUST>(
+		return generalTraversalUnordered<TesterFunc, IS_OCCLUSION_ONLY, IS_ROBUST>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
 
 	// TODO: this order is not specialized/optimized yet
 	case EBvhSplitAxisOrder::Balanced:
-		return nearestTraversalGeneral<IS_ROBUST>(
+		return generalTraversalUnordered<TesterFunc, IS_OCCLUSION_ONLY, IS_ROBUST>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
 
@@ -106,7 +126,11 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		// This check is required, so unused code can be eliminated
 		if constexpr(is_power_of_2(N))
 		{
-			return nearestTraversalOrdered<IS_ROBUST, EBvhSplitAxisOrder::BalancedPow2>(
+			return generalTraversalOrdered<
+				TesterFunc,
+				EBvhSplitAxisOrder::BalancedPow2,
+				IS_OCCLUSION_ONLY,
+				IS_ROBUST>(
 				segment,
 				std::forward<TesterFunc>(intersectionTester));
 		}
@@ -118,7 +142,11 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		}
 
 	case EBvhSplitAxisOrder::Single:
-		return nearestTraversalOrdered<IS_ROBUST, EBvhSplitAxisOrder::Single>(
+		return generalTraversalOrdered<
+			TesterFunc,
+			EBvhSplitAxisOrder::Single,
+			IS_OCCLUSION_ONLY,
+			IS_ROBUST>(
 			segment,
 			std::forward<TesterFunc>(intersectionTester));
 
@@ -129,9 +157,9 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<bool IS_ROBUST, typename TesterFunc>
+template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
-::nearestTraversalGeneral(
+::generalTraversalUnordered(
 	const TLineSegment<real>& segment,
 	TesterFunc&& intersectionTester) const
 {
@@ -227,8 +255,15 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 						const auto optHitT = intersectionTester(item, longestSegment);
 						if(optHitT)
 						{
-							longestSegment.setMaxT(*optHitT);
-							hasHit = true;
+							if constexpr(IS_OCCLUSION_ONLY)
+							{
+								return true;
+							}
+							else
+							{
+								longestSegment.setMaxT(*optHitT);
+								hasHit = true;
+							}
 						}
 					}
 				}
@@ -265,9 +300,9 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
+template<typename TesterFunc, EBvhSplitAxisOrder ORDER, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
-::nearestTraversalOrdered(
+::generalTraversalOrdered(
 	const TLineSegment<real>& segment,
 	TesterFunc&& intersectionTester) const
 {
@@ -393,8 +428,15 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 						const auto optHitT = intersectionTester(item, longestSegment);
 						if(optHitT)
 						{
-							longestSegment.setMaxT(*optHitT);
-							hasHit = true;
+							if constexpr(IS_OCCLUSION_ONLY)
+							{
+								return true;
+							}
+							else
+							{
+								longestSegment.setMaxT(*optHitT);
+								hasHit = true;
+							}
 						}
 					}
 				}

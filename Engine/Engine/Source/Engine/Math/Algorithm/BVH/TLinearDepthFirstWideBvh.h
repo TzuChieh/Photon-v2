@@ -57,8 +57,11 @@ public:
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
-	template<bool IS_ROBUST = true, typename TesterFunc>
+	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	template<typename TesterFunc, bool IS_ROBUST = true>
+	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
@@ -78,13 +81,16 @@ private:
 		std::array<std::size_t, N> splitAxes = make_array<std::size_t, N>(constant::X_AXIS);
 	};
 
-	template<bool IS_ROBUST, typename TesterFunc>
-	bool nearestTraversalGeneral(
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY = false, bool IS_ROBUST = true>
+	bool generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+	bool generalTraversalUnordered(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
-	template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
-	bool nearestTraversalOrdered(
+	template<typename TesterFunc, EBvhSplitAxisOrder ORDER, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+	bool generalTraversalOrdered(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
