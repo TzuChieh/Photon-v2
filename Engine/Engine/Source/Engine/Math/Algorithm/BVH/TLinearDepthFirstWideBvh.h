@@ -94,6 +94,11 @@ private:
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
+	template<typename TesterFunc, bool IS_ROBUST>
+	bool anyHitTraversal(
+		const TLineSegment<real>& segment,
+		TesterFunc&& intersectionTester) const;
+
 	/*! Directly map informative nodes to wide nodes if the branch factor is the same.
 	*/
 	void convertNodesRecursive(
@@ -120,15 +125,15 @@ private:
 	static constexpr auto numTreeletLevels()
 	-> std::size_t;
 
-	static constexpr auto makeIdentityOrderTable()
+	static consteval auto makeIdentityOrderTable()
 	-> std::array<uint8, N>;
 
-	static constexpr auto makeSingleOrderTable()
+	static consteval auto makeSingleOrderTable()
 	-> std::array<std::array<uint8, N>, 2>;
 
 	inline static constexpr auto BALANCED_POW2_ORDER_TABLE_SIZE = 1 << (N - 1);
 
-	static constexpr auto makeBalancedPow2OrderTable()
+	static consteval auto makeBalancedPow2OrderTable()
 	-> std::array<std::array<uint8, N>, BALANCED_POW2_ORDER_TABLE_SIZE>;
 
 	std::unique_ptr<NodeType[]> m_nodes;

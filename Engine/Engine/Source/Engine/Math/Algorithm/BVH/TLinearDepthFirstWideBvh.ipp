@@ -18,6 +18,7 @@
 #include <limits>
 #include <functional>
 #include <cmath>
+#include <bit>
 
 namespace ph::math
 {
@@ -83,7 +84,7 @@ template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
-	return generalTraversal<TesterFunc, true, IS_ROBUST>(
+	return anyHitTraversal<TesterFunc, IS_ROBUST>(
 		segment,
 		std::forward<TesterFunc>(intersectionTester));
 }
@@ -216,7 +217,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			PH_PROFILE_NAMED_SCOPE("SIMD batched AABB intersection");
 #endif
 			simdCtx.setNode(node);
-			simdCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+			simdCtx.template intersectAabbVolumes<IS_ROBUST>(longestSegment.getMinT(), longestSegment.getMaxT());
 			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
 		}
 		else
@@ -295,8 +296,121 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			generalTodoNodes.pop();
 		}
 	}
-	
+
 	return hasHit;
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<typename TesterFunc, bool IS_ROBUST>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
+::anyHitTraversal(
+	const TLineSegment<real>& segment,
+	TesterFunc&& intersectionTester) const
+{
+	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+	static_assert(std::numeric_limits<real>::has_infinity);
+
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+	PH_PROFILE_SCOPE();
+#endif
+
+	if(isEmpty())
+	{
+		return false;
+	}
+
+	PH_ASSERT(m_nodes);
+	PH_ASSERT(m_items);
+
+	// Traversal states
+
+	// Add pending nodes to a stack
+	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
+
+	Index currentNodeIndex = 0;
+
+	// Precompute common values
+
+	const auto rcpSegmentDir = segment.getDir().rcp();
+
+	TBvhSimdComputingContext<N, Index> simdCtx;
+	if constexpr(simdCtx.isSupported())
+	{
+		simdCtx.setSegment(segment.getOrigin(), rcpSegmentDir);
+	}
+
+	// Traverse nodes
+	while(true)
+	{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+		PH_PROFILE_NAMED_SCOPE("Traversal loop body");
+#endif
+		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
+		const NodeType& node = m_nodes[currentNodeIndex];
+
+		uint32 hitMask = 0;
+		if constexpr(simdCtx.isSupported())
+		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("SIMD batched AABB intersection");
+#endif
+			simdCtx.setNode(node);
+			simdCtx.template intersectAabbVolumes<IS_ROBUST>(segment.getMinT(), segment.getMaxT());
+			hitMask = simdCtx.template getIntersectResultAsMask<uint32>();
+		}
+		else
+		{
+#if PH_PROFILE_ACCELERATION_STRUCTURES
+			PH_PROFILE_NAMED_SCOPE("Batched AABB intersection");
+#endif
+			for(uint8 i = 0; i < N; ++i)
+			{
+				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).template isIntersectingVolume<IS_ROBUST>(
+					segment, rcpSegmentDir);
+				if(aabbMinT <= aabbMaxT)
+				{
+					hitMask |= uint32(1) << i;
+				}
+			}
+		}
+
+		while(hitMask)
+		{
+			// Default is traversing with memory order. For any-hit, ordering is not required.
+			const uint8 ci = static_cast<uint8>(std::countr_zero(hitMask));
+			hitMask &= hitMask - 1;
+
+			if(node.isLeaf(ci))
+			{
+				const auto numItems = node.numItems(ci);
+				for(std::size_t ii = 0; ii < numItems; ++ii)
+				{
+					const Item& item = m_items[node.getItemOffset(ci) + ii];
+					if(intersectionTester(item, segment))
+					{
+						return true;
+					}
+				}
+			}
+			else
+			{
+				PH_ASSERT_LE(node.getChildOffset(ci), std::numeric_limits<Index>::max());
+				todoNodes.push(static_cast<Index>(node.getChildOffset(ci)));
+			}
+		}
+
+		if(todoNodes.isEmpty())
+		{
+			break;
+		}
+		else
+		{
+			currentNodeIndex = todoNodes.top();
+			todoNodes.pop();
+		}
+	}
+
+	return false;
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -359,7 +473,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			PH_PROFILE_NAMED_SCOPE("SIMD batched AABB intersection");
 #endif
 			simdCtx.setNode(node);
-			simdCtx.intersectAabbVolumes(longestSegment.getMinT(), longestSegment.getMaxT());
+			simdCtx.template intersectAabbVolumes<IS_ROBUST>(longestSegment.getMinT(), longestSegment.getMaxT());
 			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
 		}
 		else
@@ -380,13 +494,13 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		// All children have the same split axis, traverse from the nearest one
 		if constexpr(ORDER == EBvhSplitAxisOrder::Single)
 		{
-			constexpr auto table = makeSingleOrderTable();
+			static constexpr auto table = makeSingleOrderTable();
 			orderTable = table[isNegDir[node.getSplitAxis(0)]];
 		}
 		// Children are split by balanced axes (and N is power-of-2)
 		else if constexpr(ORDER == EBvhSplitAxisOrder::BalancedPow2)
 		{
-			constexpr auto table = makeBalancedPow2OrderTable();
+			static constexpr auto table = makeBalancedPow2OrderTable();
 
 			uint32 permutationIdx = 0;
 			for(uint32 si = 0; si < N - 1; ++si)
@@ -399,7 +513,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		}
 		else
 		{
-			constexpr auto table = makeIdentityOrderTable();
+			static constexpr auto table = makeIdentityOrderTable();
 			orderTable = table;
 		}
 
@@ -468,7 +582,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			todoNodes.pop();
 		}
 	}
-	
+
 	return hasHit;
 }
 
@@ -815,7 +929,7 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
+inline consteval auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::makeIdentityOrderTable()
 -> std::array<uint8, N>
 {
@@ -830,7 +944,7 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
+inline consteval auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::makeSingleOrderTable()
 -> std::array<std::array<uint8, N>, 2>
 {
@@ -857,7 +971,7 @@ inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-inline constexpr auto TLinearDepthFirstWideBvh<N, Item, Index>
+inline consteval auto TLinearDepthFirstWideBvh<N, Item, Index>
 ::makeBalancedPow2OrderTable()
 -> std::array<std::array<uint8, N>, BALANCED_POW2_ORDER_TABLE_SIZE>
 {
