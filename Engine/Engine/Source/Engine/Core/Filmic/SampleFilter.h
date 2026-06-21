@@ -46,7 +46,7 @@ public:
 	SampleFilter();
 
 	SampleFilter(
-		std::shared_ptr<math::TMathFunction2D<float64>> filterFunc,
+		std::shared_ptr<math::TMathFunction2D<float32>> filterFunc,
 		float64 widthPx,
 		float64 heightPx);
 
@@ -66,7 +66,7 @@ private:
 	// Best to be an odd number to capture centroid value
 	static constexpr std::size_t TABULATED_FILTER_SIZE = 9;
 
-	std::shared_ptr<math::TMathFunction2D<float64>> m_filterFunc;
+	std::shared_ptr<math::TMathFunction2D<float32>> m_filterFunc;
 	math::TVector2<float64> m_sizePx;
 	math::TVector2<float64> m_halfSizePx;
 };
@@ -81,16 +81,16 @@ inline SampleFilter SampleFilter::make(
 	if(useTabulated)
 	{
 		using TabulatedFilter = math::TTabulatedMathFunction2D<
-			float64,
+			float32,
 			TABULATED_FILTER_SIZE,
 			TABULATED_FILTER_SIZE>;
 
 		return SampleFilter(
 			std::make_shared<TabulatedFilter>(
 				func,
-				math::TAABB2D<float64>(
+				math::TAABB2D<float32>(math::TAABB2D<float64>(
 					{-widthPx * 0.5, -heightPx * 0.5},
-					{ widthPx * 0.5,  heightPx * 0.5})),
+					{ widthPx * 0.5,  heightPx * 0.5}))),
 			widthPx,
 			heightPx);
 	}
@@ -102,7 +102,7 @@ inline SampleFilter SampleFilter::make(
 
 inline float64 SampleFilter::evaluate(const float64 xPx, const float64 yPx) const
 {
-	return m_filterFunc->evaluate(xPx, yPx);
+	return m_filterFunc->evaluate(static_cast<float32>(xPx), static_cast<float32>(yPx));
 }
 
 inline const math::TVector2<float64>& SampleFilter::getSizePx() const

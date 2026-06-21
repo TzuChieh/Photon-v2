@@ -11,11 +11,11 @@ namespace ph
 
 SampleFilter SampleFilter::makeBox()
 {
-	constexpr float64 constantValue = 1.0;
-	constexpr float64 filterSize = 1.0;
+	constexpr float32 constantValue = 1.0f;
+	constexpr float32 filterSize    = 1.0f;
 
 	return make(
-		math::TConstant2D<float64>(constantValue),
+		math::TConstant2D<float32>(constantValue),
 		filterSize,
 		filterSize,
 		false);
@@ -23,15 +23,15 @@ SampleFilter SampleFilter::makeBox()
 
 SampleFilter SampleFilter::makeGaussian(const bool useTabulated)
 {
-	constexpr float64 sigmaX     = 0.5;
-	constexpr float64 sigmaY     = 0.5;
-	constexpr float64 amplitude  = 1.0;
-	constexpr float64 filterSize = 4.0;
+	constexpr float32 sigmaX     = 0.5f;
+	constexpr float32 sigmaY     = 0.5f;
+	constexpr float32 amplitude  = 1.0f;
+	constexpr float32 filterSize = 4.0f;
 
-	math::TGaussian2D<float64> gaussianFunc(sigmaX, sigmaY, amplitude);
+	math::TGaussian2D<float32> gaussianFunc(sigmaX, sigmaY, amplitude);
 
 	// Make the function evaluates to 0 on the filter edge by subtracting its edge value
-	const auto edgeValue = gaussianFunc.evaluate(filterSize / 2.0, filterSize / 2.0);
+	const auto edgeValue = gaussianFunc.evaluate(filterSize / 2, filterSize / 2);
 
 	// NOTE: is submerging gaussian filter really make sense?
 	// see this thread for more discussion:
@@ -52,11 +52,11 @@ SampleFilter SampleFilter::makeMitchellNetravali(const bool useTabulated)
 	// recommends b = c = 1/3, which produces excellent image quality in 
 	// their experiments.
 
-	constexpr float64 b = 1.0 / 3.0;
-	constexpr float64 c = 1.0 / 3.0;
-	constexpr float64 filterSize = 4.0;
+	constexpr float32 b = 1.0f / 3.0f;
+	constexpr float32 c = 1.0f / 3.0f;
+	constexpr float32 filterSize = 4.0f;
 
-	math::TMitchellNetravaliCubic2D<float64> mnCubicFunc(b, c);
+	math::TMitchellNetravaliCubic2D<float32> mnCubicFunc(b, c);
 	return make(
 		mnCubicFunc,
 		filterSize,
@@ -66,10 +66,10 @@ SampleFilter SampleFilter::makeMitchellNetravali(const bool useTabulated)
 
 SampleFilter SampleFilter::makeBlackmanHarris(const bool useTabulated)
 {
-	constexpr float64 radius = 2.0;
-	constexpr float64 filterSize = radius * 2.0;
+	constexpr float32 radius = 2.0f;
+	constexpr float32 filterSize = radius * 2.0f;
 
-	math::TBlackmanHarris2D<float64> bhFunc(radius);
+	math::TBlackmanHarris2D<float32> bhFunc(radius);
 	return make(
 		bhFunc,
 		filterSize,
@@ -84,7 +84,7 @@ SampleFilter::SampleFilter()
 {}
 
 SampleFilter::SampleFilter(
-	std::shared_ptr<math::TMathFunction2D<float64>> filterFunc,
+	std::shared_ptr<math::TMathFunction2D<float32>> filterFunc,
 	const float64 widthPx, 
 	const float64 heightPx)
 

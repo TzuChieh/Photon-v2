@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <limits>
 
 namespace ph::math
 {
@@ -71,12 +72,12 @@ inline Value TTabulatedMathFunction2D<Value, Nx, Ny>::evaluate(const Value x, co
 		return static_cast<Value>(0);
 	}
 
-	const std::size_t ix = std::min(
-		static_cast<std::size_t>((x - min.x()) * m_rcpCellSize.x()),
-		Nx - 1);
-	const std::size_t iy = std::min(
-		static_cast<std::size_t>((y - min.y()) * m_rcpCellSize.y()),
-		Ny - 1);
+	const int32 ix = std::min(
+		static_cast<int32>((x - min.x()) * m_rcpCellSize.x()),
+		static_cast<int32>(Nx - 1));
+	const int32 iy = std::min(
+		static_cast<int32>((y - min.y()) * m_rcpCellSize.y()),
+		static_cast<int32>(Ny - 1));
 
 	// Uses nearest-cell lookup; no interpolation or normalization is applied.
 	return static_cast<Value>(m_values[iy][ix]);
