@@ -37,9 +37,12 @@ math::Spectrum SchlickApproxConductorFresnel::calcReflectance(const real cosThet
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 
 	// sign of cosI does not matter here.
-	const real cosI = std::abs(cosThetaIncident);
+	const real cosI          = std::abs(cosThetaIncident);
+	const real oneMinusCosI  = 1.0_r - std::abs(cosThetaIncident);
+	const real oneMinusCosI2 = oneMinusCosI * oneMinusCosI;
+	const real oneMinusCosI5 = oneMinusCosI2 * oneMinusCosI2 * oneMinusCosI;
 
-	return m_f0Complement.mul(static_cast<real>(std::pow(1.0_r - cosI, 5))).add(m_f0);
+	return m_f0Complement.mul(oneMinusCosI5).add(m_f0);
 }
 
 }// end namespace ph
