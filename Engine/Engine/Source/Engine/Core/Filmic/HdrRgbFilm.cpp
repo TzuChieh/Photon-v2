@@ -118,6 +118,9 @@ void HdrRgbFilm::addRgbSample(
 	x1y1.x() += 1;
 	x1y1.y() += 1;
 
+	const float64 rgbR = rgb.r();
+	const float64 rgbG = rgb.g();
+	const float64 rgbB = rgb.b();
 	for(int64 y = x0y0.y(); y < x1y1.y(); ++y)
 	{
 		for(int64 x = x0y0.x(); x < x1y1.x(); ++x)
@@ -131,9 +134,9 @@ void HdrRgbFilm::addRgbSample(
 			const auto sensorY      = y - getEffectiveWindowPx().getMinVertex().y();
 			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
 
-			m_pixelRadianceSensors[sensorIndex].accuR      += rgb.r() * filterWeight;
-			m_pixelRadianceSensors[sensorIndex].accuG      += rgb.g() * filterWeight;
-			m_pixelRadianceSensors[sensorIndex].accuB      += rgb.b() * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuR      += rgbR * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuG      += rgbG * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuB      += rgbB * filterWeight;
 			m_pixelRadianceSensors[sensorIndex].accuWeight += filterWeight;
 		}
 	}
