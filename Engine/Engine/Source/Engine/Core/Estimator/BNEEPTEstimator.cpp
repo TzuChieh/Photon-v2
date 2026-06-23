@@ -123,8 +123,7 @@ void BNEEPTEstimator::estimate(
 				const auto L = directSample.getTargetToEmit().normalize();
 				const SurfaceEmitter& directEmitter = Xe.getSurfaceEmitter();
 
-				BsdfEvalQuery bsdfEval(bsdfContext);
-				bsdfEval.inputs.set(X, L, V);
+				BsdfEvalQuery bsdfEval(bsdfContext, X, L, V);
 				surfaceOptics.calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isContributable())
 				{
@@ -135,8 +134,7 @@ void BNEEPTEstimator::estimate(
 					   Xe.getMetadata().getSurface().isEmissive() &&
 					   directEmitter.getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 					{
-						BsdfPdfQuery bsdfPdfQuery(bsdfContext);
-						bsdfPdfQuery.inputs.set(bsdfEval.inputs);
+						BsdfPdfQuery bsdfPdfQuery(bsdfContext, bsdfEval.inputs);
 						surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
 
 						bsdfSamplePdfW = bsdfPdfQuery.outputs
@@ -162,8 +160,7 @@ void BNEEPTEstimator::estimate(
 		{
 			PH_SCOPED_TIMER(BSDFAndIndirectLightSampling);
 
-			BsdfSampleQuery bsdfSample(bsdfContext);
-			bsdfSample.inputs.set(X, V);
+			BsdfSampleQuery bsdfSample(bsdfContext, X, V);
 			surfaceOptics.genBsdfSample(bsdfSample, sampleFlow);
 			if(!bsdfSample.outputs.isContributable())
 			{
@@ -206,8 +203,7 @@ void BNEEPTEstimator::estimate(
 					// still works. No need to test occlusion again as we already done that.
 					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(X, nextX);
 
-					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
-					bsdfPdfQuery.inputs.set(bsdfSample);
+					BsdfPdfQuery bsdfPdfQuery(bsdfContext, bsdfSample);
 					surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
 
 					// `isNeeSamplable()` is already `true`, but BSDF PDF can still be empty or 0

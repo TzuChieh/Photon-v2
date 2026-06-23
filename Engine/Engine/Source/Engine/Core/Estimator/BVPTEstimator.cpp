@@ -111,8 +111,7 @@ void BVPTEstimator::estimate(
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
-		BsdfSampleQuery bsdfSample{bsdfContext};
-		bsdfSample.inputs.set(surfaceHit, V);
+		BsdfSampleQuery bsdfSample{bsdfContext, surfaceHit, V};
 		Ray nextRay;
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &nextRay))
 		{

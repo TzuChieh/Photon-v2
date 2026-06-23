@@ -19,6 +19,15 @@ namespace ph
 class BsdfEvalInput final
 {
 public:
+	BsdfEvalInput();
+
+	BsdfEvalInput(
+		const SurfaceHit& X,
+		const math::Vector3R& L,
+		const math::Vector3R& V);
+
+	BsdfEvalInput(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
+
 	void set(const BsdfSampleQuery& sample);
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
 
@@ -101,8 +110,19 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	inline BsdfEvalQuery() = default;
+	BsdfEvalQuery();
 	explicit BsdfEvalQuery(BsdfQueryContext context);
+
+	BsdfEvalQuery(
+		BsdfQueryContext context,
+		const SurfaceHit& X,
+		const math::Vector3R& L,
+		const math::Vector3R& V);
+
+	BsdfEvalQuery(
+		BsdfQueryContext context,
+		const BsdfSampleInput& sampleInput,
+		const BsdfSampleOutput& sampleOutput);
 };
 
 // In-header Implementations:
@@ -112,7 +132,7 @@ inline BsdfEvalQuery::BsdfEvalQuery(BsdfQueryContext context)
 {
 	this->context = std::move(context);
 
-	// (rest of the fields are initialized via setters)
+	// (rest of the fields are initialized via setters and ctors)
 }
 
 inline void BsdfEvalInput::set(
@@ -208,3 +228,5 @@ inline BsdfEvalOutput::operator bool () const
 }
 
 }// end namespace ph
+
+#include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.ipp"

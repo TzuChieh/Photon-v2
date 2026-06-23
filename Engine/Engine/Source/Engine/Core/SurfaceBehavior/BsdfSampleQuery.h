@@ -21,6 +21,12 @@ namespace ph
 class BsdfSampleInput final
 {
 public:
+	BsdfSampleInput();
+
+	BsdfSampleInput(
+		const SurfaceHit& X,
+		const math::Vector3R& V);
+
 	void set(const BsdfEvalInput& evalInput);
 
 	/*!
@@ -154,19 +160,16 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	inline BsdfSampleQuery() = default;
+	BsdfSampleQuery();
 	explicit BsdfSampleQuery(BsdfQueryContext context);
+
+	BsdfSampleQuery(
+		BsdfQueryContext context,
+		const SurfaceHit& X,
+		const math::Vector3R& V);
 };
 
 // In-header Implementations:
-
-inline BsdfSampleQuery::BsdfSampleQuery(BsdfQueryContext context)
-	: BsdfSampleQuery()
-{
-	this->context = std::move(context);
-
-	// (rest of the fields are initialized via setters)
-}
 
 inline void BsdfSampleInput::set(
 	const SurfaceHit& X,
@@ -292,3 +295,5 @@ inline BsdfSampleOutput::operator bool () const
 }
 
 }// end namespace ph
+
+#include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.ipp"
