@@ -86,26 +86,35 @@ void Transform::transform(
 
 	math::Vector3R tPosition;
 	math::Vector3R tGeometryNormal;
-	math::Vector3R tShadingNormal;
 	transformPoint(info.getPos(), time, &tPosition);
 	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
-	transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 
-	if(!info.hasShadingTangent())
+	if(!info.hasShadingNormal())
 	{
 		out_info->setAttributes(tPosition,
-		                        tGeometryNormal.normalizeLocal(),
-		                        tShadingNormal.normalizeLocal());
+		                        tGeometryNormal.normalizeLocal());
 	}
 	else
 	{
-		math::Vector3R tShadingTangent;
-		transformVector(info.getShadingTangent(), time, &tShadingTangent);
+		math::Vector3R tShadingNormal;
+		transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 
-		out_info->setAttributes(tPosition,
-		                        tGeometryNormal.normalizeLocal(),
-		                        tShadingNormal.normalizeLocal(),
-		                        tShadingTangent.normalizeLocal());
+		if(!info.hasShadingTangent())
+		{
+			out_info->setAttributes(tPosition,
+			                        tGeometryNormal.normalizeLocal(),
+			                        tShadingNormal.normalizeLocal());
+		}
+		else
+		{
+			math::Vector3R tShadingTangent;
+			transformVector(info.getShadingTangent(), time, &tShadingTangent);
+
+			out_info->setAttributes(tPosition,
+			                        tGeometryNormal.normalizeLocal(),
+			                        tShadingNormal.normalizeLocal(),
+			                        tShadingTangent.normalizeLocal());
+		}
 	}
 
 	math::Vector3R tdPdU;

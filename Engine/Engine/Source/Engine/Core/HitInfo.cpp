@@ -53,16 +53,17 @@ HitInfo::HitInfo()
 	, m_geometryBasis()
 	, m_shadingBasis()
 
-	, m_shadingTangent(std::nullopt)
+	// No need to init (guarded by `m_hasShadingTangent`)
+	// , m_shadingTangent(0, 0, 0)
+
+	, m_hasShadingNormal(false)
+	, m_hasShadingTangent(false)
 {}
 
 void HitInfo::computeBases()
 {
 	// Computation should be aware of potential numerical error and handle all edge cases
 	// (vectors could be 0 or too close to each other, partial derivatives could be 0)
-
-	// TODO: it may be worth to store a flag for shading normal like shading tangent, so we can
-	// simply assign geometry basis to shading basis if shading normal is not available.
 
 	// Geometry basis: try to align with dPdU or dPdV
 	if(!compute_basis_from_Y_and_refZ(m_geometryBasis, getdPdU()) &&
@@ -73,12 +74,16 @@ void HitInfo::computeBases()
 
 	// Shading basis
 
+	if(!hasShadingNormal())
+	{
+		m_shadingBasis = m_geometryBasis;
+	}
 	// X axis of shading basis: try to align with tangent if available
-	if(hasShadingTangent())
+	else if(hasShadingTangent())
 	{
 		if(!compute_basis_from_Y_and_refZ(m_shadingBasis, getShadingTangent()))
 		{
-			m_shadingBasis = math::Basis3R::makeFromUnitY(m_shadingBasis.getYAxis());
+			m_shadingBasis = math::Basis3R::makeFromUnitY(getShadingNormal());
 		}
 	}
 	// Otherwise, try to align with dNdU, dNdV, dPdU, dPdV
@@ -89,7 +94,7 @@ void HitInfo::computeBases()
 		   !compute_basis_from_Y_and_refZ(m_shadingBasis, getdPdU()) &&
 		   !compute_basis_from_Y_and_refX(m_shadingBasis, getdPdV()))
 		{
-			m_shadingBasis = math::Basis3R::makeFromUnitY(m_shadingBasis.getYAxis());
+			m_shadingBasis = math::Basis3R::makeFromUnitY(getShadingNormal());
 		}
 	}
 
