@@ -202,6 +202,36 @@ inline void TMatrix4<T>::mul(const TVector3<T>& rhsXYZ, const T rhsW, TVector3<T
 }
 
 template<typename T>
+inline void TMatrix4<T>::mul(const TVector3<T>& rhsXYZ, TVector3<T>* const out_result) const
+{
+	PH_ASSERT(out_result != nullptr && out_result != &rhsXYZ);
+
+	out_result->x() = m[0][0] * rhsXYZ.x() + m[0][1] * rhsXYZ.y() + m[0][2] * rhsXYZ.z();
+	out_result->y() = m[1][0] * rhsXYZ.x() + m[1][1] * rhsXYZ.y() + m[1][2] * rhsXYZ.z();
+	out_result->z() = m[2][0] * rhsXYZ.x() + m[2][1] * rhsXYZ.y() + m[2][2] * rhsXYZ.z();
+}
+
+template<typename T>
+inline void TMatrix4<T>::transposeMul(const TVector3<T>& rhsXYZ, const T rhsW, TVector3<T>* const out_result) const
+{
+	PH_ASSERT(out_result != nullptr && out_result != &rhsXYZ);
+
+	out_result->x() = m[0][0] * rhsXYZ.x() + m[1][0] * rhsXYZ.y() + m[2][0] * rhsXYZ.z() + m[3][0] * rhsW;
+	out_result->y() = m[0][1] * rhsXYZ.x() + m[1][1] * rhsXYZ.y() + m[2][1] * rhsXYZ.z() + m[3][1] * rhsW;
+	out_result->z() = m[0][2] * rhsXYZ.x() + m[1][2] * rhsXYZ.y() + m[2][2] * rhsXYZ.z() + m[3][2] * rhsW;
+}
+
+template<typename T>
+inline void TMatrix4<T>::transposeMul(const TVector3<T>& rhsXYZ, TVector3<T>* const out_result) const
+{
+	PH_ASSERT(out_result != nullptr && out_result != &rhsXYZ);
+
+	out_result->x() = m[0][0] * rhsXYZ.x() + m[1][0] * rhsXYZ.y() + m[2][0] * rhsXYZ.z();
+	out_result->y() = m[0][1] * rhsXYZ.x() + m[1][1] * rhsXYZ.y() + m[2][1] * rhsXYZ.z();
+	out_result->z() = m[0][2] * rhsXYZ.x() + m[1][2] * rhsXYZ.y() + m[2][2] * rhsXYZ.z();
+}
+
+template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::mulLocal(const T rhs)
 {
 	m[0][0] *= rhs;

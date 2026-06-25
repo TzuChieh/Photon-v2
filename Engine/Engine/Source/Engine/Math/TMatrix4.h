@@ -62,7 +62,23 @@ public:
 
 	TMatrix4 mul(const TMatrix4& rhs) const;
 	void mul(const TMatrix4& rhs, TMatrix4* out_result) const;
+
+	/*! @brief Doing `[*this] * [rhsXYZ, rhsW]^T`, storing XYZ in `out_result`.
+	*/
 	void mul(const TVector3<T>& rhsXYZ, T rhsW, TVector3<T>* out_result) const;
+
+	/*! @brief Doing `[*this] * [rhsXYZ, 0]^T`, storing XYZ in `out_result`.
+	*/
+	void mul(const TVector3<T>& rhsXYZ, TVector3<T>* out_result) const;
+
+	/*! @brief Doing `[*this]^T * [rhsXYZ, rhsW]^T`, storing XYZ in `out_result`.
+	*/
+	void transposeMul(const TVector3<T>& rhsXYZ, T rhsW, TVector3<T>* out_result) const;
+
+	/*! @brief Doing `[*this]^T * [rhsXYZ, 0]^T`, storing XYZ in `out_result`.
+	*/
+	void transposeMul(const TVector3<T>& rhsXYZ, TVector3<T>* out_result) const;
+	
 	TMatrix4& mulLocal(T rhs);
 
 	TMatrix4& inverse(TMatrix4* out_result) const;
