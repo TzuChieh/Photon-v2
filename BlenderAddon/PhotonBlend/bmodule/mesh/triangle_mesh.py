@@ -36,29 +36,33 @@ def loop_triangles_to_sdl_triangle_mesh(
         loop_triangles,
         b_mesh_vertices,
         b_mesh_uv_loops,
-        has_custom_normals=False):
-
+        has_custom_normals=False,
+        b_mesh_corner_normals=None):
+    """
+    Extract normals in this order: Blender 4.1+ corner normals, legacy custom split normals,
+    then legacy smooth vertex normals or flat triangle normals.
+    """
     positions = []
     tex_coords = []
     normals = []
+    use_corner_normals = b_mesh_corner_normals is not None
     for b_loop_triangle in loop_triangles:
         """
         `vertices` and `loops` can be different since loops are primarily for shading--UVs/colors across an 
         edge might be different (or hard edges), while vertices generally do not.
         """
-        for vertex_index in b_loop_triangle.vertices:
+        for i, (vertex_index, loop_index) in enumerate(zip(b_loop_triangle.vertices, b_loop_triangle.loops)):
             b_mesh_vertex = b_mesh_vertices[vertex_index]
             positions.append(b_mesh_vertex.co)
-            if not has_custom_normals:
-                b_normal = b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal
-                normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
 
-        if has_custom_normals:
-            for i in range(3):
+            if use_corner_normals:
+                b_normal = b_mesh_corner_normals[loop_index].vector
+            elif has_custom_normals:
                 b_normal = b_loop_triangle.split_normals[i]
-                normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
+            else:
+                b_normal = b_mesh_vertex.normal if b_loop_triangle.use_smooth else b_loop_triangle.normal
+            normals.append(Vector((b_normal[0], b_normal[1], b_normal[2])))
 
-        for loop_index in b_loop_triangle.loops:
             b_uv = b_mesh_uv_loops[loop_index].uv if b_mesh_uv_loops is not None else (0.0, 0.0)
             tex_coords.append(Vector((b_uv[0], b_uv[1], 0.0)))
 

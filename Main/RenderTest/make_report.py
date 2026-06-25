@@ -6,6 +6,7 @@ import psutil
 
 import json
 import datetime
+import os
 import platform
 import importlib.resources
 from pathlib import Path
@@ -368,7 +369,8 @@ def write(mode):
 
     # Find all test case run results
     case_infos = []
-    for dirpath, dirnames, filenames in output_dir.walk():
+    for dirpath, dirnames, filenames in os.walk(output_dir):
+        dirpath = Path(dirpath)
         for filename in filenames:
             if not filename.endswith('.json'):
                 continue
