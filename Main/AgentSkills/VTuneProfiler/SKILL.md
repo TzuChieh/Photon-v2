@@ -15,10 +15,10 @@ Do not build Photon-v2 unless explicitly asked. If needed, use the project build
 python .\scripts\dev_setup_and_build.py --target PhotonCLI
 ```
 
-For profiling builds, disable assertions unless the task specifically investigates debug checks:
+For profiling builds, disable assertions and Photon timer stats unless the task specifically investigates debug checks or stats overhead:
 
 ```powershell
-python .\scripts\dev_setup_and_build.py -DPH_DEBUG=OFF --target PhotonCLI
+python .\scripts\dev_setup_and_build.py -DPH_DEBUG=OFF -DPH_STATS=OFF --target PhotonCLI
 ```
 
 ## Inputs
