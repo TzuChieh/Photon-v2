@@ -18,7 +18,7 @@ python .\scripts\dev_setup_and_build.py --target PhotonCLI
 For profiling builds, disable assertions unless the task specifically investigates debug checks:
 
 ```powershell
-python .\scripts\dev_setup_and_build.py -DPH_ENABLE_DEBUG=OFF --target PhotonCLI
+python .\scripts\dev_setup_and_build.py -DPH_DEBUG=OFF --target PhotonCLI
 ```
 
 ## Inputs

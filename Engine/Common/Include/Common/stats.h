@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Common/config.h"
 #include "Common/primitive_type.h"
 
 #include <chrono>
@@ -124,6 +125,8 @@ private:
 
 }// end namespace ph
 
+#if PH_STATS
+
 #define PH_DEFINE_INLINE_TIMER_STAT(statName, statPath)\
 	inline ::ph::detail::stats::TimeCounter& internal_impl_time_counter_access_##statName()\
 	{\
@@ -146,3 +149,13 @@ private:
 
 #define PH_FLUSH_TIMER_STATS()\
 	::ph::TimerStatsReport::flushTimerStats()
+
+#else
+
+#define PH_DEFINE_INLINE_TIMER_STAT(statName, statPath)
+#define PH_DEFINE_INTERNAL_TIMER_STAT(statName, statPath)
+#define PH_DEFINE_EXTERNAL_TIMER_STAT(statName, statPath)
+#define PH_SCOPED_TIMER(statName)
+#define PH_FLUSH_TIMER_STATS()
+
+#endif

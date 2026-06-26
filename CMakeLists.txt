@@ -147,15 +147,27 @@ message(STATUS
 set(USE_FAST_MATH_DEFAULT OFF)
 set(USE_SIMD_DEFAULT ON)
 
-option(PH_ENABLE_DEBUG
+option(PH_DEBUG
     "Enable debug functionalities."
     ON)
 
-option(PH_ENABLE_PROFILING
+option(PH_PROFILING
     "Enable profiling functionalities."
     OFF)
 
-option(PH_DOUBLE_PRECISION_REAL
+option(PH_STATS
+    "Enable built-in statistics collection."
+    ON)
+
+option(PH_HIT_EVENT_STATS
+    "Enable hit event statistics collection."
+    OFF)
+
+option(PH_VOLUME_TRACKER_STATS
+    "Enable volume tracker statistics collection."
+    OFF)
+
+option(PH_USE_DOUBLE_PRECISION_REAL
     "Use double precision type for real numbers."
     OFF)
 
@@ -446,7 +458,7 @@ load_library_via_config(${JSON_LIB_NAME}
 # tracy
 #------------------------------------------------------------------------------
 set(TRACY_LIB_NAME "Tracy")
-if(PH_ENABLE_PROFILING)
+if(PH_PROFILING)
     load_library_via_config(${TRACY_LIB_NAME} OPTIONAL
         TARGETS      "TracyClient"
         CONFIG_DIR   "${LIBS_INSTALL_DIR}/tracy/share/${TRACY_LIB_NAME}/"

@@ -150,7 +150,7 @@ private:
 
 	const SurfaceHit& m_X;
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 public:
 	static void reportStats();
 
@@ -219,7 +219,7 @@ inline Ray SurfaceHitRefinery::escape(const math::Vector3R& dir) const
 
 inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const real delta) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent();
 #endif
 
@@ -233,7 +233,7 @@ inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const r
 
 inline Ray SurfaceHitRefinery::escapeEmpirically(const math::Vector3R& dir) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent();
 #endif
 
@@ -247,7 +247,7 @@ inline Ray SurfaceHitRefinery::escapeIteratively(
 	const math::Vector3R& dir,
 	const std::size_t numIters) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent();
 #endif
 
@@ -282,7 +282,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscape(const SurfaceHit& X2) co
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit& X2, const real delta) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent(2);
 #endif
 
@@ -310,7 +310,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const SurfaceHit& X2) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent(2);
 #endif
 
@@ -338,7 +338,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 	const SurfaceHit& X2,
 	const std::size_t numIters) const
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markEvent(2);
 #endif
 
@@ -417,7 +417,7 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 	const auto dist = maxErrorOffsetDist(X);
 	const auto offsetVec = N.dot(dir) > 0.0_r ? N * dist : N * -dist;
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	if(canVerifyOffset(X, dir) && !verifyOffset(X, dir, X.getPos(), offsetVec))
 	{
 		s_stats.markFailedEmpiricalEscape();
@@ -429,7 +429,7 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 
 inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe)
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.markReintersect();
 #endif
 

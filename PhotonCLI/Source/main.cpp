@@ -94,7 +94,9 @@ int main(int argc, char* argv[])
 		ProcessedArguments::printHelpMessage();
 	}
 
+#if PH_STATS
 	std::cout << ph::TimerStatsReport().detailedReport() << '\n';
+#endif
 
 	// End engine operations
 
