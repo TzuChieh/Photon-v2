@@ -11,3 +11,5 @@
 ## Math Functions
 - `TTabulatedMathFunction2D` is a nearest-cell lookup table over a 2D domain, stores sampled values as `float32`, and intentionally does not interpolate or normalize; callers are responsible for preserving kernel scale when needed.
 - Sample filters tabulate non-box kernels through `SampleFilter::make(..., useTabulated)` with `use-tabulated-sample-filter` defaulting to true; keep the box filter direct because its exact math is already cheaper than table lookup.
+- Keep vector normalization routed through shared length helpers; when profiling shows fixed-extent loops compile poorly, specialize the helper with direct expressions instead of duplicating math at callsites.
+- Keep straightforward finite checks unless assembly and renderer timing justify a less obvious rewrite.

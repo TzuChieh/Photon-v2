@@ -1,6 +1,6 @@
 ---
 name: vtune-profiler
-description: Guide for profiling Photon-v2 native executables with Intel VTune. Use when Hotspots/call-stack reports, vtune.exe setup, symbol diagnosis, or assembly checks are needed. Do not use for ordinary tests or binary refreshes.
+description: Profile Photon-v2 native executables with Intel VTune and triage renderer optimization patches. Use when Codex needs hotspot or call-stack reports, vtune.exe setup, symbol diagnosis, assembly/codegen checks, or evidence-based speedup review. Do not use for ordinary builds, tests, or binary refreshes.
 ---
 
 # VTune Profiler
@@ -68,6 +68,8 @@ Start with the Hotspots report, then inspect call paths in VTune GUI or with `vt
 Use the renderer's internal timing report as supporting context when available. It can help connect VTune hotspots to renderer phases, but VTune profiles remain the primary evidence for CPU optimization.
 
 For low-level hotspot changes, confirm codegen with assembly before trusting timings alone. See `references/assembly-investigation.md`.
+
+For optimization patch triage and attempt ledgers, see `references/optimization-triage.md`.
 
 ## Symbols
 

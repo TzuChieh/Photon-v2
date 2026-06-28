@@ -1,5 +1,9 @@
 # Common Guide
 
+## Config Macros
+- For build-facing boolean config, use the same final `PH_*` name as the CMake option and C++ define; avoid parallel aliases or helper lists for simple pass-through definitions.
+- Keep low-cost stats enabled by default, high-cost stats opt-in, debug logging tied to `PH_DEBUG`, and hardware capability detection (`PH_HARDWARE_HAS_*`) separate from derived feature-use checks (`PH_USE_*`).
+
 ## String Utilities
 - `string_utils::next_token()` trims returned tokens. Whitespace tokenization skips leading separators; explicit non-whitespace separators preserve empty middle fields and ignore trailing empty fields.
 - `CommandLineArguments::retrieveCommaSeparatedStrings()` follows `next_token()` field semantics: empty input yields no entries, `a,,c` keeps the empty middle slot, and trailing comma/whitespace-only fields are ignored.
