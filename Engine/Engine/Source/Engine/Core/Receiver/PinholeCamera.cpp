@@ -1,5 +1,6 @@
 #include "Engine/Core/Receiver/PinholeCamera.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Math/math.h"
 #include "Engine/Math/Random/Random.h"
 #include "Engine/Core/Transform/RigidTransform.h"
@@ -33,7 +34,8 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 
 	out_ray->setDir(genReceiveRayDir(rasterCoord));
 	out_ray->setOrigin(pinholePos);
-	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
+	// No physical sensor primitive to self-intersect; keep a nonzero min T just for consistency.
+	out_ray->setMinT(lta::SurfaceHitRefinery::selfIntersectDelta());
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 
 	// HACK
