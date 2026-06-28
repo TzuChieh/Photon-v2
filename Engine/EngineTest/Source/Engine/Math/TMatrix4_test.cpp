@@ -1,4 +1,5 @@
 #include <Engine/Math/TMatrix4.h>
+#include <Engine/Math/TVector3.h>
 
 #include <gtest/gtest.h>
 
@@ -102,6 +103,59 @@ TEST(TMatrix4Test, Multiplying)
 	EXPECT_EQ(mat3.m[3][1], 58.0f);
 	EXPECT_EQ(mat3.m[3][2], 58.0f);
 	EXPECT_EQ(mat3.m[3][3], 58.0f);
+}
+
+TEST(TMatrix4Test, MultipliesVector)
+{
+	const Matrix mat(Matrix::Elements{{
+		{1.0f, 2.0f, 3.0f, 4.0f},
+		{5.0f, 6.0f, 7.0f, 8.0f},
+		{9.0f, 10.0f, 11.0f, 12.0f},
+		{13.0f, 14.0f, 15.0f, 16.0f}
+	}});
+	const TVector3<float> vec(2.0f, 3.0f, 5.0f);
+
+	{
+		TVector3<float> expectedWithoutW;
+		mat.mul(vec, 0.0f, &expectedWithoutW);
+
+		TVector3<float> resultWithoutW;
+		mat.mul(vec, &resultWithoutW);
+
+		EXPECT_EQ(resultWithoutW, expectedWithoutW);
+	}
+}
+
+TEST(TMatrix4Test, TransposeMultipliesVector)
+{
+	const Matrix mat(Matrix::Elements{{
+		{1.0f, 2.0f, 3.0f, 4.0f},
+		{5.0f, 6.0f, 7.0f, 8.0f},
+		{9.0f, 10.0f, 11.0f, 12.0f},
+		{13.0f, 14.0f, 15.0f, 16.0f}
+	}});
+	const TVector3<float> vec(2.0f, 3.0f, 5.0f);
+	const float w = 7.0f;
+
+	{
+		TVector3<float> expected;
+		mat.transpose().mul(vec, w, &expected);
+
+		TVector3<float> result;
+		mat.transposeMul(vec, w, &result);
+
+		EXPECT_EQ(result, expected);
+	}
+
+	{
+		TVector3<float> expectedWithoutW;
+		mat.transpose().mul(vec, 0.0f, &expectedWithoutW);
+
+		TVector3<float> resultWithoutW;
+		mat.transposeMul(vec, &resultWithoutW);
+
+		EXPECT_EQ(resultWithoutW, expectedWithoutW);
+	}
 }
 
 TEST(TMatrix4Test, CalcDeterminant)

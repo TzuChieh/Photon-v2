@@ -3,6 +3,7 @@
 #include "Engine/Utility/TArrayStack.h"
 
 #include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <utility>
 
@@ -10,8 +11,17 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-inline TArrayStack<T, N>::TArrayStack() :
-	m_data{}, m_currentIndex(-1)
+inline TArrayStack<T, N>::TArrayStack()
+	:
+
+#if PH_DEBUG
+	// Request value-initialization for debug
+	m_data{},
+#else
+	// No need to initialize `m_data` in optimized builds
+#endif
+
+	m_currentIndex(-1)
 {}
 
 template<typename T, std::size_t N>

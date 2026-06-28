@@ -46,7 +46,11 @@ math::Spectrum SchlickApproxDielectricFresnel::calcReflectance(const real cosThe
 	}
 
 
-	return math::Spectrum(m_f0 + (1.0_r - m_f0) * static_cast<real>(std::pow(1.0_r - cosTheta, 5)));
+	const real oneMinusCosTheta  = 1.0_r - cosTheta;
+	const real oneMinusCosTheta2 = oneMinusCosTheta * oneMinusCosTheta;
+	const real oneMinusCosTheta5 = oneMinusCosTheta2 * oneMinusCosTheta2 * oneMinusCosTheta;
+
+	return math::Spectrum(m_f0 + (1.0_r - m_f0) * oneMinusCosTheta5);
 }
 
 }// end namespace ph

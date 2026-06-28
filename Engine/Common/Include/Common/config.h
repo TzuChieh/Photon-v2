@@ -43,16 +43,36 @@ certain microarchitectures, see https://stackoverflow.com/questions/41303780/why
 /*! @brief Enable debug functionalities.
 Assertions will be enabled on debug mode.
 */
-#ifdef PH_CONFIG_ENABLE_DEBUG
-#define PH_DEBUG 1
-#else
+#ifndef PH_DEBUG
 #define PH_DEBUG 0
 #endif
 
-#ifdef PH_CONFIG_ENABLE_PROFILING
-#define PH_PROFILING 1
-#else
+/*! @brief Enable debug log level.
+*/
+#define PH_ENABLE_DEBUG_LOG PH_DEBUG
+
+/*! @brief Enable profiling functionalities.
+*/
+#ifndef PH_PROFILING
 #define PH_PROFILING 0
+#endif
+
+/*! @brief Enable built-in statistics collection.
+*/
+#ifndef PH_STATS
+#define PH_STATS 1
+#endif
+
+/*! @brief Enable high-cost hit event statistics collection.
+*/
+#ifndef PH_HIT_EVENT_STATS
+#define PH_HIT_EVENT_STATS 0
+#endif
+
+/*! @brief Enable high-cost volume tracker statistics collection.
+*/
+#ifndef PH_VOLUME_TRACKER_STATS
+#define PH_VOLUME_TRACKER_STATS 0
 #endif
 
 /*! @brief Abort the engine on assertion fail.
@@ -72,15 +92,9 @@ Assertions will be enabled on debug mode.
 
 /*! @brief Use double precision real numbers.
 */
-#ifdef PH_CONFIG_DOUBLE_PRECISION_REAL
-#define PH_USE_DOUBLE_REAL 1
-#else
-#define PH_USE_DOUBLE_REAL 0
+#ifndef PH_USE_DOUBLE_PRECISION_REAL
+#define PH_USE_DOUBLE_PRECISION_REAL 0
 #endif
-
-/*! @brief Enable debug log level.
-*/
-#define PH_ENABLE_DEBUG_LOG PH_DEBUG
 
 #define PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS 1
 
@@ -90,10 +104,6 @@ Default value is 512 KiB.
 #define PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES (static_cast<std::size_t>(512) * 1024)
 
 #define PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES (static_cast<std::size_t>(64))
-
-/*! @brief Enable statistics recording for hit events.
-*/
-#define PH_ENABLE_HIT_EVENT_STATS 0
 
 /*! @brief Being strict about object lifetime.
 Some compiler versions and different standards may be using an object lifetime model that can be
@@ -147,69 +157,58 @@ Note that a byte is not necessarily 8-bit.
 #define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
 
 #define PH_VOLUME_TRACKER_MAX_SIZE 32
-#define PH_VOLUME_TRACKER_COLLECT_STATS 1
 
 ///////////////////////////////////////////////////////////////////////////////
 // Hardware Dependent Instruction Sets                                       //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef PH_CONFIG_USE_SIMD
-#define PH_USE_SIMD 1
-#else
+/*! @brief Enable SIMD code paths.
+*/
+#ifndef PH_USE_SIMD
 #define PH_USE_SIMD 0
 #endif
 
-#if PH_USE_SIMD
-
-#ifdef PH_CONFIG_HARDWARE_HAS_SSE
-#define PH_USE_SSE 1
-#else
-#define PH_USE_SSE 0
+#ifndef PH_HARDWARE_HAS_SSE
+#define PH_HARDWARE_HAS_SSE 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_SSE2
-#define PH_USE_SSE2 1
-#else
-#define PH_USE_SSE2 0
+#ifndef PH_HARDWARE_HAS_SSE2
+#define PH_HARDWARE_HAS_SSE2 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_SSE3
-#define PH_USE_SSE3 1
-#else
-#define PH_USE_SSE3 0
+#ifndef PH_HARDWARE_HAS_SSE3
+#define PH_HARDWARE_HAS_SSE3 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_SSSE3
-#define PH_USE_SSSE3 1
-#else
-#define PH_USE_SSSE3 0
+#ifndef PH_HARDWARE_HAS_SSSE3
+#define PH_HARDWARE_HAS_SSSE3 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_SSE4_1
-#define PH_USE_SSE4_1 1
-#else
-#define PH_USE_SSE4_1 0
+#ifndef PH_HARDWARE_HAS_SSE4_1
+#define PH_HARDWARE_HAS_SSE4_1 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_SSE4_2
-#define PH_USE_SSE4_2 1
-#else
-#define PH_USE_SSE4_2 0
+#ifndef PH_HARDWARE_HAS_SSE4_2
+#define PH_HARDWARE_HAS_SSE4_2 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_AVX
-#define PH_USE_AVX 1
-#else
-#define PH_USE_AVX 0
+#ifndef PH_HARDWARE_HAS_AVX
+#define PH_HARDWARE_HAS_AVX 0
 #endif
 
-#ifdef PH_CONFIG_HARDWARE_HAS_AVX2
-#define PH_USE_AVX2 1
-#else
-#define PH_USE_AVX2 0
+#ifndef PH_HARDWARE_HAS_AVX2
+#define PH_HARDWARE_HAS_AVX2 0
 #endif
 
-#endif
+#define PH_USE_SSE    (PH_USE_SIMD && PH_HARDWARE_HAS_SSE)
+#define PH_USE_SSE2   (PH_USE_SIMD && PH_HARDWARE_HAS_SSE2)
+#define PH_USE_SSE3   (PH_USE_SIMD && PH_HARDWARE_HAS_SSE3)
+#define PH_USE_SSSE3  (PH_USE_SIMD && PH_HARDWARE_HAS_SSSE3)
+#define PH_USE_SSE4_1 (PH_USE_SIMD && PH_HARDWARE_HAS_SSE4_1)
+#define PH_USE_SSE4_2 (PH_USE_SIMD && PH_HARDWARE_HAS_SSE4_2)
+#define PH_USE_AVX    (PH_USE_SIMD && PH_HARDWARE_HAS_AVX)
+#define PH_USE_AVX2   (PH_USE_SIMD && PH_HARDWARE_HAS_AVX2)
+
 // end `PH_USE_SIMD`
 
 ///////////////////////////////////////////////////////////////////////////////

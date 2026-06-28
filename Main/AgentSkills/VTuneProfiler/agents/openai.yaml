@@ -1,0 +1,4 @@
+interface:
+  display_name: "VTune Profiler"
+  short_description: "Profile and triage Photon-v2 native performance."
+  default_prompt: "Use $vtune-profiler to profile a Photon-v2 executable with Intel VTune and triage optimization evidence."

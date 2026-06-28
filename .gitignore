@@ -124,8 +124,6 @@ _deps
 # Photon Specific Files & Folders                                             #
 ###############################################################################
 
-Main/AgentSkills/*.skill
-/.agents/
 /build/
 /*.png
 /*.jpg
@@ -189,3 +187,12 @@ test_output/
 
 # avoiding Eclipse generated src folder in root directory (Maven project)
 /src/
+
+###############################################################################
+# Agent Skills & Local Agent State                                             #
+###############################################################################
+
+Main/AgentSkills/*.skill
+Main/AgentSkills/VTuneProfiler/local.settings.json
+Main/AgentSkills/VTuneProfiler/Generated/
+/.agents/

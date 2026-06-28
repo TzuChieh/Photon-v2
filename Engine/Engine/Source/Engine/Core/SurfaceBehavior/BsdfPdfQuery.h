@@ -9,6 +9,7 @@
 #include <Common/assertion.h>
 
 #include <string>
+#include <utility>
 
 namespace ph
 {
@@ -18,6 +19,18 @@ namespace ph
 class BsdfPdfInput final
 {
 public:
+	BsdfPdfInput();
+
+	BsdfPdfInput(
+		const SurfaceHit& X,
+		const math::Vector3R& L,
+		const math::Vector3R& V);
+
+	BsdfPdfInput(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
+
+	explicit BsdfPdfInput(const BsdfEvalInput& evalInput);
+	explicit BsdfPdfInput(const BsdfSampleQuery& sample);
+
 	void set(const BsdfEvalInput& evalInput);
 	void set(const BsdfSampleQuery& sample);
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
@@ -75,8 +88,22 @@ public:
 	Input            inputs;
 	Output           outputs;
 
-	inline BsdfPdfQuery() = default;
+	BsdfPdfQuery();
 	explicit BsdfPdfQuery(BsdfQueryContext context);
+
+	BsdfPdfQuery(
+		BsdfQueryContext context,
+		const SurfaceHit& X,
+		const math::Vector3R& L,
+		const math::Vector3R& V);
+
+	BsdfPdfQuery(
+		BsdfQueryContext context,
+		const BsdfSampleInput& sampleInput,
+		const BsdfSampleOutput& sampleOutput);
+
+	BsdfPdfQuery(BsdfQueryContext context, const BsdfEvalInput& evalInput);
+	BsdfPdfQuery(BsdfQueryContext context, const BsdfSampleQuery& sample);
 };
 
 // In-header Implementations:
@@ -86,7 +113,7 @@ inline BsdfPdfQuery::BsdfPdfQuery(BsdfQueryContext context)
 {
 	this->context = std::move(context);
 
-	// (rest of the fields are initialized via setters)
+	// (rest of the fields are initialized via setters and ctors)
 }
 
 inline void BsdfPdfInput::set(
@@ -153,3 +180,5 @@ inline BsdfPdfOutput::operator bool () const
 }
 
 }// end namespace ph
+
+#include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.ipp"

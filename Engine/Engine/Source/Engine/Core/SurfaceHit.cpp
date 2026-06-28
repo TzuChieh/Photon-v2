@@ -36,35 +36,6 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 	}
 }
 
-const PrimitiveMetadata& SurfaceHit::getMetadata() const
-{
-	PH_ASSERT_MSG(m_metadata,
-		"Does not make sense to call the method if `SurfaceHit` hits nothing. "
-		"You may miss a call to check for valid hit.");
-
-	return *m_metadata;
-}
-
-const SurfaceEmitter& SurfaceHit::getSurfaceEmitter() const
-{
-	return getMetadata().getSurface().getEmitter();
-}
-
-const SurfaceOptics& SurfaceHit::getSurfaceOptics() const
-{
-	return getMetadata().getSurface().getOptics();
-}
-
-const VolumeOptics* SurfaceHit::getInteriorOptics() const
-{
-	return getMetadata().getInterior().getOptics();
-}
-
-const VolumeOptics* SurfaceHit::getExteriorOptics() const
-{
-	return getMetadata().getExterior().getOptics();
-}
-
 const PrimitiveMetadata& SurfaceHit::getPrimitiveMetadataRef(const HitDetail& detail)
 {
 	const Primitive& primitive = getPrimitiveRef(detail);

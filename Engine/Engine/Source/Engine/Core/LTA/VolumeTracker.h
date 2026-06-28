@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <limits>
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 #include <atomic>
 #include <string>
 #include <format>
@@ -51,7 +51,7 @@ private:
 	List m_interiorList;
 	PriorityIndex m_maxPriorityIdx = 0;
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 private:
 	static inline std::atomic_uint64_t recordCount;
 	static inline std::atomic_uint64_t inconsistentRecordCount;
@@ -111,7 +111,7 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 		return;
 	}
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 	recordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
 
@@ -121,7 +121,7 @@ inline void VolumeTracker::enterSurface(const SurfaceHit& X)
 	const auto prevRecord = findRecord(X);
 	if(prevRecord != m_interiorList.end())
 	{
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 		inconsistentRecordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
 		exitSurface(X);
@@ -155,7 +155,7 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 		return;
 	}
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 	recordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
 
@@ -171,7 +171,7 @@ inline void VolumeTracker::exitSurface(const SurfaceHit& X)
 	// primitive ID collision, etc. E.g., missed due to ray offset to avoid self-intersection.
 	else
 	{
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 		inconsistentRecordCount.fetch_add(1, std::memory_order_relaxed);
 #endif
 		return;
@@ -201,7 +201,7 @@ inline auto VolumeTracker::findRecordWithMaxPriority() const -> List::ConstItera
 		});
 }
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 
 inline void VolumeTracker::initStats()
 {

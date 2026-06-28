@@ -79,12 +79,32 @@ inline T length_squared(const std::vector<T>& vec)
 template<typename T, std::size_t EXTENT>
 inline T length_squared(TSpanView<T, EXTENT> vec)
 {
-	T result(0);
-	for(const T val : vec)
+	// MSVC emitting slightly inefficent loops for ranged-for, specializing for extent 1 ~ 4
+	if constexpr(EXTENT == 1)
 	{
-		result += val * val;
+		return vec[0] * vec[0];
 	}
-	return result;
+	else if constexpr(EXTENT == 2)
+	{
+		return vec[0] * vec[0] + vec[1] * vec[1];
+	}
+	else if constexpr(EXTENT == 3)
+	{
+		return vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+	}
+	else if constexpr(EXTENT == 4)
+	{
+		return vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2] + vec[3] * vec[3];
+	}
+	else
+	{
+		T result(0);
+		for(const T val : vec)
+		{
+			result += val * val;
+		}
+		return result;
+	}
 }
 
 template<typename T, std::size_t N>

@@ -56,7 +56,7 @@ void merge_films(const film_merger::ProcessedArguments& args)
 	PH_DEFAULT_LOG(Note,
 		"Merging {} films, final resolution = {}.", inputFilms.size(), mergedResPx);
 
-	HdrRgbFilm mergedFilm(mergedResPx.x(), mergedResPx.y(), SampleFilter::makeBlackmanHarris());
+	HdrRgbFilm mergedFilm(mergedResPx.x(), mergedResPx.y(), SampleFilter::makeBlackmanHarris(false));
 	for(std::size_t fi = 0; fi < inputFilms.size(); ++fi)
 	{
 		mergedFilm.mergeWith(inputFilms[fi]);

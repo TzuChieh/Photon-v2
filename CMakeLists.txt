@@ -126,6 +126,9 @@ option(PH_BUILD_PYTHON_BINDINGS
 option(PH_USE_MULTITHREADED_COMPILATION
     "Use multi-threaded compilation where supported."
     ON)
+option(PH_EMIT_ASSEMBLY
+    "Emit compiler assembly listings for translation units when available. This is for codegen inspection and can slow compilation."
+    OFF)
 
 set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
@@ -144,15 +147,27 @@ message(STATUS
 set(USE_FAST_MATH_DEFAULT OFF)
 set(USE_SIMD_DEFAULT ON)
 
-option(PH_ENABLE_DEBUG
+option(PH_DEBUG
     "Enable debug functionalities."
     ON)
 
-option(PH_ENABLE_PROFILING
+option(PH_PROFILING
     "Enable profiling functionalities."
     OFF)
 
-option(PH_DOUBLE_PRECISION_REAL
+option(PH_STATS
+    "Enable built-in statistics collection."
+    ON)
+
+option(PH_HIT_EVENT_STATS
+    "Enable hit event statistics collection."
+    OFF)
+
+option(PH_VOLUME_TRACKER_STATS
+    "Enable volume tracker statistics collection."
+    OFF)
+
+option(PH_USE_DOUBLE_PRECISION_REAL
     "Use double precision type for real numbers."
     OFF)
 
@@ -226,6 +241,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Disable security checks on Release as they have slight overhead (~0.01% on my machine) 
     add_compile_options($<$<CONFIG:Release>:/GS->)
 
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(/FAcs)
+    endif()
+
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
@@ -236,6 +255,10 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-ffast-math)
     endif()
 
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(-save-temps=obj -fverbose-asm)
+    endif()
+
 # Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
@@ -244,6 +267,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
+    endif()
+
+    if(PH_EMIT_ASSEMBLY)
+        add_compile_options(-save-temps=obj -fverbose-asm)
     endif()
 
 else()
@@ -431,7 +458,7 @@ load_library_via_config(${JSON_LIB_NAME}
 # tracy
 #------------------------------------------------------------------------------
 set(TRACY_LIB_NAME "Tracy")
-if(PH_ENABLE_PROFILING)
+if(PH_PROFILING)
     load_library_via_config(${TRACY_LIB_NAME} OPTIONAL
         TARGETS      "TracyClient"
         CONFIG_DIR   "${LIBS_INSTALL_DIR}/tracy/share/${TRACY_LIB_NAME}/"

@@ -18,8 +18,8 @@ HitDetail::HitDetail()
 	, m_faceID                     (NO_FACE_ID)
 	, m_globalPrimitiveID          (0)
 	, m_faceTopology               (EFaceTopology::General)
-	, m_meanDistanceErrorFactorExp2(-64)// ~= 5.42*10^-20, small enough to fail fast
-	, m_maxDistanceErrorFactorExp2 (-64)//
+	, m_meanDistanceErrorFactor    (0x1p-64f)// ~= 5.42*10^-20, small enough to fail fast
+	, m_maxDistanceErrorFactor     (0x1p-64f)
 {}
 
 HitDetail& HitDetail::setHitIntrinsics(

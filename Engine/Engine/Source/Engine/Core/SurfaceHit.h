@@ -4,6 +4,7 @@
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Math/math.h"
 #include "Engine/Utility/TBitFlags.h"
 
@@ -281,6 +282,35 @@ inline const Primitive& SurfaceHit::getPrimitiveRef(const HitDetail& detail)
 		"You may miss a call to check for valid hit.");
 
 	return *detail.getPrimitive();
+}
+
+inline const PrimitiveMetadata& SurfaceHit::getMetadata() const
+{
+	PH_ASSERT_MSG(m_metadata,
+		"Does not make sense to call the method if `SurfaceHit` hits nothing. "
+		"You may miss a call to check for valid hit.");
+
+	return *m_metadata;
+}
+
+inline const SurfaceEmitter& SurfaceHit::getSurfaceEmitter() const
+{
+	return getMetadata().getSurface().getEmitter();
+}
+
+inline const SurfaceOptics& SurfaceHit::getSurfaceOptics() const
+{
+	return getMetadata().getSurface().getOptics();
+}
+
+inline const VolumeOptics* SurfaceHit::getInteriorOptics() const
+{
+	return getMetadata().getInterior().getOptics();
+}
+
+inline const VolumeOptics* SurfaceHit::getExteriorOptics() const
+{
+	return getMetadata().getExterior().getOptics();
 }
 
 }// end namespace ph

@@ -19,7 +19,7 @@ bool init_engine_core(const EngineInitSettings& settings)
 	math::DeterministicSeeder::init(settings);
 	lta::SurfaceHitRefinery::init(settings);
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 	lta::VolumeTracker::initStats();
 #endif
 
@@ -43,11 +43,11 @@ void after_engine_init(const EngineInitSettings& settings)
 
 void before_engine_exit()
 {
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	lta::SurfaceHitRefinery::reportStats();
 #endif
 
-#if PH_VOLUME_TRACKER_COLLECT_STATS
+#if PH_VOLUME_TRACKER_STATS
 	PH_DEFAULT_LOG_STRING(Note, lta::VolumeTracker::reportStats());
 #endif
 }

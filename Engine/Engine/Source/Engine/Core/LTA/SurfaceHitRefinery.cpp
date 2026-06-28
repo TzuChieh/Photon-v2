@@ -10,7 +10,7 @@ ESurfaceRefineMode SurfaceHitRefinery::s_refineMode;
 real SurfaceHitRefinery::s_selfIntersectDelta;
 std::size_t SurfaceHitRefinery::s_numIterations;
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 SurfaceHitRefinery::HitEventStats SurfaceHitRefinery::s_stats;
 
 void SurfaceHitRefinery::reportStats()
@@ -46,7 +46,7 @@ void SurfaceHitRefinery::init(const EngineInitSettings& settings)
 	s_selfIntersectDelta = settings.selfIntersectDelta;
 	s_numIterations = settings.numIterativeSurfaceRefinements;
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	s_stats.numEvents = 0;
 	s_stats.numFailedEmpiricalEscapes = 0;
 	s_stats.numFailedInitialEscapes = 0;
@@ -104,7 +104,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 	}
 	PH_ASSERT_MSG(std::isfinite(maxDist), std::to_string(maxDist));
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	if(maxDist > initialOffsetDist)
 	{
 		s_stats.markFailedInitialEscape();
@@ -138,7 +138,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 
 	const auto offsetVec = offsetDir * maxDist;
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	if(!verifyOffset(X, dir, X.getPos(), offsetVec))
 	{
 		s_stats.markFailedIterativeEscape();
@@ -205,7 +205,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	}
 	PH_ASSERT_MSG(std::isfinite(maxDist), std::to_string(maxDist));
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	if(maxDist > initialOffsetDist)
 	{
 		s_stats.markFailedInitialEscape();
@@ -244,7 +244,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 
 	const auto rayLength = std::max(distanceToX2 - maxDist, 0.0_r);
 
-#if PH_ENABLE_HIT_EVENT_STATS
+#if PH_HIT_EVENT_STATS
 	if(!verifyOffset(X, dir, X.getPos(), resultX.offset, rayLength))
 	{
 		s_stats.markFailedIterativeEscape();

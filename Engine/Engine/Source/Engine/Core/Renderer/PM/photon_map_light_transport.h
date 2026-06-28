@@ -132,10 +132,7 @@ public:
 		if(viewPathLength + 1 < minPathLengthWithPhotonMap && 
 		   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
 		{
-			BsdfSampleQuery bsdfSample;
-			bsdfSample.context = bsdfContext;
-			bsdfSample.inputs.set(X, -X.getIncidentRay().getDir());
-
+			BsdfSampleQuery bsdfSample{bsdfContext, X, -X.getIncidentRay().getDir()};
 			math::Spectrum viewRadiance;
 			SampleFlow randomFlow;// can be exposed for better quality
 			if(directLight.bsdfSampleSurfacePathWithNee(

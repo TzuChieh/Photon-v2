@@ -1,5 +1,6 @@
 #include "Engine/Core/Receiver/ThinLensCamera.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/Math/Random/Random.h"
 #include "Engine/Math/Geometry/TDisk.h"
@@ -62,7 +63,8 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 	PH_ASSERT(out_ray);
 	out_ray->setDir(worldSensedRayDir);
 	out_ray->setOrigin(worldLensPos);
-	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
+	// No physical sensor primitive to self-intersect; keep a nonzero min T just for consistency.
+	out_ray->setMinT(lta::SurfaceHitRefinery::selfIntersectDelta());
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 
 	return math::Spectrum(1);

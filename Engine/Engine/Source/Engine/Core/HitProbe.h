@@ -101,7 +101,6 @@ private:
 inline HitProbe::HitProbe()
 	: m_hitStack        ()
 	, m_hitRayT         (std::numeric_limits<real>::max())
-	, m_cache           ()
 	, m_cacheHead       (0)
 	, m_hitDetailChannel(0)
 {}
