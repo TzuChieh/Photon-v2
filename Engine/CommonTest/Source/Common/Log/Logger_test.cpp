@@ -1,5 +1,6 @@
 #include <Common/Log/Logger.h>
 #include <Common/Log/ELogLevel.h>
+#include <Common/logging.h>
 
 #include <gtest/gtest.h>
 
@@ -112,4 +113,23 @@ TEST(LoggerTest, MultipleLogHandlers)
 
 	EXPECT_EQ(callCountA, 1);
 	EXPECT_EQ(callCountB, 1);
+}
+
+TEST(LoggerTest, LogOnceFromSameCallSite)
+{
+	Logger logger;
+
+	int callCount = 0;
+	logger.addLogHandler(
+		[&callCount](const ELogLevel level, const std::string_view message)
+		{
+			callCount++;
+		});
+
+	for(int i = 0; i < 2; ++i)
+	{
+		PH_LOG_RAW_STRING_TO_LOGGER(logger, LogOnceTest, WarningOnce, "warning-once-message");
+	}
+
+	EXPECT_EQ(callCount, 1);
 }
