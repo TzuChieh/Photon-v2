@@ -31,14 +31,15 @@ public:
 
 	OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
 	{
-		HitDetail channeledDetail = X.getDetail();
-		if(m_sampledChannel != 0)
-		{
-			channeledDetail = X.switchChannel(m_sampledChannel).getDetail();
-		}
-
 		OutputType value;
-		texture.sample(SampleLocation(channeledDetail, m_sampleUsage), &value);
+		if(m_sampledChannel == 0)
+		{
+			texture.sample(SampleLocation(X.getDetail(), m_sampleUsage), &value);
+		}
+		else
+		{
+			texture.sample(SampleLocation(X.switchChannel(m_sampledChannel).getDetail(), m_sampleUsage), &value);
+		}
 		return value;
 	}
 

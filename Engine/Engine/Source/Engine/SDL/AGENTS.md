@@ -15,3 +15,4 @@
 ## Testing
 - Test low-level parser helpers by contract (no-op, trim success, corner cases).
 - Keep high-level array/field tests focused on integration behavior, not helper internals.
+- For tokenization and inline-clause regressions such as quoted PRI values, braced payloads, and specifier names, prefer `SdlInlinePacketInterface` or `sdl_parser` tests; use `SdlSceneFileReader` only when command, resource, import, or file-loading behavior is part of the contract.

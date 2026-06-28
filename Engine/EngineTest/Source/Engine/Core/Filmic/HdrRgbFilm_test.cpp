@@ -66,7 +66,7 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		const int64 filmHpx = 2;
 
 		HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
-		const auto& filter = SampleFilter::makeGaussian();
+		const auto& filter = SampleFilter::makeGaussian(false);
 		HdrRgbFilm film(filmWpx, filmHpx, filter);
 
 		const float64 testSamplePos1Xpx = film.getSampleWindowPx().getMinVertex().x() + 0.2;
@@ -110,8 +110,8 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 
 		HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
 
-		const auto unitHorizontalStep = THeavisideStep2D<float64>::makeHorizontal();
-		HdrRgbFilm film(filmWpx, filmHpx, SampleFilter::make(unitHorizontalStep, 1, 1));
+		const auto unitHorizontalStep = THeavisideStep2D<float32>::makeHorizontal();
+		HdrRgbFilm film(filmWpx, filmHpx, SampleFilter::make(unitHorizontalStep, 1, 1, false));
 
 		// X1 on the endpoint of the LHS of first pixel, Y doesn't matter as this is horizontal step
 		const float64 testSamplePos1XPx = 0.5 - 0.5;

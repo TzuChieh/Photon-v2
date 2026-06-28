@@ -27,6 +27,7 @@ public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	ESampleFilter getSampleFilter() const;
+	bool useTabulatedSampleFilter() const;
 	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;
 	std::vector<EFilm> getFilmTypes() const;
 
@@ -45,6 +46,7 @@ private:
 	int64                    m_cropWindowYPx;
 	int64                    m_cropWindowWPx;
 	int64                    m_cropWindowHPx;
+	bool                     m_useTabulatedSampleFilter;
 	std::vector<FilmSetting> m_filmSettings;
 
 public:
@@ -61,6 +63,15 @@ public:
 		sampleFilter.defaultTo(ESampleFilter::BlackmanHarris);
 		sampleFilter.optional();
 		clazz.addField(sampleFilter);
+
+		TSdlBool<OwnerType> useTabulatedSampleFilter(
+			"use-tabulated-sample-filter", &OwnerType::m_useTabulatedSampleFilter);
+		useTabulatedSampleFilter.description(
+			"Use a tabulated approximation for sample filters. Box filter does not support this "
+			"as it is already simple enough to have no performance benefit for it.");
+		useTabulatedSampleFilter.defaultTo(true);
+		useTabulatedSampleFilter.optional();
+		clazz.addField(useTabulatedSampleFilter);
 
 		TSdlInt64<OwnerType> cropWindowXPx("rect-x", &OwnerType::m_cropWindowXPx);
 		cropWindowXPx.description("X coordinate of the lower-left corner of the film cropping window.");
@@ -98,6 +109,11 @@ public:
 inline ESampleFilter FrameVisualizer::getSampleFilter() const
 {
 	return m_sampleFilter;
+}
+
+inline bool FrameVisualizer::useTabulatedSampleFilter() const
+{
+	return m_useTabulatedSampleFilter;
 }
 
 inline std::optional<math::TAABB2D<int64>> FrameVisualizer::getCropWindowPx() const

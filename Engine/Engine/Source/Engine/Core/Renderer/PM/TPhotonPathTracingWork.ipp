@@ -150,9 +150,8 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 			bsdfContext.key = BsdfKey::makeRandom();
 
-			BsdfSampleQuery bsdfSample(bsdfContext);
+			BsdfSampleQuery bsdfSample(bsdfContext, surfaceHit, tracingRay.getDir().mul(-1));
 			Ray sampledRay;
-			bsdfSample.inputs.set(surfaceHit, tracingRay.getDir().mul(-1));
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
 			{
 				break;

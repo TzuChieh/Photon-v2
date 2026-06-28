@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VTuneProfilerLocalSettings",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "vtune_exe": {
+      "type": "string",
+      "description": "Path to vtune.exe."
+    },
+    "default_result_dir": {
+      "type": "string",
+      "description": "VTune result directory."
+    },
+    "default_report_dir": {
+      "type": "string",
+      "description": "Report output directory."
+    },
+    "search_dirs": {
+      "type": "array",
+      "description": "VTune binary/source search directories.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

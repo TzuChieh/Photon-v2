@@ -57,8 +57,11 @@ public:
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
-	template<bool IS_ROBUST = true, typename TesterFunc>
+	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	template<typename TesterFunc, bool IS_ROBUST = true>
+	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
@@ -78,13 +81,21 @@ private:
 		std::array<std::size_t, N> splitAxes = make_array<std::size_t, N>(constant::X_AXIS);
 	};
 
-	template<bool IS_ROBUST, typename TesterFunc>
-	bool nearestTraversalGeneral(
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY = false, bool IS_ROBUST = true>
+	bool generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+	bool generalTraversalUnordered(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
-	template<bool IS_ROBUST, EBvhSplitAxisOrder ORDER, typename TesterFunc>
-	bool nearestTraversalOrdered(
+	template<typename TesterFunc, EBvhSplitAxisOrder ORDER, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+	bool generalTraversalOrdered(
+		const TLineSegment<real>& segment,
+		TesterFunc&& intersectionTester) const;
+
+	template<typename TesterFunc, bool IS_ROBUST>
+	bool anyHitTraversal(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
@@ -114,15 +125,15 @@ private:
 	static constexpr auto numTreeletLevels()
 	-> std::size_t;
 
-	static constexpr auto makeIdentityOrderTable()
+	static consteval auto makeIdentityOrderTable()
 	-> std::array<uint8, N>;
 
-	static constexpr auto makeSingleOrderTable()
+	static consteval auto makeSingleOrderTable()
 	-> std::array<std::array<uint8, N>, 2>;
 
 	inline static constexpr auto BALANCED_POW2_ORDER_TABLE_SIZE = 1 << (N - 1);
 
-	static constexpr auto makeBalancedPow2OrderTable()
+	static consteval auto makeBalancedPow2OrderTable()
 	-> std::array<std::array<uint8, N>, BALANCED_POW2_ORDER_TABLE_SIZE>;
 
 	std::unique_ptr<NodeType[]> m_nodes;

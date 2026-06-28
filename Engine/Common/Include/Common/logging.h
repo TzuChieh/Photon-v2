@@ -137,7 +137,7 @@ The logger will be usable anywhere that includes the header file containing this
 */
 #define PH_DEFINE_EXTERNAL_LOG_GROUP(groupName, category) PH_DEFINE_INLINE_LOG_GROUP(groupName, category)
 
-#define PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, level, rawStringExpr)\
+#define PH_LOG_RAW_STRING_TO_LOGGER(loggerExpr, groupName, level, rawStringExpr)\
 	do\
 	{\
 		constexpr auto logLevel = ::ph::ELogLevel::level;\
@@ -147,7 +147,7 @@ The logger will be usable anywhere that includes the header file containing this
 			static const bool PH_CONCAT_2(dummy, __LINE__) = [&]()\
 			{\
 				::ph::core_logging::detail::log_to_logger(\
-					internal_impl_logger_access_##groupName(),\
+					loggerExpr,\
 					#groupName,\
 					logLevel,\
 					rawString);\
@@ -157,12 +157,19 @@ The logger will be usable anywhere that includes the header file containing this
 		else\
 		{\
 			::ph::core_logging::detail::log_to_logger(\
-				internal_impl_logger_access_##groupName(),\
+				loggerExpr,\
 				#groupName,\
 				logLevel,\
 				rawString);\
 		}\
 	} while(0)
+
+#define PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, level, rawStringExpr)\
+	PH_LOG_RAW_STRING_TO_LOGGER(\
+		internal_impl_logger_access_##groupName(),\
+		groupName,\
+		level,\
+		rawStringExpr)
 
 // TODO: it could be beneficial to determine when can we use std::vformat()
 // instead of always using std::format() for logging

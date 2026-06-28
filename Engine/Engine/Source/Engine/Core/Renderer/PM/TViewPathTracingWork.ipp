@@ -170,8 +170,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 			}
 			bsdfContext.key = BsdfKey::makeRandom();
 
-			BsdfSampleQuery bsdfSample(bsdfContext);
-			bsdfSample.inputs.set(X, V);
+			BsdfSampleQuery bsdfSample(bsdfContext, X, V);
 
 			Ray sampledRay;
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
@@ -249,8 +248,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		BsdfQueryContext bsdfContext(i, transport, sidednessPolicy);
 		bsdfContext.key = BsdfKey::makeRandom();
 
-		BsdfSampleQuery elementalSample(bsdfContext);
-		elementalSample.inputs.set(X, V);
+		BsdfSampleQuery elementalSample(bsdfContext, X, V);
 
 		Ray sampledRay;
 		if(!surfaceTracer.doBsdfSample(elementalSample, sampleFlow, &sampledRay))

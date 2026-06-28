@@ -182,6 +182,13 @@ inline constexpr Value TBitFlags<Value, Input>::get() const
 }
 
 template<typename Value, typename Input>
+inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::clear()
+{
+	m_bits = 0;
+	return *this;
+}
+
+template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::operator == (const TBitFlags& rhs) const
 {
 	return isEqual(rhs);

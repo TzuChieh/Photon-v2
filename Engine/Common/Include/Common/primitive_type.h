@@ -47,7 +47,7 @@ using float64 = double;
 	static_assert(sizeof(float64) * CHAR_BIT == 64);
 #endif
 
-#if PH_USE_DOUBLE_REAL
+#if PH_USE_DOUBLE_PRECISION_REAL
 	using real = double;
 #else
 	using real = float;

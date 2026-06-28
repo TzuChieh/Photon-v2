@@ -68,8 +68,7 @@ inline bool IndirectLightEstimator::bsdfSampleSurfacePathWithNee(
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 
-		BsdfSampleQuery bsdfSample{currentCtx};
-		bsdfSample.inputs.set(currentHit, V);
+		BsdfSampleQuery bsdfSample{currentCtx, currentHit, V};
 
 		// Sample direct lighting
 		if(currentPathLength + 1 == pathLength)
@@ -148,8 +147,7 @@ inline bool IndirectLightEstimator::bsdfSampleSurfacePathWithNee(
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 
-		BsdfSampleQuery bsdfSample{currentCtx};
-		bsdfSample.inputs.set(currentHit, V);
+		BsdfSampleQuery bsdfSample{currentCtx, currentHit, V};
 
 		// Account for energy from the specified path length range
 		PH_ASSERT_LE(currentPathLength + 1, maxPathLength);

@@ -18,9 +18,6 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	T* const               out_hitT,
 	TVector3<T>* const     out_hitBarycentricCoords) const
 {
-	PH_ASSERT(out_hitT);
-	PH_ASSERT(out_hitBarycentricCoords);
-
 	TVector3<T> segmentDir = segment.getDir();
 	TVector3<T> vAt        = this->getVa().sub(segment.getOrigin());
 	TVector3<T> vBt        = this->getVb().sub(segment.getOrigin());
@@ -143,9 +140,24 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	const T baryC          = funcEc * rcpDeterminant;
 	const T hitT           = hitTscaled * rcpDeterminant;
 
-	*out_hitT                 = hitT;
-	*out_hitBarycentricCoords = TVector3<T>(baryA, baryB, baryC);
+	if(out_hitT)
+	{
+		*out_hitT = hitT;
+	}
+
+	if(out_hitBarycentricCoords)
+	{
+		*out_hitBarycentricCoords = TVector3<T>(baryA, baryB, baryC);
+	}
+	
 	return true;
+}
+
+template<typename T>
+inline bool TWatertightTriangle<T>::isIntersecting(
+	const TLineSegment<T>& segment) const
+{
+	return isIntersecting(segment, nullptr, nullptr);
 }
 
 //template<typename T>

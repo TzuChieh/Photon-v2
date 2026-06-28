@@ -100,9 +100,9 @@ public:
 	*/
 	bool isDegenerate() const;
 
-	TVector3<T> getVa() const;
-	TVector3<T> getVb() const;
-	TVector3<T> getVc() const;
+	const TVector3<T>& getVa() const;
+	const TVector3<T>& getVb() const;
+	const TVector3<T>& getVc() const;
 
 private:
 	TVector3<T> m_vA;

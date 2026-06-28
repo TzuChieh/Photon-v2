@@ -72,7 +72,7 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	PH_ASSERT(optics1);
 	PH_ASSERT(ratio);
 
-	m_phenomena.set({});
+	m_phenomena.clear();
 	m_phenomena.unionWith(optics0->getAllPhenomena());
 	m_phenomena.unionWith(optics1->getAllPhenomena());
 

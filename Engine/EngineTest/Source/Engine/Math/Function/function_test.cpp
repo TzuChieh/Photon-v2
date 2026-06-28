@@ -7,6 +7,7 @@
 #include <Engine/Math/Function/TLinearGradient2D.h>
 #include <Engine/Math/Function/TPiecewiseLinear1D.h>
 #include <Engine/Math/Function/THeavisideStep2D.h>
+#include <Engine/Math/Function/TTabulatedMathFunction2D.h>
 
 #include <gtest/gtest.h>
 
@@ -14,6 +15,21 @@
 
 using namespace ph;
 using namespace ph::math;
+
+namespace
+{
+
+// Encodes the sampled coordinate so tests can verify which tabulated cell was selected.
+class CoordinateEncodingFunction2D final
+{
+public:
+	float64 evaluate(const float64 x, const float64 y) const
+	{
+		return x + 10.0 * y;
+	}
+};
+
+}// end anonymous namespace
 
 TEST(MathFunctionTest, TConstant2dHasCorrectProperty)
 {
@@ -29,6 +45,34 @@ TEST(MathFunctionTest, TConstant2dHasCorrectProperty)
 			const float32 value = constantFunc->evaluate(x, y);
 			EXPECT_EQ(value, constant);
 		}
+	}
+}
+
+TEST(MathFunctionTest, TTabulatedMathFunction2dHasCorrectValue)
+{
+	{
+		const TConstant2D<float32> constantFunc(1.25f);
+		const TTabulatedMathFunction2D<float32, 2, 3> tabulatedFunc(
+			constantFunc,
+			TAABB2D<float32>({0.0f, 0.0f}, {2.0f, 3.0f}));
+
+		EXPECT_FLOAT_EQ(tabulatedFunc.evaluate(0.1f, 0.1f), 1.25f);
+		EXPECT_FLOAT_EQ(tabulatedFunc.evaluate(1.9f, 2.9f), 1.25f);
+		EXPECT_FLOAT_EQ(tabulatedFunc.evaluate(-0.1f, 0.0f), 0.0f);
+		EXPECT_FLOAT_EQ(tabulatedFunc.evaluate( 0.0f, 3.1f), 0.0f);
+	}
+
+	{
+		const CoordinateEncodingFunction2D gridFunc;
+		const TTabulatedMathFunction2D<float64, 2, 2> tabulatedFunc(
+			gridFunc,
+			TAABB2D<float64>({0.0, 0.0}, {2.0, 2.0}));
+
+		EXPECT_DOUBLE_EQ(tabulatedFunc.evaluate(0.5, 0.5),  5.5);
+		EXPECT_DOUBLE_EQ(tabulatedFunc.evaluate(1.5, 0.5),  6.5);
+		EXPECT_DOUBLE_EQ(tabulatedFunc.evaluate(0.5, 1.5), 15.5);
+		EXPECT_DOUBLE_EQ(tabulatedFunc.evaluate(2.0, 2.0), 16.5);
+		EXPECT_DOUBLE_EQ(tabulatedFunc.evaluate(2.1, 2.0),  0.0);
 	}
 }
 

@@ -22,17 +22,17 @@ SampleFilter FrameVisualizer::makeSampleFilter() const
 		return SampleFilter::makeBox();
 
 	case ESampleFilter::Gaussian:
-		return SampleFilter::makeGaussian();
+		return SampleFilter::makeGaussian(useTabulatedSampleFilter());
 
 	case ESampleFilter::MitchellNetravali:
-		return SampleFilter::makeMitchellNetravali();
+		return SampleFilter::makeMitchellNetravali(useTabulatedSampleFilter());
 
 	case ESampleFilter::BlackmanHarris:
-		return SampleFilter::makeBlackmanHarris();
+		return SampleFilter::makeBlackmanHarris(useTabulatedSampleFilter());
 
 	default:
 		PH_LOG(FrameVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
-		return SampleFilter::makeBlackmanHarris();
+		return SampleFilter::makeBlackmanHarris(useTabulatedSampleFilter());
 	}
 
 	return {};

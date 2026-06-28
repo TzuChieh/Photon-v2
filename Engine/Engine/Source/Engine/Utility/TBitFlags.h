@@ -122,7 +122,9 @@ public:
 	*/
 	constexpr Value get() const;
 
-	// TODO: method for clear all flags
+	/*! @brief Clear all flags.
+	*/
+	constexpr TBitFlags& clear();
 
 	constexpr TBitFlags& set(const FlagsSet& flagsSet);
 	constexpr TBitFlags& set(Input flagsSet);

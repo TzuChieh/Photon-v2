@@ -84,8 +84,7 @@ void BVPTDLEstimator::estimate(
 		BsdfQueryContext bsdfContext{sidednessPolicy};
 		bsdfContext.key = BsdfKey::makeRandom();
 
-		BsdfSampleQuery bsdfSample{bsdfContext};
-		bsdfSample.inputs.set(firstHit, V);
+		BsdfSampleQuery bsdfSample{bsdfContext, firstHit, V};
 		if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &secondRay))
 		{
 			return;

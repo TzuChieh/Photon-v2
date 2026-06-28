@@ -119,11 +119,8 @@ public:
 			else if constexpr(BATCH_SIZE == 8)
 			{
 #if PH_USE_AVX
-				for(std::size_t di = 0; di < 3; ++di)
-				{
-					m_segmentOrigins[di] = _mm256_set1_ps(segmentOrigin[di]);
-					m_rcpSegmentDirs[di] = _mm256_set1_ps(rcpSegmentDir[di]);
-				}
+				m_segmentOrigins[di] = _mm256_set1_ps(segmentOrigin[di]);
+				m_rcpSegmentDirs[di] = _mm256_set1_ps(rcpSegmentDir[di]);
 #endif
 			}
 		}
@@ -215,7 +212,7 @@ public:
 	[[PH_ALWAYS_INLINE]]
 	void intersectAabbVolumes(const float32 segmentMinT, const float32 segmentMaxT)
 	{
-		// The implementation is similar to `TAABB3D<T>::intersectVolumeTavian()` and 
+		// The implementation is similar to `TAABB3D<T>::intersectVolumeTavian()` and
 		// `TAABB3D<T>::intersectVolumeRobust()`
 
 		if constexpr(BATCH_SIZE == 4)
@@ -225,7 +222,7 @@ public:
 			m_aabbMaxTs = make_array<__m128, B>(_mm_set1_ps(segmentMaxT));
 #endif
 		}
-		else if(BATCH_SIZE == 8)
+		else if constexpr(BATCH_SIZE == 8)
 		{
 #if PH_USE_AVX
 			m_aabbMinTs = make_array<__m256, B>(_mm256_set1_ps(segmentMinT));
@@ -320,15 +317,15 @@ public:
 			if constexpr(BATCH_SIZE == 4)
 			{
 #if PH_USE_SSE
-				hitMask <<= 4;
-				hitMask |= _mm_movemask_ps(_mm_cmple_ps(m_aabbMinTs[bi], m_aabbMaxTs[bi]));
+				hitMask |= static_cast<MaskType>(
+					_mm_movemask_ps(_mm_cmple_ps(m_aabbMinTs[bi], m_aabbMaxTs[bi]))) << (bi * 4);
 #endif
 			}
 			else if constexpr(BATCH_SIZE == 8)
 			{
 #if PH_USE_AVX
-				hitMask <<= 8;
-				hitMask |= _mm256_movemask_ps(_mm_cmple_ps(m_aabbMinTs[bi], m_aabbMaxTs[bi]));
+				hitMask |= static_cast<MaskType>(
+					_mm256_movemask_ps(_mm256_cmp_ps(m_aabbMinTs[bi], m_aabbMaxTs[bi], _CMP_LE_OQ))) << (bi * 8);
 #endif
 			}
 		}

@@ -58,6 +58,27 @@ TEST(SdlInlinePacketInterfaceTest, ParsesEmptyBracedValueAsEmptyGeneralValue)
 	EXPECT_TRUE(clauses[0].value.empty());
 }
 
+TEST(SdlInlinePacketInterfaceTest, ParsesQuotedResourceIdentifierWithSpaces)
+{
+	SdlInlinePacketInterface packetInterface;
+	SdlInputClauses clauses;
+
+	Path workingDirectory(".");
+	SdlInputContext ctx(nullptr, nullptr, &workingDirectory);
+
+	packetInterface.parse(
+		"[PRI image-file \":PH_PICTURE_pictures/albedo texture.png\"]",
+		ctx,
+		"",
+		nullptr,
+		clauses);
+	ASSERT_EQ(clauses.size(), 1);
+	EXPECT_EQ(clauses[0].type, "PRI");
+	EXPECT_EQ(clauses[0].name, "image-file");
+	EXPECT_EQ(clauses[0].valueType, ESdlClauseValue::General);
+	EXPECT_EQ(clauses[0].value, ":PH_PICTURE_pictures/albedo texture.png");
+}
+
 TEST(SdlInlinePacketInterfaceTest, ExpandsNamedDataPacketIntoClauses)
 {
 	SdlInputClauses packet;

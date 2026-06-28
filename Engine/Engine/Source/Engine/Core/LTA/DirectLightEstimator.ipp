@@ -137,8 +137,7 @@ inline bool DirectLightEstimator::bsdfSampleSurfacePathWithNee(
 				// No need to test occlusion again as `bsdfSampleSurfaceEmission()` already done that
 				const real neePdfW = neeSamplePdfWUnoccluded(X, *nextX);
 
-				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
-				bsdfPdfQuery.inputs.set(bsdfSample);
+				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context, bsdfSample};
 				optics.calcBsdfPdf(bsdfPdfQuery);
 
 				// `isNeeSamplable()` is already checked, but BSDF PDF can still be empty or 0
@@ -184,13 +183,11 @@ inline bool DirectLightEstimator::bsdfSampleSurfacePathWithNee(
 
 			const SurfaceOptics& optics = X.getSurfaceOptics();
 
-			BsdfEvalQuery bsdfEval{bsdfSample.context};
-			bsdfEval.inputs.set(X, directSample.getTargetToEmit().normalize(), V);
+			BsdfEvalQuery bsdfEval{bsdfSample.context, X, directSample.getTargetToEmit().normalize(), V};
 			optics.calcBsdf(bsdfEval);
 			if(bsdfEval.outputs.isContributable())
 			{
-				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
-				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
+				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context, bsdfEval.inputs};
 				optics.calcBsdfPdf(bsdfPdfQuery);
 				if(bsdfPdfQuery.outputs)
 				{

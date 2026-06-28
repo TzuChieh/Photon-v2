@@ -36,7 +36,7 @@ void StaticAffineTransform::transformVector(
 	math::Vector3R* const out_vector) const
 {
 	// TODO: use quaternion
-	m_transformMatrix.mul(vector, 0.0_r, out_vector);
+	m_transformMatrix.mul(vector, out_vector);
 }
 
 void StaticAffineTransform::transformOrientation(
@@ -44,8 +44,7 @@ void StaticAffineTransform::transformOrientation(
 	const Time&           time,
 	math::Vector3R* const out_orientation) const
 {
-	const math::Matrix4R transposedInverse = m_inverseTransformMatrix.transpose();
-	transposedInverse.mul(orientation, 0.0_r, out_orientation);
+	m_inverseTransformMatrix.transposeMul(orientation, out_orientation);
 }
 
 void StaticAffineTransform::transformPoint(

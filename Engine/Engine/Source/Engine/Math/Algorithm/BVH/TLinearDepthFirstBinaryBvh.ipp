@@ -9,6 +9,8 @@
 #include <Common/assertion.h>
 
 #include <limits>
+#include <array>
+#include <utility>
 
 namespace ph::math
 {
@@ -45,6 +47,26 @@ template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
+	return generalTraversal<TesterFunc, false, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<typename Item, typename Index>
+template<typename TesterFunc, bool IS_ROBUST>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
+	return generalTraversal<TesterFunc, true, IS_ROBUST>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<typename Item, typename Index>
+template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+{
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 
 	if(isEmpty())
@@ -63,7 +85,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 
 	// Precompute common values
 
-	const bool isNegDir[3] = {
+	const std::array<bool, 3> isNegDir = {
 		segment.getDir().x() < 0,
 		segment.getDir().y() < 0,
 		segment.getDir().z() < 0};
@@ -77,7 +99,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 		const NodeType& node = m_nodes[currentNodeIndex];
 
 		const auto [aabbMinT, aabbMaxT] = node.getAABB().template isIntersectingVolume<IS_ROBUST>(
-			longestSegment, rcpSegmentDir);
+			longestSegment, rcpSegmentDir, &isNegDir);
 		if(aabbMinT <= aabbMaxT)
 		{
 			if(node.isLeaf())
@@ -89,8 +111,15 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 					const auto optHitT = intersectionTester(item, longestSegment);
 					if(optHitT)
 					{
-						longestSegment.setMaxT(*optHitT);
-						hasHit = true;
+						if constexpr(IS_OCCLUSION_ONLY)
+						{
+							return true;
+						}
+						else
+						{
+							longestSegment.setMaxT(*optHitT);
+							hasHit = true;
+						}
 					}
 				}
 

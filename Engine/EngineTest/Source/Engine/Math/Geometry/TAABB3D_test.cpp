@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <limits>
 #include <type_traits>
 
@@ -38,6 +39,34 @@ TEST(TAABB3DTest, IntersectingTwoAABB3DsAsVolumes)
 	const AABB3D aabb3a(Vector3R(-1, -1, -1),    Vector3R(1, 1, 1));
 	const AABB3D aabb3b(Vector3R(-1, -1, 1.1_r), Vector3R(1, 1, 1.2_r));
 	EXPECT_FALSE(aabb3a.isIntersectingVolume(aabb3b));
+}
+
+TEST(TAABB3DTest, IntersectingWithPrecomputedNegDirInfo)
+{
+	const AABB3D aabb(Vector3R(-1, -2, -3), Vector3R(4, 5, 6));
+	const TLineSegment<real> segment(Vector3R(8, 8, 8), Vector3R(-1, -1, -1), 0, 20);
+	const Vector3R rcpSegmentDir = segment.getDir().rcp();
+	const std::array<bool, 3> isNegativeDir = {true, true, true};
+
+	const auto defaultHitRange = aabb.isIntersectingVolume(segment, rcpSegmentDir);
+	const auto precomputedHitRange = aabb.isIntersectingVolume(
+		segment, rcpSegmentDir, &isNegativeDir);
+	EXPECT_EQ(precomputedHitRange.first, defaultHitRange.first);
+	EXPECT_EQ(precomputedHitRange.second, defaultHitRange.second);
+
+	real defaultNearHitT;
+	real defaultFarHitT;
+	real precomputedNearHitT;
+	real precomputedFarHitT;
+	const bool defaultIsHit = aabb.isIntersectingVolume(
+		segment, rcpSegmentDir, &defaultNearHitT, &defaultFarHitT);
+	const bool precomputedIsHit = aabb.isIntersectingVolume(
+		segment, rcpSegmentDir, &precomputedNearHitT, &precomputedFarHitT, &isNegativeDir);
+
+	EXPECT_TRUE(precomputedIsHit);
+	EXPECT_EQ(precomputedIsHit, defaultIsHit);
+	EXPECT_EQ(precomputedNearHitT, defaultNearHitT);
+	EXPECT_EQ(precomputedFarHitT, defaultFarHitT);
 }
 
 TEST(TAABB3DTest, IsAABB3DActuallyPoint)
