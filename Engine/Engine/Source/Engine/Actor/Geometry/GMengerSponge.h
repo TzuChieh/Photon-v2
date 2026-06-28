@@ -17,8 +17,8 @@ public:
 	explicit GMengerSponge(uint32 numIteration);
 
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 
 private:
 	uint32 m_numIteration;

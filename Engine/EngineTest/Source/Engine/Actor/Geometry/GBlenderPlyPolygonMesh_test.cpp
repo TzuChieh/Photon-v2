@@ -4,8 +4,10 @@
 #include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/DataIO/PlyFile.h>
 #include <Engine/Math/math.h>
+#include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedGeometry.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
+#include <Engine/World/Foundation/CookedResourceKey.h>
 #include <Engine/World/Foundation/CookingContext.h>
 
 #include <gtest/gtest.h>
@@ -121,10 +123,11 @@ TEST(GBlenderPlyPolygonMeshTest, StoreCooked)
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 
-	TestableGBlenderPlyPolygonMesh mesh;
-	mesh.setPlyFile(tempPlyFile);
+	auto mesh = TSdl<GBlenderPlyPolygonMesh>::makeResource();
+	mesh->setPlyFile(tempPlyFile);
 
-	const CookedGeometry* cooked = mesh.createCooked(ctx);
+	mesh->cook(ctx, *resources.makeGeometry(ctx.getKey(mesh)));
+	const CookedGeometry* cooked = ctx.getCooked(mesh);
 
 	ASSERT_NE(cooked, nullptr);
 	ASSERT_NE(cooked->triangleView, nullptr);

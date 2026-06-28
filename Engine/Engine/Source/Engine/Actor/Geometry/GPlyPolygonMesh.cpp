@@ -19,8 +19,8 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(GPlyPolygonMesh, Geometry);
 
 void GPlyPolygonMesh::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	IndexedTriangleBuffer* triangleBuffer = ctx.getResources().makeTriangleBuffer();
 

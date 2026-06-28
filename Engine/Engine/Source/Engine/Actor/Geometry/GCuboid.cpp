@@ -18,15 +18,15 @@ namespace ph
 {
 
 void GCuboid::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	if(!checkData(m_size.x(), m_size.y(), m_size.z()))
 	{
 		return;
 	}
 
-	GCuboid::genTriangulated()->storeCooked(out_geometry, ctx);
+	GCuboid::genTriangulated()->storeCooked(ctx, out_geometry);
 }
 
 std::shared_ptr<Geometry> GCuboid::genTriangulated() const

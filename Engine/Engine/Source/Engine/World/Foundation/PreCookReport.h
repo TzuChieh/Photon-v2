@@ -9,6 +9,8 @@ namespace ph { class Transform; }
 namespace ph
 {
 
+/*! @brief Actor-local data passed from `Actor::preCook()` to `Actor::cook()`.
+*/
 class PreCookReport final
 {
 public:
@@ -17,6 +19,8 @@ public:
 	PreCookReport& markAsCookable();
 	PreCookReport& markAsUncookable();
 
+	/*! @brief Store dependency-free base transforms for the matching `Actor::cook()`.
+	*/
 	PreCookReport& setBaseTransforms(
 		const Transform* localToWorld, 
 		const Transform* worldToLocal);

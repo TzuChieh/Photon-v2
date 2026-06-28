@@ -21,9 +21,9 @@ PH_DECLARE_LOG_GROUP(ActorCooking);
 class Actor : public TSdlResourceBase<ESdlTypeCategory::Ref_Actor>
 {
 public:
-	/*! @brief Cooking supplemental data before `cook()`.
-	This method allows user to specify additional configurations for the following cooking process.
-	This method may run in parallel without taking into account resource dependencies.
+	/*! @brief Check cookability and prepare dependency-free data for `cook()`.
+	This method allows user to specify additional configurations for the cooking process.
+	Will run before dependent SDL resources are cooked and may run in parallel.
 	*/
 	virtual PreCookReport preCook(const CookingContext& ctx) const;
 

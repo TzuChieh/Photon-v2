@@ -14,8 +14,6 @@
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 
-#include <Common/logging.h>
-
 #include <memory>
 #include <utility>
 
@@ -27,6 +25,21 @@ PH_DEFINE_INTERNAL_LOG_GROUP(ABlenderPlyModel, Actor);
 PreCookReport ABlenderPlyModel::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
+
+	if(!m_geometry || m_materials.empty())
+	{
+		throw ActorCookException(
+			"Blender PLY model requires geometry and at least one material slot.");
+	}
+
+	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
+	{
+		if(!m_materials[slotIndex])
+		{
+			throw ActorCookException(
+				"Blender PLY model requires every material slot to reference a material.");
+		}
+	}
 
 	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
@@ -45,22 +58,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 	const CookingContext& ctx,
 	const PreCookReport& report) const
 {
-	if(!m_geometry || m_materials.empty())
-	{
-		throw ActorCookException(
-			"Blender PLY model requires geometry and at least one material slot.");
-	}
-
-	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
-	{
-		if(!m_materials[slotIndex])
-		{
-			throw ActorCookException(
-				"Blender PLY model requires every material slot to reference a material.");
-		}
-	}
-
-	const CookedGeometry* const cookedGeometry = m_geometry->createCooked(ctx);
+	const CookedGeometry* const cookedGeometry = ctx.getCooked(m_geometry);
 	if(!cookedGeometry || cookedGeometry->primitives.empty())
 	{
 		return TransientVisualElement();

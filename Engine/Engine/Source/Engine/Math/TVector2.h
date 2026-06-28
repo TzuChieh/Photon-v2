@@ -77,7 +77,9 @@ struct hash<ph::math::TVector2<T>>
 {
 	std::size_t operator () (const ph::math::TVector2<T>& vec2) const
 	{
-		return ph::math::murmur3_32(vec2, 0);
+		std::size_t hash = std::hash<T>{}(vec2.x());
+		hash = ph::math::combine_hashes(hash, std::hash<T>{}(vec2.y()));
+		return hash;
 	}
 };
 

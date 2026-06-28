@@ -23,17 +23,17 @@ public:
 	/*! @brief Store data suitable for rendering into `out_geometry`.
 	*/
 	virtual void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const = 0;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const = 0;
 
 	virtual std::shared_ptr<Geometry> genTransformed(
 		const StaticAffineTransform& transform) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
 
-	/*! @brief Create a `CookedGeometry` that contains data suitable for rendering.
+	/*! @brief Cook geometry using the provided context and return the cooked data.
 	*/
-	CookedGeometry* createCooked(const CookingContext& ctx) const;
+	void cook(const CookingContext& ctx, CookedGeometry& out_geometry) const;
 
 public:
 	PH_DEFINE_SDL_CLASS(Geometry, clazz)

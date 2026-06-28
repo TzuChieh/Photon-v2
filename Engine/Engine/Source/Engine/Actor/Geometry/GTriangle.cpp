@@ -19,8 +19,8 @@ namespace ph
 {
 
 void GTriangle::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	// We often have triangle that is a single point or line (one form of degenerate)
 	if(isDegenerate())

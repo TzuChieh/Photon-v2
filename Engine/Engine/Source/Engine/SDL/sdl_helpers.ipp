@@ -549,6 +549,27 @@ template<typename DstType, typename SrcType>
 inline DstType* cast_to(SrcType* const srcResource)
 {
 	// `SrcType` and `DstType` are both possibly cv-qualified
+	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
+		"Source resource must derive from ISdlResource.");
+
+	static_assert(std::is_base_of_v<ISdlResource, DstType>,
+		"Casted-to type must derive from ISdlResource.");
+
+	static_assert(!std::is_const_v<SrcType> || std::is_const_v<DstType>,
+		"Cannot cast const SDL resource to non-const resource.");
+
+	if(srcResource == nullptr)
+	{
+		return nullptr;
+	}
+
+	return dynamic_cast<DstType*>(srcResource);
+}
+
+template<typename DstType, typename SrcType>
+inline DstType& cast_to(SrcType& srcResource)
+{
+	// `SrcType` and `DstType` are both possibly cv-qualified
 
 	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
 		"Source resource must derive from ISdlResource.");
@@ -556,20 +577,70 @@ inline DstType* cast_to(SrcType* const srcResource)
 	static_assert(std::is_base_of_v<ISdlResource, DstType>,
 		"Casted-to type must derive from ISdlResource.");
 
-	if(srcResource == nullptr)
+	static_assert(!std::is_const_v<SrcType> || std::is_const_v<DstType>,
+		"Cannot cast const SDL resource to non-const resource.");
+
+	return dynamic_cast<DstType&>(srcResource);
+}
+
+namespace detail
+{
+
+template<typename SrcType, typename Operation>
+inline bool visit_one(SrcType* const srcResource, Operation&& operation)
+{
+	using ArgType = typename TCallableTraits<std::remove_cvref_t<Operation>>::template ArgTypeAt<0>;
+	using ArgNoRefType = std::remove_reference_t<ArgType>;
+	using VisitedType = std::conditional_t<
+		std::is_pointer_v<ArgNoRefType>,
+		std::remove_pointer_t<ArgNoRefType>,
+		ArgNoRefType>;
+
+	static_assert(std::is_lvalue_reference_v<ArgType> || std::is_pointer_v<ArgNoRefType>,
+		"SDL resource visitor must accept a resource pointer or reference.");
+
+	static_assert(std::tuple_size_v<typename TCallableTraits<std::remove_cvref_t<Operation>>::ArgTypes> == 1,
+		"SDL resource visitor must accept exactly one argument.");
+
+	static_assert(std::is_base_of_v<ISdlResource, VisitedType>,
+		"SDL resource visitor argument must derive from ISdlResource.");
+
+	if(VisitedType* const castedResource = sdl::cast_to<VisitedType>(srcResource); castedResource)
 	{
-		throw SdlException("source resource is empty");
+		if constexpr(std::is_pointer_v<ArgNoRefType>)
+		{
+			std::forward<Operation>(operation)(castedResource);
+		}
+		else
+		{
+			std::forward<Operation>(operation)(*castedResource);
+		}
+
+		return true;
 	}
 
-	DstType* const dstResource = dynamic_cast<DstType*>(srcResource);
-	if(dstResource == nullptr)
-	{
-		throw_formatted<SdlException>(
-			"type cast error: source resource cannot be casted to the specified type (resource ID: {})",
-			srcResource->getId());
-	}
+	return false;
+}
 
-	return dstResource;
+}// end namespace detail
+
+template<typename SrcType, typename... Operations>
+inline bool visit(SrcType* const srcResource, Operations&&... operations)
+{
+	static_assert(sizeof...(Operations) > 0,
+		"Must provide at least one SDL resource visitor.");
+
+	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
+		"Source resource must derive from ISdlResource.");
+
+	return (detail::visit_one(srcResource, std::forward<Operations>(operations)) || ...);
+}
+
+template<typename SrcType, typename... Operations>
+	requires std::is_base_of_v<ISdlResource, std::remove_cvref_t<SrcType>>
+inline bool visit(SrcType& srcResource, Operations&&... operations)
+{
+	return sdl::visit(&srcResource, std::forward<Operations>(operations)...);
 }
 
 }// end namespace ph::sdl

@@ -28,6 +28,15 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
+	if(!m_geometry || !m_material)
+	{
+		PH_LOG(AModel, Warning,
+			"incomplete data detected (missing geometry: {}, missing material: {})",
+			m_geometry == nullptr, m_material == nullptr);
+
+		return report.markAsUncookable();
+	}
+
 	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
 		auto localToWorld = ctx.getResources().makeTransform<StaticAffineTransform>(
@@ -43,18 +52,13 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 
 TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
-	if(!m_geometry || !m_material)
+	const CookedGeometry* cookedGeometry = ctx.getCooked(m_geometry);
+	if(!cookedGeometry || cookedGeometry->primitives.empty())
 	{
-		PH_LOG(AModel, Warning,
-			"incomplete data detected (missing geometry: {}, missing material: {})",
-			m_geometry == nullptr, m_material == nullptr);
-
 		return TransientVisualElement();
 	}
-	
+
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
-	// FIXME
-	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx);
 
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)

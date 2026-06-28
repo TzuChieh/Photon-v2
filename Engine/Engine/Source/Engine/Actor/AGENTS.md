@@ -1,5 +1,8 @@
 ﻿# Actor Guide
 
+## Actor Cooking
+- `preCook()` checks actor-owned completeness and prepares dependency-free data such as base transforms; cooked SDL dependency and actor-cache access belongs in `cook()`, which must be skipped for uncookable reports.
+
 ## Blender PLY Models
 - Actor/model cooking owns Blender material-slot metadata injection. Geometry may expose `CookedGeometry::faceIdToMetadataSlot`, but the actor combines it with material-slot metadata.
 - Keep acceleration/intersection primitives material-agnostic; do not subclass KD-tree meshes just to carry Blender material arrays.

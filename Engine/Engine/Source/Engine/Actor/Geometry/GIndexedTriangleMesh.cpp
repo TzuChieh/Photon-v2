@@ -8,8 +8,8 @@ namespace ph
 {
 
 void GIndexedTriangleMesh::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();

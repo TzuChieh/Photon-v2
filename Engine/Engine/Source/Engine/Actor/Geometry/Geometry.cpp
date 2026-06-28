@@ -1,11 +1,9 @@
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/Actor/Basic/exceptions.h"
 
-#include <Common/assertion.h>
 #include <Common/logging.h>
 
 namespace ph
@@ -30,9 +28,8 @@ std::shared_ptr<Geometry> Geometry::genTriangulated() const
 	return nullptr;
 }
 
-CookedGeometry* Geometry::createCooked(const CookingContext& ctx) const
+void Geometry::cook(const CookingContext& ctx, CookedGeometry& out_geometry) const
 {
-	CookedGeometry* cookedGeometry = nullptr;
 	if(ctx.getConfig().forceTriangulated)
 	{
 		auto transientGeometry = genTriangulated();
@@ -42,20 +39,12 @@ CookedGeometry* Geometry::createCooked(const CookingContext& ctx) const
 				"failed to force triangulation on geometry (id: {})", getId());
 		}
 
-		// Using the original geometry's ID since we want it to have triangulated result
-		cookedGeometry = ctx.getResources().makeGeometry(getId());
-
-		transientGeometry->storeCooked(*cookedGeometry, ctx);
+		transientGeometry->storeCooked(ctx, out_geometry);
 	}
 	else
 	{
-		cookedGeometry = ctx.getResources().makeGeometry(getId());
-		PH_ASSERT(cookedGeometry);
-
-		storeCooked(*cookedGeometry, ctx);
+		storeCooked(ctx, out_geometry);
 	}
-
-	return cookedGeometry;
 }
 
 }// end namespace ph

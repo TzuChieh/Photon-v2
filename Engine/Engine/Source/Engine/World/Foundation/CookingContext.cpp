@@ -1,5 +1,6 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/CookedResourceKey.h"
 #include "Engine/World/VisualWorld.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Actor.h"
@@ -42,6 +43,18 @@ const CookingConfig& CookingContext::getConfig() const
 	return m_config;
 }
 
+CookedResourceKey CookingContext::getKey(const ISdlResource& resource) const
+{
+	return CookedResourceKey(resource, getConfig());
+}
+
+CookedResourceKey CookingContext::getKey(const std::shared_ptr<const ISdlResource>& resource) const
+{
+	PH_ASSERT(resource);
+
+	return getKey(*resource);
+}
+
 void CookingContext::setConfig(CookingConfig config)
 {
 	m_config = std::move(config);
@@ -69,11 +82,14 @@ math::AABB3D CookingContext::getLeafActorsBound() const
 	return getWorld().getLeafActorsBound();
 }
 
+const CookedGeometry* CookingContext::getCooked(const Geometry& geometry) const
+{
+	return getResources().getGeometry(getKey(geometry));
+}
+
 const CookedGeometry* CookingContext::getCooked(const std::shared_ptr<Geometry>& geometry) const
 {
-	return geometry != nullptr
-		? getResources().getGeometry(geometry->getId())
-		: nullptr;
+	return geometry ? getCooked(*geometry) : nullptr;
 }
 
 const TransientVisualElement* CookingContext::getCached(const std::shared_ptr<Actor>& actor) const

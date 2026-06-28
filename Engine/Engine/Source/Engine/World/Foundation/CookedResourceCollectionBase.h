@@ -4,7 +4,9 @@
 #include "Engine/Utility/TUniquePtrVector.h"
 #include "Engine/Utility/Concurrent/TSynchronized.h"
 #include "Engine/SDL/SdlResourceId.h"
+#include "Engine/World/Foundation/CookedResourceKey.h"
 
+#include <Common/exceptions.h>
 #include <Common/logging.h>
 
 #include <string>
@@ -35,6 +37,14 @@ protected:
 	*/
 	template<typename CookedType>
 	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
+
+	/*!
+	Maps cooked resource key to its corresponding cooked resource variant. This information is
+	not needed during rendering and can be cleaned up in theory. It is kept for now for debugging
+	purposes.
+	*/
+	template<typename CookedType>
+	using TCookedResourceKeyMap = std::unordered_map<CookedResourceKey, std::unique_ptr<CookedType>>;
 
 	template<typename DerivedType, typename BaseType, typename... DeducedArgs>
 	[[nodiscard]]
@@ -89,6 +99,34 @@ protected:
 	}
 
 	template<typename CookedType, typename... DeducedArgs>
+	static CookedType* makeCookedResourceWithKey(
+		TSynchronized<TCookedResourceKeyMap<CookedType>>& syncedKeyToResource,
+		const CookedResourceKey& key,
+		DeducedArgs&&... args)
+	{
+		// Create resource in separate expression since no lock is required yet
+		auto newResource = std::make_unique<CookedType>(std::forward<DeducedArgs>(args)...);
+
+		CookedType* resourcePtr = nullptr;
+		syncedKeyToResource.locked(
+			[key, &resourcePtr, &newResource](auto& keyToResource)
+			{
+				auto findResult = keyToResource.find(key);
+				if(findResult == keyToResource.end())
+				{
+					resourcePtr = newResource.get();
+					keyToResource[key] = std::move(newResource);
+				}
+				else
+				{
+					throw IllegalOperationException("duplicate cooked resource key");
+				}
+			});
+
+		return resourcePtr;
+	}
+
+	template<typename CookedType, typename... DeducedArgs>
 	static const CookedType* getCookedResourceByID(
 		const TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
 		const SdlResourceId id)
@@ -99,6 +137,25 @@ protected:
 			{
 				auto findResult = idToResource.find(id);
 				if(findResult != idToResource.end())
+				{
+					resourcePtr = findResult->second.get();
+				}
+			});
+
+		return resourcePtr;
+	}
+
+	template<typename CookedType>
+	static const CookedType* getCookedResourceByKey(
+		const TSynchronized<TCookedResourceKeyMap<CookedType>>& syncedKeyToResource,
+		const CookedResourceKey& key)
+	{
+		const CookedType* resourcePtr = nullptr;
+		syncedKeyToResource.constLocked(
+			[key, &resourcePtr](const auto& keyToResource)
+			{
+				auto findResult = keyToResource.find(key);
+				if(findResult != keyToResource.end())
 				{
 					resourcePtr = findResult->second.get();
 				}

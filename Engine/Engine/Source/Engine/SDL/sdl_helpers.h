@@ -21,6 +21,7 @@ Helpers are in an additional `sdl` namespace.
 #include <vector>
 #include <utility>
 #include <concepts>
+#include <type_traits>
 
 namespace ph::sdl
 {
@@ -194,15 +195,29 @@ template<typename T>
 constexpr ESdlDataType resource_type_of();
 
 /*! @brief Cast between SDL resource types.
-Cast the input SDL resource instance of @p SrcType to an instance of @p DstType. Each of the input types
-can possibly be `const` qualified. This is a stricter cast than standard `dynamic_cast` as both input
-and output pointer must not be null, and it will throw if the cast cannot be done.
+Cast the input SDL resource instance of @p SrcType to an instance of @p DstType. Follows the
+conventions of `dynamic_cast`: returns null for pointer casts that cannot be done, and throws for
+reference casts that cannot be done.
 @param srcResource The resource to be casted.
-@return The casted resource. Never null.
-@exception SdlException If @p srcResource cannot be casted to @p DstType.
 */
 template<typename DstType, typename SrcType>
 DstType* cast_to(SrcType* srcResource);
+
+template<typename DstType, typename SrcType>
+DstType& cast_to(SrcType& srcResource);
+
+/*! @brief Visit a SDL resource with the first matching functor.
+Each functor must accept a single SDL resource pointer or reference. Matching is tested in the
+same order as functors are specified. Returns whether a functor was invoked.
+*/
+///@{
+template<typename SrcType, typename... Operations>
+bool visit(SrcType* srcResource, Operations&&... operations);
+
+template<typename SrcType, typename... Operations>
+	requires std::is_base_of_v<ISdlResource, std::remove_cvref_t<SrcType>>
+bool visit(SrcType& srcResource, Operations&&... operations);
+///@}
 
 /*!
 SDL names are commonly being lower-case and separated by dashes (also known as

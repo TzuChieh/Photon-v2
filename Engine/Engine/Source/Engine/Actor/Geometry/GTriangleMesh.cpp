@@ -26,13 +26,13 @@ GTriangleMesh::GTriangleMesh(
 {}
 
 void GTriangleMesh::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	const auto gTriangles = genTriangles();
 	for(const auto& gTriangle : gTriangles)
 	{
-		gTriangle.storeCooked(out_geometry, ctx);
+		gTriangle.storeCooked(ctx, out_geometry);
 	}
 }
 

@@ -17,8 +17,8 @@ class GBlenderPlyPolygonMesh : public GPlyPolygonMesh
 {
 public:
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 
 protected:
 	IndexedTriangleBuffer loadTriangleBuffer(PlyFile& file) const;

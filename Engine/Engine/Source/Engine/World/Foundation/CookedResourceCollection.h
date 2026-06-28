@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/World/Foundation/CookedResourceCollectionBase.h"
+#include "Engine/World/Foundation/CookedResourceKey.h"
 #include "Engine/Utility/TUniquePtrVector.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
@@ -101,9 +102,9 @@ public:
 	}
 
 	template<typename... DeducedArgs>
-	CookedGeometry* makeGeometry(const SdlResourceId id, DeducedArgs&&... args)
+	CookedGeometry* makeGeometry(const CookedResourceKey& key, DeducedArgs&&... args)
 	{
-		return makeCookedResourceWithID(m_idToGeometry, id, std::forward<DeducedArgs>(args)...);
+		return makeCookedResourceWithKey(m_keyToGeometry, key, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<typename... DeducedArgs>
@@ -123,7 +124,7 @@ public:
 	*/
 	TSynchronized<CookedNamedResource>& getNamed();
 
-	const CookedGeometry* getGeometry(const SdlResourceId id) const;
+	const CookedGeometry* getGeometry(const CookedResourceKey& key) const;
 	const CookedMaterial* getMaterial(const SdlResourceId id) const;
 	const CookedMotion* getMotion(const SdlResourceId id) const;
 
@@ -136,7 +137,7 @@ private:
 	TSynchronized<TUniquePtrVector<SurfaceOptics>> m_surfaceOptics;
 	TSynchronized<TUniquePtrVector<VolumeOptics>> m_volumeOptics;
 
-	TSynchronized<TSdlResourceIdMap<CookedGeometry>> m_idToGeometry;
+	TSynchronized<TCookedResourceKeyMap<CookedGeometry>> m_keyToGeometry;
 	TSynchronized<TSdlResourceIdMap<CookedMaterial>> m_idToMaterial;
 	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
 

@@ -100,6 +100,8 @@ public:
 	}
 
 private:
+	friend std::hash<TWeakHandle>;
+
 	Index m_itemIdx = INVALID_INDEX;
 	Generation m_itemGeneration = INVALID_GENERATION;
 };
@@ -117,7 +119,11 @@ struct hash<Handle>
 {
 	std::size_t operator () (const Handle& handle) const
 	{
-		return ph::math::murmur3_32(handle, 0);
+		std::size_t hash = 
+			std::hash<typename Handle::IndexType>{}(handle.m_itemIdx);
+		hash = ph::math::combine_hashes(hash,
+			std::hash<typename Handle::GenerationType>{}(handle.m_itemGeneration));
+		return hash;
 	}
 };
 

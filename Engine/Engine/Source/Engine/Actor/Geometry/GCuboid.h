@@ -18,8 +18,8 @@ class GCuboid : public Geometry
 {
 public:
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 
 	std::shared_ptr<Geometry> genTriangulated() const override;
 

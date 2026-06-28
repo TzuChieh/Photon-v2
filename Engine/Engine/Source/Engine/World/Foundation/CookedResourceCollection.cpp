@@ -13,9 +13,9 @@ TSynchronized<CookedNamedResource>& CookedResourceCollection::getNamed()
 	return m_namedResource;
 }
 
-const CookedGeometry* CookedResourceCollection::getGeometry(const SdlResourceId id) const
+const CookedGeometry* CookedResourceCollection::getGeometry(const CookedResourceKey& key) const
 {
-	return getCookedResourceByID(m_idToGeometry, id);
+	return getCookedResourceByKey(m_keyToGeometry, key);
 }
 
 const CookedMaterial* CookedResourceCollection::getMaterial(const SdlResourceId id) const
@@ -38,7 +38,7 @@ std::string CookedResourceCollection::getStats() const
 		m_intersectables->size(),
 		m_emitters->size(),
 		m_triangleBuffers->size(),
-		m_idToGeometry->size(),
+		m_keyToGeometry->size(),
 		m_idToMotion->size());
 }
 

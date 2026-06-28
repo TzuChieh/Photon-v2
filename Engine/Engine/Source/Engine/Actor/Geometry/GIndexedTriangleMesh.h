@@ -11,8 +11,8 @@ class GIndexedTriangleMesh : public Geometry
 {
 public:
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 
 private:
 	ResourceIdentifier m_meshFile;

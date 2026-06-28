@@ -15,6 +15,8 @@ class TransientVisualElement;
 class Geometry;
 class Actor;
 class CookedGeometry;
+class CookedResourceKey;
+class ISdlResource;
 
 /*! @brief Information about the world being cooked.
 */
@@ -31,6 +33,14 @@ public:
 	explicit CookingContext(const VisualWorld* world);
 
 	const CookingConfig& getConfig() const;
+
+	/*! @brief Make a cooked-resource key for `resource` using current config.
+	*/
+	///@{
+	CookedResourceKey getKey(const ISdlResource& resource) const;
+	CookedResourceKey getKey(const std::shared_ptr<const ISdlResource>& resource) const;
+	///@}
+
 	void setConfig(CookingConfig config);
 	CookedResourceCollection& getResources() const;
 	TransientResourceCache& getCache() const;
@@ -49,7 +59,10 @@ public:
 	/*!
 	@return Pointer to the cooked geometry. `nullptr` if not found.
 	*/
+	///@{
+	const CookedGeometry* getCooked(const Geometry& geometry) const;
 	const CookedGeometry* getCooked(const std::shared_ptr<Geometry>& geometry) const;
+	///@}
 
 	/*!
 	@return Pointer to the cooked actor. `nullptr` if not found.

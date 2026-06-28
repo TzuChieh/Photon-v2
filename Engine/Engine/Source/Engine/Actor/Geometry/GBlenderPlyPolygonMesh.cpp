@@ -211,8 +211,8 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 }
 
 void GBlenderPlyPolygonMesh::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	IndexedTriangleBuffer* triangleBuffer = ctx.getResources().makeTriangleBuffer();
 

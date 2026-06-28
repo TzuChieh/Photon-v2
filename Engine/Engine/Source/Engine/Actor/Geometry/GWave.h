@@ -16,8 +16,8 @@ public:
 	GWave(real xLen, real yLen, real zLen);
 
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 
 private:
 	real m_xLen;

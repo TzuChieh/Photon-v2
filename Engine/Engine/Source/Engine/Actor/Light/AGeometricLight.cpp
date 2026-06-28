@@ -7,9 +7,12 @@
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/World/Foundation/PreCookReport.h"
+#include "Engine/World/Foundation/CookedGeometry.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/CookedResourceKey.h"
 
+#include <Common/assertion.h>
 #include <Common/logging.h>
 
 #include <algorithm>
@@ -67,7 +70,18 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	}
 
 	math::TDecomposedTransform<real> remainingLocalToWorld;
-	auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
+	const auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
+	const auto key = ctx.getKey(sanifiedGeometry);
+	if(!ctx.getResources().getGeometry(key))
+	{
+		sanifiedGeometry->cook(ctx, *ctx.getResources().makeGeometry(key));
+	}
+	
+	const CookedGeometry* cookedGeometry = ctx.getCooked(sanifiedGeometry);
+	if(!cookedGeometry || cookedGeometry->primitives.empty())
+	{
+		return TransientVisualElement();
+	}
 
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 	
@@ -86,9 +100,6 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		metadata->exterior().setOptics(exteriorOptics);
 		metadata->setInteriorPriority(material->getOverlapPriority());
 	}
-
-	// FIXME
-	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx);
 
 	std::vector<const Primitive*> lightPrimitives;
 	lightPrimitives.reserve(cookedGeometry->primitives.size());

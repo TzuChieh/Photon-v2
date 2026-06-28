@@ -104,7 +104,9 @@ struct hash<ph::math::TAABB2D<T>>
 {
 	std::size_t operator () (const ph::math::TAABB2D<T>& aabb) const
 	{
-		return ph::math::murmur3_32(aabb, 0);
+		std::size_t hash = std::hash<ph::math::TVector2<T>>{}(aabb.getMinVertex());
+		hash = ph::math::combine_hashes(hash, std::hash<ph::math::TVector2<T>>{}(aabb.getMaxVertex()));
+		return hash;
 	}
 };
 

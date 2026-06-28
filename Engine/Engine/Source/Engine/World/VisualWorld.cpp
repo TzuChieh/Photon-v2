@@ -15,8 +15,13 @@
 #include "Engine/Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Engine/Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Engine/Actor/APhantomModel.h"
+#include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/CookedResourceKey.h"
+#include "Engine/SDL/ISdlResource.h"
+#include "Engine/SDL/SdlDependencyResolver.h"
 #include "Engine/SDL/sdl_helpers.h"
 
 #include <Common/primitive_type.h>
@@ -89,6 +94,32 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// TODO: clear cooked data
 
 	CookingContext ctx(this);
+
+	std::vector<std::string> resourceNames;
+	std::vector<const ISdlResource*> resources = rawScene.getResources().listAll(&resourceNames);
+
+	// Append phantom resources
+	{
+		std::vector<std::string> phantomResourceNames;
+		std::vector<const ISdlResource*> phantomResources = rawScene.getPhantoms().listAll(&phantomResourceNames);
+		resources.insert(resources.end(), phantomResources.begin(), phantomResources.end());
+		resourceNames.insert(resourceNames.end(), phantomResourceNames.begin(), phantomResourceNames.end());
+	}
+
+	SdlDependencyResolver dependencyResolver;
+	dependencyResolver.analyze(resources, resourceNames);
+	while(const ISdlResource* resource = dependencyResolver.next())
+	{
+		sdl::visit(resource,
+			[&ctx](const Geometry& geometry)
+			{
+				const auto key = ctx.getKey(geometry);
+				if(!ctx.getResources().getGeometry(key))
+				{
+					geometry.cook(ctx, *ctx.getResources().makeGeometry(key));
+				}
+			});
+	}
 
 	// TODO: should set to be receiver's bounds instead
 	m_rootActorsBound = math::AABB3D(m_receiverPos);
@@ -213,6 +244,11 @@ void VisualWorld::cookActors(
 		try
 		{
 			PreCookReport report = sceneActor.actor->preCook(ctx);
+			if(!report.isCookable())
+			{
+				continue;
+			}
+
 			TransientVisualElement element = sceneActor.actor->cook(ctx, report);
 			sceneActor.actor->postCook(ctx, element);
 

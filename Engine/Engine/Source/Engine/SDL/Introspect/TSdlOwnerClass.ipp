@@ -378,16 +378,14 @@ template<typename Owner, typename FieldSet>
 template<typename DstType, typename SrcType>
 inline DstType* TSdlOwnerClass<Owner, FieldSet>::castTo(SrcType* const srcInstance) const
 {
-	try
+	if(DstType* const casted = sdl::cast_to<DstType>(srcInstance); casted)
 	{
-		return sdl::cast_to<DstType>(srcInstance);
+		return casted;
 	}
-	catch(const SdlException& e)
-	{
-		throw_formatted<SdlException>(
-			"input resource is not owned by this class <{}> ({})",
-			genPrettyName(), e.whatStr());
-	}
+
+	throw_formatted<SdlException>(
+		"input resource is not owned by this class <{}>",
+		genPrettyName());
 }
 
 }// end namespace ph

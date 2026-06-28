@@ -8,7 +8,9 @@
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
 #include <Engine/DataIO/FileSystem/TProjectPath.h>
+#include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
+#include <Engine/World/Foundation/CookedResourceKey.h>
 #include <Engine/World/Foundation/CookingContext.h>
 #include <Engine/World/Foundation/TransientVisualElement.h>
 
@@ -71,7 +73,7 @@ std::vector<std::shared_ptr<Material>> make_material_slots(const std::size_t num
 	// Some random synthetic data
 	for(std::size_t slotIndex = 0; slotIndex < numSlots; ++slotIndex)
 	{
-		auto material = std::make_shared<MatteOpaque>();
+		auto material = TSdl<MatteOpaque>::makeResource();
 		material->setAlbedo(
 			static_cast<real>(slotIndex + 1) / static_cast<real>(numSlots),
 			0.5_r,
@@ -94,7 +96,7 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 	Filesystem::createDirectories(testDirectory);
 	write_material_range_blender_ply(tempPlyFile, faceMaterialSlots);
 
-	auto geometry = std::make_shared<GBlenderPlyPolygonMesh>();
+	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
 	ABlenderPlyModel actor;
@@ -104,6 +106,7 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
+	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 
 	const TransientVisualElement result = actor.stagelessCook(ctx);
 
@@ -141,7 +144,7 @@ TEST(ABlenderPlyModelTest, FaceMaterialSlotMapCanHaveDistinctCounts)
 	Filesystem::createDirectories(testDirectory);
 	write_material_range_blender_ply(tempPlyFile, faceMaterialSlots);
 
-	auto geometry = std::make_shared<GBlenderPlyPolygonMesh>();
+	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
 	ABlenderPlyModel actor;
@@ -151,6 +154,7 @@ TEST(ABlenderPlyModelTest, FaceMaterialSlotMapCanHaveDistinctCounts)
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
+	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 
 	const TransientVisualElement result = actor.stagelessCook(ctx);
 
@@ -176,7 +180,7 @@ TEST(ABlenderPlyModelTest, ThrowsOnOutOfRangeMaterialSlot)
 	Filesystem::createDirectories(testDirectory);
 	write_material_range_blender_ply(tempPlyFile, faceMaterialSlots);
 
-	auto geometry = std::make_shared<GBlenderPlyPolygonMesh>();
+	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
 	ABlenderPlyModel actor;
@@ -186,6 +190,7 @@ TEST(ABlenderPlyModelTest, ThrowsOnOutOfRangeMaterialSlot)
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
+	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 
 	EXPECT_THROW(actor.stagelessCook(ctx), ActorCookException);
 }

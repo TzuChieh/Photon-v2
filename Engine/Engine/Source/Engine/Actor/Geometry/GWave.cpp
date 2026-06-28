@@ -20,8 +20,8 @@ GWave::GWave(const real xLen, const real yLen, const real zLen) :
 
 // TODO: this could be in terms of triangle mesh
 void GWave::storeCooked(
-	CookedGeometry& out_geometry,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedGeometry& out_geometry) const
 {
 	if(!checkData(m_xLen, m_yLen, m_xLen))
 	{

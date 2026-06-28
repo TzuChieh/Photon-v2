@@ -14,8 +14,8 @@ public:
 	GEmpty() = default;
 
 	void storeCooked(
-		CookedGeometry& out_geometry,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedGeometry& out_geometry) const override;
 };
 
 }// end namespace ph
