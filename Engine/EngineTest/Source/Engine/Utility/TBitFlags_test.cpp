@@ -129,3 +129,22 @@ TEST(TBitFlagsTest, TurnOffSpecificFlags)
 
 	EXPECT_TRUE(flags1.hasExactly({int(1) << 6}));
 }
+
+TEST(TBitFlagsTest, ClearAllFlags)
+{
+	{
+		IntFlags flags1({int(1) << 0, int(1) << 3, int(1) << 6});
+
+		EXPECT_FALSE(flags1.isEmpty());
+		EXPECT_TRUE(flags1.clear().isEmpty());
+		EXPECT_EQ(flags1.get(), 0);
+	}
+
+	{
+		EnumFlags flags2({ETest::A, ETest::B, ETest::D});
+		flags2.clear();
+
+		EXPECT_TRUE(flags2.isEmpty());
+		EXPECT_TRUE(flags2.hasNone({ETest::A, ETest::B, ETest::C, ETest::D}));
+	}
+}
