@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Math/TMatrix2.h"
 #include "Engine/Math/TVector2.h"
@@ -155,22 +155,22 @@ inline bool TMatrix2<T>::solve(
 		return false;
 	}
 
-	const T rcpDet = static_cast<T>(1) / determinant();
+	const T rcpDet = static_cast<T>(1) / det;
 
 	PH_ASSERT(out_xs);
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		(*out_xs)[i][0] = (m[1][1] * bs[i][0] - m[0][1] * bs[i][1]) * rcpDet;
-		(*out_xs)[i][1] = (m[0][0] * bs[i][1] - m[1][0] * bs[i][0]) * rcpDet;
-	}
-
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		if(!std::isfinite((*out_xs)[i][0]) || !std::isfinite((*out_xs)[i][1]))
+		const T x0 = (m[1][1] * bs[i][0] - m[0][1] * bs[i][1]) * rcpDet;
+		const T x1 = (m[0][0] * bs[i][1] - m[1][0] * bs[i][0]) * rcpDet;
+		if(!std::isfinite(x0) || !std::isfinite(x1))
 		{
 			return false;
 		}
+
+		(*out_xs)[i][0] = x0;
+		(*out_xs)[i][1] = x1;
 	}
+
 	return true;
 }
 
