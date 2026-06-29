@@ -33,8 +33,7 @@ public:
 	virtual bool isVolumetricEmissionSupported() const = 0;
 
 	/*!
-	Generate a suitable material for the light source if physical entity will be present in the scene.
-	The default implementation generates a pure diffuse material with moderate albedo.
+	@return A material suitable for the light source if a physical entity will be present in the scene.
 	*/
 	virtual std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const;
 

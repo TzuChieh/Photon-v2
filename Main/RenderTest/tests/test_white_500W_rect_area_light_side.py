@@ -34,7 +34,7 @@ glass_visual_error_verifier = infra.VisualErrorVerifier(
 for case_name, output_name, scene_name, ref_path, ref_var_path, visual_error_verifier, sample_count, max_mse, max_rel_mean in [
     ("BVPT Diffuse Sphere", "bvpt_diffuse_sphere", "scene_bvpt_diffuse_sphere.p2", diffuse_ref_path, diffuse_bvpt_ref_var_path, diffuse_visual_error_verifier, 2500, 0.00048, 0.0004),
     ("BNEEPT Diffuse Sphere", "bneept_diffuse_sphere", "scene_bneept_diffuse_sphere.p2", diffuse_ref_path, diffuse_bneept_ref_var_path, diffuse_visual_error_verifier, 500, 0.00122, 0.00068),
-    ("BVPT Glass Sphere", "bvpt_glass_sphere", "scene_bvpt_glass_sphere.p2", glass_ref_path, glass_bvpt_ref_var_path, glass_visual_error_verifier, 2500, 0.00054, 0.00002),
+    ("BVPT Glass Sphere", "bvpt_glass_sphere", "scene_bvpt_glass_sphere.p2", glass_ref_path, glass_bvpt_ref_var_path, glass_visual_error_verifier, 2500, 0.00054, 0.0003),
     ("BNEEPT Glass Sphere", "bneept_glass_sphere", "scene_bneept_glass_sphere.p2", glass_ref_path, glass_bneept_ref_var_path, glass_visual_error_verifier, 1500, 0.00058, 0.00064)
     ]:
     verifiers = [

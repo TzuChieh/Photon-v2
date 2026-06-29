@@ -17,19 +17,17 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedSurfaceMaterial, Material);
 
 void BinaryMixedSurfaceMaterial::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	if(!m_material0 || !m_material1)
 	{
 		throw CookException("One or more materials are empty. Cannot perform binary mix operation.");
 	}
 
-	const CookedMaterial* cookedMaterial0 = m_material0->createCooked(ctx);
-	const CookedMaterial* cookedMaterial1 = m_material1->createCooked(ctx);
-
-	if(!(cookedMaterial0 && cookedMaterial0->surfaceOptics) || 
-	   !(cookedMaterial1 && cookedMaterial1->surfaceOptics))
+	const CookedMaterial* cookedMaterial0 = ctx.getCooked(*m_material0);
+	const CookedMaterial* cookedMaterial1 = ctx.getCooked(*m_material1);
+	if(!cookedMaterial0->surfaceOptics || !cookedMaterial1->surfaceOptics)
 	{
 		throw CookException("Surface optics generation failed. Cannot perform binary mix operation.");
 	}

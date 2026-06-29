@@ -26,6 +26,7 @@ TEST(HitInfoTest, NoShadingNormal)
 	EXPECT_TRUE(info.getShadingBasis().getXAxis().isEqual(info.getGeometryBasis().getXAxis()));
 	EXPECT_TRUE(info.getShadingBasis().getYAxis().isEqual(info.getGeometryBasis().getYAxis()));
 	EXPECT_TRUE(info.getShadingBasis().getZAxis().isEqual(info.getGeometryBasis().getZAxis()));
+	EXPECT_EQ(info.getShadingNormal(), info.getGeometryNormal());
 }
 
 TEST(HitInfoTest, WithShadingNormal)

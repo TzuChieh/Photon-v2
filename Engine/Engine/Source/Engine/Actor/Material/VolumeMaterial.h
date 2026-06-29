@@ -10,8 +10,8 @@ class VolumeMaterial : public Material
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override = 0;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override = 0;
 
 	uint16 getOverlapPriority() const override;
 

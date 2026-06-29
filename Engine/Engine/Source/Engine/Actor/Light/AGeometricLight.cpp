@@ -1,6 +1,8 @@
 #include "Engine/Actor/Light/AGeometricLight.h"
+#include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/Math/math.h"
 #include "Engine/Actor/Material/MatteOpaque.h"
+#include "Engine/SDL/TSdl.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -8,6 +10,7 @@
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/CookedResourceKey.h"
@@ -56,16 +59,15 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 	if(!geometry)
 	{
-		PH_LOG(AGeometricLight, Error,
+		throw ActorCookException(
 			"cannot build geometric light, please make sure the actor is geometric or supply a "
 			"valid geometry resource");
-		return TransientVisualElement();
 	}
 
 	if(!material)
 	{
 		PH_LOG(AGeometricLight, Note,
-			"material is not specified, using default diffusive material");
+			"material is not specified, using default material");
 		material = TSdl<MatteOpaque>::makeResource();
 	}
 
@@ -76,16 +78,23 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	{
 		sanifiedGeometry->cook(ctx, *ctx.getResources().makeGeometry(key));
 	}
-	
+
 	const CookedGeometry* cookedGeometry = ctx.getCooked(sanifiedGeometry);
-	if(!cookedGeometry || cookedGeometry->primitives.empty())
+	if(cookedGeometry->primitives.empty())
 	{
 		return TransientVisualElement();
 	}
 
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
-	
-	CookedMaterial* cookedMaterial = material->createCooked(ctx);
+
+	const CookedMaterial* cookedMaterial = ctx.getCooked(material);
+	if(!cookedMaterial)
+	{
+		const auto materialKey = ctx.getKey(*material);
+		CookedMaterial* const newCookedMaterial = ctx.getResources().makeMaterial(materialKey);
+		material->cook(ctx, *newCookedMaterial);
+		cookedMaterial = newCookedMaterial;
+	}
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 	if(isVolumetricEmissionSupported() && material->getOverlapPriority() > 0)

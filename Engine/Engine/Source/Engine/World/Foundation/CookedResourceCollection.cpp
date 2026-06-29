@@ -18,9 +18,9 @@ const CookedGeometry* CookedResourceCollection::getGeometry(const CookedResource
 	return getCookedResourceByKey(m_keyToGeometry, key);
 }
 
-const CookedMaterial* CookedResourceCollection::getMaterial(const SdlResourceId id) const
+const CookedMaterial* CookedResourceCollection::getMaterial(const CookedResourceKey& key) const
 {
-	return getCookedResourceByID(m_idToMaterial, id);
+	return getCookedResourceByKey(m_keyToMaterial, key);
 }
 
 const CookedMotion* CookedResourceCollection::getMotion(const SdlResourceId id) const
@@ -32,13 +32,14 @@ std::string CookedResourceCollection::getStats() const
 {
 	return std::format(
 		"{} metadatas, {} transforms, {} intersectables, {} emitters, {} triangle buffers, "
-		"{} geometries, {} motions",
+		"{} geometries, {} materials, {} motions",
 		m_metadatas->size(),
 		m_transforms->size(), 
 		m_intersectables->size(),
 		m_emitters->size(),
 		m_triangleBuffers->size(),
 		m_keyToGeometry->size(),
+		m_keyToMaterial->size(),
 		m_idToMotion->size());
 }
 

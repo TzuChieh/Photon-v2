@@ -26,8 +26,8 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(IdealSubstance, Material);
 
 void IdealSubstance::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	switch(m_substance)
 	{

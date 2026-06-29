@@ -16,6 +16,7 @@
 #include "Engine/Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Engine/Actor/APhantomModel.h"
 #include "Engine/Actor/Geometry/Geometry.h"
+#include "Engine/Actor/Material/Material.h"
 #include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
@@ -114,10 +115,14 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 			[&ctx](const Geometry& geometry)
 			{
 				const auto key = ctx.getKey(geometry);
-				if(!ctx.getResources().getGeometry(key))
-				{
-					geometry.cook(ctx, *ctx.getResources().makeGeometry(key));
-				}
+				PH_ASSERT(!ctx.getResources().getGeometry(key));
+				geometry.cook(ctx, *ctx.getResources().makeGeometry(key));
+			},
+			[&ctx](const Material& material)
+			{
+				const auto key = ctx.getKey(material);
+				PH_ASSERT(!ctx.getResources().getMaterial(key));
+				material.cook(ctx, *ctx.getResources().makeMaterial(key));
 			});
 	}
 

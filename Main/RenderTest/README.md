@@ -52,7 +52,7 @@ After this, you can execute `pip install -r ./RenderTest/requirements.txt` to in
 
 ## Parallel Test Execution
 
-Most tests already utilizes threading provided by Photon itself. However, tests run by `pytest` is sequential by default. You can install the `pytest-xdist` plugin (`pip install pytest-xdist`) and run tests across multiple CPU cores. For example, to run tests using 20 CPU cores, you can execute the following command:
+Most tests already utilizes threading provided by Photon itself. However, tests run by `pytest` is sequential by default. The RenderTest requirements include `pytest-xdist`, so pass `-n <count>` to run tests across multiple CPU cores. For example, to run tests using 20 CPU cores, you can execute the following command:
 
 ```shell
 python ./RenderTest/run_and_report.py -n 20

@@ -1,10 +1,7 @@
 #include "Engine/Actor/Material/FullMaterial.h"
-#include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/World/Foundation/CookedResourceCollection.h"
 
-#include <Common/assertion.h>
 #include <Common/logging.h>
 
 #include <algorithm>
@@ -15,8 +12,8 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(FullMaterial, Material);
 
 void FullMaterial::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	if(!m_surfaceMaterial && !m_interiorMaterial && !m_exteriorMaterial)
 	{
@@ -26,13 +23,13 @@ void FullMaterial::storeCooked(
 
 	if(m_surfaceMaterial)
 	{
-		const CookedMaterial* cooked = m_surfaceMaterial->createCooked(ctx);
-		out_material.surfaceOptics = cooked && cooked->surfaceOptics ? cooked->surfaceOptics : nullptr;
+		const CookedMaterial* cooked = ctx.getCooked(*m_surfaceMaterial);
+		out_material.surfaceOptics = cooked->surfaceOptics;
 	}
 
-	const CookedMaterial* cookedInterior = m_interiorMaterial ? m_interiorMaterial->createCooked(ctx) : nullptr;
-	if(cookedInterior)
+	if(m_interiorMaterial)
 	{
+		const CookedMaterial* cookedInterior = ctx.getCooked(*m_interiorMaterial);
 		const VolumeOptics* optics = nullptr;
 		cookedInterior->findFirstCompatibleOptics(&optics, nullptr);
 		if(optics)
@@ -43,9 +40,9 @@ void FullMaterial::storeCooked(
 		}
 	}
 	
-	const CookedMaterial* cookedExterior = m_exteriorMaterial ? m_exteriorMaterial->createCooked(ctx) : nullptr;
-	if(cookedExterior)
+	if(m_exteriorMaterial)
 	{
+		const CookedMaterial* cookedExterior = ctx.getCooked(*m_exteriorMaterial);
 		const VolumeOptics* optics = nullptr;
 		cookedExterior->findFirstCompatibleOptics(nullptr, &optics);
 		if(optics)

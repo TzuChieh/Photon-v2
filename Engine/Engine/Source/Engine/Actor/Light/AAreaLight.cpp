@@ -25,7 +25,7 @@ std::shared_ptr<Geometry> AAreaLight::getGeometry(const CookingContext& ctx) con
 	return area;
 }
 
-std::shared_ptr<Material> AAreaLight::getMaterial(const CookingContext& ctx) const
+std::shared_ptr<Material> AAreaLight::getMaterial(const CookingContext&) const
 {
 	// TODO: transmitter if not want to cast shadow
 

@@ -10,8 +10,8 @@ namespace ph
 {
 
 void IdealMedium::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	out_material.volumeCompositions.push_back({
 		.optics = ctx.getResources().makeVolumeOptics<HomogeneousAbsorption>(

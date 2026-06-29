@@ -1,21 +1,13 @@
 #include "Engine/Actor/Material/Material.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/World/Foundation/CookedResourceCollection.h"
-
-#include <Common/assertion.h>
 
 namespace ph
 {
 
-CookedMaterial* Material::createCooked(const CookingContext& ctx) const
+void Material::cook(const CookingContext& ctx, CookedMaterial& out_material) const
 {
-	CookedMaterial* cookedMaterial = ctx.getResources().makeMaterial(getId());
-	PH_ASSERT(cookedMaterial);
-
-	storeCooked(*cookedMaterial, ctx);
-
-	return cookedMaterial;
+	storeCooked(ctx, out_material);
 }
 
 }// end namespace ph

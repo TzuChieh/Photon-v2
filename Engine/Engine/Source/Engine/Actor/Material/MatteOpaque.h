@@ -14,8 +14,8 @@ class MatteOpaque : public SurfaceMaterial
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override;
 
 	/*!
 	@param albedo Albedo in linear-sRGB.

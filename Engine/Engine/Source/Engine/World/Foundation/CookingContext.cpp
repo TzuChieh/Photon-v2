@@ -3,6 +3,7 @@
 #include "Engine/World/Foundation/CookedResourceKey.h"
 #include "Engine/World/VisualWorld.h"
 #include "Engine/Actor/Geometry/Geometry.h"
+#include "Engine/Actor/Material/Material.h"
 #include "Engine/Actor/Actor.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 
@@ -90,6 +91,16 @@ const CookedGeometry* CookingContext::getCooked(const Geometry& geometry) const
 const CookedGeometry* CookingContext::getCooked(const std::shared_ptr<Geometry>& geometry) const
 {
 	return geometry ? getCooked(*geometry) : nullptr;
+}
+
+const CookedMaterial* CookingContext::getCooked(const Material& material) const
+{
+	return getResources().getMaterial(getKey(material));
+}
+
+const CookedMaterial* CookingContext::getCooked(const std::shared_ptr<Material>& material) const
+{
+	return material ? getCooked(*material) : nullptr;
 }
 
 const TransientVisualElement* CookingContext::getCached(const std::shared_ptr<Actor>& actor) const

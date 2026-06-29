@@ -17,8 +17,8 @@ public:
 	ThinFilm();
 
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override;
 
 private:
 	std::vector<real> m_wavelengthTable;

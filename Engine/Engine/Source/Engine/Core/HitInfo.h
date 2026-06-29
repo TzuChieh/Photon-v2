@@ -14,6 +14,9 @@ namespace ph
 class Primitive;
 
 /*! @brief General information for a ray-primitive intersection.
+
+If no explicit shading normal is supplied, geometry normal is used as the shading normal.
+`hasShadingNormal()` only reports whether an explicit shading normal was supplied.
 */
 class HitInfo final
 {
@@ -45,6 +48,10 @@ public:
 
 	math::Vector3R getPos() const;
 	math::Vector3R getGeometryNormal() const;
+
+	/*!
+	@return Effective shading normal. Falls back to geometry normal if no explicit shading normal is supplied.
+	*/
 	math::Vector3R getShadingNormal() const;
 
 	/*!
@@ -59,7 +66,11 @@ public:
 	const math::Basis3R& getGeometryBasis() const;
 	const math::Basis3R& getShadingBasis() const;
 
+	/*!
+	@return Whether an explicit shading normal was supplied. False means `getShadingNormal()` uses geometry normal.
+	*/
 	bool hasShadingNormal() const;
+	
 	bool hasShadingTangent() const;
 
 private:
@@ -96,7 +107,6 @@ inline math::Vector3R HitInfo::getGeometryNormal() const
 
 inline math::Vector3R HitInfo::getShadingNormal() const
 {
-	PH_ASSERT(hasShadingNormal());
 	return m_shadingBasis.getYAxis();
 }
 

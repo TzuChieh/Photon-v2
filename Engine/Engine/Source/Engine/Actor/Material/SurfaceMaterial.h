@@ -10,8 +10,8 @@ class SurfaceMaterial : public Material
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override = 0;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(SurfaceMaterial, clazz)

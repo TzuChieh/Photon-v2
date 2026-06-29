@@ -84,6 +84,17 @@ std::vector<std::shared_ptr<Material>> make_material_slots(const std::size_t num
 	return materials;
 }
 
+void cook_materials(
+	const std::vector<std::shared_ptr<Material>>& materials,
+	const CookingContext& ctx,
+	CookedResourceCollection& resources)
+{
+	for(const auto& material : materials)
+	{
+		material->cook(ctx, *resources.makeMaterial(ctx.getKey(material)));
+	}
+}
+
 }// end namespace
 
 TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
@@ -102,11 +113,13 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 	ABlenderPlyModel actor;
 	actor.setBaseTransform(TDecomposedTransform<real>());
 	actor.setGeometry(geometry);
-	actor.setMaterials(make_material_slots(16));
+	auto materials = make_material_slots(16);
+	actor.setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
+	cook_materials(materials, ctx, resources);
 
 	const TransientVisualElement result = actor.stagelessCook(ctx);
 
@@ -150,11 +163,13 @@ TEST(ABlenderPlyModelTest, FaceMaterialSlotMapCanHaveDistinctCounts)
 	ABlenderPlyModel actor;
 	actor.setBaseTransform(TDecomposedTransform<real>());
 	actor.setGeometry(geometry);
-	actor.setMaterials(make_material_slots(8));
+	auto materials = make_material_slots(8);
+	actor.setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
+	cook_materials(materials, ctx, resources);
 
 	const TransientVisualElement result = actor.stagelessCook(ctx);
 
@@ -186,11 +201,13 @@ TEST(ABlenderPlyModelTest, ThrowsOnOutOfRangeMaterialSlot)
 	ABlenderPlyModel actor;
 	actor.setBaseTransform(TDecomposedTransform<real>());
 	actor.setGeometry(geometry);
-	actor.setMaterials(make_material_slots(8));
+	auto materials = make_material_slots(8);
+	actor.setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
+	cook_materials(materials, ctx, resources);
 
 	EXPECT_THROW(actor.stagelessCook(ctx), ActorCookException);
 }

@@ -39,8 +39,8 @@ class IdealSubstance : public SurfaceMaterial
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override;
 
 	void setSubstance(EIdealSubstance substance);
 

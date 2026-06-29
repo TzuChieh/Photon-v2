@@ -12,8 +12,8 @@ namespace ph
 {
 
 void ThinDielectricSurface::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	std::shared_ptr<TTexture<math::Spectrum>> reflectionScale = m_reflectionScale
 		? m_reflectionScale->genColorTexture(ctx) : nullptr;

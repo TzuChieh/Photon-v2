@@ -1,4 +1,4 @@
-#include "Engine/Actor/ABlenderPlyModel.h"
+﻿#include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/Primitive.h"
@@ -59,7 +59,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 	const PreCookReport& report) const
 {
 	const CookedGeometry* const cookedGeometry = ctx.getCooked(m_geometry);
-	if(!cookedGeometry || cookedGeometry->primitives.empty())
+	if(cookedGeometry->primitives.empty())
 	{
 		return TransientVisualElement();
 	}
@@ -85,9 +85,8 @@ TransientVisualElement ABlenderPlyModel::cook(
 	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
 	{
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
+		const CookedMaterial* cookedMaterial = ctx.getCooked(material);
 		PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
-		CookedMaterial* cookedMaterial = material->createCooked(ctx);
-
 		metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 		if(material->getOverlapPriority() > 0)

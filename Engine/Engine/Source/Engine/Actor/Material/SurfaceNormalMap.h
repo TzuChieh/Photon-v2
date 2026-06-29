@@ -13,8 +13,8 @@ class SurfaceNormalMap : public SurfaceMaterial
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override;
 
 private:
 	std::shared_ptr<SurfaceMaterial> m_material;

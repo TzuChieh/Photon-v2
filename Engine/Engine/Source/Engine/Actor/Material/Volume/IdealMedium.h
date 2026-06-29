@@ -25,8 +25,8 @@ class IdealMedium : public VolumeMaterial
 {
 public:
 	void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const override;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const override;
 
 private:
 	math::Spectrum m_absorptionCoeff;

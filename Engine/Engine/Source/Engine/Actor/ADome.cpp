@@ -1,6 +1,7 @@
 #include "Engine/Actor/ADome.h"
 #include "Engine/Actor/Geometry/GSphere.h"
 #include "Engine/Actor/Material/IdealSubstance.h"
+#include "Engine/SDL/TSdl.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/Core/Transform/StaticRigidTransform.h"
 #include "Engine/Core/Intersection/PLatLongEnvSphere.h"
@@ -10,10 +11,11 @@
 #include "Engine/Core/Texture/Function/unary_texture_operators.h"
 #include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
-#include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 
+#include <Common/assertion.h>
 #include <Common/logging.h>
 
 #include <algorithm>
@@ -75,14 +77,18 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 
 	// A dome should not have any visible inter-reflections, ideally
-	auto material = std::make_shared<IdealSubstance>();
+	auto material = TSdl<IdealSubstance>::makeResource();
 	material->setSubstance(EIdealSubstance::Absorber);
-	metadata->surface().setOptics(material->createCooked(ctx)->surfaceOptics);
-	
 	if(material->getOverlapPriority() > 0)
 	{
 		// TODO: volume optics
 	}
+
+	const auto materialKey = ctx.getKey(*material);
+	PH_ASSERT(!ctx.getResources().getMaterial(materialKey));
+	CookedMaterial* const cookedMaterial = ctx.getResources().makeMaterial(materialKey);
+	material->cook(ctx, *cookedMaterial);
+	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 	auto* domePrimitive = ctx.getResources().copyIntersectable(
 		PrimitiveBuilder::embedding<PLatLongEnvSphere>(domeRadius, localToWorld, worldToLocal)

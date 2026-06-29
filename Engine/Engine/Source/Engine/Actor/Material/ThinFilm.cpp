@@ -15,8 +15,8 @@ ThinFilm::ThinFilm() :
 {}
 
 void ThinFilm::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	std::vector<math::SampledSpectrum> reflectanceTable(91);
 	std::vector<math::SampledSpectrum> transmittanceTable(91);

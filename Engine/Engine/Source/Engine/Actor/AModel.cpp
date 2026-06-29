@@ -13,6 +13,7 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
+#include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookedMotion.h"
 
 #include <Common/logging.h>
@@ -53,11 +54,12 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	const CookedGeometry* cookedGeometry = ctx.getCooked(m_geometry);
-	if(!cookedGeometry || cookedGeometry->primitives.empty())
+	if(cookedGeometry->primitives.empty())
 	{
 		return TransientVisualElement();
 	}
 
+	const CookedMaterial* cookedMaterial = ctx.getCooked(m_material);
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 
 	TransientVisualElement result;
@@ -112,7 +114,6 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		}
 	}
 
-	CookedMaterial* cookedMaterial = m_material->createCooked(ctx);
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 	if(m_material->getOverlapPriority() > 0)

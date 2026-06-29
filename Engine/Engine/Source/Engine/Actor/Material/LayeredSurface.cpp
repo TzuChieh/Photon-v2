@@ -10,8 +10,8 @@ namespace ph
 {
 
 void LayeredSurface::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	std::vector<real>           alphas;
 	std::vector<math::Spectrum> iorNs;

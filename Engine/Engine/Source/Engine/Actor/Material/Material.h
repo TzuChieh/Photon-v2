@@ -17,12 +17,12 @@ public:
 	/*! @brief Store data suitable for rendering into `out_material`.
 	*/
 	virtual void storeCooked(
-		CookedMaterial& out_material,
-		const CookingContext& ctx) const = 0;
+		const CookingContext& ctx,
+		CookedMaterial& out_material) const = 0;
 
-	/*! @brief Create a `CookedMaterial` that contains data suitable for rendering.
+	/*! @brief Cook material using the provided context and output storage.
 	*/
-	CookedMaterial* createCooked(const CookingContext& ctx) const;
+	void cook(const CookingContext& ctx, CookedMaterial& out_material) const;
 
 	/*! @brief Priority for resolving overlapping volume optics.
 	A value of 0 means the material does not contribute volume optics during actor cooking.

@@ -8,8 +8,8 @@ namespace ph
 {
 
 void AbradedOpaque::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<OpaqueMicrofacet>(
 		m_interfaceInfo.genFresnelEffect(),

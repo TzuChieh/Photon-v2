@@ -9,15 +9,18 @@ namespace ph
 {
 
 void SurfaceNormalMap::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	if(!m_material)
 	{
 		throw CookException("No target material specified for surface normal map.");
 	}
 
-	m_material->storeCooked(out_material, ctx);
+	const CookedMaterial* cookedMaterial = ctx.getCooked(*m_material);
+
+	// Fallback to base material first, then wrap it with normal map
+	out_material = *cookedMaterial;
 	
 	if(m_map)
 	{

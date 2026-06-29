@@ -17,8 +17,8 @@ namespace ph
 {
 
 void MatteOpaque::storeCooked(
-	CookedMaterial& out_material,
-	const CookingContext& ctx) const
+	const CookingContext& ctx,
+	CookedMaterial& out_material) const
 {
 	auto albedo = m_albedo;
 	if(!albedo)

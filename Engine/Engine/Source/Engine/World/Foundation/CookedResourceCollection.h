@@ -108,9 +108,9 @@ public:
 	}
 
 	template<typename... DeducedArgs>
-	CookedMaterial* makeMaterial(const SdlResourceId id, DeducedArgs&&... args)
+	CookedMaterial* makeMaterial(const CookedResourceKey& key, DeducedArgs&&... args)
 	{
-		return makeCookedResourceWithID(m_idToMaterial, id, std::forward<DeducedArgs>(args)...);
+		return makeCookedResourceWithKey(m_keyToMaterial, key, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<typename... DeducedArgs>
@@ -125,7 +125,7 @@ public:
 	TSynchronized<CookedNamedResource>& getNamed();
 
 	const CookedGeometry* getGeometry(const CookedResourceKey& key) const;
-	const CookedMaterial* getMaterial(const SdlResourceId id) const;
+	const CookedMaterial* getMaterial(const CookedResourceKey& key) const;
 	const CookedMotion* getMotion(const SdlResourceId id) const;
 
 private:
@@ -138,7 +138,7 @@ private:
 	TSynchronized<TUniquePtrVector<VolumeOptics>> m_volumeOptics;
 
 	TSynchronized<TCookedResourceKeyMap<CookedGeometry>> m_keyToGeometry;
-	TSynchronized<TSdlResourceIdMap<CookedMaterial>> m_idToMaterial;
+	TSynchronized<TCookedResourceKeyMap<CookedMaterial>> m_keyToMaterial;
 	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
 
 	TSynchronized<CookedNamedResource> m_namedResource;
