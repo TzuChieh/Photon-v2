@@ -59,22 +59,31 @@ public:
 	const math::Matrix4R& getInversedTransformMatrix() const;
 
 private:
-	void transformVector(
+	void doTransformRay(
+		const Ray& ray,
+		Ray*       out_ray) const override;
+
+	void doTransformHitInfo(
+		const HitInfo& info,
+		const Time&    time,
+		HitInfo*       out_info) const override;
+
+	void doTransformVector(
 		const math::Vector3R& vector,
 		const Time&           time,
 		math::Vector3R*       out_vector) const override;
 
-	void transformOrientation(
+	void doTransformOrientation(
 		const math::Vector3R& orientation,
 		const Time&           time,
 		math::Vector3R*       out_orientation) const override;
 
-	void transformPoint(
+	void doTransformPoint(
 		const math::Vector3R& point,
 		const Time&           time,
 		math::Vector3R*       out_point) const override;
 
-	void transformLineSegment(
+	void doTransformLineSegment(
 		const math::TLineSegment<real>& segment,
 		const Time&                     time,
 		math::TLineSegment<real>*       out_segment) const override;
@@ -158,6 +167,31 @@ inline const math::Matrix4R& StaticAffineTransform
 ::getInversedTransformMatrix() const
 {
 	return m_inverseTransformMatrix;
+}
+
+inline void StaticAffineTransform::doTransformVector(
+	const math::Vector3R& vector,
+	const Time&,
+	math::Vector3R* const out_vector) const
+{
+	// TODO: use quaternion
+	m_transformMatrix.mul(vector, out_vector);
+}
+
+inline void StaticAffineTransform::doTransformOrientation(
+	const math::Vector3R& orientation,
+	const Time&,
+	math::Vector3R* const out_orientation) const
+{
+	m_inverseTransformMatrix.transposeMul(orientation, out_orientation);
+}
+
+inline void StaticAffineTransform::doTransformPoint(
+	const math::Vector3R& point,
+	const Time&,
+	math::Vector3R* const out_point) const
+{
+	m_transformMatrix.mul(point, 1.0_r, out_point);
 }
 
 // FIXME: precision loss in parent (it is using real number)

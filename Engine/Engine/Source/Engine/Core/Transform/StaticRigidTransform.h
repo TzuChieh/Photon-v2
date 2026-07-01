@@ -57,22 +57,31 @@ public:
 	StaticRigidTransform();
 
 private:
-	void transformVector(
+	void doTransformRay(
+		const Ray& ray,
+		Ray*       out_ray) const override;
+
+	void doTransformHitInfo(
+		const HitInfo& info,
+		const Time&    time,
+		HitInfo*       out_info) const override;
+
+	void doTransformVector(
 		const math::Vector3R& vector,
 		const Time&           time,
 		math::Vector3R*       out_vector) const override;
 
-	void transformOrientation(
+	void doTransformOrientation(
 		const math::Vector3R& orientation,
 		const Time&           time,
 		math::Vector3R*       out_orientation) const override;
 
-	void transformPoint(
+	void doTransformPoint(
 		const math::Vector3R& point,
 		const Time&           time,
 		math::Vector3R*       out_point) const override;
 
-	void transformLineSegment(
+	void doTransformLineSegment(
 		const math::TLineSegment<real>& segment,
 		const Time&                     time,
 		math::TLineSegment<real>*       out_segment) const override;
@@ -203,6 +212,55 @@ inline void StaticRigidTransform::getScaleFreeTransforms(
 			out_scaleFreeTransforms[ti] = math::TDecomposedTransform<U>(transforms[ti]).setScale(1);
 		}
 	}
+}
+
+inline void StaticRigidTransform::doTransformVector(
+	const math::Vector3R& vector,
+	const Time&           time,
+	math::Vector3R* const out_vector) const
+{
+	// Explicitly quality with `StaticAffineTransform` otherwise MSVC will still call through vtable;
+	// same goes for the following inlined methods.
+	m_staticTransform.StaticAffineTransform::doTransformVector(vector, time, out_vector);
+}
+
+inline void StaticRigidTransform::doTransformOrientation(
+	const math::Vector3R& orientation,
+	const Time&           time,
+	math::Vector3R* const out_orientation) const
+{
+	m_staticTransform.StaticAffineTransform::doTransformOrientation(orientation, time, out_orientation);
+}
+
+inline void StaticRigidTransform::doTransformPoint(
+	const math::Vector3R& point,
+	const Time&           time,
+	math::Vector3R* const out_point) const
+{
+	m_staticTransform.StaticAffineTransform::doTransformPoint(point, time, out_point);
+}
+
+inline void StaticRigidTransform::doTransformRay(
+	const Ray& ray,
+	Ray* const out_ray) const
+{
+	m_staticTransform.StaticAffineTransform::doTransformRay(ray, out_ray);
+}
+
+inline void StaticRigidTransform::doTransformHitInfo(
+	const HitInfo& info,
+	const Time&    time,
+	HitInfo* const out_info) const
+{
+	m_staticTransform.StaticAffineTransform::doTransformHitInfo(info, time, out_info);
+}
+
+inline void StaticRigidTransform::doTransformLineSegment(
+	const math::TLineSegment<real>& segment,
+	const Time&                     time,
+	math::TLineSegment<real>* const out_segment) const
+{
+	m_staticTransform.StaticAffineTransform::doTransformLineSegment(segment, time, out_segment);
 }
 
 }// end namespace ph::math

@@ -21,7 +21,7 @@ std::unique_ptr<Transform> DynamicLinearTranslation::genInversed() const
 	                                                  m_translationT1.mul(-1));
 }
 
-void DynamicLinearTranslation::transformVector(
+void DynamicLinearTranslation::doTransformVector(
 	const math::Vector3R& vector,
 	const Time&           time,
 	math::Vector3R* const out_vector) const
@@ -29,7 +29,7 @@ void DynamicLinearTranslation::transformVector(
 	*out_vector = vector;
 }
 
-void DynamicLinearTranslation::transformOrientation(
+void DynamicLinearTranslation::doTransformOrientation(
 	const math::Vector3R& orientation,
 	const Time&           time,
 	math::Vector3R* const out_orientation) const
@@ -37,7 +37,7 @@ void DynamicLinearTranslation::transformOrientation(
 	*out_orientation = orientation;
 }
 
-void DynamicLinearTranslation::transformPoint(
+void DynamicLinearTranslation::doTransformPoint(
 	const math::Vector3R& point,
 	const Time&           time,
 	math::Vector3R* const out_point) const
@@ -45,13 +45,13 @@ void DynamicLinearTranslation::transformPoint(
 	*out_point = point.add(math::Vector3R::lerp(m_translationT0, m_translationT1, time.relativeT));
 }
 
-void DynamicLinearTranslation::transformLineSegment(
+void DynamicLinearTranslation::doTransformLineSegment(
 	const math::TLineSegment<real>& segment,
 	const Time&                     time,
 	math::TLineSegment<real>* const out_segment) const
 {
 	math::Vector3R tOrigin;
-	DynamicLinearTranslation::transformPoint(segment.getOrigin(), time, &tOrigin);
+	DynamicLinearTranslation::doTransformPoint(segment.getOrigin(), time, &tOrigin);
 
 	*out_segment = segment;
 	out_segment->setOrigin(tOrigin);

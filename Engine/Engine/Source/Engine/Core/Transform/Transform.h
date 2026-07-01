@@ -82,7 +82,7 @@ public:
 	this operation will always yield a correctly transformed result while saving an expensive `sqrt()` call.
 	*/
 	void transform(
-		const Ray& ray, 
+		const Ray& ray,
 		Ray*       out_ray) const;
 
 	void transform(
@@ -109,7 +109,7 @@ public:
 		math::AABB3D*       out_aabb) const;
 
 	void transform(
-		const HitInfo& info, 
+		const HitInfo& info,
 		const Time&    time,
 		HitInfo*       out_info) const;
 
@@ -124,20 +124,34 @@ public:
 		math::AABB3D*       out_aabb) const;
 
 private:
+	/*! @brief Optional fast paths for composite transform operations.
+	Derived implementations must match the default implementation's behavior.
+	*/
+	///@{
+	virtual void doTransformRay(
+		const Ray& ray,
+		Ray*       out_ray) const;
+
+	virtual void doTransformHitInfo(
+		const HitInfo& info,
+		const Time&    time,
+		HitInfo*       out_info) const;
+	///@}
+
 	/*! @brief Treating a `Vector3R` as either a vector, orientation, or point and calculate the transformed result.
 	*/
 	///@{
-	virtual void transformVector(
+	virtual void doTransformVector(
 		const math::Vector3R& vector, 
 		const Time&           time,
 		math::Vector3R*       out_vector) const = 0;
 
-	virtual void transformOrientation(
+	virtual void doTransformOrientation(
 		const math::Vector3R& orientation, 
 		const Time&           time,
 		math::Vector3R*       out_orientation) const = 0;
 
-	virtual void transformPoint(
+	virtual void doTransformPoint(
 		const math::Vector3R& point, 
 		const Time&           time,
 		math::Vector3R*       out_point) const = 0;
@@ -146,10 +160,25 @@ private:
 	/*! @brief Transform the specified line segment.
 	Also note that line direction is not necessary normalized.
 	*/
-	virtual void transformLineSegment(
+	virtual void doTransformLineSegment(
 		const math::TLineSegment<real>& segment,
 		const Time&                     time,
 		math::TLineSegment<real>*       out_segment) const = 0;
 };
+
+inline void Transform::transform(
+	const Ray& ray,
+	Ray* const out_ray) const
+{
+	doTransformRay(ray, out_ray);
+}
+
+inline void Transform::transform(
+	const HitInfo& info,
+	const Time&    time,
+	HitInfo* const out_info) const
+{
+	doTransformHitInfo(info, time, out_info);
+}
 
 }// end namespace ph
