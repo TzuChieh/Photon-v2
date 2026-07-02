@@ -32,6 +32,7 @@ You can find the main entries in `Main/Documentation/`.
 ## Development Conventions
 
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
+- In hot C++ polymorphic paths, do not assume MSVC devirtualizes unqualified virtual calls on concrete objects or value members; when exact concrete dispatch is intended, use qualified calls and verify speed claims with generated assembly plus repeated workload timing.
 
 ## Rules
 - Do not build or run binaries/tests unless requested; use `test-runner` with `python .\scripts\dev_setup_and_build.py` for validation, and `binary-updater` for binary refreshes.

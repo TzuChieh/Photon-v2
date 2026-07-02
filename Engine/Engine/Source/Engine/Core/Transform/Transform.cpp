@@ -21,7 +21,7 @@ void Transform::transformV(
 	const Time&           time,
 	math::Vector3R* const out_vector) const
 {
-	transformVector(vector, time, out_vector);
+	doTransformVector(vector, time, out_vector);
 }
 
 void Transform::transformO(
@@ -29,7 +29,7 @@ void Transform::transformO(
 	const Time&           time,
 	math::Vector3R* const out_orientation) const
 {
-	transformOrientation(orientation, time, out_orientation);
+	doTransformOrientation(orientation, time, out_orientation);
 }
 
 void Transform::transformP(
@@ -37,31 +37,31 @@ void Transform::transformP(
 	const Time&           time,
 	math::Vector3R* const out_point) const
 {
-	transformPoint(point, time, out_point);
+	doTransformPoint(point, time, out_point);
 }
 
 void Transform::transformV(
 	const math::Vector3R& vector,
 	math::Vector3R* const out_vector) const
 {
-	transformVector(vector, Time{}, out_vector);
+	doTransformVector(vector, Time{}, out_vector);
 }
 
 void Transform::transformO(
 	const math::Vector3R& orientation,
 	math::Vector3R* const out_orientation) const
 {
-	transformOrientation(orientation, Time{}, out_orientation);
+	doTransformOrientation(orientation, Time{}, out_orientation);
 }
 
 void Transform::transformP(
 	const math::Vector3R& point,
 	math::Vector3R* const out_point) const
 {
-	transformPoint(point, Time{}, out_point);
+	doTransformPoint(point, Time{}, out_point);
 }
 
-void Transform::transform(
+void Transform::doTransformRay(
 	const Ray& ray,
 	Ray* const out_ray) const
 {
@@ -69,14 +69,14 @@ void Transform::transform(
 	*out_ray = ray;
 
 	math::TLineSegment<real> tSegment;
-	transformLineSegment(ray.getSegment(),
-	                     ray.getTime(),
-	                     &tSegment);
+	doTransformLineSegment(ray.getSegment(),
+	                       ray.getTime(),
+	                       &tSegment);
 
 	out_ray->setSegment(tSegment);
 }
 
-void Transform::transform(
+void Transform::doTransformHitInfo(
 	const HitInfo& info,
 	const Time&    time,
 	HitInfo* const out_info) const
@@ -86,8 +86,8 @@ void Transform::transform(
 
 	math::Vector3R tPosition;
 	math::Vector3R tGeometryNormal;
-	transformPoint(info.getPos(), time, &tPosition);
-	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
+	doTransformPoint(info.getPos(), time, &tPosition);
+	doTransformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
 
 	if(!info.hasShadingNormal())
 	{
@@ -97,7 +97,7 @@ void Transform::transform(
 	else
 	{
 		math::Vector3R tShadingNormal;
-		transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
+		doTransformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 
 		if(!info.hasShadingTangent())
 		{
@@ -108,7 +108,7 @@ void Transform::transform(
 		else
 		{
 			math::Vector3R tShadingTangent;
-			transformVector(info.getShadingTangent(), time, &tShadingTangent);
+			doTransformVector(info.getShadingTangent(), time, &tShadingTangent);
 
 			out_info->setAttributes(tPosition,
 			                        tGeometryNormal.normalizeLocal(),
@@ -121,10 +121,10 @@ void Transform::transform(
 	math::Vector3R tdPdV;
 	math::Vector3R tdNdU;
 	math::Vector3R tdNdV;
-	transformVector(info.getdPdU(), time, &tdPdU);
-	transformVector(info.getdPdV(), time, &tdPdV);
-	transformVector(info.getdNdU(), time, &tdNdU);
-	transformVector(info.getdNdV(), time, &tdNdV);
+	doTransformVector(info.getdPdU(), time, &tdPdU);
+	doTransformVector(info.getdPdV(), time, &tdPdV);
+	doTransformVector(info.getdNdU(), time, &tdNdU);
+	doTransformVector(info.getdNdV(), time, &tdNdV);
 
 	out_info->setDerivatives(tdPdU, tdPdV, tdNdU, tdNdV);
 }
@@ -159,7 +159,7 @@ void Transform::transform(
 		if(vertex.isFinite())
 		{
 			math::Vector3R tVertex;
-			transformPoint(vertex, time, &tVertex);
+			doTransformPoint(vertex, time, &tVertex);
 			vertex = tVertex;
 		}
 	}

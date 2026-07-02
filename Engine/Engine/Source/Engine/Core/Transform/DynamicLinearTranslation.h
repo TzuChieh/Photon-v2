@@ -18,22 +18,22 @@ public:
 	std::unique_ptr<Transform> genInversed() const override;
 
 private:
-	void transformVector(
+	void doTransformVector(
 		const math::Vector3R& vector,
 		const Time&           time,
 		math::Vector3R*       out_vector) const override;
 
-	void transformOrientation(
+	void doTransformOrientation(
 		const math::Vector3R& orientation,
 		const Time&           time,
 		math::Vector3R*       out_orientation) const override;
 
-	void transformPoint(
+	void doTransformPoint(
 		const math::Vector3R& point,
 		const Time&           time,
 		math::Vector3R*       out_point) const override;
 
-	void transformLineSegment(
+	void doTransformLineSegment(
 		const math::TLineSegment<real>& segment,
 		const Time&                     time,
 		math::TLineSegment<real>*       out_segment) const override;
