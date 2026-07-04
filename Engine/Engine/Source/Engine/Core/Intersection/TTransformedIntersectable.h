@@ -5,6 +5,7 @@
 #include "Engine/Core/Transform/Transform.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitDetail.h"
+#include "Engine/Core/Quantity/Time.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 #include "Engine/Math/hash.h"
@@ -44,7 +45,7 @@ public:
 
 	bool isOccluding(const Ray& ray) const override;
 
-	bool mayOverlapVolume(const math::AABB3D& aabb) const override;
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 
 protected:
@@ -156,40 +157,27 @@ inline bool TTransformedIntersectable<IntersectableGetter>::isOccluding(
 
 template<typename IntersectableGetter>
 inline bool TTransformedIntersectable<IntersectableGetter>::mayOverlapVolume(
-	const math::AABB3D& aabb) const
+	const math::AABB3D& volume) const
 {
-	// FIXME: this is broken under timed environment
-
-	math::AABB3D localAABB;
-	m_worldToLocal->transform(aabb, &localAABB);
-	return m_inner().mayOverlapVolume(localAABB);
+	return calcAABB().isIntersectingVolume(volume);
 }
 
 template<typename IntersectableGetter>
 inline math::AABB3D TTransformedIntersectable<IntersectableGetter>::calcAABB() const
 {
-	// FIXME: static intersectable do not need to consider time
-
+	const Time startTime(0, 0);
+	const Time endTime(0, 1);
 	const math::AABB3D localAABB = m_inner().calcAABB();
 
 	math::AABB3D worldAABB;
-	m_localToWorld->transform(localAABB, &worldAABB);
-
-	// TODO: modify time interval base on transform properties or aabb size
-
-	// TODO: motions
-
-	//for(size_t i = 0; i < 101; i++)
-	//{
-	//	Time time;
-	//	time.absoluteS = 0;// HACK
-	//	time.relativeS = 0;// HACK
-	//	time.relativeT = static_cast<real>(1.0 / 100.0 * i);
-
-	//	AABB3D aabb;
-	//	m_localToWorld->transform(localAABB, time, &aabb);
-	//	worldAABB.unionWith(aabb);
-	//}
+	if(m_localToWorld->hasMotion(startTime, endTime))
+	{
+		m_localToWorld->calcSweepAABB(localAABB, startTime, endTime, &worldAABB);
+	}
+	else
+	{
+		m_localToWorld->transform(localAABB, startTime, &worldAABB);
+	}
 
 	return worldAABB;
 }

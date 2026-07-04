@@ -8,12 +8,64 @@
 
 #include <Common/assertion.h>
 
+#include <algorithm>
+
 namespace ph
 {
 
 std::unique_ptr<Transform> Transform::genInversed() const
 {
 	return nullptr;
+}
+
+void Transform::calcSweepAABB(
+	const math::AABB3D& aabb,
+	const Time&         startTime,
+	const Time&         endTime,
+	uint32              numSamples,
+	real                paddingFactor,
+	math::AABB3D* const out_aabb) const
+{
+	PH_ASSERT(out_aabb);
+	PH_ASSERT_GE(numSamples, 2);
+	PH_ASSERT_GE(paddingFactor, 1.0_r);
+
+	numSamples = std::max(numSamples, 2U);
+	paddingFactor = std::max(paddingFactor, 1.0_r);
+
+	if(aabb.isEmpty())
+	{
+		*out_aabb = math::AABB3D::makeEmpty();
+		return;
+	}
+
+	doCalcSweepAABB(aabb, startTime, endTime, numSamples, out_aabb);
+	if(!out_aabb->isEmpty())
+	{
+		out_aabb->expand(out_aabb->getExtents().mul(paddingFactor - 1.0_r));
+	}
+}
+
+void Transform::doCalcSweepAABB(
+	const math::AABB3D& aabb,
+	const Time&         startTime,
+	const Time&         endTime,
+	const uint32        numSamples,
+	math::AABB3D* const out_aabb) const
+{
+	PH_ASSERT(out_aabb);
+
+	math::AABB3D sampledAABB;
+	transform(aabb, startTime, &sampledAABB);
+	*out_aabb = sampledAABB;
+
+	for(uint32 si = 1; si < numSamples; ++si)
+	{
+		const real sampleT = static_cast<real>(si) / static_cast<real>(numSamples - 1);
+
+		transform(aabb, Time::lerp(startTime, endTime, sampleT), &sampledAABB);
+		out_aabb->unionWith(sampledAABB);
+	}
 }
 
 void Transform::transformV(
@@ -150,6 +202,12 @@ void Transform::transform(
 	math::AABB3D* const out_aabb) const
 {
 	PH_ASSERT(out_aabb);
+
+	if(aabb.isEmpty())
+	{
+		*out_aabb = math::AABB3D::makeEmpty();
+		return;
+	}
 
 	// FIXME: slow!
 	auto vertices = aabb.getBoundVertices();

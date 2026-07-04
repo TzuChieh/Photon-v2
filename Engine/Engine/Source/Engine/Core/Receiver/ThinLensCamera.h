@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Receiver/RectangularSensorReceiver.h"
+#include "Engine/Core/Quantity/TimeStep.h"
 
 namespace ph
 {
@@ -20,9 +21,13 @@ public:
 		float64               focalDistance,
 		const math::Vector2D& sensorSize,
 		const Transform*      rasterToSensor,
-		const RigidTransform* cameraToWorld);
+		const RigidTransform* cameraToWorld,
+		TimeStep              timeStep);
 
-	math::Spectrum receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
+	math::Spectrum receiveRay(
+		const math::Vector2D& rasterCoord,
+		SampleFlow& sampleFlow,
+		Ray* out_ray) const override;
 
 	void evalEmittedImportanceAndPdfW(
 		const math::Vector3R& targetPos,

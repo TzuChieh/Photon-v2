@@ -23,9 +23,9 @@ const CookedMaterial* CookedResourceCollection::getMaterial(const CookedResource
 	return getCookedResourceByKey(m_keyToMaterial, key);
 }
 
-const CookedMotion* CookedResourceCollection::getMotion(const SdlResourceId id) const
+const CookedMotion* CookedResourceCollection::getMotion(const CookedResourceKey& key) const
 {
-	return getCookedResourceByID(m_idToMotion, id);
+	return getCookedResourceByKey(m_keyToMotion, key);
 }
 
 std::string CookedResourceCollection::getStats() const
@@ -40,7 +40,7 @@ std::string CookedResourceCollection::getStats() const
 		m_triangleBuffers->size(),
 		m_keyToGeometry->size(),
 		m_keyToMaterial->size(),
-		m_idToMotion->size());
+		m_keyToMotion->size());
 }
 
 }// end namespace ph

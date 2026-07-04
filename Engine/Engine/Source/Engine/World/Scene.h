@@ -2,6 +2,7 @@
 
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/Color/Spectrum.h"
+#include "Engine/Core/Quantity/TimeStep.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -27,7 +28,7 @@ class Scene final
 {
 public:
 	Scene();
-	Scene(const Intersector* intersector, const EmitterSampler* emitterSampler);
+	Scene(const Intersector* intersector, const EmitterSampler* emitterSampler, TimeStep timeStep);
 
 	bool isOccluding(const Ray& ray) const;
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
@@ -65,10 +66,15 @@ public:
 
 	const VolumeBehavior* getBackgroundVolumeBehavior() const;
 
+	/*! @brief Time interval this scene was cooked for.
+	*/
+	const TimeStep& getTimeStep() const;
+
 private:
 	const Intersector*    m_intersector;
 	const EmitterSampler* m_emitterSampler;
 	const Primitive*      m_backgroundPrimitive;
+	TimeStep              m_timeStep;
 };
 
 // In-header Implementations:
@@ -81,6 +87,11 @@ inline void Scene::setBackgroundPrimitive(const Primitive* const primitive)
 inline const Primitive* Scene::getBackgroundPrimitive() const
 {
 	return m_backgroundPrimitive;
+}
+
+inline const TimeStep& Scene::getTimeStep() const
+{
+	return m_timeStep;
 }
 
 }// end namespace ph

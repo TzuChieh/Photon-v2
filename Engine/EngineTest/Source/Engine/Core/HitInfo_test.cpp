@@ -75,7 +75,7 @@ TEST(HitInfoTest, WithShadingTangent)
 
 TEST(HitInfoTest, TransformsShadingFlags)
 {
-	const Transform& transform = StaticAffineTransform::makeIdentity();
+	const Transform& transform = StaticAffineTransform::IDENTITY();
 
 	{
 		HitInfo info;

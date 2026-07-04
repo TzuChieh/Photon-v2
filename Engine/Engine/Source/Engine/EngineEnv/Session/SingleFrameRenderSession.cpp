@@ -1,5 +1,6 @@
 #include "Engine/EngineEnv/Session/SingleFrameRenderSession.h"
 #include "Engine/EngineEnv/CoreCookingContext.h"
+#include "Engine/Core/Quantity/TimeStep.h"
 #include "Engine/SDL/SceneDescription.h"
 #include "Engine/EngineEnv/Observer/Observer.h"
 #include "Engine/EngineEnv/SampleSource/SampleSource.h"
@@ -26,6 +27,7 @@ void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 			"invalid frame size provided: {}", m_frameSizePx.toString());
 	}
 
+	ctx.setTimeStep(TimeStep(m_timeStepTick, m_timeStepStartS, m_timeStepSizeS));
 	ctx.setTopLevelAcceleratorType(m_topLevelAcceleratorType);
 }
 

@@ -10,6 +10,7 @@
 
 #include <Common/profiling.h>
 
+
 namespace ph
 {
 
@@ -79,7 +80,7 @@ void ReceiverSamplingWork::doWork()
 		m_sampleRes.toVector());
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(
-		5,
+		m_receiver->numRaySampleDims() + 5,
 		m_sampleRes.product());
 
 	Timer sampleTimer;
@@ -104,7 +105,7 @@ void ReceiverSamplingWork::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &ray);
+			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, sampleFlow, &ray);
 
 			// FIXME: this loop uses correlated samples, also some processors
 			for(IRasterRayProcessor* processor : m_processors)

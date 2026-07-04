@@ -1,8 +1,8 @@
 #include "Engine/Core/Receiver/PinholeCamera.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Core/SampleGenerator/SampleFlow.h"
 #include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Math/math.h"
-#include "Engine/Math/Random/Random.h"
 #include "Engine/Core/Transform/RigidTransform.h"
 
 #include <Common/assertion.h>
@@ -15,19 +15,25 @@ namespace ph
 PinholeCamera::PinholeCamera(
 	const math::Vector2D&       sensorSize,
 	const Transform* const      rasterToSensor,
-	const RigidTransform* const receiverToWorld) : 
+	const RigidTransform* const receiverToWorld,
+	TimeStep                    timeStep)
 
-	RectangularSensorReceiver(
+	: RectangularSensorReceiver(
 		sensorSize,
 		rasterToSensor,
-		receiverToWorld)
+		receiverToWorld,
+		timeStep,
+		timeStep.hasDuration() ? 1 : 0)
 {}
 
-math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+math::Spectrum PinholeCamera::receiveRay(
+	const math::Vector2D& rasterCoord,
+	SampleFlow& sampleFlow,
+	Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 
-	// TODO: time info
+	out_ray->setTime(getTimeStep().sampleTime(getTimeStep().hasDuration() ? sampleFlow.flow1D() : 0));
 
 	math::Vector3R pinholePos;
 	getCameraToWorld().transformP({0, 0, 0}, &pinholePos);
@@ -37,11 +43,6 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 	// No physical sensor primitive to self-intersect; keep a nonzero min T just for consistency.
 	out_ray->setMinT(lta::SurfaceHitRefinery::selfIntersectDelta());
 	out_ray->setMaxT(std::numeric_limits<real>::max());
-
-	// HACK
-	Time time;
-	time.relativeT = math::Random::sample();
-	out_ray->setTime(time);
 
 	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDir().isFinite(), "\n"
 		"origin    = " + out_ray->getOrigin().toString() + "\n"
@@ -53,7 +54,7 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord) const
 {
 	// Direction vector is computed in camera space then transformed to world
-	// space for better numerical precision. Subtracting two world space 
+	// space for better numerical precision. Subtracting two world space
 	// points can lead to high numerical error when camera is far from origin
 	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
 
@@ -108,5 +109,6 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos
 	out_importance->set(1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
 	*out_pdfW = 1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta);*/
 }
+
 
 }// end namespace ph

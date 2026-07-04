@@ -7,7 +7,6 @@
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
-#include "Engine/Core/Quantity/Time.h"
 #include "Engine/Actor/ModelBuilder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookingContext.h"
@@ -97,8 +96,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		// Cannot have primitive view as we are transforming as intersectable
 		result.primitivesView.clear();
 
-		// FIXME
-		const CookedMotion* cookedMotion = m_motionSource->createCooked(ctx, MotionCookConfig());
+		const CookedMotion* cookedMotion = ctx.getCooked(m_motionSource);
 
 		auto localToWorld = cookedMotion->localToWorld;
 		auto worldToLocal = cookedMotion->worldToLocal;

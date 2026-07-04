@@ -20,15 +20,18 @@ Scene::Scene()
 	: m_intersector        (nullptr)
 	, m_emitterSampler     (nullptr)
 	, m_backgroundPrimitive(nullptr)
+	, m_timeStep           ()
 {}
 
 Scene::Scene(
 	const Intersector* const    intersector,
-	const EmitterSampler* const emitterSampler)
+	const EmitterSampler* const emitterSampler,
+	TimeStep                    timeStep)
 
 	: m_intersector        (intersector)
 	, m_emitterSampler     (emitterSampler)
 	, m_backgroundPrimitive(nullptr)
+	, m_timeStep           (timeStep)
 {
 	PH_ASSERT(intersector);
 	PH_ASSERT(emitterSampler);

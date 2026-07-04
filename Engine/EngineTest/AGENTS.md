@@ -1,5 +1,8 @@
 # EngineTest Guide
 
+## Test Discovery
+- When adding or renaming `Source/*.cpp` tests, rerun CMake/setup before expecting `EngineTest` to discover them; the target uses CMake `GLOB_RECURSE`, not runtime test-file discovery.
+
 ## Generated Files
 - Use `EngineTestIntermediatePath` and `Filesystem` for temporary outputs. Isolate each test under `<suite>/<test>`, remove that directory before the test, and leave end-of-test cleanup out unless the test requires it.
 

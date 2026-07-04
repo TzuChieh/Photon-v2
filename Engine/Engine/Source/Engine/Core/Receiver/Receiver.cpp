@@ -11,8 +11,14 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Receiver, Receiver);
 
-Receiver::Receiver(const RigidTransform* const receiverToWorld) : 
-	m_receiverToWorld(receiverToWorld)
+Receiver::Receiver(
+	const RigidTransform* const receiverToWorld,
+	TimeStep                    timeStep,
+	const std::size_t           numRaySampleDims)
+
+	: m_receiverToWorld (receiverToWorld)
+	, m_timeStep        (timeStep)
+	, m_numRaySampleDims(numRaySampleDims)
 {
 	PH_ASSERT(m_receiverToWorld);
 }

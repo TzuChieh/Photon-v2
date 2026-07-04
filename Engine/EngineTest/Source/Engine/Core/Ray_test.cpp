@@ -15,7 +15,7 @@ TEST(RayTest, Constructs)
 	const Vector3R direction(0, 1, 0);
 	const real minT = 0.5_r;
 	const real maxT = 100.0_r;
-	const Time time(1.0_r, 2.0_r, 0.5_r);
+	const Time time(1.0_r, 0.5_r);
 
 	// Construct with origin and direction, default range and time.
 	// This should result in a ray with maximum finite length.
@@ -63,7 +63,7 @@ TEST(RayTest, SettersAndGetters)
 	const Vector3R direction(0, 0, -1);
 	const real minT = 1.0_r;
 	const real maxT = 2.0_r;
-	const Time time(10.0_r, 0.1_r, 0.2_r);
+	const Time time(10.0_r, 0.2_r);
 
 	// Verifying origin setting and getting
 	ray.setOrigin(origin);

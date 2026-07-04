@@ -16,7 +16,9 @@ class StaticAffineTransform : public Transform
 	friend class StaticRigidTransform;
 
 public:
-	static const StaticAffineTransform& makeIdentity();
+	/*! @brief Shared identity transform.
+	*/
+	static const StaticAffineTransform& IDENTITY();
 
 	/*!
 	Generates a StaticAffineTransform that can be used to transform values from local to world space.

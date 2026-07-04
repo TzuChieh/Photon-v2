@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Engine/Core/Quantity/Time.h"
+#include "Engine/Core/Quantity/TimeStep.h"
+#include "Engine/Math/hash.h"
+
 #include <Common/primitive_type.h>
-#include <Engine/Math/hash.h>
 
 #include <cstddef>
 #include <functional>
@@ -24,6 +27,24 @@ public:
 
 	// TODO: prefer hidden emitter
 
+	/*! @brief Time step for cooking time-dependent data.
+	*/
+	TimeStep timeStep;
+
+	/*! @brief Get the start time of @ref timeStep.
+	*/
+	Time getTimeStepStart() const
+	{
+		return timeStep.sampleTime(0);
+	}
+
+	/*! @brief Get the end time of @ref timeStep.
+	*/
+	Time getTimeStepEnd() const
+	{
+		return timeStep.sampleTime(1);
+	}
+
 	friend bool operator == (const CookingConfig& lhs, const CookingConfig& rhs) = default;
 };
 
@@ -44,7 +65,10 @@ struct hash<ph::CookingConfig>
 			(config.preferTriangulated << 0) |
 			(config.preferIndexedVertices << 1) |
 			(config.forceTriangulated << 2);
-		return ph::math::murmur3_32(flags, 0);
+
+		std::size_t hash = ph::math::murmur3_32(flags, 0);
+		hash = ph::math::combine_hashes(hash, std::hash<ph::TimeStep>{}(config.timeStep));
+		return hash;
 	}
 };
 

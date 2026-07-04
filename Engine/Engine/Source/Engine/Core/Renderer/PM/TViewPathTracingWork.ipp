@@ -65,7 +65,9 @@ inline void TViewPathTracingWork<Handler>::doWork()
 		m_sampleRes.product(),
 		{m_sampleRes.x(), m_sampleRes.y()});
 
-	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_sampleRes.product());
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(
+		m_receiver->numRaySampleDims() + 4,
+		m_sampleRes.product());
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
@@ -84,8 +86,13 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			PH_ASSERT_LT(sampleIndex.x(), m_sampleRes.x());
 			PH_ASSERT_LT(sampleIndex.y(), m_sampleRes.y());
 
+			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
+
 			Ray tracingRay;
-			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &tracingRay);
+			const auto quantityWeight = m_receiver->receiveRay(
+				rasterCoord,
+				sampleFlow,
+				&tracingRay);
 			tracingRay.reverse();
 
 			math::Spectrum pathThroughput(quantityWeight);
@@ -94,8 +101,6 @@ inline void TViewPathTracingWork<Handler>::doWork()
 				m_handler->onReceiverSampleEnd();
 				continue;
 			}
-
-			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			traceViewPath(
 				SurfaceHit{},

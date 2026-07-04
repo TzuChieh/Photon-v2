@@ -7,7 +7,6 @@
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Engine/Actor/MotionSource/MotionSource.h"
-#include "Engine/Core/Quantity/Time.h"
 #include "Engine/Actor/ModelBuilder.h"
 #include "Engine/World/Foundation/CookingContext.h"
 

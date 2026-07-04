@@ -1,13 +1,15 @@
 #include "Engine/Core/Receiver/ThinLensCamera.h"
 #include "Engine/Core/Ray.h"
+#include "Engine/Core/SampleGenerator/SampleFlow.h"
 #include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Core/Transform/RigidTransform.h"
-#include "Engine/Math/Random/Random.h"
+#include "Engine/Math/Random/sample.h"
 #include "Engine/Math/Geometry/TDisk.h"
 
 #include <Common/assertion.h>
 
 #include <iostream>
+#include <limits>
 
 namespace ph
 {
@@ -17,18 +19,24 @@ ThinLensCamera::ThinLensCamera(
 	const float64               focalDistance,
 	const math::Vector2D&       sensorSize,
 	const Transform*  const     rasterToSensor,
-	const RigidTransform* const cameraToWorld) : 
+	const RigidTransform* const cameraToWorld,
+	TimeStep                    timeStep) :
 
 	RectangularSensorReceiver(
-		sensorSize, 
-		rasterToSensor, 
-		cameraToWorld),
+		sensorSize,
+		rasterToSensor,
+		cameraToWorld,
+		timeStep,
+		2 + (timeStep.hasDuration() ? 1 : 0)),
 
 	m_lensRadius   (lensRadius),
 	m_focalDistance(focalDistance)
 {}
 
-math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+math::Spectrum ThinLensCamera::receiveRay(
+	const math::Vector2D& rasterCoord,
+	SampleFlow& sampleFlow,
+	Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 
@@ -47,8 +55,10 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 	const auto focalPlanePos = lensCenterToSensorDir.mul(-lensCenterToFocalPlanePosLength);
 
 	math::TDisk<float64> lensDisk(m_lensRadius);
-	const auto lensPos2D = lensDisk.sampleToSurface2D({math::Random::sampleND<2, float64>()});
+	const auto lensPos2D = lensDisk.sampleToSurface2D(math::sample_cast<float64>(sampleFlow.flow2D()));
 	const auto lensPos = math::Vector3D(lensPos2D.x(), lensPos2D.y(), 0);
+
+	out_ray->setTime(getTimeStep().sampleTime(getTimeStep().hasDuration() ? sampleFlow.flow1D() : 0));
 
 	// Now we transform camera space data to world space
 

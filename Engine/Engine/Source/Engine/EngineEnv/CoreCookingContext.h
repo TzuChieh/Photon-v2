@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Math/TVector2.h"
+#include "Engine/Core/Quantity/TimeStep.h"
 #include "Engine/EngineEnv/EAccelerator.h"
 
 #include <Common/assertion.h>
@@ -19,15 +20,18 @@ public:
 	const math::TVector2<uint32>& getFrameSizePx() const;
 	float64 getAspectRatio() const;
 	uint32 numWorkers() const;
+	const TimeStep& getTimeStep() const;
 	EAccelerator getTopLevelAcceleratorType() const;
 
 	void setFrameSizePx(const math::TVector2<uint32>& frameSizePx);
 	void setNumWorkers(uint32 numWorkers);
+	void setTimeStep(TimeStep timeStep);
 	void setTopLevelAcceleratorType(EAccelerator accelerator);
 
 private:
 	math::TVector2<uint32> m_frameSizePx;
 	uint32                 m_numWorkers;
+	TimeStep               m_timeStep;
 	EAccelerator           m_topLevelAcceleratorType;
 };
 
@@ -36,6 +40,7 @@ private:
 inline CoreCookingContext::CoreCookingContext() : 
 	m_frameSizePx            (0, 0),
 	m_numWorkers             (1),
+	m_timeStep               (),
 	m_topLevelAcceleratorType(EAccelerator::Unspecified)
 {}
 
@@ -64,6 +69,16 @@ inline uint32 CoreCookingContext::numWorkers() const
 inline void CoreCookingContext::setNumWorkers(const uint32 numWorkers)
 {
 	m_numWorkers = numWorkers;
+}
+
+inline const TimeStep& CoreCookingContext::getTimeStep() const
+{
+	return m_timeStep;
+}
+
+inline void CoreCookingContext::setTimeStep(TimeStep timeStep)
+{
+	m_timeStep = timeStep;
 }
 
 inline EAccelerator CoreCookingContext::getTopLevelAcceleratorType() const

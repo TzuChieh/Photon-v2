@@ -27,6 +27,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 ## Simple Lifecycle Boundaries
 - Keep local report-server control explicit and minimal; report viewers should serve already generated artifacts.
 - Prefer explicit stop signals over speculative background policies.
+- Stop `report_server.py` before regenerating reports if `report_output` cleanup is file-locked; stale report files must not be preserved to work around the lock.
 - Do not rely on browser unload semantics to distinguish close vs refresh/navigation.
 - For report UI-only changes and test case updates, sync source template and build-side copy so `--report-only` validates quickly.
 
@@ -39,6 +40,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
 - Prefer stronger references and appropriate tested sample counts before loosening verifier tolerances; record metric/threshold usage when retuning.
 - Reference image stems should use semantic suffixes (`_beauty`, `_var`). Keep batch ref generation explicit with a scene-to-output map that matches the active ref set.
+- For `ZTestVerifier`, the reference scene must explicitly render a variance film; declaring `"var"` in the ref-output map only validates expected files and does not make the renderer produce variance output.
 
 ## Scene Resource Organization
 - Keep each RenderTest resource folder standalone. Split repeated SDL into render-config roots and local data fragments; do not create cross-folder common scenes or extract small one-off scenes.

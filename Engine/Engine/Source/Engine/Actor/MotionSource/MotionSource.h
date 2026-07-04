@@ -1,20 +1,15 @@
 #pragma once
 
 #include "Engine/SDL/TSdlResourceBase.h"
-#include "Engine/Math/TDecomposedTransform.h"
-#include "Engine/Core/Transform/Transform.h"
+#include "Engine/SDL/sdl_interface.h"
 
-#include <Common/primitive_type.h>
-
-#include <memory>
+#include <string>
 
 namespace ph
 {
 
-class Time;
 class CookingContext;
 class CookedMotion;
-class MotionCookConfig;
 
 class MotionSource : public TSdlResourceBase<ESdlTypeCategory::Ref_Motion>
 {
@@ -22,20 +17,22 @@ public:
 	/*! @brief Store data suitable for rendering into `out_motion`.
 	*/
 	virtual void storeCooked(
-		CookedMotion& out_motion,
 		const CookingContext& ctx,
-		const MotionCookConfig& config) const = 0;
-	
-	// DEPRECATED
-	virtual std::unique_ptr<Transform> genLocalToWorld(
-		const Time& start, 
-		const Time& end) const = 0;
+		CookedMotion& out_motion) const = 0;
 
-	/*! @brief Create a `CookedMotion` that contains data suitable for rendering.
+	/*! @brief Cook motion using the provided context and output storage.
 	*/
-	CookedMotion* createCooked(
+	void cook(
 		const CookingContext& ctx,
-		const MotionCookConfig& config) const;
+		CookedMotion& out_motion) const;
+
+public:
+	PH_DEFINE_SDL_CLASS(MotionSource, clazz)
+	{
+		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
+		clazz.docName("Motion Source");
+		clazz.description("Describes scene element movement over time.");
+	}
 };
 
 }// end namespace ph

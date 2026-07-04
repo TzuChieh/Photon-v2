@@ -30,6 +30,9 @@ private:
 	std::string            m_visualizerName;
 	std::string            m_observerName;
 	std::string            m_sampleSourceName;
+	uint32                 m_timeStepTick;
+	real                   m_timeStepStartS;
+	real                   m_timeStepSizeS;
 	EAccelerator           m_topLevelAcceleratorType;
 
 public:
@@ -59,6 +62,24 @@ public:
 		sampleSourceName.description("Name of the sample source resource to use.");
 		sampleSourceName.optional();
 		clazz.addField(sampleSourceName);
+
+		TSdlUInt32<OwnerType> timeStepTick("time-step-tick", &OwnerType::m_timeStepTick);
+		timeStepTick.description("Logical index of the rendered time step.");
+		timeStepTick.defaultTo(0);
+		timeStepTick.optional();
+		clazz.addField(timeStepTick);
+
+		TSdlReal<OwnerType> timeStepStartS("time-step-start-s", &OwnerType::m_timeStepStartS);
+		timeStepStartS.description("Start time of the rendered time step in seconds.");
+		timeStepStartS.defaultTo(0);
+		timeStepStartS.optional();
+		clazz.addField(timeStepStartS);
+
+		TSdlReal<OwnerType> timeStepSizeS("time-step-size-s", &OwnerType::m_timeStepSizeS);
+		timeStepSizeS.description("Duration of the rendered time step in seconds. Zero disables time sampling.");
+		timeStepSizeS.defaultTo(0);
+		timeStepSizeS.optional();
+		clazz.addField(timeStepSizeS);
 
 		TSdlEnumField<OwnerType, EAccelerator> topLevelAcceleratorType("top-level-accelerator", &OwnerType::m_topLevelAcceleratorType);
 		topLevelAcceleratorType.description("Acceleration structure used on the top level geometries.");

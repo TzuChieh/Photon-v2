@@ -14,9 +14,11 @@ class TransientResourceCache;
 class TransientVisualElement;
 class Geometry;
 class Material;
+class MotionSource;
 class Actor;
 class CookedGeometry;
 class CookedMaterial;
+class CookedMotion;
 class CookedResourceKey;
 class ISdlResource;
 
@@ -72,6 +74,14 @@ public:
 	///@{
 	const CookedMaterial* getCooked(const Material& material) const;
 	const CookedMaterial* getCooked(const std::shared_ptr<Material>& material) const;
+	///@}
+
+	/*!
+	@return Pointer to the cooked motion. `nullptr` if not found.
+	*/
+	///@{
+	const CookedMotion* getCooked(const MotionSource& motion) const;
+	const CookedMotion* getCooked(const std::shared_ptr<MotionSource>& motion) const;
 	///@}
 
 	/*!

@@ -17,6 +17,7 @@ Write focused tests with independently understandable expected results.
 ### 2. Design Coverage
 
 - Derive expected behavior from the public contract before inspecting implementation details. Do not repeat implementation logic in assertions.
+- Prefer tests that are simple, minimal, and straightforward. Each test should prove one useful contract without extra setup or incidental assertions.
 - Cover normal behavior and relevant edge, error, or lifetime cases with stable, controlled inputs. Inspect implementation afterward only to identify missed risks and branches.
 - Ask the user only when ambiguity prevents a reliable expected result.
 

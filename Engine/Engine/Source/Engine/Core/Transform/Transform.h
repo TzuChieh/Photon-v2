@@ -3,6 +3,8 @@
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 
+#include <Common/primitive_type.h>
+
 #include <memory>
 
 namespace ph
@@ -30,6 +32,30 @@ public:
 	@return Inversed transform. Null if not available.
 	*/
 	virtual std::unique_ptr<Transform> genInversed() const;
+
+	/*! @brief Conservative bound swept by transforming `aabb` from `startTime` to `endTime`.
+	*/
+	void calcSweepAABB(
+		const math::AABB3D& aabb,
+		const Time&         startTime,
+		const Time&         endTime,
+		math::AABB3D*       out_aabb) const;
+
+	/*! @brief Conservative bound swept by transforming `aabb` from `startTime` to `endTime`.
+	@param numSamples Approximation hint for sampled implementations. May be ignored.
+	@param paddingFactor Relative expansion factor based on swept AABB extents. `1` means no padding; values above `1` expand the bound.
+	*/
+	void calcSweepAABB(
+		const math::AABB3D& aabb,
+		const Time&         startTime,
+		const Time&         endTime,
+		uint32              numSamples,
+		real                paddingFactor,
+		math::AABB3D*       out_aabb) const;
+
+	/*! @brief Whether transforming from `startTime` to `endTime` can produce time-varying results.
+	*/
+	virtual bool hasMotion(const Time& startTime, const Time& endTime) const;
 
 	/*!
 	Treating a Vector3R as either
@@ -124,6 +150,16 @@ public:
 		math::AABB3D*       out_aabb) const;
 
 private:
+	/*! @brief Build an unpadded swept bound.
+	Implementations may ignore `numSamples`.
+	*/
+	virtual void doCalcSweepAABB(
+		const math::AABB3D& aabb,
+		const Time&         startTime,
+		const Time&         endTime,
+		uint32              numSamples,
+		math::AABB3D*       out_aabb) const;
+
 	/*! @brief Optional fast paths for composite transform operations.
 	Derived implementations must match the default implementation's behavior.
 	*/
@@ -165,6 +201,20 @@ private:
 		const Time&                     time,
 		math::TLineSegment<real>*       out_segment) const = 0;
 };
+
+inline bool Transform::hasMotion(const Time& startTime, const Time& endTime) const
+{
+	return false;
+}
+
+inline void Transform::calcSweepAABB(
+	const math::AABB3D& aabb,
+	const Time&         startTime,
+	const Time&         endTime,
+	math::AABB3D* const out_aabb) const
+{
+	calcSweepAABB(aabb, startTime, endTime, 128, 1.0_r, out_aabb);
+}
 
 inline void Transform::transform(
 	const Ray& ray,

@@ -23,8 +23,8 @@ namespace ph
 PLatLongEnvSphere::PLatLongEnvSphere(const real radius) :
 	PLatLongEnvSphere(
 		radius,
-		&StaticRigidTransform::makeIdentity(),
-		&StaticRigidTransform::makeIdentity())
+		&StaticRigidTransform::IDENTITY(),
+		&StaticRigidTransform::IDENTITY())
 {}
 
 PLatLongEnvSphere::PLatLongEnvSphere(

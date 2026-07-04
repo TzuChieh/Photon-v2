@@ -8,7 +8,6 @@
 #include "Engine/World/Foundation/CookedMotion.h"
 #include "Engine/Utility/Concurrent/TSynchronized.h"
 #include "Engine/Utility/traits.h"
-#include "Engine/SDL/SdlResourceId.h"
 #include "Engine/Core/Transform/Transform.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/Intersection/Intersectable.h"
@@ -20,6 +19,7 @@
 
 #include <Common/logging.h>
 
+#include <string>
 #include <utility>
 
 namespace ph
@@ -114,9 +114,9 @@ public:
 	}
 
 	template<typename... DeducedArgs>
-	CookedMotion* makeMotion(const SdlResourceId id, DeducedArgs&&... args)
+	CookedMotion* makeMotion(const CookedResourceKey& key, DeducedArgs&&... args)
 	{
-		return makeCookedResourceWithID(m_idToMotion, id, std::forward<DeducedArgs>(args)...);
+		return makeCookedResourceWithKey(m_keyToMotion, key, std::forward<DeducedArgs>(args)...);
 	}
 
 	/*! @brief Get the named resource sub-storage.
@@ -126,7 +126,7 @@ public:
 
 	const CookedGeometry* getGeometry(const CookedResourceKey& key) const;
 	const CookedMaterial* getMaterial(const CookedResourceKey& key) const;
-	const CookedMotion* getMotion(const SdlResourceId id) const;
+	const CookedMotion* getMotion(const CookedResourceKey& key) const;
 
 private:
 	TSynchronized<TUniquePtrVector<PrimitiveMetadata>> m_metadatas;
@@ -139,7 +139,7 @@ private:
 
 	TSynchronized<TCookedResourceKeyMap<CookedGeometry>> m_keyToGeometry;
 	TSynchronized<TCookedResourceKeyMap<CookedMaterial>> m_keyToMaterial;
-	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
+	TSynchronized<TCookedResourceKeyMap<CookedMotion>> m_keyToMotion;
 
 	TSynchronized<CookedNamedResource> m_namedResource;
 };

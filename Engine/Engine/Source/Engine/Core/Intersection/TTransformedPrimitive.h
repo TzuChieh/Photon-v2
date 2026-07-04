@@ -6,6 +6,7 @@
 #include "Engine/Core/Intersection/primitive_decorations.h"
 #include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/Core/HitDetail.h"
+#include "Engine/Core/Quantity/Time.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/hash.h"
@@ -48,7 +49,7 @@ public:
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override;
 
-	bool mayOverlapVolume(const math::AABB3D& aabb) const override;
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 
 	void genPosSample(
@@ -177,24 +178,28 @@ inline void TTransformedPrimitive<PrimitiveGetter>::calcHitDetail(
 
 template<typename PrimitiveGetter>
 inline bool TTransformedPrimitive<PrimitiveGetter>::mayOverlapVolume(
-	const math::AABB3D& aabb) const
+	const math::AABB3D& volume) const
 {
-	// FIXME: this is broken under timed environment
-
-	math::AABB3D localAABB;
-	m_worldToLocal->transform(aabb, &localAABB);
-	return m_inner().mayOverlapVolume(localAABB);
+	return calcAABB().isIntersectingVolume(volume);
 }
 
 template<typename PrimitiveGetter>
 inline math::AABB3D TTransformedPrimitive<PrimitiveGetter>::calcAABB() const
 {
-	// FIXME: static intersectable do not need to consider time
-
+	const Time startTime(0, 0);
+	const Time endTime(0, 1);
 	const math::AABB3D localAABB = m_inner().calcAABB();
 
 	math::AABB3D worldAABB;
-	m_localToWorld->transform(localAABB, &worldAABB);
+	if(m_localToWorld->hasMotion(startTime, endTime))
+	{
+		m_localToWorld->calcSweepAABB(localAABB, startTime, endTime, &worldAABB);
+	}
+	else
+	{
+		m_localToWorld->transform(localAABB, startTime, &worldAABB);
+	}
+
 	return worldAABB;
 }
 

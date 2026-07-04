@@ -63,15 +63,19 @@ void AttributeRenderer::doRender()
 
 	TEstimationArray<math::Vector3R> estimation(1);
 
+	
+	const math::Vector2S sampleRes(m_attributeFilm.getSampleResPx());
 	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
-		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
-		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
-
+		sampleRes.product(),
+		sampleRes.toVector());
+		
+	auto raySampleDimSizeHints = sampleRes.toVector();
+	raySampleDimSizeHints.insert(raySampleDimSizeHints.begin(), m_receiver->numRaySampleDims(), 1);
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(
-		2,
-		math::Vector2S(m_attributeFilm.getSampleResPx()).product(),
-		math::Vector2S(m_attributeFilm.getSampleResPx()).toVector());
+		m_receiver->numRaySampleDims() + 2,
+		sampleRes.product(),
+		std::move(raySampleDimSizeHints));
 
 	const auto sampleWindow = m_attributeFilm.getSampleWindowPx();
 
@@ -85,7 +89,7 @@ void AttributeRenderer::doRender()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
-			m_receiver->receiveRay(rasterCoord, &ray);
+			m_receiver->receiveRay(rasterCoord, sampleFlow, &ray);
 
 			estimator.estimate(ray, integrand, sampleFlow, estimation);
 

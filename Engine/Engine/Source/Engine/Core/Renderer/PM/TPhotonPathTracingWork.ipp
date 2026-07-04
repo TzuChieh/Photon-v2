@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "Engine/World/Scene.h"
+#include "Engine/Core/Quantity/TimeStep.h"
 #include "Engine/Core/Receiver/Receiver.h"
 #include "Engine/Core/SampleGenerator/SampleGenerator.h"
 #include "Engine/Core/Ray.h"
@@ -66,7 +67,9 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 	const lta::RussianRoulette rr{};
 
-	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(
+		2 + (m_scene->getTimeStep().hasDuration() ? 1 : 0),
+		m_photonBuffer.size());
 	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
 	auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 
@@ -79,9 +82,10 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
-		// TODO: properly sample time
+		const real timeSample = m_scene->getTimeStep().hasDuration() ? sampleFlow.flow1D() : 0;
+
 		EnergyEmissionSampleQuery energyEmission;
-		energyEmission.inputs.set(Time{});
+		energyEmission.inputs.set(m_scene->getTimeStep().sampleTime(timeSample));
 
 		// Generate initial hit on the emitter and ray originated from the hit
 		SurfaceHit surfaceHit;

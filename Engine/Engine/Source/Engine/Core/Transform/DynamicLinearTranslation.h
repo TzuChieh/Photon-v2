@@ -17,7 +17,16 @@ public:
 
 	std::unique_ptr<Transform> genInversed() const override;
 
+	bool hasMotion(const Time& startTime, const Time& endTime) const override;
+
 private:
+	void doCalcSweepAABB(
+		const math::AABB3D& aabb,
+		const Time&         startTime,
+		const Time&         endTime,
+		uint32              numSamples,
+		math::AABB3D*       out_aabb) const override;
+
 	void doTransformVector(
 		const math::Vector3R& vector,
 		const Time&           time,

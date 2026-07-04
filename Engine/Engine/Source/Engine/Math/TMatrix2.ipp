@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Engine/Math/TMatrix2.h"
 #include "Engine/Math/TVector2.h"

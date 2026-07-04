@@ -22,7 +22,9 @@ A static transform that enforces object rigidity during the transformation proce
 class StaticRigidTransform : public RigidTransform
 {
 public:
-	static const StaticRigidTransform& makeIdentity();
+	/*! @brief Shared identity transform.
+	*/
+	static const StaticRigidTransform& IDENTITY();
 
 	template<typename U>
 	static StaticRigidTransform makeForward(

@@ -17,9 +17,11 @@
 #include "Engine/Actor/APhantomModel.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Material/Material.h"
+#include "Engine/Actor/MotionSource/MotionSource.h"
 #include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/CookingConfig.h"
 #include "Engine/World/Foundation/CookedResourceKey.h"
 #include "Engine/SDL/ISdlResource.h"
 #include "Engine/SDL/SdlDependencyResolver.h"
@@ -95,6 +97,9 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// TODO: clear cooked data
 
 	CookingContext ctx(this);
+	CookingConfig config;
+	config.timeStep = coreCtx.getTimeStep();
+	ctx.setConfig(config);
 
 	std::vector<std::string> resourceNames;
 	std::vector<const ISdlResource*> resources = rawScene.getResources().listAll(&resourceNames);
@@ -123,6 +128,12 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 				const auto key = ctx.getKey(material);
 				PH_ASSERT(!ctx.getResources().getMaterial(key));
 				material.cook(ctx, *ctx.getResources().makeMaterial(key));
+			},
+			[&ctx](const MotionSource& motion)
+			{
+				const auto key = ctx.getKey(motion);
+				PH_ASSERT(!ctx.getResources().getMotion(key));
+				motion.cook(ctx, *ctx.getResources().makeMotion(key));
 			});
 	}
 
@@ -231,7 +242,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Clean up cache as it is not needed afterwards
 	m_cache = nullptr;
 
-	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get());
+	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get(), ctx.getConfig().timeStep);
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }
 

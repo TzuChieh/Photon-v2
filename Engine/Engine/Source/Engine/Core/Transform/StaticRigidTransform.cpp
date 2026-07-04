@@ -3,9 +3,9 @@
 namespace ph
 {
 
-const StaticRigidTransform& StaticRigidTransform::makeIdentity()
+const StaticRigidTransform& StaticRigidTransform::IDENTITY()
 {
-	static const StaticRigidTransform identityTransform(StaticAffineTransform::makeIdentity());
+	static const StaticRigidTransform identityTransform(StaticAffineTransform::IDENTITY());
 	return identityTransform;
 }
 

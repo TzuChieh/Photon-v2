@@ -4,6 +4,7 @@
 #include "Engine/World/VisualWorld.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Material/Material.h"
+#include "Engine/Actor/MotionSource/MotionSource.h"
 #include "Engine/Actor/Actor.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 
@@ -101,6 +102,16 @@ const CookedMaterial* CookingContext::getCooked(const Material& material) const
 const CookedMaterial* CookingContext::getCooked(const std::shared_ptr<Material>& material) const
 {
 	return material ? getCooked(*material) : nullptr;
+}
+
+const CookedMotion* CookingContext::getCooked(const MotionSource& motion) const
+{
+	return getResources().getMotion(getKey(motion));
+}
+
+const CookedMotion* CookingContext::getCooked(const std::shared_ptr<MotionSource>& motion) const
+{
+	return motion ? getCooked(*motion) : nullptr;
 }
 
 const TransientVisualElement* CookingContext::getCached(const std::shared_ptr<Actor>& actor) const

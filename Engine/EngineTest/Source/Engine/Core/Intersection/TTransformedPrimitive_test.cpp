@@ -1,9 +1,11 @@
 #include <Engine/Core/Intersection/PrimitiveBuilder.h>
 #include <Engine/Core/Intersection/PEmpty.h>
+#include <Engine/Core/Intersection/PLatLong01Sphere.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
 #include <Engine/Core/Intersection/TTransformedPrimitive.h>
 #include <Engine/Core/Intersection/DataStructure/TIndexRangeMap.h>
 #include <Engine/Core/Transform/StaticRigidTransform.h>
+#include <Engine/Core/Transform/DynamicLinearTranslation.h>
 
 #include <gtest/gtest.h>
 
@@ -65,4 +67,27 @@ TEST(TTransformedPrimitiveTest, ForwardsMetadataSlots)
 	EXPECT_EQ(transformedPrimitive.toMetadataSlot(8), 0);
 	EXPECT_EQ(&transformedPrimitive.getMetadata(transformedPrimitive.toMetadataSlot(4)), &metadata2);
 	EXPECT_EQ(&transformedPrimitive.getMetadata(transformedPrimitive.toMetadataSlot(8)), &metadata0);
+}
+
+TEST(TTransformedPrimitiveTest, LinearTranslationAabbBoundsCookedStep)
+{
+	PLatLong01Sphere sphere(1);
+	DynamicLinearTranslation localToWorld({-2, 0, 0}, {3, 0, 0});
+	DynamicLinearTranslation worldToLocal = localToWorld.makeInversed();
+
+	TTransformedPrimitive<TReferencedPrimitiveGetter<Primitive>> transformedPrimitive(
+		TReferencedPrimitiveGetter<Primitive>(&sphere),
+		&localToWorld,
+		&worldToLocal);
+
+	const math::AABB3D aabb = transformedPrimitive.calcAABB();
+
+	EXPECT_LE(aabb.getMinVertex().x(), -3.0_r);
+	EXPECT_LE(aabb.getMinVertex().y(), -1.0_r);
+	EXPECT_LE(aabb.getMinVertex().z(), -1.0_r);
+	EXPECT_GE(aabb.getMaxVertex().x(),  4.0_r);
+	EXPECT_GE(aabb.getMaxVertex().y(),  1.0_r);
+	EXPECT_GE(aabb.getMaxVertex().z(),  1.0_r);
+	EXPECT_TRUE(transformedPrimitive.mayOverlapVolume(
+		math::AABB3D(math::Vector3R(3.5_r, 0, 0))));
 }

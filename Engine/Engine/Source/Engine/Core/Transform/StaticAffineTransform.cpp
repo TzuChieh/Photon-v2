@@ -8,7 +8,7 @@
 namespace ph
 {
 
-const StaticAffineTransform& StaticAffineTransform::makeIdentity()
+const StaticAffineTransform& StaticAffineTransform::IDENTITY()
 {
 	static const StaticAffineTransform identityTransform(math::Matrix4R::makeIdentity(), math::Matrix4R::makeIdentity());
 	return identityTransform;

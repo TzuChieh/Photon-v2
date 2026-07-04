@@ -2,6 +2,7 @@
 
 #include "Engine/Actor/MotionSource/MotionSource.h"
 #include "Engine/Math/TVector3.h"
+#include "Engine/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -9,23 +10,27 @@ namespace ph
 class ConstantVelocityMotion : public MotionSource
 {
 public:
-	// TODO: remove
-	explicit ConstantVelocityMotion(const math::Vector3R& velocity);
+	ConstantVelocityMotion();
 
 	void storeCooked(
-		CookedMotion& out_motion,
 		const CookingContext& ctx,
-		const MotionCookConfig& config) const override;
-
-	std::unique_ptr<Transform> genLocalToWorld(
-		const Time& start,
-		const Time& end) const override;
+		CookedMotion& out_motion) const override;
 
 private:
 	math::Vector3R m_velocity;
 
 public:
-	// TODO: SDL interface
+	PH_DEFINE_SDL_CLASS(ConstantVelocityMotion, clazz)
+	{
+		clazz.typeName("constant-velocity");
+		clazz.docName("Constant Velocity Motion Source");
+		clazz.description("Motion source with a constant linear velocity.");
+		clazz.baseOn<MotionSource>();
+
+		TSdlVector3<OwnerType> velocity("velocity", &OwnerType::m_velocity);
+		velocity.description("Linear velocity in world units per second.");
+		clazz.addField(velocity);
+	}
 };
 
 }// end namespace ph

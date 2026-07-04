@@ -476,7 +476,7 @@ private:
 	{
 		TransformedIntersectable* triangle = nullptr;
 		math::TTriangle<real> localTriangle = math::TTriangle<real>();
-		StaticAffineTransform localToWorld = StaticAffineTransform::makeIdentity();
+		StaticAffineTransform localToWorld = StaticAffineTransform::IDENTITY();
 		PTriangle localPTriangle = PTriangle(math::Vector3R(0), math::Vector3R(1), math::Vector3R(2));
 		std::vector<TransformedIntersectable> intersectables;
 		std::vector<StaticAffineTransform> transforms;
@@ -664,7 +664,7 @@ private:
 	{
 		TransformedIntersectable* sphere = nullptr;
 		math::TSphere<real> localSphere = math::TSphere<real>(0);
-		StaticAffineTransform localToWorld = StaticAffineTransform::makeIdentity();
+		StaticAffineTransform localToWorld = StaticAffineTransform::IDENTITY();
 		PLatLong01Sphere localPSphere = PLatLong01Sphere(0);
 		std::vector<TransformedIntersectable> intersectables;
 		std::vector<StaticAffineTransform> transforms;
