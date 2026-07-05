@@ -99,12 +99,15 @@ PH_DEFINE_SDL_ENUM(EMaskingShadowing, e)
 PH_DEFINE_SDL_ENUM(ENormalMapFormat, e)
 {
 	e.name("normal-map-format");
-	e.description("Controls how RGB values in a normal map are decoded.");
+	e.description("Controls how normal map values are decoded.");
 
 	e.addEntry(EnumType::PXPYPZ_8Bits, "opengl",
 		"The conventional OpenGL format, where RGB stores +x, +y, +z.");
 
 	e.addEntry(EnumType::PXNYPZ_8Bits, "directx",
 		"The conventional DirectX format, where RGB stores +x, -y, +z.");
+
+	e.addEntry(EnumType::PXNY_8Bits, "directx-rg",
+		"The RG-only DirectX format, where RG stores +x, -y and +z is reconstructed.");
 }
 }// end namespace ph

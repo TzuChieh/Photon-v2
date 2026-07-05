@@ -24,3 +24,18 @@ TEST(MicrofacetNormalMapperTest, DirectXDiffersFromOpenGLByYAxisSign)
 	EXPECT_NEAR(openGLNormal.y(),  directXNormal.y(), TEST_REAL_EPSILON);
 	EXPECT_NEAR(openGLNormal.z(),  directXNormal.z(), TEST_REAL_EPSILON);
 }
+
+TEST(MicrofacetNormalMapperTest, DirectXRgReconstructsPositiveNormalMapZ)
+{
+	const Vector3R rgbNormal = MicrofacetNormalMapper::decodeNormalMap(
+		Vector3R(0.75_r, 0.25_r, 0.8535533905932737_r),
+		ENormalMapFormat::PXNYPZ_8Bits);
+	const Vector3R rgNormal = MicrofacetNormalMapper::decodeNormalMap(
+		Vector3R(0.75_r, 0.25_r, 0.0_r),
+		ENormalMapFormat::PXNY_8Bits);
+
+	// RG-only maps reconstruct positive normal-map Z before Photon local-space swizzling
+	EXPECT_NEAR(rgbNormal.x(), rgNormal.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(rgbNormal.y(), rgNormal.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(rgbNormal.z(), rgNormal.z(), TEST_REAL_EPSILON);
+}

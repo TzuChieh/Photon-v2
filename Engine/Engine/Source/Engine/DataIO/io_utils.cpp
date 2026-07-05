@@ -88,6 +88,10 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	{
 		format.setHasAlpha(true);
 	}
+	else if(numComponents == 2)
+	{
+		format.setIsGrayscale(false);
+	}
 	else
 	{
 		PH_LOG(IOUtils, Warning,
@@ -157,6 +161,10 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	if(numComponents == 1)
 	{
 		format.setIsGrayscale(true);
+	}
+	else if(numComponents == 2)
+	{
+		format.setIsGrayscale(false);
 	}
 	else if(numComponents == 3)
 	{

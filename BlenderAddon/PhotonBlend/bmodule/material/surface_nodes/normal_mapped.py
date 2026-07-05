@@ -16,7 +16,8 @@ class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
         description="Normal map channel convention",
         items=[
             ('opengl', "OpenGL", "RGB stores +x, +y, +z", 0),
-            ('directx', "DirectX", "RGB stores +x, -y, +z", 1)],
+            ('directx', "DirectX", "RGB stores +x, -y, +z", 1),
+            ('directx-rg', "DirectX RG", "RG stores +x, -y; +z is reconstructed", 2)],
         default='opengl')
 
     def to_sdl(self, b_material, sdlconsole):

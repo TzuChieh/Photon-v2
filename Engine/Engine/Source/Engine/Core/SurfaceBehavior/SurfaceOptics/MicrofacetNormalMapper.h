@@ -10,6 +10,8 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
 
 namespace ph
@@ -93,6 +95,15 @@ inline math::Vector3R MicrofacetNormalMapper::decodeNormalMap(
 		// Swizzle into Photon's local space convention
 		return {encodedNormal.y(), encodedNormal.z(), encodedNormal.x()};
 
+	case ENormalMapFormat::PXNY_8Bits:
+		encodedNormal = encodedNormal * 2 - 1;
+		encodedNormal.y() *= -1;
+		encodedNormal.z() = std::sqrt(std::max(
+			1.0_r - encodedNormal.x() * encodedNormal.x() - encodedNormal.y() * encodedNormal.y(),
+			0.0_r));
+		// Swizzle into Photon's local space convention
+		return {encodedNormal.y(), encodedNormal.z(), encodedNormal.x()};
+
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return {0, 1, 0};
@@ -107,6 +118,7 @@ inline bool MicrofacetNormalMapper::isPerturbationTooSmall(real cosPerturbation)
 	{
 	case ENormalMapFormat::PXPYPZ_8Bits:
 	case ENormalMapFormat::PXNYPZ_8Bits:
+	case ENormalMapFormat::PXNY_8Bits:
 		// For neutral normal, we have 0.3 degrees of error. See "Normal Unpacking and Quantiation Errors"
 		// by Giuseppe (https ://www.aclockworkberry.com/normal-unpacking-quantization-errors/).
 		// In our tests, thresholding at 0.4 degree indeed gives us a good result (for a normal map with

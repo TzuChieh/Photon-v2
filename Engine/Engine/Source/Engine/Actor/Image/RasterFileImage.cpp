@@ -202,6 +202,10 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 			*out_pixelLayout = pixel_texture::EPixelLayout::Monochromatic;
 			break;
 
+		case 2:
+			*out_pixelLayout = pixel_texture::EPixelLayout::RG;
+			break;
+
 		case 3:
 			*out_pixelLayout = !picture.getFormat().isReversedComponents() ?
 				pixel_texture::EPixelLayout::RGB : pixel_texture::EPixelLayout::BGR;
@@ -234,6 +238,10 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 	{
 		pixelBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);
 	}
+	else if(picture.numComponents() == 2 && picture.getComponentType() == EPicturePixelComponent::UInt8)
+	{
+		pixelBuffer = make_frame_buffer_from_picture<uint8, 2>(picture);
+	}
 	else if(
 		picture.numComponents() == 3 && 
 		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
@@ -251,6 +259,12 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
 	{
 		pixelBuffer = make_frame_buffer_from_picture<float32, 1>(picture);
+	}
+	else if(
+		picture.numComponents() == 2 &&
+		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
+	{
+		pixelBuffer = make_frame_buffer_from_picture<float32, 2>(picture);
 	}
 	else
 	{

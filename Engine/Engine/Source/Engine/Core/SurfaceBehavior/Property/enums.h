@@ -41,7 +41,13 @@ enum class ENormalMapFormat
 	/*! The conventional DirectX format, where RGB stores +x, -y, +z of the normal vector. The vector
 	is scaled and biased to fit into the range [0, 1]. Each channel takes 8 bits.
 	*/
-	PXNYPZ_8Bits
+	PXNYPZ_8Bits,
+
+	/*! The RG-only DirectX format, where RG stores +x, -y of the normal vector and +z is
+	reconstructed. The stored channels are scaled and biased to fit into the range [0, 1].
+	Each stored channel takes 8 bits.
+	*/
+	PXNY_8Bits
 };
 
 }// end namespace ph

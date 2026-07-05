@@ -24,6 +24,7 @@ for case_name, output_name, scene_name, ref_path, ref_title, ref_var_path, z_sam
     ("BVPT", "bvpt", "scene_bvpt.p2", pt_ref_path, "Reference: BNEEPT 32768 spp", bvpt_ref_var_path, 3072, 0.0058, 0.003),
     ("BNEEPT", "bneept", "scene_bneept.p2", pt_ref_path, "Reference: BNEEPT 32768 spp", bneept_ref_var_path, 1024, 0.003, 0.003),
     ("BNEEPT DirectX", "bneept_directx", "scene_bneept_directx.p2", pt_ref_path, "Reference: BNEEPT 32768 spp", bneept_ref_var_path, 1024, 0.003, 0.003),
+    ("BNEEPT DirectX RG", "bneept_directx_rg", "scene_bneept_directx_rg.p2", pt_ref_path, "Reference: BNEEPT 32768 spp", bneept_ref_var_path, 1024, 0.003, 0.003),
     ("PPPM", "pppm", "scene_pppm.p2", pppm_ref_path, "Reference: PPPM 8192 passes", None, None, 0.0013, 0.005)
     ]:
     verifiers = [
