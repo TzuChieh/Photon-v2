@@ -10,3 +10,6 @@
 
 ## Occlusion Paths
 - `isOccluding()` hot paths should avoid nearest-hit work such as `HitProbe` copies, metadata writes, and max-t updates; confirm primitive/BVH changes with target assembly and repeated real-render timings, not only source inspection.
+
+## Packet Triangles
+- For SIMD/packet triangle experiments, prefer an N-wide math geometry type adapted by existing primitive/BVH templates; gate runtime use by compiled SIMD capability plus geometry SDL accelerator settings, and keep build heuristics, mesh ordering, asset downloads, and perf scene setup as separate measured changes.
