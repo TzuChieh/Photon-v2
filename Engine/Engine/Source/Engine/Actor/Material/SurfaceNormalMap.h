@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Actor/Material/SurfaceMaterial.h"
+#include "Engine/Actor/Material/Component/sdl_component_enums.h"
 #include "Engine/Actor/Image/Image.h"
 #include "Engine/SDL/sdl_interface.h"
 
@@ -19,6 +20,7 @@ public:
 private:
 	std::shared_ptr<SurfaceMaterial> m_material;
 	std::shared_ptr<Image> m_map;
+	ENormalMapFormat m_format;
 
 public:
 	PH_DEFINE_SDL_CLASS(SurfaceNormalMap, clazz)
@@ -38,6 +40,12 @@ public:
 			"A map that records the perturbed orientation of surface normal.");
 		map.required();
 		clazz.addField(map);
+
+		TSdlEnumField<OwnerType, ENormalMapFormat> format("format", &OwnerType::m_format);
+		format.description("Format convention of the normal map.");
+		format.optional();
+		format.defaultTo(ENormalMapFormat::PXPYPZ_8Bits);
+		clazz.addField(format);
 	}
 };
 

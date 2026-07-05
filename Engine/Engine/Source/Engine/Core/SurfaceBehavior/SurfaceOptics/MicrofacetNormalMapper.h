@@ -3,6 +3,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Engine/Core/Texture/texture_fwd.h"
 #include "Engine/Math/math_fwd.h"
+#include "Engine/Math/TVector3.h"
 #include "Engine/Core/Texture/TSampler.h"
 #include "Engine/Core/SurfaceBehavior/Property/enums.h"
 
@@ -22,7 +23,8 @@ class MicrofacetNormalMapper : public SurfaceOptics
 public:
 	MicrofacetNormalMapper(
 		const SurfaceOptics* target,
-		const std::shared_ptr<TTexture<math::Vector3R>>& normalMap);
+		const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
+		ENormalMapFormat format = ENormalMapFormat::PXPYPZ_8Bits);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -43,6 +45,8 @@ public:
 		BsdfPdfOutput&          out) const override;
 
 	std::string toString() const override;
+
+	static math::Vector3R decodeNormalMap(math::Vector3R encodedNormal, ENormalMapFormat format);
 
 private:
 	/*!
@@ -72,6 +76,29 @@ inline std::string MicrofacetNormalMapper::toString() const
 		", " + SurfaceOptics::toString();
 }
 
+inline math::Vector3R MicrofacetNormalMapper::decodeNormalMap(
+	math::Vector3R encodedNormal,
+	const ENormalMapFormat format)
+{
+	switch(format)
+	{
+	case ENormalMapFormat::PXPYPZ_8Bits:
+		encodedNormal = encodedNormal * 2 - 1;
+		// Swizzle into Photon's local space convention
+		return {encodedNormal.y(), encodedNormal.z(), encodedNormal.x()};
+
+	case ENormalMapFormat::PXNYPZ_8Bits:
+		encodedNormal = encodedNormal * 2 - 1;
+		encodedNormal.y() *= -1;
+		// Swizzle into Photon's local space convention
+		return {encodedNormal.y(), encodedNormal.z(), encodedNormal.x()};
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return {0, 1, 0};
+	}
+}
+
 inline bool MicrofacetNormalMapper::isPerturbationTooSmall(real cosPerturbation) const
 {
 	PH_ASSERT_GE(cosPerturbation, 0);
@@ -79,6 +106,7 @@ inline bool MicrofacetNormalMapper::isPerturbationTooSmall(real cosPerturbation)
 	switch(m_format)
 	{
 	case ENormalMapFormat::PXPYPZ_8Bits:
+	case ENormalMapFormat::PXNYPZ_8Bits:
 		// For neutral normal, we have 0.3 degrees of error. See "Normal Unpacking and Quantiation Errors"
 		// by Giuseppe (https ://www.aclockworkberry.com/normal-unpacking-quantization-errors/).
 		// In our tests, thresholding at 0.4 degree indeed gives us a good result (for a normal map with

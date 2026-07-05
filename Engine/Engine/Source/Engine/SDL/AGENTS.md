@@ -8,6 +8,9 @@
 - Prefer clear fallback semantics at higher-level loaders with precise warnings.
 - Keep grammar expectations explicit and deterministic.
 
+## SDL Fields
+- For SDL-owned optional/defaulted values, make the field metadata (`defaultTo()` or `noDefault()`) the authoritative default and avoid duplicating that value in owner member initializers.
+
 ## Imports
 - Write import paths as double-quoted tokens: `#import "path.p2";`. `SdlSceneFileReader::loadImported()` resolves relative paths from the root scene working directory, including nested imports.
 - Recursive imports use `SdlCommandParser::m_parseStateStack`: index 0 is the root incremental state; imported text pushes an isolated state. `parseImported()` flushes at imported EOF and `pushParseState()` limits nesting to 32.

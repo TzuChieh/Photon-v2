@@ -8,3 +8,4 @@
 
 ## Material Nodes
 - Material node exporters should use `PhMaterialNode` resource/default helpers; incomplete output-owning nodes warn with a reason and queue fallback for their output resource, while output nodes fallback to the owning material resource.
+- For `bpy.props.EnumProperty`, include stable numeric IDs on every item and never change existing IDs; see `BlenderAddon/README.md` before adding or reordering enum entries.

@@ -155,12 +155,13 @@ inline SurfaceHit perturbX(
 
 MicrofacetNormalMapper::MicrofacetNormalMapper(
 	const SurfaceOptics* target,
-	const std::shared_ptr<TTexture<math::Vector3R>>& normalMap)
+	const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
+	const ENormalMapFormat format)
 
 	: m_target(target)
 	, m_normalMap(normalMap)
 	, m_sampler(math::EColorUsage::Raw)
-	, m_format(ENormalMapFormat::PXPYPZ_8Bits)
+	, m_format(format)
 {
 	PH_ASSERT(target);
 	PH_ASSERT(normalMap);
@@ -417,19 +418,7 @@ void MicrofacetNormalMapper::calcElementalBsdfPdf(
 
 math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X) const
 {
-	math::Vector3R Np = m_sampler.sample(*m_normalMap, X);
-
-	if(m_format == ENormalMapFormat::PXPYPZ_8Bits)
-	{
-		Np = Np * 2 - 1;
-		
-		// Swizzle into Photon's local space convention
-		Np = {Np.y(), Np.z(), Np.x()};
-	}
-	else
-	{
-		PH_ASSERT_UNREACHABLE_SECTION();
-	}
+	math::Vector3R Np = decodeNormalMap(m_sampler.sample(*m_normalMap, X), m_format);
 
 	// Renormalize local normal, in case they it is interpolated or not stored in unit length.
 	// Some normal map also have quantization error and renormalization helps.

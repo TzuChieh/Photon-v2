@@ -27,7 +27,7 @@ void SurfaceNormalMap::storeCooked(
 		std::shared_ptr<TTexture<math::Vector3R>> mapTexture = m_map->genVector3RTexture(ctx);
 
 		auto const normalMappedSurface = ctx.getResources().makeSurfaceOptics<MicrofacetNormalMapper>(
-			out_material.surfaceOptics, mapTexture);
+			out_material.surfaceOptics, mapTexture, m_format);
 		out_material.surfaceOptics = normalMappedSurface;
 	}
 	else
