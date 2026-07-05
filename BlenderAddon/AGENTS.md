@@ -5,6 +5,7 @@
 - Blender 4.1+ mesh normals should come from `Mesh.corner_normals`; only legacy Blender paths should prepare/read `calc_normals()`, `calc_normals_split()`, `MeshLoopTriangle.split_normals`, vertex normals, or triangle normals.
 - The fast Blender PLY writer uses `psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply()` from `bin.photon_renderer`; for Blender 4.5, build `SDLPyBind` with Python 3.11 and keep the add-on installation path pointed at the build root.
 - `generated.pysdl` includes handwritten helpers from `SDLInterface/SDLGen/Resource/PythonGenerator/pysdl_base.py`; update the generator base and checked-in generated copy together when adding helper APIs.
+- When C++ SDL declarations affect Blender export or UI, rebuild `SDLGenCLI` with the Blender-matching Python version, run `scripts/dev_update_blender_addon.py`, and rebuild `SDLPyBind` if Blender needs `bin.photon_renderer`.
 
 ## Material Nodes
 - Material node exporters should use `PhMaterialNode` resource/default helpers; incomplete output-owning nodes warn with a reason and queue fallback for their output resource, while output nodes fallback to the owning material resource.

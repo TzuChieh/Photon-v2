@@ -30,6 +30,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Stop `report_server.py` before regenerating reports if `report_output` cleanup is file-locked; stale report files must not be preserved to work around the lock.
 - Do not rely on browser unload semantics to distinguish close vs refresh/navigation.
 - For report UI-only changes and test case updates, sync source template and build-side copy so `--report-only` validates quickly.
+- Use `--test-only` only for validation; if the user needs to view a report, run without it or use `--report-only` only after confirming case JSON exists.
 
 ## Sample Count Semantics
 - `ZTestVerifier(sample_count=...)` is the tested render's independent sample count; the z statistic divides reference variance by this value.
@@ -37,7 +38,7 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Rendering methods may share beauty reference scenes/images when the expected radiance is the same; do not create method-specific beauty reference scenes just to vary the tested method.
 - Variance references are keyed by sampling distribution, not by test row. Share them for intentionally equivalent variants such as thread count, scene format, or rigid scene shifts; split `bvpt`/`bneept`, material, geometry, lighting, filter, and renderer-config variants unless equivalence is justified.
 - Do not use `ZTestVerifier` for photon-mapping methods. Their progressive biased estimators do not share the independent-sample variance model used by path tracing.
-- Scenes and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy. Retuning that changes scene values must update the source resource repo too.
+- Scenes, fixtures, and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy; update the source resource repo, and sync the build copy before validation when not rerunning setup.
 - Prefer stronger references and appropriate tested sample counts before loosening verifier tolerances; record metric/threshold usage when retuning.
 - Reference image stems should use semantic suffixes (`_beauty`, `_var`). Keep batch ref generation explicit with a scene-to-output map that matches the active ref set.
 - For `ZTestVerifier`, the reference scene must explicitly render a variance film; declaring `"var"` in the ref-output map only validates expected files and does not make the renderer produce variance output.
