@@ -46,6 +46,37 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 -> bool
 {
+	return generalTraversal<TesterFunc, false>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<
+	typename IndexToItem,
+	typename ItemToAABB,
+	typename Index>
+template<
+	typename TesterFunc>
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+-> bool
+{
+	return generalTraversal<TesterFunc, true>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<
+	typename IndexToItem,
+	typename ItemToAABB,
+	typename Index>
+template<
+	typename TesterFunc,
+	bool IS_OCCLUSION_ONLY>
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+-> bool
+{
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 
 	PH_ASSERT_GT(m_numNodes, 0);
@@ -145,8 +176,15 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 				if(hitT)
 				{
-					intersectSegment.setMaxT(*hitT);
-					hasHit = true;
+					if constexpr(IS_OCCLUSION_ONLY)
+					{
+						return true;
+					}
+					else
+					{
+						intersectSegment.setMaxT(*hitT);
+						hasHit = true;
+					}
 				}
 			}
 			else
@@ -169,8 +207,15 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 					if(hitT)
 					{
-						intersectSegment.setMaxT(*hitT);
-						hasHit = true;
+						if constexpr(IS_OCCLUSION_ONLY)
+						{
+							return true;
+						}
+						else
+						{
+							intersectSegment.setMaxT(*hitT);
+							hasHit = true;
+						}
 					}
 				}
 			}
