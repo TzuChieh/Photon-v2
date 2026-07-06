@@ -6,6 +6,7 @@
 
 ## SDL Fields
 - For SDL-backed actor/material fields, keep defaults in SDL field declarations such as `defaultTo(...)` rather than duplicating member initializers unless a non-SDL construction path requires one.
+- For paired scalar/map fields, use the base field name for the scalar value and `<field>-map` for the mapped input; prefer non-optional scalar fields with SDL defaults, optional map fields, and one class-level precedence statement over repeated per-field wording.
 
 ## Blender PLY Models
 - Actor/model cooking owns Blender material-slot metadata injection. Geometry may expose `CookedGeometry::faceIdToMetadataSlot`, but the actor combines it with material-slot metadata.
