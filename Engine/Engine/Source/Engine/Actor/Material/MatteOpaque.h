@@ -2,6 +2,7 @@
 
 #include "Engine/Actor/Material/SurfaceMaterial.h"
 #include "Engine/Actor/Image/Image.h"
+#include "Engine/Actor/SDLExtension/TSdlSpectrum.h"
 #include "Engine/Math/math_fwd.h"
 #include "Engine/SDL/sdl_interface.h"
 
@@ -26,36 +27,49 @@ public:
 	*/
 	void setAlbedo(const real r, const real g, const real b);
 
-	void setAlbedo(std::shared_ptr<Image> albedo);
+	void setAlbedoMap(std::shared_ptr<Image> albedoMap);
+	void setSigma(real sigma);
+	void setSigmaMap(std::shared_ptr<Image> sigmaMap);
 
 private:
-	/*!
-	@param albedo Albedo in linear-sRGB.
-	*/
-	static std::shared_ptr<Image> makeConstantAlbedo(const math::Vector3R& albedo);
-
-	std::shared_ptr<Image> m_albedo;
-	std::shared_ptr<Image> m_sigmaDegrees;
+	math::Spectrum m_albedo;
+	std::shared_ptr<Image> m_albedoMap;
+	real m_sigma;
+	std::shared_ptr<Image> m_sigmaMap;
 
 public:
 	PH_DEFINE_SDL_CLASS(MatteOpaque, clazz)
 	{
 		clazz.typeName("matte-opaque");
 		clazz.docName("Matte Opaque Material");
-		clazz.description("A material model for surfaces with matte look, such as chalk and moon.");
+		clazz.description("A material model for surfaces with matte look, such as chalk and moon. For paired value/map inputs, map inputs have higher precedence.");
 		clazz.baseOn<SurfaceMaterial>();
 
-		TSdlReference<Image, OwnerType> albedo("albedo", &OwnerType::m_albedo);
-		albedo.description("An image or constant color that will be used for describing albedo.");
+		TSdlSpectrum<OwnerType> albedo("albedo", math::EColorUsage::ECF, &OwnerType::m_albedo);
+		albedo.description("Constant albedo in linear-sRGB.");
+		albedo.defaultTo(math::Spectrum(0.5_r));
 		clazz.addField(albedo);
 
-		TSdlReference<Image, OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
-		sigmaDegrees.description(
-			"Roughness in standard deviation of surface orientation (unit: degrees). "
+		TSdlReference<Image, OwnerType> albedoMap("albedo-map", &OwnerType::m_albedoMap);
+		albedoMap.description("Texture-mapped albedo.");
+		albedoMap.optional();
+		clazz.addField(albedoMap);
+
+		TSdlReal<OwnerType> sigma("sigma", &OwnerType::m_sigma);
+		sigma.description(
+			"Constant Oren-Nayar sigma, the standard deviation of surface orientation. "
+			"The value is used directly (unit: radians, normally in [0, 1], but you can also use higher values). "
 			"If the sigma is 0, it is equivalent to Lambertian diffuse as all facets are on the "
 			"same macrosurface plane.");
-		sigmaDegrees.optional();
-		clazz.addField(sigmaDegrees);
+		sigma.defaultTo(0.0_r);
+		clazz.addField(sigma);
+
+		TSdlReference<Image, OwnerType> sigmaMap("sigma-map", &OwnerType::m_sigmaMap);
+		sigmaMap.description(
+			"Texture-mapped Oren-Nayar sigma. "
+			"The sampled value is used directly (unit: radians, in [0, 1]).");
+		sigmaMap.optional();
+		clazz.addField(sigmaMap);
 	}
 };
 

@@ -15,6 +15,7 @@ the expected frequencies.
 #include <Common/primitive_type.h>
 #include <Engine/Math/TVector2.h>
 #include <Engine/Math/TVector3.h>
+#include <Engine/Math/math.h>
 #include <Engine/Math/Geometry/TSphere.h>
 #include <Engine/Math/Geometry/THemisphere.h>
 #include <Engine/Math/statistics.h>
@@ -43,7 +44,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/Property/IsoBeckmann.h>
 #include <Engine/Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TOrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
@@ -777,12 +778,14 @@ TEST(BsdfSamplingChi2Test, AnisoGgxExactConductorRoughReflector)
 
 TEST(BsdfSamplingChi2Test, OrenNayarZeroSigma)
 {
+	using TestOrenNayar = TOrenNayar<TConstantSurfaceProperty<math::Spectrum>, TConstantSurfaceProperty<real>>;
+
 	BsdfTestInput p
 	{
 		.testName = "OrenNayarZeroSigma",
-		.targetOptics = std::make_unique<OrenNayar>(
-			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
-			0.0_r),// 0 sigma is effectively Lambertian
+		.targetOptics = std::make_unique<TestOrenNayar>(
+			TConstantSurfaceProperty<math::Spectrum>(math::Spectrum{0.8_r}),
+			TConstantSurfaceProperty<real>(0.0_r)),// 0 sigma is effectively Lambertian
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -792,12 +795,14 @@ TEST(BsdfSamplingChi2Test, OrenNayarZeroSigma)
 
 TEST(BsdfSamplingChi2Test, OrenNayar60Degrees)
 {
+	using TestOrenNayar = TOrenNayar<TConstantSurfaceProperty<math::Spectrum>, TConstantSurfaceProperty<real>>;
+
 	BsdfTestInput p
 	{
 		.testName = "OrenNayar60Degrees",
-		.targetOptics = std::make_unique<OrenNayar>(
-			std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.8_r}),
-			60.0_r),
+		.targetOptics = std::make_unique<TestOrenNayar>(
+			TConstantSurfaceProperty<math::Spectrum>(math::Spectrum{0.8_r}),
+			TConstantSurfaceProperty<real>(math::to_radians(60.0_r))),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};

@@ -1,15 +1,13 @@
 #include "Engine/Actor/Material/MatteOpaque.h"
-#include "Engine/Actor/Image/ConstantImage.h"
+#include "Engine/Actor/SDLExtension/sdl_spectrum_io.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
-#include "Engine/Actor/Image/SwizzledImage.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TOrenNayar.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
+#include "Engine/Core/Texture/constant_textures.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-
-#include <Common/assertion.h>
-#include <Common/logging.h>
 
 #include <utility>
 
@@ -20,29 +18,57 @@ void MatteOpaque::storeCooked(
 	const CookingContext& ctx,
 	CookedMaterial& out_material) const
 {
-	auto albedo = m_albedo;
-	if(!albedo)
-	{
-		PH_DEFAULT_LOG(Note,
-			"No albedo specified. Default to 50% reflectance.");
-		albedo = makeConstantAlbedo(math::Vector3R(0.5_r));
-	}
-
 	const SurfaceOptics* optics = nullptr;
-	if(m_sigmaDegrees)
+	if(m_sigmaMap)
 	{
-		auto sigmaDegrees = TSdl<SwizzledImage>::makeResource();
-		sigmaDegrees->setInput(m_sigmaDegrees);
-		sigmaDegrees->setSwizzleSubscripts("x");
+		using Sigma = TTexturedSurfaceProperty<real>;
 
-		optics = ctx.getResources().makeSurfaceOptics<OrenNayar>(
-			albedo->genColorTexture(ctx),
-			sigmaDegrees->genRealTexture(ctx));
+		if(m_albedoMap)
+		{
+			using Albedo = TTexturedSurfaceProperty<math::Spectrum, math::EColorUsage::ECF>;
+
+			optics = ctx.getResources().makeSurfaceOptics<TOrenNayar<Albedo, Sigma>>(
+				Albedo(m_albedoMap->genColorTexture(ctx)),
+				Sigma(m_sigmaMap->genRealTexture(ctx)));
+		}
+		else
+		{
+			using Albedo = TConstantSurfaceProperty<math::Spectrum>;
+
+			optics = ctx.getResources().makeSurfaceOptics<TOrenNayar<Albedo, Sigma>>(
+				Albedo(m_albedo),
+				Sigma(m_sigmaMap->genRealTexture(ctx)));
+		}
+	}
+	else if(m_sigma != 0.0_r)
+	{
+		using Sigma = TConstantSurfaceProperty<real>;
+
+		if(m_albedoMap)
+		{
+			using Albedo = TTexturedSurfaceProperty<math::Spectrum, math::EColorUsage::ECF>;
+
+			optics = ctx.getResources().makeSurfaceOptics<TOrenNayar<Albedo, Sigma>>(
+				Albedo(m_albedoMap->genColorTexture(ctx)),
+				Sigma(m_sigma));
+		}
+		else
+		{
+			using Albedo = TConstantSurfaceProperty<math::Spectrum>;
+
+			optics = ctx.getResources().makeSurfaceOptics<TOrenNayar<Albedo, Sigma>>(
+				Albedo(m_albedo),
+				Sigma(m_sigma));
+		}
 	}
 	else
 	{
+		const std::shared_ptr<TTexture<math::Spectrum>> albedoTexture = m_albedoMap
+			? m_albedoMap->genColorTexture(ctx)
+			: std::make_shared<TConstantTexture<math::Spectrum>>(m_albedo);
+
 		optics = ctx.getResources().makeSurfaceOptics<LambertianReflector>(
-			albedo->genColorTexture(ctx));
+			albedoTexture);
 	}
 
 	out_material.surfaceOptics = optics;
@@ -50,7 +76,10 @@ void MatteOpaque::storeCooked(
 
 void MatteOpaque::setAlbedo(const math::Vector3R& albedo)
 {
-	setAlbedo(makeConstantAlbedo(albedo));
+	m_albedo = sdl::tristimulus_to_spectrum(
+		math::TVector3<math::ColorValue>(albedo),
+		math::EColorSpace::Linear_sRGB,
+		math::EColorUsage::ECF);
 }
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
@@ -58,16 +87,20 @@ void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 	setAlbedo(math::Vector3R(r, g, b));
 }
 
-void MatteOpaque::setAlbedo(std::shared_ptr<Image> albedo)
+void MatteOpaque::setAlbedoMap(std::shared_ptr<Image> albedoMap)
 {
-	m_albedo = std::move(albedo);
+	m_albedoMap = std::move(albedoMap);
 }
 
-std::shared_ptr<Image> MatteOpaque::makeConstantAlbedo(const math::Vector3R& albedo)
+void MatteOpaque::setSigma(const real sigma)
 {
-	auto imageAlbedo = TSdl<ConstantImage>::makeResource();
-	imageAlbedo->setColor(albedo, math::EColorSpace::Linear_sRGB);
-	return imageAlbedo;
+	PH_ASSERT_GE(sigma, 0);
+	m_sigma = sigma;
+}
+
+void MatteOpaque::setSigmaMap(std::shared_ptr<Image> sigmaMap)
+{
+	m_sigmaMap = std::move(sigmaMap);
 }
 
 }// end namespace ph

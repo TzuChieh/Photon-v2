@@ -182,14 +182,16 @@ Defines and models the appearance of scene elements.
 * Type: `Matte Opaque`
 * Note: **concrete**, based on **Surface Material**
 
-A material model for surfaces with matte look, such as chalk and moon.
+A material model for surfaces with matte look, such as chalk and moon. Input precedence: map inputs have higher precedence than paired value inputs.
 
 > Creation: `material(matte-opaque)`
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
-| albedo | `image` | An image or constant color that will be used for describing albedo. |
-| sigma-degrees | `image` | Roughness in standard deviation of surface orientation (unit: degrees). |
+| albedo | `spectrum` | Constant albedo in linear-sRGB. |
+| albedo-map | `image` | Texture-mapped albedo. |
+| sigma | `real` | Constant Oren-Nayar sigma. The value is used directly (unit: radians, in [0, 1]). If the sigma is 0, it is equivalent to Lambertian diffuse as all facets are on the same macrosurface plane. |
+| sigma-map | `image` | Texture-mapped Oren-Nayar sigma. The sampled value is used directly (unit: radians, in [0, 1]). |
 
 
 ## Abraded Opaque Material

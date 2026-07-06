@@ -1,11 +1,11 @@
 from ..node_base import (
         PhSurfaceMaterialNode,
         PhSurfaceMaterialSocket,
+        PhFloatFactorSocket,
         PhColorSocket)
 from psdl import sdl
 
 import bpy
-import mathutils
 
 
 class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
@@ -30,34 +30,30 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
         )
 
     def to_sdl(self, b_material, sdlconsole):
-        albedo_img_name = self.get_linked_input_resource_name(b_material, 0)
-        if albedo_img_name is None:
-            albedo_img_name = self.get_default_input_resource_name(b_material, 0)
-            albedo_img = sdl.ConstantImageCreator()
-            albedo_img.set_data_name(albedo_img_name)
-            albedo_img.set_values(sdl.RealArray(self.get_default_input_value(0)))
-            albedo_img.set_color_space(sdl.Enum('LSRGB'))
-            sdlconsole.queue_command(albedo_img)
-
-        sigma_img_name = None
-        if self.diffusion_type == 'OREN_NAYAR':
-            sigma_img_name = self.get_node_resource_name(b_material, suffix="sigma")
-            sigma_img = sdl.ConstantImageCreator()
-            sigma_img.set_data_name(sigma_img_name)
-            sigma_img.set_values(sdl.RealArray([self.roughness * 180.0]))
-            sdlconsole.queue_command(sigma_img)
-
         creator = sdl.MatteOpaqueMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
-        creator.set_albedo(sdl.Image(albedo_img_name))
 
-        if sigma_img_name:
-            creator.set_sigma_degrees(sdl.Image(sigma_img_name))
+        albedo_img_name = self.get_linked_input_resource_name(b_material, 0)
+        if albedo_img_name is not None:
+            creator.set_albedo_map(sdl.Image(albedo_img_name))
+        else:
+            creator.set_albedo(sdl.Spectrum(self.get_default_input_value(0)))
+
+        if self.diffusion_type == 'OREN_NAYAR':
+            roughness_img_name = self.get_linked_input_resource_name(b_material, 1)
+            if roughness_img_name is not None:
+                creator.set_sigma_map(sdl.Image(roughness_img_name))
+            else:
+                creator.set_sigma(sdl.Real(self.roughness))
 
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
         self.inputs.new(PhColorSocket.bl_idname, "Albedo")
+
+        roughness_socket = self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
+        roughness_socket.link_only = True
+        
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
