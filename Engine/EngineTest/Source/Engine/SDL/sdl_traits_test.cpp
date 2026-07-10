@@ -42,6 +42,9 @@ TEST(SdlTraitsTest, SdlClassTraits)
 
 TEST(SdlTraitsTest, SdlStructTraits)
 {
+	static_assert(CSdlStruct<NonSdlDummyStruct> == false);
+	static_assert(CSdlStruct<DummyStruct> == true);
+
 	static_assert(CHasSdlStructDefinition<NonSdlDummyStruct> == false);
 	static_assert(CHasSdlStructDefinition<DummyStruct> == true);
 	static_assert(CHasSdlStructDefinition<NonSdlDummyClass> == false);

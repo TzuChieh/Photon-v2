@@ -9,10 +9,6 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(DielectricInterfaceInfo, BSDF);
 
-DielectricInterfaceInfo::DielectricInterfaceInfo() :
-	DielectricInterfaceInfo(EInterfaceFresnel::Schlick, 1.0_r, 1.5_r)
-{}
-
 DielectricInterfaceInfo::DielectricInterfaceInfo(
 	const EInterfaceFresnel fresnel,
 	const real              iorOuter,

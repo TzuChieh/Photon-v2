@@ -7,6 +7,7 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/TIdealDielectric.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/TIdealDielectricTransmitter.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/TIdealReflector.h"
+#include "Engine/SDL/TSdl.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/CookingContext.h"
@@ -121,7 +122,7 @@ void IdealSubstance::storeCooked(
 
 	case EIdealSubstance::MetallicReflector:
 	{
-		auto interfaceInfo = ConductiveInterfaceInfo();
+		auto interfaceInfo = TSdl<ConductiveInterfaceInfo>::make();
 		interfaceInfo.setFresnel(m_fresnel);
 		interfaceInfo.setF0(m_f0);
 		if(m_f0Map)

@@ -43,7 +43,7 @@ public:
 	static std::shared_ptr<ISdlResource> makeResource(const SdlClass* clazz);
 };
 
-/*! @brief `TSdl` specialization that accepts static type (`T`).
+/*! @brief `TSdl` specialization that accepts an SDL resource type.
 */
 template<CSdlResource T>
 class TSdl<T> final
@@ -61,12 +61,11 @@ public:
 	*/
 	static std::shared_ptr<T> makeResource();
 
-	/*! @brief Creates a resource or struct instance filled with default values.
+	/*! @brief Creates a resource instance filled with default values.
 	Default values are determined by SDL class definition.
 	*/
 	template<typename... DeducedArgs>
 	static T make(DeducedArgs&&... args);
-	// FIXME: struct needs to have its own specialization of TSdl
 
 	/*! @brief Loads a single resource from file.
 	The file is assumed to contain only 1 resource.
@@ -76,6 +75,19 @@ public:
 	/*! @brief Saves a single resource to file.
 	*/
 	static void saveResource(const std::shared_ptr<T>& resource, const Path& file);
+};
+
+/*! @brief `TSdl` specialization that accepts an SDL struct type.
+*/
+template<CSdlStruct T>
+class TSdl<T> final
+{
+public:
+	/*! @brief Creates a struct instance filled with default values.
+	Default values are determined by SDL struct definition.
+	*/
+	template<typename... DeducedArgs>
+	static T make(DeducedArgs&&... args);
 };
 
 }// end namespace ph

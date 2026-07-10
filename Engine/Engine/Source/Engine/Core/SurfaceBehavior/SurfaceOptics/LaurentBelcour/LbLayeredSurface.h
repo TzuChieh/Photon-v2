@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayerProperty.h"
 
-#include <Common/primitive_type.h>
+#include <Common/assertion.h>
 
+#include <memory>
 #include <vector>
 
 namespace ph
@@ -18,14 +18,8 @@ Laurent Belcour's project page: https://belcour.github.io/blog/research/2018/05/
 class LbLayeredSurface : public SurfaceOptics
 {
 public:
-	LbLayeredSurface(
-		const std::vector<math::Spectrum>& iorNs,
-		const std::vector<math::Spectrum>& iorKs,
-		const std::vector<real>&           alphas,
-		const std::vector<real>&           depths,
-		const std::vector<real>&           gs,
-		const std::vector<math::Spectrum>& sigmaAs,
-		const std::vector<math::Spectrum>& sigmaSs);
+	explicit LbLayeredSurface(
+		std::vector<std::shared_ptr<LbLayerProperty>> layerProperties);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -48,26 +42,34 @@ public:
 	std::string toString() const override;
 
 private:
-	std::vector<math::Spectrum> m_iorNs;
-	std::vector<math::Spectrum> m_iorKs;
-	std::vector<real>           m_alphas;
-	std::vector<real>           m_depths;
-	std::vector<real>           m_gs;
-	std::vector<math::Spectrum> m_sigmaAs;
-	std::vector<math::Spectrum> m_sigmaSs;
+	std::size_t numLayers() const;
+
+	LbLayer getLayer(
+		std::size_t layerIndex,
+		const SurfaceHit& X,
+		const LbLayer& previousLayer) const;
+
+	std::vector<std::shared_ptr<LbLayerProperty>> m_layerProperties;
 
 	static thread_local std::vector<real> sampleWeights;
 	static thread_local std::vector<real> alphas;
-
-	std::size_t numLayers() const;
-	LbLayer getLayer(std::size_t layerIndex, const LbLayer& previousLayer) const;
 };
 
 // In-header Implementations:
 
 inline std::size_t LbLayeredSurface::numLayers() const
 {
-	return m_alphas.size();
+	return m_layerProperties.size();
+}
+
+inline LbLayer LbLayeredSurface::getLayer(
+	const std::size_t layerIndex,
+	const SurfaceHit& X,
+	const LbLayer& previousLayer) const
+{
+	PH_ASSERT(layerIndex < numLayers());
+
+	return m_layerProperties[layerIndex]->evaluate(X, previousLayer);
 }
 
 inline std::string LbLayeredSurface::toString() const

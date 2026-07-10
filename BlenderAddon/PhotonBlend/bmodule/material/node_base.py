@@ -173,6 +173,135 @@ class PhColorSocket(PhMaterialNodeSocket):
 
 
 @blender.register_class
+class PhIorNSocket(PhMaterialNodeSocket):
+    """
+    Real part of a complex index of refraction.
+    """
+    bl_idname = 'PH_IOR_N_SOCKET'
+    bl_label = "IoR N"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="IoR N",
+        description="Vector values of IoR N.",
+        default=[1.5, 1.5, 1.5],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhIorKSocket(PhMaterialNodeSocket):
+    """
+    Imaginary part of a complex index of refraction.
+    """
+    bl_idname = 'PH_IOR_K_SOCKET'
+    bl_label = "IoR K"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="IoR K",
+        description="Vector values of IoR K.",
+        default=[0.0, 0.0, 0.0],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhLayerThicknessSocket(PhMaterialNodeSocket):
+    """
+    Physical thickness of a layer.
+    """
+    bl_idname = 'PH_LAYER_THICKNESS_SOCKET'
+    bl_label = "Layer Thickness"
+
+    default_value: bpy.props.FloatProperty(
+        name="Layer Thickness",
+        description="Physical thickness of a layer.",
+        default=0.0,
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='NONE',
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.5, 0.5, 0.5, 1.0]  # gray
+
+
+@blender.register_class
+class PhHenyeyGreensteinGSocket(PhMaterialNodeSocket):
+    """
+    The g variable in the Henyey-Greenstein phase function.
+    """
+    bl_idname = 'PH_HENYEY_GREENSTEIN_G_SOCKET'
+    bl_label = "G"
+
+    default_value: bpy.props.FloatProperty(
+        name="G",
+        default=0.9,
+        min=0.5,
+        max=1.0,
+        subtype='NONE',
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.5, 0.5, 0.5, 1.0]  # gray
+
+
+@blender.register_class
+class PhVolumeAbsorptionSocket(PhMaterialNodeSocket):
+    """
+    Volume absorption coefficient.
+    """
+    bl_idname = 'PH_VOLUME_ABSORPTION_SOCKET'
+    bl_label = "Sigma A"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Sigma A",
+        description="Volume absorption coefficient.",
+        default=[0.1, 0.1, 0.1],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhVolumeScatteringSocket(PhMaterialNodeSocket):
+    """
+    Volume scattering coefficient.
+    """
+    bl_idname = 'PH_VOLUME_SCATTERING_SOCKET'
+    bl_label = "Sigma S"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Sigma S",
+        description="Volume scattering coefficient.",
+        default=[0.1, 0.1, 0.1],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
 class PhF0Socket(PhMaterialNodeSocket):
     """
     Surface reflectance at normal incidence.

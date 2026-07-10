@@ -27,7 +27,10 @@ public:
 	{
 		clazz.typeName("layered-surface");
 		clazz.docName("Layered Surface");
-		clazz.description("Model a surface as having multiple coating layers.");
+		clazz.description(
+			"Model a surface as having multiple coating layers. For paired value/map "
+			"inputs in each layer, map inputs have higher precedence. If any map is "
+			"specified for a layer, its constant inputs are promoted to constant textures.");
 		clazz.baseOn<SurfaceMaterial>();
 
 		TSdlStructArray<SurfaceLayerInfo, OwnerType> layers("layers", &OwnerType::m_layers);

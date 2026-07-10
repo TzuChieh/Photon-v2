@@ -36,6 +36,11 @@ template<typename T>
 concept CHasSdlStructDefinition =
 	std::is_same_v<typename T::SdlStructDefinitionMarker, std::remove_cv_t<T>>;
 
+/*! @brief Whether @p T is an SDL struct.
+*/
+template<typename T>
+concept CSdlStruct = CHasSdlStructDefinition<T>;
+
 /*! @brief Whether @p T is a well-defined SDL function.
 */
 template<typename T>
@@ -54,11 +59,11 @@ concept CHasSdlEnumDefinition =
 template<typename T>
 concept CSdlInstance = 
 	CSdlResource<T> ||
-	CHasSdlStructDefinition<T> ||
+	CSdlStruct<T> ||
 	CHasSdlFunctionDefinition<T>;
 
 template<typename T>
-concept CSdlStructSupportsInitToDefault = CHasSdlStructDefinition<T> && requires (T instance)
+concept CSdlStructSupportsInitToDefault = CSdlStruct<T> && requires (T instance)
 {
 	T::getSdlStruct()->initDefaultStruct(instance);
 };

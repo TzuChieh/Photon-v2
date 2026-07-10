@@ -49,6 +49,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TLbLayerProperty.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h>
 
 #include <gtest/gtest.h>
@@ -931,6 +932,17 @@ TEST(BsdfSamplingChi2Test, LerpedDuoGlossyDielectric)
 
 TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
 {
+	using ConstantReal = TConstantSurfaceProperty<real>;
+	using ConstantSpectrum = TConstantSurfaceProperty<math::Spectrum>;
+	using LayerProperty = TLbLayerProperty<
+		ConstantReal,
+		ConstantSpectrum,
+		ConstantSpectrum,
+		ConstantReal,
+		ConstantReal,
+		ConstantSpectrum,
+		ConstantSpectrum>;
+
 	// Layered parameters from Laurent Belcour's paper
 	// "Efficient rendering of layered materials using an atomic decomposition with statistical operators"
 	// https://dl.acm.org/doi/10.1145/3197517.3201289
@@ -939,47 +951,42 @@ TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
 	{
 		.testName = "LaurentBelcourLayeredSurfaceReflector",
 		.targetOptics = std::make_unique<LbLayeredSurface>(
-			// IoR N
-			std::vector<math::Spectrum>
+			std::vector<std::shared_ptr<LbLayerProperty>>
 			{
-				math::Spectrum{}.setLinearSRGB({1.4_r, 1.4_r, 1.4_r}, math::EColorUsage::Raw),
-				math::Spectrum{}.setLinearSRGB({1.0_r, 1.0_r, 1.0_r}, math::EColorUsage::Raw)
-			},
-			// IoR K
-			std::vector<math::Spectrum>
-			{
-				math::Spectrum{}.setLinearSRGB({0.0_r, 0.0_r, 0.0_r}, math::EColorUsage::Raw),
-				math::Spectrum{}.setLinearSRGB({0.8_r, 0.9_r, 0.6_r}, math::EColorUsage::Raw)
-			},
-			// alpha
-			std::vector<real>
-			{
-				0.01_r,
-				0.1_r
-			},
-			// depth
-			std::vector<real>
-			{
-				0.0_r,
-				0.0_r
-			},
-			// phase function g
-			std::vector<real>
-			{
-				0.0_r,
-				0.0_r
-			},
-			// sigma A
-			std::vector<math::Spectrum>
-			{
-				math::Spectrum{},
-				math::Spectrum{}
-			},
-			// sigma S
-			std::vector<math::Spectrum>
-			{
-				math::Spectrum{},
-				math::Spectrum{}
+				std::make_shared<LayerProperty>(
+					// alpha
+					ConstantReal(0.01_r),
+					// IoR N
+					ConstantSpectrum(math::Spectrum{}.setLinearSRGB(
+						{1.4_r, 1.4_r, 1.4_r}, math::EColorUsage::Raw)),
+					// IoR K
+					ConstantSpectrum(math::Spectrum{}.setLinearSRGB(
+						{0.0_r, 0.0_r, 0.0_r}, math::EColorUsage::Raw)),
+					// depth
+					ConstantReal(0.0_r),
+					// phase function g
+					ConstantReal(0.0_r),
+					// sigma A
+					ConstantSpectrum(math::Spectrum{}),
+					// sigma S
+					ConstantSpectrum(math::Spectrum{})),
+				std::make_shared<LayerProperty>(
+					// alpha
+					ConstantReal(0.1_r),
+					// IoR N
+					ConstantSpectrum(math::Spectrum{}.setLinearSRGB(
+						{1.0_r, 1.0_r, 1.0_r}, math::EColorUsage::Raw)),
+					// IoR K
+					ConstantSpectrum(math::Spectrum{}.setLinearSRGB(
+						{0.8_r, 0.9_r, 0.6_r}, math::EColorUsage::Raw)),
+					// depth
+					ConstantReal(0.0_r),
+					// phase function g
+					ConstantReal(0.0_r),
+					// sigma A
+					ConstantSpectrum(math::Spectrum{}),
+					// sigma S
+					ConstantSpectrum(math::Spectrum{}))
 			}),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true

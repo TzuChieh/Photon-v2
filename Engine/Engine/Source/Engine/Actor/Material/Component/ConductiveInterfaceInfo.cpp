@@ -12,10 +12,6 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ConductiveInterfaceInfo, BSDF);
 
-ConductiveInterfaceInfo::ConductiveInterfaceInfo() :
-	ConductiveInterfaceInfo(math::Spectrum(1))
-{}
-
 ConductiveInterfaceInfo::ConductiveInterfaceInfo(const math::Spectrum& f0) :
 	m_fresnel  (EInterfaceFresnel::Schlick),
 	m_f0       (f0),

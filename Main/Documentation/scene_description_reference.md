@@ -291,13 +291,32 @@ Models a perfectly smooth surface with various physical properties. Input preced
 * Type: `Layered Surface`
 * Note: **concrete**, based on **Surface Material**
 
-Model a surface as having multiple coating layers.
+Model a surface as having multiple coating layers. For paired value/map inputs in each layer, map inputs have higher precedence. If any map is specified for a layer, its constant inputs are promoted to constant textures.
 
 > Creation: `material(layered-surface)`
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
 | layers | `struct-array` | Physical properties of each layer. |
+
+Each `surface-layer-info` entry accepts:
+
+| Layer Inputs | Types | Descriptions |
+| --- | --- | --- |
+| roughness | `real` | Roughness of the layer. |
+| roughness-map | `image` | Texture-mapped roughness of the layer. |
+| ior-n | `spectrum` | The real part of the layer's index of refraction. |
+| ior-n-map | `image` | Texture-mapped real part of the layer's index of refraction. |
+| ior-k | `spectrum` | The imaginary part of the layer's index of refraction. |
+| ior-k-map | `image` | Texture-mapped imaginary part of the layer's index of refraction. |
+| depth | `real` | Thickness of the layer. |
+| depth-map | `image` | Texture-mapped thickness of the layer. |
+| g | `real` | The g variable in Henyey-Greenstein phase function. |
+| g-map | `image` | Texture-mapped g variable in Henyey-Greenstein phase function. |
+| sigma-a | `spectrum` | The volume absorption coefficient. |
+| sigma-a-map | `image` | Texture-mapped volume absorption coefficient. |
+| sigma-s | `spectrum` | The volume scattering coefficient. |
+| sigma-s-map | `image` | Texture-mapped volume scattering coefficient. |
 
 
 ## Binary Mixed Surface

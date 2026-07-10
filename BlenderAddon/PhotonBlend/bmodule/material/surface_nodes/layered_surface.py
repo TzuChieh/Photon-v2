@@ -38,7 +38,7 @@ class PhLayeredSurfaceNode(PhSurfaceMaterialNode):
             layer_node = self.inputs[i].links[0].from_node
             packet_name = "layer_%d_data" % i
 
-            sdlconsole.queue_command(layer_node.make_cached_packet_command(packet_name))
+            sdlconsole.queue_command(layer_node.make_cached_packet_command(b_material, packet_name))
             packets.append(sdl.CachedPacket(packet_name))
 
         if not packets:

@@ -22,7 +22,7 @@ dielectric-dielectric interface.
 class DielectricInterfaceInfo final
 {
 public:
-	DielectricInterfaceInfo();
+	DielectricInterfaceInfo() = default;
 
 	DielectricInterfaceInfo(
 		EInterfaceFresnel fresnel,

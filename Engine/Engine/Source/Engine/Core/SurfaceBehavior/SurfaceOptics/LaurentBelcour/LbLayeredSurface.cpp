@@ -13,7 +13,9 @@
 
 #include <Common/assertion.h>
 
+#include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace ph
 {
@@ -38,30 +40,17 @@ inline auto make_ggx(const real alpha)
 }// end anonymous namespace
 
 LbLayeredSurface::LbLayeredSurface(
-	const std::vector<math::Spectrum>& iorNs,
-	const std::vector<math::Spectrum>& iorKs,
-	const std::vector<real>&           alphas,
-	const std::vector<real>&           depths,
-	const std::vector<real>&           gs,
-	const std::vector<math::Spectrum>& sigmaAs,
-	const std::vector<math::Spectrum>& sigmaSs) :
+	std::vector<std::shared_ptr<LbLayerProperty>> layerProperties) :
 
 	SurfaceOptics(),
 
-	m_iorNs(iorNs), m_iorKs(iorKs), 
-	m_alphas(alphas), 
-	m_depths(depths), 
-	m_gs(gs), 
-	m_sigmaAs(sigmaAs), m_sigmaSs(sigmaSs)
+	m_layerProperties(std::move(layerProperties))
 {
-	PH_ASSERT(m_iorNs.size() != 0);
-
-	PH_ASSERT(m_iorNs.size()   == m_iorKs.size()   && 
-	          m_iorKs.size()   == m_alphas.size()  &&
-	          m_alphas.size()  == m_depths.size()  &&
-	          m_depths.size()  == m_gs.size()      &&
-	          m_gs.size()      == m_sigmaAs.size() &&
-	          m_sigmaAs.size() == m_sigmaSs.size());
+	PH_ASSERT(!m_layerProperties.empty());
+	for(const auto& layerProperty : m_layerProperties)
+	{
+		PH_ASSERT(layerProperty);
+	}
 
 	m_phenomena.set(ESurfacePhenomenon::GlossyReflection);
 }
@@ -108,7 +97,7 @@ void LbLayeredSurface::calcElementalBsdf(
 	math::Spectrum bsdf(0);
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
+		const LbLayer addedLayer = getLayer(i, in.getX(), statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
 			PH_ASSERT(i == numLayers() - 1);
@@ -135,7 +124,7 @@ void LbLayeredSurface::genElementalBsdfSample(
 	// Perform adding-doubling algorithm and gather information for later sampling process:
 	// we first construct an approximative distribution from the view direction, then use it
 	// to importance sample the actual BSDF we need.
-	
+
 	sampleWeights.resize(numLayers());
 	alphas.resize(numLayers());
 
@@ -143,7 +132,7 @@ void LbLayeredSurface::genElementalBsdfSample(
 	InterfaceStatistics statistics(absNoV, LbLayer());
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
+		const LbLayer addedLayer = getLayer(i, in.getX(), statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
 			PH_ASSERT(i == numLayers() - 1);
@@ -166,7 +155,7 @@ void LbLayeredSurface::genElementalBsdfSample(
 	{
 		selectWeight -= sampleWeights[selectIndex + 1];
 	}
-	PH_ASSERT_MSG(selectIndex < numLayers(), 
+	PH_ASSERT_MSG(selectIndex < numLayers(),
 		"selectIndex  = " + std::to_string(selectIndex)  + "\n"
 		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
@@ -205,7 +194,7 @@ void LbLayeredSurface::genElementalBsdfSample(
 	LbLayeredSurface::calcElementalBsdf(ctx, evalInput, evalOutput);
 
 	const real absNoL = N.absDot(L);
-	const math::Spectrum bsdf = 
+	const math::Spectrum bsdf =
 		evalOutput.isContributable() ? evalOutput.getBsdf() : math::Spectrum(0);
 
 	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
@@ -243,7 +232,7 @@ void LbLayeredSurface::calcElementalBsdfPdf(
 	real pdfW = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
+		const LbLayer addedLayer = getLayer(i, in.getX(), statistics.getLastLayer());
 		if(!statistics.addLayer(addedLayer))
 		{
 			PH_ASSERT(i == numLayers() - 1);
@@ -263,29 +252,6 @@ void LbLayeredSurface::calcElementalBsdfPdf(
 	pdfW /= summedSampleWeights;
 
 	out.setSampleDirPdf(lta::PDF::W(pdfW));
-}
-
-LbLayer LbLayeredSurface::getLayer(const std::size_t layerIndex, const LbLayer& previousLayer) const
-{
-	PH_ASSERT(layerIndex < numLayers());
-
-	const real depth = m_depths[layerIndex];
-	if(depth == 0.0_r)
-	{
-		return LbLayer(
-			m_alphas[layerIndex], 
-			m_iorNs[layerIndex], 
-			m_iorKs[layerIndex]);
-	}
-	else
-	{
-		return LbLayer(
-			m_gs[layerIndex], 
-			depth, 
-			m_sigmaAs[layerIndex], 
-			m_sigmaSs[layerIndex], 
-			previousLayer);
-	}
 }
 
 }// end namespace ph

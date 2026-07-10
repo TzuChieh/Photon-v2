@@ -24,7 +24,7 @@ conductor-dielectric interface.
 class ConductiveInterfaceInfo final
 {
 public:
-	ConductiveInterfaceInfo();
+	ConductiveInterfaceInfo() = default;
 	explicit ConductiveInterfaceInfo(const math::Spectrum& f0);
 
 	ConductiveInterfaceInfo(
