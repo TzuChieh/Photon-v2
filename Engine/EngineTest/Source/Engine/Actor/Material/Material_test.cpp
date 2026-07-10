@@ -1,4 +1,5 @@
 #include <Engine/Actor/Image/ConstantImage.h>
+#include <Engine/Actor/Material/AbradedTranslucent.h>
 #include <Engine/Actor/Material/IdealSubstance.h>
 #include <Engine/Actor/Material/MatteOpaque.h>
 #include <Engine/SDL/TSdl.h>
@@ -30,6 +31,25 @@ TEST(MaterialTest, CookFillsProvidedStorage)
 	material->cook(ctx, *cookedMaterial);
 
 	EXPECT_EQ(ctx.getCooked(material), cookedMaterial);
+	EXPECT_NE(cookedMaterial->surfaceOptics, nullptr);
+}
+
+TEST(MaterialTest, CookMappedAbradedTranslucent)
+{
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+
+	auto map = TSdl<ConstantImage>::makeResource();
+	map->setRaw(0.5_r);
+
+	auto material = TSdl<AbradedTranslucent>::makeResource();
+	material->setRoughnessMap(map);
+	material->setRoughnessVMap(map);
+
+	CookedMaterial* const cookedMaterial = resources.makeMaterial(ctx.getKey(material));
+	ASSERT_NE(cookedMaterial, nullptr);
+	material->cook(ctx, *cookedMaterial);
+
 	EXPECT_NE(cookedMaterial->surfaceOptics, nullptr);
 }
 

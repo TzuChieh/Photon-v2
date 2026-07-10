@@ -224,7 +224,7 @@ Able to model surfaces ranging from nearly specular to extremely rough appearanc
 * Type: `Abraded Translucent`
 * Note: **concrete**, based on **Surface Material**
 
-Able to model translucent surfaces with variable roughnesses. Such as frosted glass.
+Able to model translucent surfaces with variable roughnesses. Such as frosted glass. Input precedence: map inputs have higher precedence than paired value inputs.
 
 > Creation: `material(abraded-translucent)`
 
@@ -235,7 +235,9 @@ Able to model translucent surfaces with variable roughnesses. Such as frosted gl
 | ior-inner | `real` | The index of refraction inside of this interface. |
 | microsurface | `enum` | Type of the microsurface of the material. |
 | roughness | `real` | Isotropic surface roughness in [0, 1], the material will appear to be smoother with smaller roughness value. |
+| roughness-map | `image` | Texture-mapped isotropic surface roughness in [0, 1]. |
 | roughness-v | `real` | Similar to the `roughness` parameter, but is used for anisotropic surface appearances. This value controls the V component of surface roughness. If this value is provided, the `roughness` parameter is interpreted as the U component of surface roughness. |
+| roughness-v-map | `image` | Texture-mapped V component of anisotropic surface roughness in [0, 1]. If this value is provided, `roughness` or `roughness-map` is interpreted as the U component of surface roughness. |
 | roughness-to-alpha | `enum` | Type of the mapping to transform roughness into alpha value. |
 | masking-shadowing | `enum` | Type of the masking and shadowing for a microsurface. |
 
