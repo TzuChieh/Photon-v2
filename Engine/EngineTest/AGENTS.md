@@ -8,7 +8,7 @@
 
 ## Cooking Tests
 - Prefer direct resource/context setup over bootstrapping `VisualWorld` when a unit test only needs cooked-resource allocation.
-- Keep material/cooking unit tests focused on engine-level contracts that are easy to break locally; avoid duplicating behavior already exercised end-to-end by RenderTest.
+- Keep material/cooking unit tests focused on engine-level contracts that are easy to break locally; prefer the smallest public cooking outcome over concrete optics types or sampled BSDF math, and avoid duplicating behavior already exercised end-to-end by RenderTest.
 
 ## Fixture Design
 - For compact mappings or transformed data, choose fixtures where source count, unique value count, and encoded output count differ so the storage contract is tested.
