@@ -8,6 +8,7 @@ from psdl import sdl
 
 import bpy
 import nodeitems_utils
+import sys
 
 
 def get_material_resource_name(b_material):
@@ -163,6 +164,72 @@ class PhColorSocket(PhMaterialNodeSocket):
         default=[0.5, 0.5, 0.5],
         min=0.0,
         max=1.0,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhF0Socket(PhMaterialNodeSocket):
+    """
+    Surface reflectance at normal incidence.
+    """
+    bl_idname = 'PH_F0_SOCKET'
+    bl_label = "F0"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="F0",
+        description="F0 value",
+        default=[0.9, 0.9, 0.9],
+        min=0.0,
+        max=1.0,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhReflectionScaleSocket(PhMaterialNodeSocket):
+    """
+    Reflection intensity scaling factor for artistic control.
+    """
+    bl_idname = 'PH_REFLECTION_SCALE_SOCKET'
+    bl_label = "Reflection Scale"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Reflection Scale",
+        description="Reflection intensity scaling factor for artistic control.",
+        default=[1.0, 1.0, 1.0],
+        min=-sys.float_info.max,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3,
+        )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhTransmissionScaleSocket(PhMaterialNodeSocket):
+    """
+    Transmission intensity scaling factor for artistic control.
+    """
+    bl_idname = 'PH_TRANSMISSION_SCALE_SOCKET'
+    bl_label = "Transmission Scale"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Transmission Scale",
+        description="Transmission intensity scaling factor for artistic control.",
+        default=[1.0, 1.0, 1.0],
+        min=-sys.float_info.max,
+        max=sys.float_info.max,
         subtype='COLOR',
         size=3,
         )

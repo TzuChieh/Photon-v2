@@ -263,7 +263,7 @@ A material model that combines surface and volume properties.
 * Type: `Ideal Substance`
 * Note: **concrete**, based on **Surface Material**
 
-Models a perfectly smooth surface with various physical properties.
+Models a perfectly smooth surface with various physical properties. Input precedence: map inputs have higher precedence than paired value inputs.
 
 > Creation: `material(ideal-substance)`
 
@@ -274,8 +274,11 @@ Models a perfectly smooth surface with various physical properties.
 | ior-outer | `real` | The index of refraction outside the surface. |
 | ior-inner | `real` | The index of refraction inside the surface. |
 | f0 | `spectrum` | Surface reflectance on normal incidence. This value is expected to be given in linear-sRGB space. When this parameter is used, the underlying Fresnel model will be an approximated one (schlick) which is pretty popular in real-time graphics. |
-| reflection-scale | `spectrum` | A scaling factor for reflected energy. Note that this property is only for artistic control and is not physically correct. |
-| transmission-scale | `spectrum` | A scaling factor for transmitted energy. Note that this property is only for artistic control and is not physically correct. |
+| f0-map | `image` | Texture-mapped surface reflectance on normal incidence. This input uses the Schlick Fresnel model. |
+| reflection-scale | `spectrum` | A constant scaling factor for reflected energy. Note that this property is only for artistic control and is not physically correct. |
+| reflection-scale-map | `image` | A texture-mapped scaling factor for reflected energy. Note that this property is only for artistic control and is not physically correct. |
+| transmission-scale | `spectrum` | A constant scaling factor for transmitted energy. Note that this property is only for artistic control and is not physically correct. |
+| transmission-scale-map | `image` | A texture-mapped scaling factor for transmitted energy. Note that this property is only for artistic control and is not physically correct. |
 | ior-inner-n | `spectrum` | The complex index of refraction (real part) inside the metallic interface. |
 | ior-inner-k | `spectrum` | The complex index of refraction (imaginary part) inside the metallic interface. |
 

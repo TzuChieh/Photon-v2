@@ -2,7 +2,8 @@
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Texture/constant_textures.h"
 #include "Engine/Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TIdealDielectricTransmitter.h"
 #include "Engine/Core/VolumeBehavior/Property/ExponentialTransmittance.h"
 #include "Engine/Core/Emitter/ZeroSurfaceEmitter.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -31,7 +32,9 @@ std::shared_ptr<TransmittanceFunction> SceneGlobals::getExponentialTransmittance
 
 const SurfaceOptics* SceneGlobals::getFullyTransmissiveSurfaceOptics()
 {
-	static IdealDielectricTransmitter optics{getFullyTransmissiveFresnel()};
+	using Scale = TConstantSurfaceProperty<math::Spectrum>;
+
+	static TIdealDielectricTransmitter<Scale> optics{getFullyTransmissiveFresnel()};
 	return &optics;
 }
 

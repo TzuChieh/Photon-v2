@@ -2,7 +2,8 @@ from ..node_base import (
     PhSurfaceMaterialNode,
     PhFloatValueSocket,
     PhColorSocketWithFloatDefault,
-    PhColorSocket,
+    PhReflectionScaleSocket,
+    PhTransmissionScaleSocket,
     PhSurfaceMaterialSocket,
     )
 from psdl import sdl
@@ -82,8 +83,8 @@ class PhThinDielectricSurfaceNode(PhSurfaceMaterialNode):
     def init(self, b_context):
         self.inputs.new(PhFloatValueSocket.bl_idname, "Thickness")
         self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Sigma T")
-        self.inputs.new(PhColorSocket.bl_idname, "Reflection Scale")
-        self.inputs.new(PhColorSocket.bl_idname, "Transmission Scale")
+        self.inputs.new(PhReflectionScaleSocket.bl_idname, "Reflection Scale")
+        self.inputs.new(PhTransmissionScaleSocket.bl_idname, "Transmission Scale")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
         self.inputs[0].default_value = 0.0

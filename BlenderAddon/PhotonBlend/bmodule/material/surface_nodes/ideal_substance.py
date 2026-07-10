@@ -1,6 +1,9 @@
 from ..node_base import (
         PhSurfaceMaterialNode,
-        PhSurfaceMaterialSocket)
+        PhSurfaceMaterialSocket,
+        PhF0Socket,
+        PhReflectionScaleSocket,
+        PhTransmissionScaleSocket)
 from psdl import sdl
 
 import bpy
@@ -35,16 +38,6 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         default='exact'
     )
 
-    f0: bpy.props.FloatVectorProperty(
-        name="F0",
-        description="F0 value",
-        default=[0.9, 0.9, 0.9],
-        min=0.0,
-        max=1.0,
-        subtype='COLOR',
-        size=3
-    )
-
     ior_outer: bpy.props.FloatProperty(
         name="IoR Outer",
         default=1.0,
@@ -57,26 +50,6 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         default=1.5,
         min=0.0,
         max=sys.float_info.max
-    )
-
-    reflection_scale: bpy.props.FloatVectorProperty(
-        name="Reflection Scale",
-        description="Reflection intensity scaling factor for artistic control.",
-        default=[1.0, 1.0, 1.0],
-        min=0.0,
-        max=sys.float_info.max,
-        subtype='COLOR',
-        size=3
-    )
-
-    transmission_scale: bpy.props.FloatVectorProperty(
-        name="Transmission Scale",
-        description="Transmission intensity scaling factor for artistic control.",
-        default=[1.0, 1.0, 1.0],
-        min=0.0,
-        max=sys.float_info.max,
-        subtype='COLOR',
-        size=3
     )
 
     ior_inner_n: bpy.props.FloatVectorProperty(
@@ -115,16 +88,33 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         
         if self.substance_type == 'metallic-reflector':
             if self.fresnel_type == 'schlick':
-                creator.set_f0(sdl.Spectrum(self.f0))
+                f0_img_name = self.get_linked_input_resource_name(b_material, 0)
+                if f0_img_name is not None:
+                    creator.set_f0_map(sdl.Image(f0_img_name))
+                else:
+                    creator.set_f0(sdl.Spectrum(self.get_default_input_value(0)))
             elif self.fresnel_type == "exact":
                 creator.set_ior_inner_n(sdl.Spectrum(self.ior_inner_n))
                 creator.set_ior_inner_k(sdl.Spectrum(self.ior_inner_k))
 
-        creator.set_reflection_scale(sdl.Spectrum(self.reflection_scale))
-        creator.set_transmission_scale(sdl.Spectrum(self.transmission_scale))
+        reflection_scale_img_name = self.get_linked_input_resource_name(b_material, 1)
+        if reflection_scale_img_name is not None:
+            creator.set_reflection_scale_map(sdl.Image(reflection_scale_img_name))
+        else:
+            creator.set_reflection_scale(sdl.Spectrum(self.get_default_input_value(1)))
+
+        transmission_scale_img_name = self.get_linked_input_resource_name(b_material, 2)
+        if transmission_scale_img_name is not None:
+            creator.set_transmission_scale_map(sdl.Image(transmission_scale_img_name))
+        else:
+            creator.set_transmission_scale(sdl.Spectrum(self.get_default_input_value(2)))
+
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
+        self.inputs.new(PhF0Socket.bl_idname, "F0")
+        self.inputs.new(PhReflectionScaleSocket.bl_idname, "Reflection Scale")
+        self.inputs.new(PhTransmissionScaleSocket.bl_idname, "Transmission Scale")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
@@ -132,19 +122,27 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         b_layout.prop(self, 'fresnel_type', text="")
         b_layout.prop(self, 'ior_outer')
 
-        if (
-            self.substance_type == 'dielectric-reflector' or
-            self.substance_type == 'dielectric-transmitter' or
-            self.substance_type == 'dielectric'
-        ):
-            b_layout.prop(self, 'ior_inner')
+        f0_socket = self.inputs["F0"]
+        reflection_scale_socket = self.inputs["Reflection Scale"]
+        transmission_scale_socket = self.inputs["Transmission Scale"]
+        f0_socket.hide = True
+        reflection_scale_socket.hide = True
+        transmission_scale_socket.hide = True
 
-        if self.substance_type == 'metallic-reflector':
-            if self.fresnel_type == 'schlick':
-                b_layout.prop(self, 'f0')
+        if self.substance_type == 'dielectric-reflector':
+            reflection_scale_socket.hide = False
+            b_layout.prop(self, 'ior_inner')
+        elif self.substance_type == 'dielectric-transmitter':
+            transmission_scale_socket.hide = False
+            b_layout.prop(self, 'ior_inner')
+        elif self.substance_type == 'metallic-reflector':
+            reflection_scale_socket.hide = False
+            if self.fresnel_type == "schlick":
+                f0_socket.hide = False
             elif self.fresnel_type == "exact":
                 b_layout.prop(self, 'ior_inner_n')
                 b_layout.prop(self, 'ior_inner_k')
-
-        b_layout.prop(self, 'reflection_scale')
-        b_layout.prop(self, 'transmission_scale')
+        elif self.substance_type == 'dielectric':
+            reflection_scale_socket.hide = False
+            transmission_scale_socket.hide = False
+            b_layout.prop(self, 'ior_inner')

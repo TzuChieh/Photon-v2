@@ -2,7 +2,7 @@ from ..node_base import (
     PhSurfaceMaterialNode,
     PhSurfaceMaterialSocket,
     PhFloatFactorSocket,
-    PhColorSocket)
+    PhF0Socket)
 from psdl import sdl
 import bpy
 
@@ -68,7 +68,7 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
-        self.inputs.new(PhColorSocket.bl_idname, "F0")
+        self.inputs.new(PhF0Socket.bl_idname, "F0")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness U")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness V")
