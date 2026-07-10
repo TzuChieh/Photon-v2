@@ -12,8 +12,8 @@ void AbradedTranslucent::storeCooked(
 	CookedMaterial& out_material) const
 {
 	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<TranslucentMicrofacet>(
-		m_interfaceInfo.genFresnelEffect(),
-		m_microsurfaceInfo.genMicrofacet());
+		m_interfaceInfo.genFresnelEffect(ctx),
+		m_microsurfaceInfo.genMicrofacet(ctx));
 
 	// TODO: generate ideal dielectric if roughness == 0
 }

@@ -14,7 +14,9 @@ class ExactDielectricFresnel : public DielectricFresnel
 public:
 	ExactDielectricFresnel(real iorOuter, real iorInner);
 
-	math::Spectrum calcReflectance(real cosThetaIncident) const override;
+	math::Spectrum calcReflectance(
+		const SurfaceHit& X,
+		real              cosThetaIncident) const override;
 };
 
 }// end namespace ph

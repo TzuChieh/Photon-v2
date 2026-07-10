@@ -23,7 +23,7 @@ DielectricInterfaceInfo::DielectricInterfaceInfo(
 	m_iorInner(iorInner)
 {}
 
-std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() const
+std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect(const CookingContext& /* ctx */) const
 {
 	if(m_fresnel == EInterfaceFresnel::Exact)
 	{

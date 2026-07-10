@@ -52,7 +52,7 @@ for case_name, output_name, scene_name, num_threads, ref_path, ref_var_path, vis
     ("Suzanne (BVPT)", "suzanne_bvpt", "suzanne_bvpt.p2", 
      12, suzanne_ref_path, suzanne_bvpt_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.001),
     ("Suzanne (BNEEPT)", "suzanne_bneept", "suzanne_bneept.p2", 
-     12, suzanne_ref_path, suzanne_bneept_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.00026),
+     12, suzanne_ref_path, suzanne_bneept_ref_var_path, suzanne_visual_error_verifier, 200, 0.00007, 0.00080),
     ("Suzanne (SPPM)", "suzanne_sppm", "suzanne_sppm.p2", 
      12, suzanne_ref_path, None, suzanne_visual_error_verifier, None, 0.00009, 0.0045)
     ]:

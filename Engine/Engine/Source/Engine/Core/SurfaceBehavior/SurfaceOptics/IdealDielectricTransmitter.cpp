@@ -67,7 +67,7 @@ void IdealDielectricTransmitter::genElementalBsdfSample(
 	const math::Vector3R L = *optRefractDir;
 	const real cosI = N.dot(L);
 
-	math::Spectrum F = m_fresnel->calcTransmittance(cosI);
+	math::Spectrum F = m_fresnel->calcTransmittance(in.getX(), cosI);
 
 	real etaI = m_fresnel->getIorOuter();
 	real etaT = m_fresnel->getIorInner();

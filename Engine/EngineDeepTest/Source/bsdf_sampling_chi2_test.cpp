@@ -36,13 +36,13 @@ the expected frequencies.
 // Optics to test
 #include <Engine/Core/SurfaceBehavior/BsdfSampleQuery.h>
 #include <Engine/Core/SurfaceBehavior/BsdfPdfQuery.h>
-#include <Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h>
+#include <Engine/Core/SurfaceBehavior/Property/TSchlickApproxConductorFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/ExactConductorFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/ExactDielectricFresnel.h>
 #include <Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h>
-#include <Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h>
-#include <Engine/Core/SurfaceBehavior/Property/IsoBeckmann.h>
-#include <Engine/Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h>
+#include <Engine/Core/SurfaceBehavior/Property/TIsoTrowbridgeReitz.h>
+#include <Engine/Core/SurfaceBehavior/Property/TIsoBeckmann.h>
+#include <Engine/Core/SurfaceBehavior/Property/TAnisoTrowbridgeReitz.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TOrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
@@ -620,12 +620,17 @@ TEST(BsdfSamplingChi2Test, LambertianReflector)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickConductorSmoothReflector)
 {
+	using F0 = TConstantSurfaceProperty<math::Spectrum>;
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Fresnel = TSchlickApproxConductorFresnel<F0>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickConductorSmoothReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
-			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
-			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Fresnel>(math::Spectrum{1}),
+			std::make_shared<Microfacet>(Alpha(0.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -635,12 +640,17 @@ TEST(BsdfSamplingChi2Test, GgxSchlickConductorSmoothReflector)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickConductorGlossyReflector)
 {
+	using F0 = TConstantSurfaceProperty<math::Spectrum>;
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Fresnel = TSchlickApproxConductorFresnel<F0>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickConductorGlossyReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
-			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
-			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Fresnel>(math::Spectrum{1}),
+			std::make_shared<Microfacet>(Alpha(0.5_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -650,12 +660,17 @@ TEST(BsdfSamplingChi2Test, GgxSchlickConductorGlossyReflector)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickConductorRoughReflector)
 {
+	using F0 = TConstantSurfaceProperty<math::Spectrum>;
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Fresnel = TSchlickApproxConductorFresnel<F0>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickConductorRoughReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
-			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
-			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Fresnel>(math::Spectrum{1}),
+			std::make_shared<Microfacet>(Alpha(1.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -665,12 +680,17 @@ TEST(BsdfSamplingChi2Test, GgxSchlickConductorRoughReflector)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickConductorRougherReflector)
 {
+	using F0 = TConstantSurfaceProperty<math::Spectrum>;
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Fresnel = TSchlickApproxConductorFresnel<F0>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickConductorRougherReflector",
 		.targetOptics = std::make_unique<OpaqueMicrofacet>(
-			std::make_shared<SchlickApproxConductorFresnel>(math::Spectrum{1}),
-			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Fresnel>(math::Spectrum{1}),
+			std::make_shared<Microfacet>(Alpha(2.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -680,12 +700,15 @@ TEST(BsdfSamplingChi2Test, GgxSchlickConductorRougherReflector)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickSmoothDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickSmoothDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-			std::make_shared<IsoTrowbridgeReitzConstant>(0.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Microfacet>(Alpha(0.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = false
 	};
@@ -695,12 +718,15 @@ TEST(BsdfSamplingChi2Test, GgxSchlickSmoothDielectric)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickGlossyDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickGlossyDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-			std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Microfacet>(Alpha(0.5_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = false
 	};
@@ -710,12 +736,15 @@ TEST(BsdfSamplingChi2Test, GgxSchlickGlossyDielectric)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickRoughDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickRoughDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-			std::make_shared<IsoTrowbridgeReitzConstant>(1.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Microfacet>(Alpha(1.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = false
 	};
@@ -725,12 +754,15 @@ TEST(BsdfSamplingChi2Test, GgxSchlickRoughDielectric)
 
 TEST(BsdfSamplingChi2Test, GgxSchlickRougherDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "GgxSchlickRougherDielectric",
 		.targetOptics = std::make_unique<TranslucentMicrofacet>(
 			std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-			std::make_shared<IsoTrowbridgeReitzConstant>(2.0_r, EMaskingShadowing::HightCorrelated)),
+			std::make_shared<Microfacet>(Alpha(2.0_r), EMaskingShadowing::HightCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = false
 	};
@@ -740,6 +772,9 @@ TEST(BsdfSamplingChi2Test, GgxSchlickRougherDielectric)
 
 TEST(BsdfSamplingChi2Test, BeckmannExactConductorRoughReflector)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoBeckmann<Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "BeckmannExactConductorRoughReflector",
@@ -749,7 +784,7 @@ TEST(BsdfSamplingChi2Test, BeckmannExactConductorRoughReflector)
 				// Aluminum complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
 				math::Spectrum{}.setLinearSRGB({1.34560_r, 0.96521_r, 0.61722_r}, math::EColorUsage::Raw),
 				math::Spectrum{}.setLinearSRGB({7.47460_r, 6.39950_r, 5.30310_r}, math::EColorUsage::Raw)),
-			std::make_shared<IsoBeckmann>(0.4_r, EMaskingShadowing::Separable)),
+			std::make_shared<Microfacet>(Alpha(0.4_r), EMaskingShadowing::Separable)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -759,6 +794,9 @@ TEST(BsdfSamplingChi2Test, BeckmannExactConductorRoughReflector)
 
 TEST(BsdfSamplingChi2Test, AnisoGgxExactConductorRoughReflector)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TAnisoTrowbridgeReitz<Alpha, Alpha>;
+
 	BsdfTestInput p
 	{
 		.testName = "AnisoGgxExactConductorRoughReflector",
@@ -768,7 +806,10 @@ TEST(BsdfSamplingChi2Test, AnisoGgxExactConductorRoughReflector)
 				// Aluminum complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
 				math::Spectrum{}.setLinearSRGB({1.34560_r, 0.96521_r, 0.61722_r}, math::EColorUsage::Raw),
 				math::Spectrum{}.setLinearSRGB({7.47460_r, 6.39950_r, 5.30310_r}, math::EColorUsage::Raw)),
-			std::make_shared<AnisoTrowbridgeReitz>(0.66_r, 0.03_r, EMaskingShadowing::DirectionCorrelated)),
+			std::make_shared<Microfacet>(
+				Alpha(0.66_r),
+				Alpha(0.03_r),
+				EMaskingShadowing::DirectionCorrelated)),
 		.numSamples = 16,
 		.viewFromUpperHemisphereOnly = true
 	};
@@ -812,6 +853,9 @@ TEST(BsdfSamplingChi2Test, OrenNayar60Degrees)
 
 TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.3_r}));
 	const auto glossy = std::make_unique<OpaqueMicrofacet>(
@@ -820,7 +864,7 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 			// Gold complex IoR from https://chris.hindefjord.se/resources/rgb-ior-metals/
 			math::Spectrum{}.setLinearSRGB({0.18299_r, 0.42108_r, 1.37340_r}, math::EColorUsage::Raw),
 			math::Spectrum{}.setLinearSRGB({3.42420_r, 2.34590_r, 1.77040_r}, math::EColorUsage::Raw)),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HeightDirectionCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.2_r), EMaskingShadowing::HeightDirectionCorrelated));
 
 	BsdfTestInput p
 	{
@@ -837,11 +881,14 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 
 TEST(BsdfSamplingChi2Test, LerpedDiffuseReflectorAndGlossyDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
 	const auto glossy = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.3_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.3_r), EMaskingShadowing::HightCorrelated));
 
 	BsdfTestInput p
 	{
@@ -858,13 +905,16 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseReflectorAndGlossyDielectric)
 
 TEST(BsdfSamplingChi2Test, LerpedDuoGlossyDielectric)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	const auto glossy1 = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.5_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.5_r), EMaskingShadowing::HightCorrelated));
 	const auto glossy2 = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<ExactDielectricFresnel>(
 			1.0_r, 1.33_r),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HeightDirectionCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.2_r), EMaskingShadowing::HeightDirectionCorrelated));
 
 	BsdfTestInput p
 	{
@@ -940,9 +990,12 @@ TEST(BsdfSamplingChi2Test, LaurentBelcourLayeredSurfaceReflector)
 
 TEST(BsdfSamplingChi2Test, IdentityMicrofacetNormalMapperWithGgx0p15Reflector)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	const auto glossy = std::make_unique<OpaqueMicrofacet>(
 		std::make_shared<ExactConductorFresnel>(1.05_r, math::Spectrum{1.45_r}, math::Spectrum{0.0_r}),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.15_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.15_r), EMaskingShadowing::HightCorrelated));
 
 	// Always point upward (OpenGL style) and compressed to [0, 1]
 	math::Vector3R zUpConstantNormalMap{0.0_r, 0.0_r, 1.0_r};
@@ -963,9 +1016,12 @@ TEST(BsdfSamplingChi2Test, IdentityMicrofacetNormalMapperWithGgx0p15Reflector)
 
 TEST(BsdfSamplingChi2Test, MicrofacetNormalMapperWithGgx0p15Reflector)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	const auto glossy = std::make_unique<OpaqueMicrofacet>(
 		std::make_shared<ExactConductorFresnel>(1.05_r, math::Spectrum{1.45_r}, math::Spectrum{0.0_r}),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.15_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.15_r), EMaskingShadowing::HightCorrelated));
 
 	// Tilted back-leftward (OpenGL style) and compressed to [0, 1]
 	math::Vector3R tiltedConstantNormalMap{-1.0_r, -1.0_r, 1.0_r};
@@ -987,13 +1043,16 @@ TEST(BsdfSamplingChi2Test, MicrofacetNormalMapperWithGgx0p15Reflector)
 
 TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	using enum ESurfacePhenomenon;
 
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
 	const auto glossy = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<SchlickApproxDielectricFresnel>(1.3_r, 1.5_r),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.2_r), EMaskingShadowing::HightCorrelated));
 
 	constexpr real diffuseWeight = 0.2_r;
 
@@ -1032,13 +1091,16 @@ TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
 
 TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 {
+	using Alpha = TConstantSurfaceProperty<real>;
+	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+
 	using enum ESurfacePhenomenon;
 
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
 	const auto glossy = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<SchlickApproxDielectricFresnel>(1.3_r, 1.5_r),
-		std::make_shared<IsoTrowbridgeReitzConstant>(0.2_r, EMaskingShadowing::HightCorrelated));
+		std::make_shared<Microfacet>(Alpha(0.2_r), EMaskingShadowing::HightCorrelated));
 
 	constexpr real diffuseWeight = 0.2_r;
 

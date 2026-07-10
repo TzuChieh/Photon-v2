@@ -166,7 +166,7 @@ We can simulate some materials that do not exist in the real world. One common e
 | **Left: Ideal absorber (absorbing 100% energy). Right: Ideal reflector (reflecting 100% energy).** ||
 
 > [!note]
-> A material that reflects all energy would require an index of refraction @f$ \eta = \infty @f$, which may cause some numerical issues. A nice workaround is to use [Schlick's approximation](@ref ph::SchlickApproxConductorFresnel) @cite Schlick:1994:BRDF with @f$ f_0 = 1 @f$.
+> A material that reflects all energy would require an index of refraction @f$ \eta = \infty @f$, which may cause some numerical issues. A nice workaround is to use [Schlick's approximation](@ref ph::TSchlickApproxConductorFresnel) @cite Schlick:1994:BRDF with @f$ f_0 = 1 @f$.
 
 Photon also supports tinting reflectance and transmittance with user-specified values. Note that this is not physically correct, and most of the color of dielectrics comes from internal volume absorption, not from interfaces. This feature is implemented for performance and artistic reasons only.
 
@@ -180,7 +180,7 @@ Photon also supports tinting reflectance and transmittance with user-specified v
 
 ### Abraded Opaque {#abraded_opaque}
 
-Real-world surfaces are seldom perfectly smooth. Therefore, [AbradedOpaque](@ref ph::AbradedOpaque) offers a wide range of tweakable microsurface parameters for opaque materials. A popular BRDF model that allows this is the Cook-Torrance microfacet BRDF @cite Cook:1981:Reflectance. For the normal distribution function (NDF), we use the [Trowbridge-Reitz model](@ref ph::TrowbridgeReitz) (also known as the GGX model) @cite Trowbridge:1975:Average by default, as it has been shown to match experimental data well. The model can use both [exact](@ref ph::ExactConductorFresnel) and [approximated](@ref ph::SchlickApproxConductorFresnel) versions of the Fresnel equation @cite Greve:2006:Reflections. In the case of the exact Fresnel equation, measured spectral index of refraction (IoR) can be used (complex IoR is also supported). [This site](https://refractiveindex.info/) has a good collection of measured IoR data.
+Real-world surfaces are seldom perfectly smooth. Therefore, [AbradedOpaque](@ref ph::AbradedOpaque) offers a wide range of tweakable microsurface parameters for opaque materials. A popular BRDF model that allows this is the Cook-Torrance microfacet BRDF @cite Cook:1981:Reflectance. For the normal distribution function (NDF), we use the [Trowbridge-Reitz model](@ref ph::TrowbridgeReitz) (also known as the GGX model) @cite Trowbridge:1975:Average by default, as it has been shown to match experimental data well. The model can use both [exact](@ref ph::ExactConductorFresnel) and [approximated](@ref ph::TSchlickApproxConductorFresnel) versions of the Fresnel equation @cite Greve:2006:Reflections. In the case of the exact Fresnel equation, measured spectral index of refraction (IoR) can be used (complex IoR is also supported). [This site](https://refractiveindex.info/) has a good collection of measured IoR data.
 
 | ![Microfacet Gold](Example/microfacet_gold_0p1.jpg) | ![Microfacet Gold Rougher](Example/microfacet_gold_0p5.jpg) |
 | :------------------: | :------------------: |

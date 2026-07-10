@@ -43,8 +43,8 @@ public:
 	std::string toString() const override;
 
 private:
-	std::shared_ptr<Microfacet>    m_microfacet;
-	std::shared_ptr<FresnelEffect> m_fresnel;
+	std::shared_ptr<Microfacet>       m_microfacet;
+	std::shared_ptr<ConductorFresnel> m_fresnel;
 };
 
 // In-header Implementations:

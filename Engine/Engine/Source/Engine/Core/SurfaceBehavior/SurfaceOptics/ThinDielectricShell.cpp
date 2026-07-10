@@ -100,7 +100,7 @@ void ThinDielectricShell::genElementalBsdfSample(
 	const math::Vector3R N = in.getX().getShadingNormal();
 
 	// Single bounce reflectance and transmittance
-	math::Spectrum R = m_fresnel->calcReflectance(N.dot(in.getV()));
+	math::Spectrum R = m_fresnel->calcReflectance(in.getX(), N.dot(in.getV()));
 	math::Spectrum T = R.complement();
 
 	// Scale factors for artistic control

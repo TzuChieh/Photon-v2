@@ -7,7 +7,6 @@
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
 #include "Engine/Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Engine/Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
 #include "Engine/Actor/Basic/exceptions.h"
@@ -42,12 +41,12 @@ void IdealSubstance::storeCooked(
 		if(m_reflectionScale == math::Spectrum(1))
 		{
 			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
-				interfaceInfo.genFresnelEffect());
+				interfaceInfo.genFresnelEffect(ctx));
 		}
 		else
 		{
 			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
-				interfaceInfo.genFresnelEffect(),
+				interfaceInfo.genFresnelEffect(ctx),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale));
 		}
 	}
@@ -56,7 +55,7 @@ void IdealSubstance::storeCooked(
 	case EIdealSubstance::Dielectric:
 	{
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
-		auto fresnel = interfaceInfo.genFresnelEffect();
+		auto fresnel = interfaceInfo.genFresnelEffect(ctx);
 
 		if(m_reflectionScale == math::Spectrum(1) && m_transmissionScale == math::Spectrum(1))
 		{
@@ -93,12 +92,12 @@ void IdealSubstance::storeCooked(
 		if(m_reflectionScale == math::Spectrum(1))
 		{
 			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
-				interfaceInfo.genFresnelEffect());
+				interfaceInfo.genFresnelEffect(ctx));
 		}
 		else
 		{
 			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<IdealReflector>(
-				interfaceInfo.genFresnelEffect(),
+				interfaceInfo.genFresnelEffect(ctx),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale));
 		}
 	}
@@ -107,7 +106,7 @@ void IdealSubstance::storeCooked(
 	case EIdealSubstance::DielectricTransmitter:
 	{
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
-		auto fresnel = interfaceInfo.genFresnelEffect();
+		auto fresnel = interfaceInfo.genFresnelEffect(ctx);
 
 		if(m_transmissionScale == math::Spectrum(1))
 		{

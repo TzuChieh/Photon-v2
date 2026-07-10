@@ -2,7 +2,8 @@
 #include "Engine/Core/SurfaceBehavior/BsdfHelper.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
-#include "Engine/Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
+#include "Engine/Core/SurfaceBehavior/Property/TIsoTrowbridgeReitz.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
 #include "Engine/Core/LTA/SidednessAgreement.h"
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
@@ -27,9 +28,11 @@ namespace
 The reference implementation of Belcour's paper uses Mitsuba renderer, which is using
 the separable Smith G1 masking-shadowing. Use the same microfacet as their analysis is done there.
 */
-inline IsoTrowbridgeReitzConstant make_ggx(const real alpha)
+inline auto make_ggx(const real alpha)
 {
-	return IsoTrowbridgeReitzConstant(alpha, EMaskingShadowing::Separable);
+	using Alpha = TConstantSurfaceProperty<real>;
+
+	return TIsoTrowbridgeReitz<Alpha>(Alpha(alpha), EMaskingShadowing::Separable);
 }
 
 }// end anonymous namespace

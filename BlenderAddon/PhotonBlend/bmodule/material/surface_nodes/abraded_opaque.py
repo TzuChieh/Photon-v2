@@ -1,9 +1,9 @@
 from ..node_base import (
     PhSurfaceMaterialNode,
     PhSurfaceMaterialSocket,
-    PhFloatFactorSocket)
+    PhFloatFactorSocket,
+    PhColorSocket)
 from psdl import sdl
-
 import bpy
 
 
@@ -22,16 +22,6 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         default='SQUARED'
     )
 
-    f0: bpy.props.FloatVectorProperty(
-        name="Color",
-        description="color value",
-        default=[0.5, 0.5, 0.5],
-        min=0.0,
-        max=1.0,
-        subtype="COLOR",
-        size=3
-    )
-
     is_anisotropic: bpy.props.BoolProperty(
         name="Anisotropic",
         description="",
@@ -42,13 +32,31 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         creator = sdl.AbradedOpaqueMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_microsurface(sdl.Enum("ggx"))
-        creator.set_f0(sdl.Spectrum(self.f0))
+
+        f0_img_name = self.get_linked_input_resource_name(b_material, 0)
+        if f0_img_name is not None:
+            creator.set_f0_map(sdl.Image(f0_img_name))
+        else:
+            creator.set_f0(sdl.Spectrum(self.get_default_input_value(0)))
 
         if not self.is_anisotropic:
-            creator.set_roughness(sdl.Real(self.get_default_input_value(0)))
+            roughness_img_name = self.get_linked_input_resource_name(b_material, 1)
+            if roughness_img_name is not None:
+                creator.set_roughness_map(sdl.Image(roughness_img_name))
+            else:
+                creator.set_roughness(sdl.Real(self.get_default_input_value(1)))
         else:
-            creator.set_roughness(sdl.Real(self.get_default_input_value(1)))
-            creator.set_roughness_v(sdl.Real(self.get_default_input_value(2)))
+            roughness_u_img_name = self.get_linked_input_resource_name(b_material, 2)
+            if roughness_u_img_name is not None:
+                creator.set_roughness_map(sdl.Image(roughness_u_img_name))
+            else:
+                creator.set_roughness(sdl.Real(self.get_default_input_value(2)))
+
+            roughness_v_img_name = self.get_linked_input_resource_name(b_material, 3)
+            if roughness_v_img_name is not None:
+                creator.set_roughness_v_map(sdl.Image(roughness_v_img_name))
+            else:
+                creator.set_roughness_v(sdl.Real(self.get_default_input_value(3)))
 
         if self.mapping_type == 'SQUARED':
             creator.set_roughness_to_alpha(sdl.Enum("squared"))
@@ -60,6 +68,7 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
+        self.inputs.new(PhColorSocket.bl_idname, "F0")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness U")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness V")
@@ -67,5 +76,4 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, "mapping_type", text="")
-        b_layout.prop(self, 'f0')
         b_layout.prop(self, 'is_anisotropic')

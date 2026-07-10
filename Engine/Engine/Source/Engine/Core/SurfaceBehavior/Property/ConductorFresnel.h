@@ -2,8 +2,6 @@
 
 #include "Engine/Core/SurfaceBehavior/Property/FresnelEffect.h"
 
-#include <Common/primitive_type.h>
-
 namespace ph
 {
 
@@ -20,7 +18,9 @@ class ConductorFresnel : public FresnelEffect
 public:
 	ConductorFresnel() = default;
 
-	math::Spectrum calcReflectance(real cosThetaIncident) const override = 0;
+	math::Spectrum calcReflectance(
+		const SurfaceHit& X,
+		real cosThetaIncident) const override = 0;
 };
 
 }// end namespace ph

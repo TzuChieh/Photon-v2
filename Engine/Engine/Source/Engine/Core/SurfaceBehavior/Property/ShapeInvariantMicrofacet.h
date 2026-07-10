@@ -29,7 +29,7 @@ public:
 	@f$ a = \frac{1}{\alpha \tan \left( \theta \right)} @f$, where
 	@f$ \frac{1}{\tan \left( \theta \right)} @f$ is the slope of the unit direction `unitDir` (with
 	respect to the macrosurface normal `N`. For anisotropic distributions, see the implementation of
-	`AnisoTrowbridgeReitz` as an example for calculating @f$ a @f$ from the parameters.
+	`TAnisoTrowbridgeReitz` as an example for calculating @f$ a @f$ from the parameters.
 	@note This method does not handle sidedness agreement.
 	*/
 	virtual real lambda(

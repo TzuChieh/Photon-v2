@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Actor/Material/Component/sdl_component_enums.h"
+#include "Engine/Core/SurfaceBehavior/Property/DielectricFresnel.h"
 #include "Engine/SDL/sdl_interface.h"
 
 #include <Common/primitive_type.h>
@@ -11,7 +12,7 @@
 namespace ph
 {
 
-class DielectricFresnel;
+class CookingContext;
 
 /*! @brief Data describing the effects when light hits an dielectric interface.
 
@@ -28,7 +29,7 @@ public:
 		real              iorOuter,
 		real              iorInner);
 
-	std::unique_ptr<DielectricFresnel> genFresnelEffect() const;
+	std::unique_ptr<DielectricFresnel> genFresnelEffect(const CookingContext& ctx) const;
 
 	void setFresnel(EInterfaceFresnel fresnel);
 	void setIorOuter(real iorOuter);

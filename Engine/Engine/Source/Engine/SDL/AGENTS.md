@@ -10,6 +10,7 @@
 
 ## SDL Fields
 - For SDL-owned optional/defaulted values, make the field metadata (`defaultTo()` or `noDefault()`) the authoritative default and avoid duplicating that value in owner member initializers.
+- For legacy aliases that reuse a field name with a different SDL type, keep lookup typed and keep default/fallback behavior deterministic; prefer separate alias storage plus owner-level precedence over sharing one member that an untouched optional alias can reset.
 
 ## Imports
 - Write import paths as double-quoted tokens: `#import "path.p2";`. `SdlSceneFileReader::loadImported()` resolves relative paths from the root scene working directory, including nested imports.

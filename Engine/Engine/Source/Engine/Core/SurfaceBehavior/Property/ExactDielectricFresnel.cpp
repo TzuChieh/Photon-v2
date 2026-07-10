@@ -9,7 +9,9 @@ ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real i
 	: DielectricFresnel(iorOuter, iorInner)
 {}
 
-math::Spectrum ExactDielectricFresnel::calcReflectance(const real cosThetaIncident) const
+math::Spectrum ExactDielectricFresnel::calcReflectance(
+	const SurfaceHit& /* X */,
+	const real        cosThetaIncident) const
 {
 	real etaI = m_iorOuter;
 	real etaT = m_iorInner;

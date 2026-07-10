@@ -63,7 +63,9 @@ ExactConductorFresnel::ExactConductorFresnel(
 
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-math::Spectrum ExactConductorFresnel::calcReflectance(const real cosThetaIncident) const
+math::Spectrum ExactConductorFresnel::calcReflectance(
+	const SurfaceHit& /* X */,
+	const real        cosThetaIncident) const
 {
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 

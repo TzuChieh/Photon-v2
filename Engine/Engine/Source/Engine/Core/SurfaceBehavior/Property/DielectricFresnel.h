@@ -17,7 +17,9 @@ class DielectricFresnel : public FresnelEffect
 public:
 	DielectricFresnel(real iorOuter, real iorInner);
 
-	math::Spectrum calcReflectance(real cosThetaIncident) const override = 0;
+	math::Spectrum calcReflectance(
+		const SurfaceHit& X,
+		real cosThetaIncident) const override = 0;
 
 	/*! @brief Calculates the normalized refraction direction.
 	@param I The normalized incident direction. Pointing away from the interface.

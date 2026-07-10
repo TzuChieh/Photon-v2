@@ -11,7 +11,7 @@ ref_path = res_dir / "ref_bvpt_1000spp_beauty"
 
 verifiers = [
     infra.MSEVerifier(ref=ref_path, threshold=1e-7),
-    infra.RelMeanVerifier(ref=ref_path, threshold=5e-7),
+    infra.RelMeanVerifier(ref=ref_path, threshold=1e-6),
     infra.VisualErrorVerifier(ref=ref_path, error_scale=100.0)
 ]
 

@@ -61,7 +61,7 @@ void IdealReflector::genElementalBsdfSample(
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(N);
 	const real NoL = N.dot(L);
 
-	math::Spectrum F = m_fresnel->calcReflectance(NoL);
+	math::Spectrum F = m_fresnel->calcReflectance(in.getX(), NoL);
 
 	// A scale factor for artistic control
 	const math::Spectrum reflectionScale =

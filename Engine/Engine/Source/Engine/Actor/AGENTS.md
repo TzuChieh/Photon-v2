@@ -4,6 +4,9 @@
 - `preCook()` checks actor-owned completeness and prepares dependency-free data such as base transforms; cooked SDL dependency and actor-cache access belongs in `cook()`, which must be skipped for uncookable reports.
 - For tracked SDL dependencies, actor, material, and motion-source `cook()` may assume `SdlDependencyResolver` already cooked resources into `CookingContext`; use `ctx.getCooked()` for access and fix resolver/resource registration if this is false, rather than adding local recursive cooking, defaults, or broad missing-dependency guards.
 
+## Ownership Boundaries
+- Factory helpers that return owning `std::unique_ptr<T>` across actor headers must make `T` complete at ownership destruction sites; include the owned base definition in the public boundary when callers receive ownership instead of relying on forward declarations.
+
 ## SDL Fields
 - For SDL-backed actor/material fields, keep defaults in SDL field declarations such as `defaultTo(...)` rather than duplicating member initializers unless a non-SDL construction path requires one.
 - For paired scalar/map fields, use the base field name for the scalar value and `<field>-map` for the mapped input; prefer non-optional scalar fields with SDL defaults, optional map fields, and one class-level precedence statement over repeated per-field wording.

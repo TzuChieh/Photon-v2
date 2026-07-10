@@ -91,7 +91,7 @@ void TranslucentMicrofacet::calcElementalBsdf(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.getL());
 
-		const math::Spectrum F = m_fresnel->calcReflectance(HoL);
+		const math::Spectrum F = m_fresnel->calcReflectance(in.getX(), HoL);
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -119,7 +119,7 @@ void TranslucentMicrofacet::calcElementalBsdf(
 		const real HoV = H.dot(in.getV());
 		const real HoL = H.dot(in.getL());
 		const real NoH = N.dot(H);
-		const math::Spectrum F = m_fresnel->calcTransmittance(HoL);
+		const math::Spectrum F = m_fresnel->calcTransmittance(in.getX(), HoL);
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -170,7 +170,7 @@ void TranslucentMicrofacet::genElementalBsdfSample(
 		sampleFlow.flow2D(),
 		&H);
 
-	math::Spectrum F = m_fresnel->calcReflectance(H.dot(in.getV()));
+	math::Spectrum F = m_fresnel->calcReflectance(in.getX(), H.dot(in.getV()));
 	const real reflectProb = getReflectionProbability(F);
 
 	bool sampleReflect  = canReflect;
@@ -219,7 +219,7 @@ void TranslucentMicrofacet::genElementalBsdfSample(
 		}
 
 		L = *optRefractDir;
-		F = m_fresnel->calcTransmittance(H.dot(L));
+		F = m_fresnel->calcTransmittance(in.getX(), H.dot(L));
 
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -288,7 +288,7 @@ void TranslucentMicrofacet::calcElementalBsdfPdf(
 			return;
 		}
 
-		const math::Spectrum F = m_fresnel->calcReflectance(H.dot(in.getL()));
+		const math::Spectrum F = m_fresnel->calcReflectance(in.getX(), H.dot(in.getL()));
 		const real reflectProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
 			? getReflectionProbability(F)
 			: 1.0_r;
@@ -334,7 +334,7 @@ void TranslucentMicrofacet::calcElementalBsdfPdf(
 
 		const real iorTerm = etaI * HoL + etaT * HoV;
 		const real multiplier = std::abs(etaI * etaI * HoL) / (iorTerm * iorTerm);
-		const math::Spectrum F = m_fresnel->calcReflectance(HoL);
+		const math::Spectrum F = m_fresnel->calcReflectance(in.getX(), HoL);
 		const real refractProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
 			? 1.0_r - getReflectionProbability(F) : 1.0_r;
 		const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());

@@ -67,7 +67,7 @@ void ThinDielectricFilm::genElementalBsdfSample(
 
 	const math::Vector3R N = in.getX().getShadingNormal();
 
-	math::Spectrum F = m_fresnel->calcReflectance(N.dot(in.getV()));
+	math::Spectrum F = m_fresnel->calcReflectance(in.getX(), N.dot(in.getV()));
 	const real reflectProb = F.avg();
 
 	bool sampleReflect  = canReflect;

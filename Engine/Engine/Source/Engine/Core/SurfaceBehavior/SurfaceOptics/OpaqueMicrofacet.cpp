@@ -29,7 +29,7 @@ follows D(H)'s distribution, and generate L by reflecting -V using H. The PDF fo
 sampling scheme is
 
 	D(H)*|NoH|/(4*|HoL|).
-	
+
 The reason that 4*|HoL| exists is because there's a jacobian involved (from H's
 probability space to L's).
 
@@ -84,7 +84,7 @@ void OpaqueMicrofacet::calcElementalBsdf(
 
 	const real HoL = H.dot(in.getL());
 
-	const math::Spectrum F = m_fresnel->calcReflectance(HoL);
+	const math::Spectrum F = m_fresnel->calcReflectance(in.getX(), HoL);
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 	const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -121,7 +121,7 @@ void OpaqueMicrofacet::genElementalBsdfSample(
 	const real NoV = N.dot(in.getV());
 	const real HoL = H.dot(L);
 	const real dotTerms = std::abs(HoL / NoV);
-	const math::Spectrum F = m_fresnel->calcReflectance(HoL);
+	const math::Spectrum F = m_fresnel->calcReflectance(in.getX(), HoL);
 	const real G = m_microfacet->geometry(in.getX(), N, H, L, in.getV());
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 

@@ -1,7 +1,5 @@
 #include "Engine/Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 
-#include <Common/assertion.h>
-
 #include <cmath>
 
 namespace ph
@@ -24,7 +22,9 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	m_tirIorRatio2 = tirIorRatio * tirIorRatio;
 }
 
-math::Spectrum SchlickApproxDielectricFresnel::calcReflectance(const real cosThetaIncident) const
+math::Spectrum SchlickApproxDielectricFresnel::calcReflectance(
+	const SurfaceHit& /* X */,
+	const real        cosThetaIncident) const
 {
 	real cosTheta = std::abs(cosThetaIncident);
 

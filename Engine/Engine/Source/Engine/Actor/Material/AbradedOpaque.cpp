@@ -12,8 +12,8 @@ void AbradedOpaque::storeCooked(
 	CookedMaterial& out_material) const
 {
 	out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<OpaqueMicrofacet>(
-		m_interfaceInfo.genFresnelEffect(),
-		m_microsurfaceInfo.genMicrofacet());
+		m_interfaceInfo.genFresnelEffect(ctx),
+		m_microsurfaceInfo.genMicrofacet(ctx));
 
 	// TODO: generate ideal reflector if roughness == 0
 }
