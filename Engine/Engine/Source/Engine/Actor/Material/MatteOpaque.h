@@ -48,6 +48,7 @@ public:
 		TSdlSpectrum<OwnerType> albedo("albedo", math::EColorUsage::ECF, &OwnerType::m_albedo);
 		albedo.description("Constant albedo in linear-sRGB.");
 		albedo.defaultTo(math::Spectrum(0.5_r));
+		albedo.optional();
 		clazz.addField(albedo);
 
 		TSdlReference<Image, OwnerType> albedoMap("albedo-map", &OwnerType::m_albedoMap);
@@ -62,6 +63,7 @@ public:
 			"If the sigma is 0, it is equivalent to Lambertian diffuse as all facets are on the "
 			"same macrosurface plane.");
 		sigma.defaultTo(0.0_r);
+		sigma.optional();
 		clazz.addField(sigma);
 
 		TSdlReference<Image, OwnerType> sigmaMap("sigma-map", &OwnerType::m_sigmaMap);
