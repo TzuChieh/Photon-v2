@@ -1,20 +1,16 @@
 #include "Engine/Actor/Material/BinaryMixedSurfaceMaterial.h"
-#include "Engine/Actor/Image/ConstantImage.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
 #include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 
 #include <Common/assertion.h>
-#include <Common/logging.h>
-
 #include <utility>
 
 namespace ph
 {
-
-PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedSurfaceMaterial, Material);
 
 void BinaryMixedSurfaceMaterial::storeCooked(
 	const CookingContext& ctx,
@@ -35,21 +31,25 @@ void BinaryMixedSurfaceMaterial::storeCooked(
 	switch(m_mode)
 	{
 	case ESurfaceMaterialMixMode::Lerp:
-		if(m_factor)
+		if(m_factorMap)
 		{
-			auto factor = m_factor->genColorTexture(ctx);
-			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
+			using Factor = TTexturedSurfaceProperty<math::Spectrum, math::EColorUsage::ECF>;
+			using Optics = TLerpedSurfaceOptics<Factor>;
+
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<Optics>(
 				cookedMaterial0->surfaceOptics,
 				cookedMaterial1->surfaceOptics,
-				factor);
+				Factor(m_factorMap->genColorTexture(ctx)));
 		}
 		else
 		{
-			PH_LOG(BinaryMixedSurfaceMaterial, Warning,
-				"No lerp factor specified. The result might not be what you want.");
-			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<LerpedSurfaceOptics>(
+			using Factor = TConstantSurfaceProperty<math::Spectrum>;
+			using Optics = TLerpedSurfaceOptics<Factor>;
+
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<Optics>(
 				cookedMaterial0->surfaceOptics,
-				cookedMaterial1->surfaceOptics);
+				cookedMaterial1->surfaceOptics,
+				Factor(m_factor));
 		}
 		break;
 
@@ -74,14 +74,22 @@ void BinaryMixedSurfaceMaterial::setMaterials(
 
 void BinaryMixedSurfaceMaterial::setFactor(const real factor)
 {
-	auto imageFactor = TSdl<ConstantImage>::makeResource();
-	imageFactor->setColor(factor, math::EColorSpace::Spectral);
-	setFactor(imageFactor);
+	setFactor(math::Spectrum(factor));
+}
+
+void BinaryMixedSurfaceMaterial::setFactor(const math::Spectrum& factor)
+{
+	m_factor = factor;
 }
 
 void BinaryMixedSurfaceMaterial::setFactor(std::shared_ptr<Image> factor)
 {
-	m_factor = std::move(factor);
+	setFactorMap(std::move(factor));
+}
+
+void BinaryMixedSurfaceMaterial::setFactorMap(std::shared_ptr<Image> factorMap)
+{
+	m_factorMap = std::move(factorMap);
 }
 
 }// end namespace ph

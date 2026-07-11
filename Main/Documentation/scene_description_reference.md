@@ -325,7 +325,7 @@ Each `surface-layer-info` entry accepts:
 * Type: `Binary Mixed Surface`
 * Note: **concrete**, based on **Surface Material**
 
-Mixing two surface materials in various ways.
+Mixing two surface materials in various ways. For paired value/map inputs, map inputs have higher precedence.
 
 > Creation: `material(binary-mixed-surface)`
 
@@ -334,7 +334,8 @@ Mixing two surface materials in various ways.
 | mode | `enum` | Specify how two materials are mixed. |
 | material-0 | `material` | The first material that participates the mixing process. |
 | material-1 | `material` | The second material that participates the mixing process. |
-| factor | `image` | Factor that controls the contribution from each material. Basically, the final material would be "material-0 * factor + material-1 * (1 - factor)". |
+| factor | `spectrum` | Factor that controls the contribution from each material. Basically, the final material would be "material-0 * factor + material-1 * (1 - factor)". |
+| factor-map | `image` | Texture-mapped factor that controls the contribution from each material. |
 
 
 ## Image

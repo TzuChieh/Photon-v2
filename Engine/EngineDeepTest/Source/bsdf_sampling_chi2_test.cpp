@@ -47,7 +47,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TOrenNayar.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TLbLayerProperty.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h>
@@ -856,6 +856,8 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 {
 	using Alpha = TConstantSurfaceProperty<real>;
 	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+	using LerpFactor = TConstantSurfaceProperty<math::Spectrum>;
+	using Optics = TLerpedSurfaceOptics<LerpFactor>;
 
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.3_r}));
@@ -870,7 +872,7 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseAndGlossyReflector)
 	BsdfTestInput p
 	{
 		.testName = "LerpedDiffuseAndGlossyReflector",
-		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+		.targetOptics = std::make_unique<Optics>(
 			diffuse.get(),
 			glossy.get()),
 		.numSamples = 16,
@@ -884,6 +886,8 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseReflectorAndGlossyDielectric)
 {
 	using Alpha = TConstantSurfaceProperty<real>;
 	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+	using LerpFactor = TConstantSurfaceProperty<math::Spectrum>;
+	using Optics = TLerpedSurfaceOptics<LerpFactor>;
 
 	const auto diffuse = std::make_unique<LambertianReflector>(
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum{0.5_r}));
@@ -894,7 +898,7 @@ TEST(BsdfSamplingChi2Test, LerpedDiffuseReflectorAndGlossyDielectric)
 	BsdfTestInput p
 	{
 		.testName = "LerpedDiffuseReflectorAndGlossyDielectric",
-		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+		.targetOptics = std::make_unique<Optics>(
 			diffuse.get(),
 			glossy.get()),
 		.numSamples = 16,
@@ -908,6 +912,8 @@ TEST(BsdfSamplingChi2Test, LerpedDuoGlossyDielectric)
 {
 	using Alpha = TConstantSurfaceProperty<real>;
 	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+	using LerpFactor = TConstantSurfaceProperty<math::Spectrum>;
+	using Optics = TLerpedSurfaceOptics<LerpFactor>;
 
 	const auto glossy1 = std::make_unique<TranslucentMicrofacet>(
 		std::make_shared<SchlickApproxDielectricFresnel>(1.0_r, 1.5_r),
@@ -920,7 +926,7 @@ TEST(BsdfSamplingChi2Test, LerpedDuoGlossyDielectric)
 	BsdfTestInput p
 	{
 		.testName = "LerpedDuoGlossyDielectric",
-		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+		.targetOptics = std::make_unique<Optics>(
 			glossy1.get(),
 			glossy2.get()),
 		.numSamples = 16,
@@ -1052,6 +1058,8 @@ TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
 {
 	using Alpha = TConstantSurfaceProperty<real>;
 	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+	using LerpFactor = TConstantSurfaceProperty<math::Spectrum>;
+	using Optics = TLerpedSurfaceOptics<LerpFactor>;
 
 	using enum ESurfacePhenomenon;
 
@@ -1066,7 +1074,7 @@ TEST(BsdfSamplingChi2Test, PickDiffuseElementalFromLerped)
 	BsdfTestInput p
 	{
 		.testName = "PickDiffuseReflectorElementalFromLerped",
-		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+		.targetOptics = std::make_unique<Optics>(
 			diffuse.get(),
 			glossy.get(),
 			diffuseWeight),
@@ -1100,6 +1108,8 @@ TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 {
 	using Alpha = TConstantSurfaceProperty<real>;
 	using Microfacet = TIsoTrowbridgeReitz<Alpha>;
+	using LerpFactor = TConstantSurfaceProperty<math::Spectrum>;
+	using Optics = TLerpedSurfaceOptics<LerpFactor>;
 
 	using enum ESurfacePhenomenon;
 
@@ -1114,7 +1124,7 @@ TEST(BsdfSamplingChi2Test, PickDiffusePhenomenonFromLerped)
 	BsdfTestInput p
 	{
 		.testName = "PickDiffusePhenomenonFromLerped",
-		.targetOptics = std::make_unique<LerpedSurfaceOptics>(
+		.targetOptics = std::make_unique<Optics>(
 			diffuse.get(),
 			glossy.get(),
 			diffuseWeight),

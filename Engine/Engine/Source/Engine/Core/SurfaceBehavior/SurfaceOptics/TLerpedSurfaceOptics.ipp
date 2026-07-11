@@ -1,11 +1,11 @@
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
+#pragma once
+
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.h"
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/SurfaceHit.h"
-#include "Engine/Core/Texture/TTexture.h"
-#include "Engine/Core/Texture/constant_textures.h"
 #include "Engine/Math/math.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
 
@@ -36,41 +36,19 @@ inline std::pair<BsdfQueryContext, BsdfQueryContext> make_derived_contexts(const
 
 }// end namespace
 
-LerpedSurfaceOptics::LerpedSurfaceOptics(
-	const SurfaceOptics* optics0,
-	const SurfaceOptics* optics1)
-
-	: LerpedSurfaceOptics(
-		optics0,
-		optics1,
-		0.5_r)
-{}
-
-LerpedSurfaceOptics::LerpedSurfaceOptics(
+template<typename Factor>
+TLerpedSurfaceOptics<Factor>::TLerpedSurfaceOptics(
 	const SurfaceOptics* optics0,
 	const SurfaceOptics* optics1,
-	const real ratio)
-
-	: LerpedSurfaceOptics(
-		optics0, 
-		optics1, 
-		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(ratio)))
-{}
-
-LerpedSurfaceOptics::LerpedSurfaceOptics(
-	const SurfaceOptics* optics0,
-	const SurfaceOptics* optics1,
-	const std::shared_ptr<TTexture<math::Spectrum>>& ratio)
+	Factor factor)
 
 	: m_optics0      (optics0)
 	, m_optics1      (optics1)
-	, m_ratio        (ratio)
-	, m_sampler      (math::EColorUsage::ECF)
+	, m_factor       (std::move(factor))
 	, m_containsDelta(false)
 {
 	PH_ASSERT(optics0);
 	PH_ASSERT(optics1);
-	PH_ASSERT(ratio);
 
 	m_phenomena.clear();
 	m_phenomena.unionWith(optics0->getAllPhenomena());
@@ -83,7 +61,9 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 		optics1->getAllPhenomena().hasAny(ESurfacePhenomenon::Delta);
 }
 
-ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental elemental) const
+template<typename Factor>
+ESurfacePhenomenon TLerpedSurfaceOptics<Factor>::getPhenomenonOf(
+	const SurfaceElemental elemental) const
 {
 	PH_ASSERT_IN_RANGE(elemental, 0, m_optics0->numElementals() + m_optics1->numElementals());
 
@@ -98,14 +78,15 @@ ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental e
 	}
 }
 
-void LerpedSurfaceOptics::calcElementalBsdf(
+template<typename Factor>
+void TLerpedSurfaceOptics<Factor>::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
-		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+		const math::Spectrum ratio = m_factor(in.getX());
 		const auto [ctx0, ctx1] = make_derived_contexts(ctx);
 
 		BsdfEvalOutput eval0, eval1;
@@ -124,7 +105,7 @@ void LerpedSurfaceOptics::calcElementalBsdf(
 	}
 	else
 	{
-		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+		const math::Spectrum ratio = m_factor(in.getX());
 
 		if(ctx.elemental < m_optics0->numElementals())
 		{
@@ -151,13 +132,14 @@ void LerpedSurfaceOptics::calcElementalBsdf(
 	}
 }
 
-void LerpedSurfaceOptics::genElementalBsdfSample(
+template<typename Factor>
+void TLerpedSurfaceOptics<Factor>::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+	const math::Spectrum ratio = m_factor(in.getX());
 
 	// When both optics are non-delta, sample the lerped distribution
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
@@ -259,14 +241,15 @@ void LerpedSurfaceOptics::genElementalBsdfSample(
 	}
 }
 
-void LerpedSurfaceOptics::calcElementalBsdfPdf(
+template<typename Factor>
+void TLerpedSurfaceOptics<Factor>::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
-		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+		const math::Spectrum ratio = m_factor(in.getX());
 		const real prob0 = probabilityOfPickingOptics0(ratio);
 		const auto [ctx0, ctx1] = make_derived_contexts(ctx);
 

@@ -6,7 +6,6 @@ from ..node_base import (
 from psdl import sdl
 
 import bpy
-import mathutils
 
 
 class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
@@ -36,25 +35,19 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
 
         factor_input_index = 2 if self.factor_type == 'FLOAT' else 3
         factor_res_name = self.get_linked_input_resource_name(b_material, factor_input_index)
-        if not factor_res_name:
-            image_creator = sdl.ConstantImageCreator()
-            factor_res_name = self.get_default_input_resource_name(b_material, factor_input_index)
-            image_creator.set_data_name(factor_res_name)
-
-            factor = self.get_default_input_value(factor_input_index)
-            if self.factor_type == 'FLOAT':
-                image_creator.set_values(sdl.RealArray([factor]))
-            else:
-                image_creator.set_values(sdl.RealArray(mathutils.Color((factor[0], factor[1], factor[2]))))
-                
-            sdlconsole.queue_command(image_creator)
 
         creator = sdl.BinaryMixedSurfaceMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_mode(sdl.Enum("lerp"))
         creator.set_material_0(sdl.Material(mat0_res_name))
         creator.set_material_1(sdl.Material(mat1_res_name))
-        creator.set_factor(sdl.Image(factor_res_name))
+        if factor_res_name:
+            creator.set_factor_map(sdl.Image(factor_res_name))
+        else:
+            factor = self.get_default_input_value(factor_input_index)
+            if self.factor_type == 'FLOAT':
+                factor = (factor, factor, factor)
+            creator.set_factor(sdl.Spectrum(factor))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

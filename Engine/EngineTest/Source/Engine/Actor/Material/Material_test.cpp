@@ -1,5 +1,6 @@
 #include <Engine/Actor/Image/ConstantImage.h>
 #include <Engine/Actor/Material/AbradedTranslucent.h>
+#include <Engine/Actor/Material/BinaryMixedSurfaceMaterial.h>
 #include <Engine/Actor/Material/IdealSubstance.h>
 #include <Engine/Actor/Material/LayeredSurface.h>
 #include <Engine/Actor/Material/MatteOpaque.h>
@@ -71,6 +72,31 @@ TEST(MaterialTest, CookLayeredSurfaceWithConstantAndMappedLayers)
 	material->setLayer(0, constantLayer);
 	material->addLayer();
 	material->setLayer(1, mappedLayer);
+
+	CookedMaterial* const cookedMaterial = resources.makeMaterial(ctx.getKey(material));
+	ASSERT_NE(cookedMaterial, nullptr);
+	material->cook(ctx, *cookedMaterial);
+
+	EXPECT_NE(cookedMaterial->surfaceOptics, nullptr);
+}
+
+TEST(MaterialTest, CookBinaryMixedSurfaceWithConstantFactor)
+{
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+
+	auto material0 = TSdl<MatteOpaque>::makeResource();
+	auto material1 = TSdl<MatteOpaque>::makeResource();
+	for(const auto& material : {material0, material1})
+	{
+		CookedMaterial* const cookedMaterial = resources.makeMaterial(ctx.getKey(material));
+		ASSERT_NE(cookedMaterial, nullptr);
+		material->cook(ctx, *cookedMaterial);
+	}
+
+	auto material = TSdl<BinaryMixedSurfaceMaterial>::makeResource();
+	material->setMaterials(material0, material1);
+	material->setFactor(0.25_r);
 
 	CookedMaterial* const cookedMaterial = resources.makeMaterial(ctx.getKey(material));
 	ASSERT_NE(cookedMaterial, nullptr);

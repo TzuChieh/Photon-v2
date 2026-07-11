@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <concepts>
 #include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -24,6 +25,14 @@ namespace detail
 
 std::shared_ptr<ISdlResource> load_single_resource(const SdlClass* resourceClass, const Path& file);
 void save_single_resource(const std::shared_ptr<ISdlResource>& resource, const Path& file);
+
+template<typename T>
+class TSdlMake final
+{
+public:
+	template<typename... DeducedArgs>
+	static T make(DeducedArgs&&... args);
+};
 
 }// end namespace detail
 
@@ -65,7 +74,10 @@ public:
 	Default values are determined by SDL class definition.
 	*/
 	template<typename... DeducedArgs>
-	static T make(DeducedArgs&&... args);
+	static T make(DeducedArgs&&... args)
+	{
+		return detail::TSdlMake<T>::make(std::forward<DeducedArgs>(args)...);
+	}
 
 	/*! @brief Loads a single resource from file.
 	The file is assumed to contain only 1 resource.
@@ -87,7 +99,10 @@ public:
 	Default values are determined by SDL struct definition.
 	*/
 	template<typename... DeducedArgs>
-	static T make(DeducedArgs&&... args);
+	static T make(DeducedArgs&&... args)
+	{
+		return detail::TSdlMake<T>::make(std::forward<DeducedArgs>(args)...);
+	}
 };
 
 }// end namespace ph

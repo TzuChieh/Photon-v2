@@ -1,41 +1,60 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Engine/Core/Texture/texture_fwd.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
 #include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/Texture/TSampler.h"
 
+#include <Common/compiler.h>
 #include <Common/primitive_type.h>
 
-#include <memory>
+#include <concepts>
+#include <utility>
 
 namespace ph
 {
 
 /*! @brief Linearly interpolate between two surface optics.
 */
-class LerpedSurfaceOptics : public SurfaceOptics
+template<typename Factor>
+class TLerpedSurfaceOptics : public SurfaceOptics
 {
+	static_assert(CSurfaceProperty<Factor, math::Spectrum>,
+		"Factor must accept SurfaceHit and return a spectrum-convertible value.");
+
 public:
 	/*! @brief Computes the final optics as `optics0 * 0.5 + optics1 * 0.5`.
 	*/
-	LerpedSurfaceOptics(
+	TLerpedSurfaceOptics(
 		const SurfaceOptics* optics0,
-		const SurfaceOptics* optics1);
+		const SurfaceOptics* optics1)
+
+		: TLerpedSurfaceOptics(
+			optics0,
+			optics1,
+			0.5_r)
+	{}
 
 	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
 	*/
-	LerpedSurfaceOptics(
+	TLerpedSurfaceOptics(
 		const SurfaceOptics* optics0,
 		const SurfaceOptics* optics1,
-		real ratio);
+		real ratio)
+
+		requires std::constructible_from<Factor, math::Spectrum>
+		
+		: TLerpedSurfaceOptics(
+			optics0,
+			optics1,
+			Factor(math::Spectrum(ratio)))
+	{}
 
 	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
 	*/
-	LerpedSurfaceOptics(
+	TLerpedSurfaceOptics(
 		const SurfaceOptics* optics0,
 		const SurfaceOptics* optics1,
-		const std::shared_ptr<TTexture<math::Spectrum>>& ratio);
+		Factor factor);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -60,16 +79,19 @@ public:
 private:
 	static real probabilityOfPickingOptics0(const math::Spectrum& ratio);
 
-	const SurfaceOptics*                      m_optics0;
-	const SurfaceOptics*                      m_optics1;
-	std::shared_ptr<TTexture<math::Spectrum>> m_ratio;
-	TSampler<math::Spectrum>                  m_sampler;
-	bool                                      m_containsDelta;
+	const SurfaceOptics* m_optics0;
+	const SurfaceOptics* m_optics1;
+
+	[[PH_NO_UNIQUE_ADDRESS]]
+	Factor m_factor;
+
+	bool m_containsDelta;
 };
 
 // In-header Implementations:
 
-inline std::string LerpedSurfaceOptics::toString() const
+template<typename Factor>
+inline std::string TLerpedSurfaceOptics<Factor>::toString() const
 {
 	return 
 		"Lerped Surface Optics, "
@@ -78,7 +100,9 @@ inline std::string LerpedSurfaceOptics::toString() const
 		", " + SurfaceOptics::toString();
 }
 
-inline real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectrum& ratio)
+template<typename Factor>
+inline real TLerpedSurfaceOptics<Factor>::probabilityOfPickingOptics0(
+	const math::Spectrum& ratio)
 {
 	// Depending on the purpose of rendering, favoring human visual system may be preferable,
 	// e.g., using luminance. Currently we use the absolute sum just to be fair.
@@ -88,3 +112,5 @@ inline real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectru
 }
 
 }// end namespace ph
+
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.ipp"

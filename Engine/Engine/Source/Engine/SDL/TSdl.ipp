@@ -37,6 +37,49 @@ inline std::shared_ptr<ISdlResource> TSdl<void>::makeResource(const SdlClass* cl
 	return resource;
 }
 
+template<typename T>
+template<typename... DeducedArgs>
+inline T detail::TSdlMake<T>::make(DeducedArgs&&... args)
+{
+	if constexpr(CSdlResource<T>)
+	{
+		static_assert(std::is_constructible_v<T, DeducedArgs...>,
+			"SDL class type T is not constructible using the specified arguments.");
+	}
+	else if constexpr(CSdlStruct<T>)
+	{
+		static_assert(std::is_constructible_v<T, DeducedArgs...>,
+			"SDL struct type T is not constructible using the specified arguments.");
+	}
+
+	T instance(std::forward<DeducedArgs>(args)...);
+	if constexpr(CHasSdlClassDefinition<T>)
+	{
+		const SdlClass* clazz = T::getSdlClass();
+		PH_ASSERT(clazz);
+
+		clazz->initDefaultResource(instance);
+	}
+	else if constexpr(CHasSdlStructDefinition<T>)
+	{
+		static_assert(CSdlStructSupportsInitToDefault<T>,
+			"SDL struct definition of T does not support initializing to default values");
+
+		const auto* ztruct = T::getSdlStruct();
+		PH_ASSERT(ztruct);
+
+		ztruct->initDefaultStruct(instance);
+	}
+	else
+	{
+		static_assert(CHasSdlClassDefinition<T> || CSdlStruct<T>,
+			"No SDL class/struct definition found. Did you call "
+			"PH_DEFINE_SDL_CLASS()/PH_DEFINE_SDL_STRUCT() in the body of type T?");
+	}
+
+	return instance;
+}
+
 template<CSdlResource T>
 inline constexpr ESdlTypeCategory TSdl<T>::getCategory()
 {
@@ -69,59 +112,6 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 			clazz->genPrettyName());
 	}
 	return typedResource;
-}
-
-template<CSdlResource T>
-template<typename... DeducedArgs>
-inline T TSdl<T>::make(DeducedArgs&&... args)
-{
-	static_assert(std::is_constructible_v<T, DeducedArgs...>,
-		"SDL class type T is not constructible using the specified arguments.");
-
-	T instance(std::forward<DeducedArgs>(args)...);
-	if constexpr(CHasSdlClassDefinition<T>)
-	{
-		const SdlClass* clazz = T::getSdlClass();
-		PH_ASSERT(clazz);
-
-		clazz->initDefaultResource(instance);
-	}
-	else if(CSdlStruct<T>)
-	{
-		static_assert(CSdlStructSupportsInitToDefault<T>,
-			"SDL struct definition of T does not support initializing to default values");
-
-		const auto* ztruct = T::getSdlStruct();
-		PH_ASSERT(ztruct);
-
-		ztruct->initDefaultStruct(instance);
-	}
-	else
-	{
-		static_assert(CHasSdlClassDefinition<T> || CSdlStruct<T>,
-			"No SDL class/struct definition found. Did you call "
-			"PH_DEFINE_SDL_CLASS()/PH_DEFINE_SDL_STRUCT() in the body of type T?");
-	}
-
-	return instance;
-}
-
-template<CSdlStruct T>
-template<typename... DeducedArgs>
-inline T TSdl<T>::make(DeducedArgs&&... args)
-{
-	static_assert(std::is_constructible_v<T, DeducedArgs...>,
-		"SDL struct type T is not constructible using the specified arguments.");
-	static_assert(CSdlStructSupportsInitToDefault<T>,
-		"SDL struct definition of T does not support initializing to default values");
-
-	auto instance = T(std::forward<DeducedArgs>(args)...);
-
-	const auto* ztruct = T::getSdlStruct();
-	PH_ASSERT(ztruct);
-
-	ztruct->initDefaultStruct(instance);
-	return instance;
 }
 
 template<CSdlResource T>

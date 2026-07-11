@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Engine/Actor/Material/SurfaceMaterial.h"
+#include "Engine/Actor/SDLExtension/TSdlSpectrum.h"
 #include "Engine/Actor/Image/Image.h"
+#include "Engine/Math/Color/Spectrum.h"
 #include "Engine/SDL/sdl_interface.h"
 
 #include <memory>
@@ -36,20 +38,25 @@ public:
 		std::shared_ptr<SurfaceMaterial> material1);
 
 	void setFactor(real factor);
+	void setFactor(const math::Spectrum& factor);
 	void setFactor(std::shared_ptr<Image> factor);
+	void setFactorMap(std::shared_ptr<Image> factorMap);
 
 private:
 	ESurfaceMaterialMixMode m_mode;
 	std::shared_ptr<SurfaceMaterial> m_material0;
 	std::shared_ptr<SurfaceMaterial> m_material1;
-	std::shared_ptr<Image> m_factor;
+	math::Spectrum m_factor;
+	std::shared_ptr<Image> m_factorMap;
 
 public:
 	PH_DEFINE_SDL_CLASS(BinaryMixedSurfaceMaterial, clazz)
 	{
 		clazz.typeName("binary-mixed-surface");
 		clazz.docName("Binary Mixed Surface");
-		clazz.description("Mixing two surface materials in various ways.");
+		clazz.description(
+			"Mixing two surface materials in various ways. For paired value/map inputs, "
+			"map inputs have higher precedence.");
 		clazz.baseOn<SurfaceMaterial>();
 
 		TSdlEnumField<OwnerType, ESurfaceMaterialMixMode> mode("mode", &OwnerType::m_mode);
@@ -68,12 +75,18 @@ public:
 		material1.required();
 		clazz.addField(material1);
 
-		TSdlReference<Image, OwnerType> factor("factor", &OwnerType::m_factor);
+		TSdlSpectrum<OwnerType> factor("factor", math::EColorUsage::ECF, &OwnerType::m_factor);
 		factor.description(
 			"Factor that controls the contribution from each material. Basically, the final material "
 			"would be \"material-0 * factor + material-1 * (1 - factor)\".");
-		factor.optional();// some operation might not need a factor; check factor at cook time
+		factor.defaultTo(math::Spectrum(0.5_r));
+		factor.optional();// defaults to an even mix when not provided
 		clazz.addField(factor);
+
+		TSdlReference<Image, OwnerType> factorMap("factor-map", &OwnerType::m_factorMap);
+		factorMap.description("Texture-mapped factor that controls the contribution from each material.");
+		factorMap.optional();
+		clazz.addField(factorMap);
 	}
 };
 
