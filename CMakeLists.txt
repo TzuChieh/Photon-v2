@@ -558,3 +558,9 @@ endif()
 if(PH_BUILD_PYTHON_BINDINGS)
     add_subdirectory("./SDLInterface/SDLPyBind/")
 endif()
+
+# Export configured metadata after all CMake processing is complete
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_export_renderer_info.cmake")
+export_renderer_info(
+    OUTPUT_FILE "${PROJECT_BINARY_DIR}/PhotonRenderer.info"
+    WORKING_COLOR_SPACE "${PH_WORKING_COLOR_SPACE}")

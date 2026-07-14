@@ -45,6 +45,7 @@ Follow the style of existing/surrounding code. Favor code with better quality an
 
 ## Rules
 - Do not build or run binaries/tests unless requested; use `test-runner` with `python .\scripts\dev_setup_and_build.py` for validation, and `binary-updater` for binary refreshes.
+- Production behavior and generated metadata must not depend on `dev_*` convenience scripts.
 - For build validation, use `--no-setup --no-cmake` when dependencies and CMake config are current; full configure/build runs may need unsandboxed MSVC access.
 - JNI/PhotonStudio and `scripts/SDL_Interface/` paths are deprecated; avoid expanding legacy usage unless explicitly requested.
 - Keep file line endings consistent with the current OS convention. Must be CRLF on Windows.

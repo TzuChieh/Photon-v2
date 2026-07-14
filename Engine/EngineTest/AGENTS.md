@@ -11,8 +11,11 @@
 - Keep material/cooking unit tests focused on engine-level contracts that are easy to break locally; prefer the smallest public cooking outcome over concrete optics types or sampled BSDF math, and avoid duplicating behavior already exercised end-to-end by RenderTest.
 
 ## Test Design
-- Keep a focused unit test to one behavior, and do not compute expected values with the production
-  helper under test.
+- Keep a focused unit test to one behavior and prefer independently obvious expected results; when
+  derivation is necessary, keep it independent of the implementation and easy to verify.
+- Do not duplicate implementation constants or compute expected values with the production helper
+  under test.
+- Name tests concisely for observable behavior; use consistent wording for paired cases.
 
 ## Fixture Design
 - For compact mappings or transformed data, choose fixtures where source count, unique value count, and encoded output count differ so the storage contract is tested.

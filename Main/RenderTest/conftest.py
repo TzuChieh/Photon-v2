@@ -62,6 +62,14 @@ def pytest_sessionstart(session: pytest.Session):
     """
     Called after the Session object has been created and before performing collection and entering the run test loop.
     """
+    renderer_info_path = infra.paths.engine_build() / "PhotonRenderer.info"
+    renderer_info = json.loads(renderer_info_path.read_text(encoding='utf-8'))
+    if renderer_info.get("WorkingColorSpace") != "Linear_sRGB":
+        pytest.exit(
+            "RenderTest requires PH_WORKING_COLOR_SPACE=Linear_sRGB. "
+            "Configure CMake with -DPH_WORKING_COLOR_SPACE=Linear_sRGB.",
+            returncode=pytest.ExitCode.USAGE_ERROR)
+
     # Use a non-interactive backend so plot window will not pop out
     matplotlib.use('Agg')
 

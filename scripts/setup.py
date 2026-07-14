@@ -5,7 +5,6 @@ import blender_addon
 import render_test
 import content
 import sdl_def_tool
-import json
 from utility import config
 from utility import console
 from utility import filesystem
@@ -77,31 +76,6 @@ def _prepare_python_env(args, build_dir: Path):
         sys.exit(0)
 
 
-def _generate_build_info(output_dir: Path):
-    # Gather info
-
-    branch_name = console.run_command('git', 'rev-parse', '--abbrev-ref', 'HEAD').strip()
-    if branch_name == "HEAD":
-        branch_name = "(detached HEAD)"
-    
-    commit_hash = console.run_command('git', 'rev-parse', 'HEAD').strip()
-    
-    # Prepare the data
-    build_info = {
-        "BranchName": branch_name,
-        "CommitHash": commit_hash,
-    }
-    
-    output_file = output_dir / "PhotonRenderer.info"
-
-    # Ensure directory exists and write
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(build_info, f, indent=4)
-        
-    print(f"Build info saved to <{output_file}>.")
-
-
 def _setup_codex_skill_links():
     source_root = Path("./Main/AgentSkills")
     link_root = Path("./.agents/skills")
@@ -163,9 +137,6 @@ blender_addon.setup_photon_blend(setup_config)
 
 # Setup render test
 render_test.setup_render_test(setup_config)
-
-# Generate information about current build
-_generate_build_info(build_dir)
 
 # Install project source data to build directory
 

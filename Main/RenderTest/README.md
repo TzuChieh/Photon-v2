@@ -76,7 +76,8 @@ RenderTest uses linear sRGB as its working color space and verifies raw PFM valu
 means, reference means, and per-channel sample variances used by `ZTestVerifier` are all linear
 sRGB. Tone mapping, nonlinear sRGB encoding, and report plot generation are outside the statistical
 comparison. Keep the configured sample count equal to the number of independent samples used for
-the tested mean.
+the tested mean. RenderTest checks `PhotonRenderer.info` and stops before testing if the renderer
+uses a different working color space.
 
 ## Design Overview
 
