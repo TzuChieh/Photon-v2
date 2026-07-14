@@ -129,37 +129,36 @@ void CliStaticImageRenderer::render()
 	
 	std::cout << "render completed" << std::endl;
 
-	PhSize numOutputLayers = 1;
-	PhRenderObservationInfo observationInfo{};
-	phGetRenderObservationInfo(getSession(), &observationInfo);
-	if(observationInfo.numLayers > 0)
+	PhUInt32 numOutputLayers = 1;
+	PhRenderObservableInfo observableInfo{};
+	phGetRenderObservableInfo(getSession(), &observableInfo);
+	if(observableInfo.numLayers > 0)
 	{
-		numOutputLayers = observationInfo.numLayers;
+		numOutputLayers = observableInfo.numLayers;
 	}
 
 	PhUInt64 frameId;
 	phCreateFrame(&frameId, imageWidthPx, imageHeightPx);
-	for(PhSize layerIndex = 0; layerIndex < numOutputLayers; ++layerIndex)
+	for(PhUInt32 layerIndex = 0; layerIndex < numOutputLayers; ++layerIndex)
 	{
-		const auto layerIndexAsInt = static_cast<PhInt32>(layerIndex);
 		if(getArgs().isPostProcessRequested())
 		{
-			phRetrieveFrame(getSession(), layerIndexAsInt, frameId);
+			phRetrieveFrame(getSession(), layerIndex, frameId);
 		}
 		else
 		{
-			phRetrieveFrameRaw(getSession(), layerIndexAsInt, frameId);
+			phRetrieveFrameRaw(getSession(), layerIndex, frameId);
 		}
 
 		std::string layerName;
 		PhSize layerNameLength = 0;
-		phGetRenderLayerName(getSession(), layerIndexAsInt, nullptr, &layerNameLength);
+		phGetRenderLayerName(getSession(), layerIndex, nullptr, &layerNameLength);
 		layerName.resize(layerNameLength - 1);
-		phGetRenderLayerName(getSession(), layerIndexAsInt, layerName.data(), nullptr);
+		phGetRenderLayerName(getSession(), layerIndex, layerName.data(), nullptr);
 
 		save_frame_with_fail_safe(
 			frameId,
-			getArgs().getImageFilePath(layerIndexAsInt, static_cast<int32>(numOutputLayers)),
+			getArgs().getImageFilePath(layerIndex, numOutputLayers),
 			nullptr,
 			layerName);
 	}

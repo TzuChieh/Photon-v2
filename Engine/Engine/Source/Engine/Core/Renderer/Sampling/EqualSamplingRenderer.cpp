@@ -74,7 +74,6 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	for(const auto& filmLayer : m_mainFilmLayers)
 	{
 		PH_ASSERT(filmLayer.film);
-		PH_ASSERT(!filmLayer.name.empty());
 	}
 }
 
@@ -237,7 +236,7 @@ std::size_t EqualSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionSta
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
 void EqualSamplingRenderer::asyncPeekFrame(
-	const int32       layerIndex,
+	const uint32      layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
@@ -245,7 +244,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-	if(layerIndex >= 0 && layerIndex < static_cast<int32>(m_mainFilmLayers.size()))
+	if(layerIndex < m_mainFilmLayers.size())
 	{
 		m_mainFilmLayers[layerIndex].film->develop(out_frame, region);
 	}
@@ -255,7 +254,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 	}
 }
 
-void EqualSamplingRenderer::retrieveFrame(const int32 layerIndex, HdrRgbFrame& out_frame)
+void EqualSamplingRenderer::retrieveFrame(const uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	PH_PROFILE_SCOPE();
 
@@ -334,18 +333,12 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 		elapsedMsPerWorker);
 }
 
-RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
+RenderObservableInfo EqualSamplingRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
-	for(int32 layerIndex = 0; layerIndex < static_cast<int32>(m_mainFilmLayers.size()); ++layerIndex)
-	{
-		info.setLayer(layerIndex, m_mainFilmLayers[layerIndex].name);
-	}
-
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "paths/pixel (avg.)");
 	info.setRealStat(0, "paths/second");
 	info.setProgressTimeMeasurement("wall clock time");
-
 	return info;
 }
 

@@ -137,7 +137,7 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	switch(colorSpace)
 	{
 	case math::EColorSpace::Unspecified:
-		// Will be treated as raw data (no transform if possible, otherwise fallback to linear sRGB)
+		// Raw pixel values are not color transformed
 		return textureMaker.template operator () <math::EColorSpace::Unspecified>();
 
 	case math::EColorSpace::CIE_XYZ:
@@ -198,7 +198,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 	{
 		switch(picture.numComponents())
 		{
-		case 1: 
+		case 1:
 			*out_pixelLayout = pixel_texture::EPixelLayout::Monochromatic;
 			break;
 
@@ -243,7 +243,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		pixelBuffer = make_frame_buffer_from_picture<uint8, 2>(picture);
 	}
 	else if(
-		picture.numComponents() == 3 && 
+		picture.numComponents() == 3 &&
 		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
 	{
 		pixelBuffer = make_frame_buffer_from_picture<float32, 3>(picture);

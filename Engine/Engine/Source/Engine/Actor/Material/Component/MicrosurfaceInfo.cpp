@@ -174,4 +174,14 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet(
 	}
 }
 
+void MicrosurfaceInfo::setRoughnessMap(std::shared_ptr<Image> roughnessMap)
+{
+	m_roughnessMap = std::move(roughnessMap);
+}
+
+void MicrosurfaceInfo::setRoughnessVMap(std::shared_ptr<Image> roughnessVMap)
+{
+	m_roughnessVMap = std::move(roughnessVMap);
+}
+
 }// end namespace ph

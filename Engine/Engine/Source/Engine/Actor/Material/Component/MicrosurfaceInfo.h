@@ -32,6 +32,9 @@ public:
 	real getIsotropicRoughness() const;
 	std::pair<real, real> getAnisotropicUVRoughnesses() const;
 
+	void setRoughnessMap(std::shared_ptr<Image> roughnessMap);
+	void setRoughnessVMap(std::shared_ptr<Image> roughnessVMap);
+
 private:
 	template<ERoughnessToAlpha MAPPING>
 	std::unique_ptr<Microfacet> genTexturedMicrofacet(

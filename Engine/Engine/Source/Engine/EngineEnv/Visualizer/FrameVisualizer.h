@@ -17,6 +17,7 @@
 #include <string>
 
 namespace ph { class SampleFilter; }
+namespace ph { class Viewport; }
 
 namespace ph
 {
@@ -29,16 +30,15 @@ public:
 	ESampleFilter getSampleFilter() const;
 	bool useTabulatedSampleFilter() const;
 	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;
-	std::vector<EFilm> getFilmTypes() const;
+	std::vector<FilmSetting> getFilmSettings() const;
 
 protected:
 	SampleFilter makeSampleFilter() const;
 
-	std::vector<SamplingFilmLayer<math::Spectrum>> makeFilmLayers(
-		int64                       actualWidthPx,
-		int64                       actualHeightPx,
-		const math::TAABB2D<int64>& effectiveWindowPx,
-		const SampleFilter&         filter) const;
+	static std::vector<SamplingFilmLayer<math::Spectrum>> makeFilmLayers(
+		const std::vector<FilmSetting>& filmSettings,
+		const Viewport&                 viewport,
+		const SampleFilter&             filter);
 
 private:
 	ESampleFilter            m_sampleFilter;

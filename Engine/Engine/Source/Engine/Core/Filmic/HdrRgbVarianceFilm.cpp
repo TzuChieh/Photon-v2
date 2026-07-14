@@ -16,10 +16,17 @@ namespace ph
 namespace
 {
 
-inline math::Vector3R spectrum_sample_to_rgb(const math::Spectrum& sample)
+inline math::Vector3R spectrum_sample_to_tristimulus(const math::Spectrum& sample)
 {
-	// Currently this assumes the incoming sample is energy
-	return math::Vector3R(sample.toLinearSRGB(math::EColorUsage::EMR));
+	if constexpr(math::is_tristimulus(math::Spectrum::getColorSpace()))
+	{
+		return math::Vector3R(sample.getColorValues());
+	}
+	else
+	{
+		// Uses linear sRGB for spectral samples and assumes the sample is energy.
+		return math::Vector3R(sample.toLinearSRGB(math::EColorUsage::EMR));
+	}
 }
 
 }// end anonymous namespace
@@ -63,7 +70,7 @@ void HdrRgbVarianceFilm::addSample(
 {
 	PH_ASSERT_MSG(sample.isFinite(), sample.toString());
 
-	addRgbSample(xPx, yPx, spectrum_sample_to_rgb(sample));
+	addRgbSample(xPx, yPx, spectrum_sample_to_tristimulus(sample));
 }
 
 void HdrRgbVarianceFilm::setPixel(
@@ -73,7 +80,7 @@ void HdrRgbVarianceFilm::setPixel(
 {
 	PH_ASSERT_MSG(sample.isFinite(), sample.toString());
 
-	setRgbPixel(xPx, yPx, spectrum_sample_to_rgb(sample));
+	setRgbPixel(xPx, yPx, spectrum_sample_to_tristimulus(sample));
 }
 
 std::unique_ptr<TSamplingFilm<math::Spectrum>> HdrRgbVarianceFilm::makeCopy(const bool shouldCopySamples) const

@@ -131,7 +131,7 @@ template<EColorSpace SRC_COLOR_SPACE>
 inline void TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformedIfCompatible(
 	const auto& srcColorValues, const EColorUsage usage)
 {
-	if constexpr(is_compatible<decltype(srcColorValues), SRC_COLOR_SPACE>)
+	if constexpr(is_compatible<decltype(srcColorValues), SRC_COLOR_SPACE>())
 	{
 		setTransformed<SRC_COLOR_SPACE>(srcColorValues, usage);
 	}

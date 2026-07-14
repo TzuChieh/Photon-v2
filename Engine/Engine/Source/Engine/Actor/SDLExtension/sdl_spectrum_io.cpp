@@ -8,8 +8,6 @@
 #include "Engine/Math/Color/spectral_samples.h"
 #include "Engine/Math/math.h"
 
-#include <Common/assertion.h>
-
 #include <vector>
 #include <string>
 
@@ -18,22 +16,37 @@ namespace ph::sdl
 
 math::Spectrum tristimulus_to_spectrum(
 	const math::TVector3<math::ColorValue>& tristimulus,
-	math::EColorSpace colorSpace, 
+	math::EColorSpace colorSpace,
 	math::EColorUsage usage)
 {
-	switch(colorSpace)
+	if(usage == math::EColorUsage::Raw)
 	{
-	case math::EColorSpace::Unspecified:
-		// Set raw values directly if possible
-		if constexpr(math::TColorSpaceDef<math::Spectrum::getColorSpace()>::isTristimulus())
+		if constexpr(math::is_tristimulus(math::Spectrum::getColorSpace()))
 		{
-			return math::Spectrum(tristimulus.toArray());
+			// Set raw values directly as if in working color space, ignoring specified color space
+			colorSpace = math::Spectrum::getColorSpace();
 		}
-		// Non-tristimulus treat raw values as linear sRGB (as a fallback).
 		else
 		{
-			return math::Spectrum().setLinearSRGB(tristimulus.toArray(), usage);
+			if(colorSpace == math::EColorSpace::Unspecified)
+			{
+				// For spectral space, untagged triples default to linear sRGB
+				colorSpace = math::EColorSpace::Linear_sRGB;
+			}
 		}
+	}
+	else if(colorSpace == math::EColorSpace::Unspecified)
+	{
+		colorSpace = math::EColorSpace::Linear_sRGB;
+	}
+
+	switch(colorSpace)
+	{
+	case math::EColorSpace::CIE_XYZ:
+		return math::Spectrum().setTransformed<math::EColorSpace::CIE_XYZ>(tristimulus.toArray(), usage);
+
+	case math::EColorSpace::CIE_xyY:
+		return math::Spectrum().setTransformed<math::EColorSpace::CIE_xyY>(tristimulus.toArray(), usage);
 
 	case math::EColorSpace::Linear_sRGB:
 		return math::Spectrum().setLinearSRGB(tristimulus.toArray(), usage);
@@ -45,7 +58,7 @@ math::Spectrum tristimulus_to_spectrum(
 		return math::Spectrum().setTransformed<math::EColorSpace::ACEScg>(tristimulus.toArray(), usage);
 
 	default:
-		throw SdlLoadError("unsupported tristimulus color space");
+		throw SdlLoadError("unsupported tristimulus color space conversion");
 	}
 }
 
@@ -54,9 +67,16 @@ math::Spectrum load_spectrum(
 	std::string_view tag,
 	math::EColorUsage usage)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
+	const math::EColorSpace colorSpace = TSdlEnum<math::EColorSpace>()[tag];
+	return load_spectrum(sdlSpectrumStr, colorSpace, usage);
+}
 
-	const auto colorSpace = TSdlEnum<math::EColorSpace>()[tag];
+math::Spectrum load_spectrum(
+	std::string_view sdlSpectrumStr,
+	const math::EColorSpace colorSpace,
+	const math::EColorUsage usage)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
 	try
 	{
@@ -74,33 +94,39 @@ math::Spectrum load_spectrum(
 
 			return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
 		}
-		// 1 input value results in vec3/spectrum filled with the same value
+		// 1 input value represents a constant in the tagged color space
 		else if(tokens.size() == 1)
 		{
-			auto value = load_number<math::ColorValue>(tokens[0]);
+			const auto value = load_number<math::ColorValue>(tokens[0]);
 			if(colorSpace == math::EColorSpace::Spectral)
+			{
+				const math::SampledSpectrum spectrum(value);
+				return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
+			}
+			else if(usage == math::EColorUsage::Raw &&
+			        colorSpace == math::EColorSpace::Unspecified)
 			{
 				return math::Spectrum(value);
 			}
-			else
-			{
-				math::TVector3<math::ColorValue> tristimulus(value);
-				return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
-			}
+
+			math::TVector3<math::ColorValue> tristimulus(value);
+			return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
 		}
 		// Exact representation of a spectrum
-		else if(tokens.size() == math::Spectrum::NUM_VALUES && colorSpace == math::EColorSpace::Spectral)
+		else if(tokens.size() == math::SampledSpectrum::NUM_VALUES &&
+		        colorSpace == math::EColorSpace::Spectral)
 		{
-			math::Spectrum values;
-			for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; ++i)
+			math::SampledSpectrum spectrum;
+			for(std::size_t i = 0; i < math::SampledSpectrum::NUM_VALUES; ++i)
 			{
-				values[i] = load_number<math::ColorValue>(tokens[i]);
+				spectrum[i] = load_number<math::ColorValue>(tokens[i]);
 			}
-			return values;
+			return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
 		}
 		// If there are even values, assume to be wavelength-value data points
 		// (N wavelength values followed by N sample values)
-		else if(!tokens.empty() && math::is_even(tokens.size()))
+		else if(!tokens.empty() && math::is_even(tokens.size()) &&
+		        colorSpace == math::EColorSpace::Spectral)
 		{
 			const auto N = tokens.size() / 2;
 
@@ -109,7 +135,7 @@ math::Spectrum load_spectrum(
 			{
 				values[i] = load_number<math::ColorValue>(tokens[i]);
 			}
-			
+
 			auto spectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue>(
 				{values.data(), N}, {values.data() + N, N}));
 			return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
@@ -129,32 +155,36 @@ math::Spectrum load_spectrum(
 
 void save_spectrum(
 	const math::Spectrum& spectrum,
+	const math::EColorUsage usage,
 	std::string& out_sdlSpectrumStr,
 	std::string& out_tag)
 {
 	try
 	{
-		auto colorSpace = math::EColorSpace::Unspecified;
-		if constexpr(math::TColorSpaceDef<math::Spectrum::getColorSpace()>::isTristimulus())
+		if(usage == math::EColorUsage::Unspecified)
 		{
-			math::TVector3<math::ColorValue> color3(spectrum.getColorValues());
-			sdl::save_vector3(color3, out_sdlSpectrumStr);
+			throw SdlSaveError("color usage must be specified");
+		}
+
+		math::EColorSpace colorSpace = math::EColorSpace::Unspecified;
+		if constexpr(math::is_tristimulus(math::Spectrum::getColorSpace()))
+		{
+			sdl::save_number_array<math::ColorValue>(spectrum.getColorValues(), out_sdlSpectrumStr);
 			colorSpace = math::Spectrum::getColorSpace();
 		}
 		else
 		{
-			// Constant spectrum special case (save as a single raw value)
+			// Save constant spectra as one value
 			if(spectrum.minComponent() == spectrum.maxComponent())
 			{
 				save_number<math::ColorValue>(spectrum[0], out_sdlSpectrumStr);
-				colorSpace = math::EColorSpace::Unspecified;
 			}
-			// Save exact representation of a spectrum (save sample values directly)
+			// Save non-constant spectra as exact sample values.
 			else
 			{
 				sdl::save_number_array<math::ColorValue>(spectrum.getColorValues(), out_sdlSpectrumStr);
-				colorSpace = math::Spectrum::getColorSpace();
 			}
+			colorSpace = math::Spectrum::getColorSpace();
 		}
 		out_tag += TSdlEnum<math::EColorSpace>()[colorSpace];
 	}

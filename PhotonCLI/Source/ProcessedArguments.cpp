@@ -178,14 +178,14 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 	// TODO: argument sanity check
 }
 
-std::string ProcessedArguments::getImageFilePath(const int32 imageIndex, const int32 numImages) const
+std::string ProcessedArguments::getImageFilePath(const uint32 imageIndex, const uint32 numImages) const
 {
 	return getImageOutputStem(imageIndex, numImages) + "." + m_imageFileFormat;
 }
 
-std::string ProcessedArguments::getImageOutputStem(const int32 imageIndex, const int32 numImages) const
+std::string ProcessedArguments::getImageOutputStem(const uint32 imageIndex, const uint32 numImages) const
 {
-	const auto stemIndex = static_cast<std::size_t>(imageIndex);
+	const auto stemIndex = imageIndex;
 	if(stemIndex < m_imageOutputStemOverrides.size() && !m_imageOutputStemOverrides[stemIndex].empty())
 	{
 		return m_imageOutputStemOverrides[stemIndex];

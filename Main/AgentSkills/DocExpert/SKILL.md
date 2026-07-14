@@ -17,7 +17,9 @@ Document verified behavior, not assumptions.
 ### 2. Verify and Write
 
 - Read supporting code, call sites, and referenced workflows to verify claims, side effects, units, coordinate systems, ownership, and corner cases.
-- Match nearby Markdown or Doxygen style. For C++, prefer concise `/*! @brief ... */` comments and add `@param` or `@return` details when they clarify the contract.
+- Prefer self-explanatory code; documentation must not compensate for unclear names or structure.
+- Match nearby style. Keep documentation concise and direct, and document only the contract or non-obvious reason.
+- For C++, prefer `/*! @brief ... */`; add `@param` or `@return` only when they clarify the contract.
 - For C++ docs, use [style-examples.md](references/style-examples.md) and the [coding standard](../../Documentation/coding_standard.md).
 
 ### 3. Check

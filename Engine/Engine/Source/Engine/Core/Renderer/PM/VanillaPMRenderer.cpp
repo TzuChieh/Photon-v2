@@ -7,7 +7,7 @@
 #include "Engine/Core/Renderer/PM/TPhotonMap.h"
 #include "Engine/Core/Renderer/PM/TVPMRadianceEvaluator.h"
 #include "Engine/Core/Renderer/PM/TViewPathTracingWork.h"
-#include "Engine/Core/Renderer/RenderObservationInfo.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/Core/Renderer/RenderProgress.h"
 #include "Engine/Core/Renderer/RenderStats.h"
 #include "Engine/Math/math.h"
@@ -135,7 +135,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 		});
 }
 
-void VanillaPMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
+void VanillaPMRenderer::retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	VanillaPMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -162,7 +162,7 @@ RenderProgress VanillaPMRenderer::asyncQueryRenderProgress()
 }
 
 void VanillaPMRenderer::asyncPeekFrame(
-	const int32 layerIndex,
+	const uint32 layerIndex,
 	const Region& region,
 	HdrRgbFrame& out_frame)
 {
@@ -178,9 +178,9 @@ void VanillaPMRenderer::asyncPeekFrame(
 	}
 }
 
-RenderObservationInfo VanillaPMRenderer::getObservationInfo() const
+RenderObservableInfo VanillaPMRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "finished samples");
 	info.setIntegerStat(1, "traced photons");
 	info.setIntegerStat(2, "photons/second");

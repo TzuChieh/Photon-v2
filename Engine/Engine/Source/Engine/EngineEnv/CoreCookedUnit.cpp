@@ -83,11 +83,15 @@ CoreCookedUnit::~CoreCookedUnit() = default;
 //	return true;
 //}
 
-void CoreCookedUnit::addRenderer(std::unique_ptr<Renderer> renderer)
+void CoreCookedUnit::addRenderer(
+	std::unique_ptr<Renderer> renderer,
+	std::vector<FilmSetting> filmSettings)
 {
 	PH_ASSERT(renderer);
+	PH_ASSERT(!filmSettings.empty());
 
 	m_renderer = std::move(renderer);
+	m_filmSettings = std::move(filmSettings);
 }
 
 void CoreCookedUnit::addReceiver(std::unique_ptr<Receiver> receiver)

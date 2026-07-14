@@ -70,6 +70,14 @@ python ./RenderTest/run_and_report.py -k unit_radiance
 
 If you do not follow the pattern of existing tests, please keep in mind that the tests can run in parallel (e.g., using `xdist`). All tests must be written in a thread-safe and process-safe way. 
 
+### Statistics and Color Space
+
+RenderTest uses linear sRGB as its working color space and verifies raw PFM values. Tristimulus
+means, reference means, and per-channel sample variances used by `ZTestVerifier` are all linear
+sRGB. Tone mapping, nonlinear sRGB encoding, and report plot generation are outside the statistical
+comparison. Keep the configured sample count equal to the number of independent samples used for
+the tested mean.
+
 ## Design Overview
 
 RenderTest follows a case-driven pipeline:

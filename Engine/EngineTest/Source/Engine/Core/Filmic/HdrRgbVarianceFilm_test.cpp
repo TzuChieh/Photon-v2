@@ -3,6 +3,8 @@
 #include <Engine/Core/Filmic/HdrRgbVarianceFilm.h>
 #include <Engine/Core/Filmic/SampleFilter.h>
 #include <Engine/Frame/TFrame.h>
+#include <Engine/Math/Color/Spectrum.h>
+#include <Engine/Math/Color/spectral_samples.h>
 
 #include <gtest/gtest.h>
 
@@ -41,6 +43,61 @@ TEST(HdrRgbVarianceFilmTest, DevelopsVarianceWithZeroValuedSample)
 	EXPECT_NEAR(pixel[0], 2.0_r, TEST_FLOAT32_EPSILON);
 	EXPECT_NEAR(pixel[1], 2.0_r, TEST_FLOAT32_EPSILON);
 	EXPECT_NEAR(pixel[2], 2.0_r, TEST_FLOAT32_EPSILON);
+}
+
+TEST(HdrRgbVarianceFilmTest, DevelopsTristimulusVariance)
+{
+	if constexpr(is_tristimulus(Spectrum::getColorSpace()))
+	{
+		Spectrum sampleA;
+		sampleA[0] = 0.0_r;
+		sampleA[1] = 0.0_r;
+		sampleA[2] = 0.0_r;
+
+		Spectrum sampleB;
+		sampleB[0] = 2.0_r;
+		sampleB[1] = 4.0_r;
+		sampleB[2] = 6.0_r;
+
+		HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+		film.addSample(0.5, 0.5, sampleA);
+		film.addSample(0.5, 0.5, sampleB);
+
+		HdrRgbFrame frame(1, 1);
+		film.develop(frame);
+
+		const auto pixel = frame.getPixel({0, 0});
+		// Deviations to mean are +/-{1, 2, 3}; their squared sums are {2, 8, 18}.
+		EXPECT_NEAR(pixel[0], 2.0_r, TEST_FLOAT32_EPSILON);
+		EXPECT_NEAR(pixel[1], 8.0_r, TEST_FLOAT32_EPSILON);
+		EXPECT_NEAR(pixel[2], 18.0_r, TEST_FLOAT32_EPSILON);
+	}
+}
+
+TEST(HdrRgbVarianceFilmTest, DevelopsSpectralVariance)
+{
+	if constexpr(!is_tristimulus(Spectrum::getColorSpace()))
+	{
+		Spectrum sampleA;
+		sampleA.setSpectral(resample_illuminant_D65<ColorValue>(), EColorUsage::EMR);
+		Spectrum sampleB(sampleA);
+		sampleB.mulLocal(3.0_r);
+
+		HdrRgbVarianceFilm film(1, 1, SampleFilter::makeBox());
+		film.addSample(0.5, 0.5, sampleA);
+		film.addSample(0.5, 0.5, sampleB);
+
+		HdrRgbFrame frame(1, 1);
+		film.develop(frame);
+
+		const auto pixel = frame.getPixel({0, 0});
+		// D65 maps to 1 per channel, so samples 1 and 3 have sample variance 2.
+		constexpr real ACCEPTABLE_ERROR = 0.001_r;
+		for(int componentIdx = 0; componentIdx < 3; ++componentIdx)
+		{
+			EXPECT_NEAR(pixel[componentIdx], 2.0_r, ACCEPTABLE_ERROR);
+		}
+	}
 }
 
 TEST(HdrRgbVarianceFilmTest, MergeMatchesGroundTruth)

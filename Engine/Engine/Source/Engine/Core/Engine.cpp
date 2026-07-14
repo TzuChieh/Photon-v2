@@ -10,6 +10,8 @@
 #include "Engine/Core/Renderer/Renderer.h"
 #include "Engine/Core/Transform/RigidTransform.h"
 #include "Engine/SDL/sdl_exceptions.h"
+#include "Engine/Math/Color/Spectrum.h"
+#include "Engine/Math/Color/color_spaces.h"
 
 #include <Common/config.h>
 #include <Common/stats.h>
@@ -165,23 +167,20 @@ void Engine::render()
 }
 
 void Engine::retrieveFrame(
-	const int32       layerIndex,
+	const uint32      layerIndex,
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing)
 {
-	PH_ASSERT_GE(layerIndex, 0);
-
 	Renderer* const renderer = getRenderer();
 	PH_ASSERT(renderer);
 
 	renderer->retrieveFrame(layerIndex, out_frame);
-
-	if(applyPostProcessing)
-	{
-		//m_frameProcessor.process(out_frame, m_id);
-		// HACK
-		JRToneMapping().operateLocal(out_frame, {{0, 0}, {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()}});
-	}
+	
+	postProcessRendererFrame(
+		layerIndex,
+		out_frame,
+		{{0, 0}, {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()}},
+		applyPostProcessing);
 }
 
 math::TVector2<int64> Engine::getFilmDimensionPx() const
@@ -202,21 +201,21 @@ void Engine::setNumThreads(uint32 numThreads)
 }
 
 void Engine::asyncPeekFrame(
-	const int32       layerIndex,
+	const uint32      layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing) const
 {
-	PH_ASSERT_GE(layerIndex, 0);
+	Renderer* const renderer = getRenderer();
+	PH_ASSERT(renderer);
 
-	getRenderer()->asyncPeekFrame(layerIndex, region, out_frame);
+	renderer->asyncPeekFrame(layerIndex, region, out_frame);
 
-	if(applyPostProcessing)
-	{
-		//m_frameProcessor.process(out_frame, m_id);
-		// HACK
-		JRToneMapping().operateLocal(out_frame, math::TAABB2D<uint32>(region));
-	}
+	postProcessRendererFrame(
+		layerIndex,
+		out_frame,
+		math::TAABB2D<uint32>(region),
+		applyPostProcessing);
 }
 
 void Engine::asyncQueryStatistics(
@@ -232,9 +231,63 @@ void Engine::asyncQueryStatistics(
 	*out_samplesPerSecond = stats.getReal(0);
 }
 
+RenderObservableInfo Engine::getObservableInfo() const
+{
+	Renderer* const renderer = getRenderer();
+	if(!renderer)
+	{
+		return RenderObservableInfo{};
+	}
+
+	RenderObservableInfo info = renderer->getObservableInfo();
+	const std::vector<FilmSetting>& filmSettings = getFilmSettings();
+	for(uint32 fi = 0; fi < filmSettings.size(); ++fi)
+	{
+		info.setLayer(fi, filmSettings[fi].getName());
+	}
+
+	return info;
+}
+
 void Engine::setWorkingDirectory(const Path& directory)
 {
 	m_sceneParser.setSceneWorkingDirectory(directory);
+}
+
+void Engine::postProcessRendererFrame(
+	const uint32 layerIndex,
+	HdrRgbFrame& frame,
+	const math::TAABB2D<uint32>& region,
+	const bool applyPostProcessing) const
+{
+	const std::vector<FilmSetting>& filmSettings = getFilmSettings();
+	if(layerIndex >= filmSettings.size())
+	{
+		return;
+	}
+
+	const FilmSetting& filmSetting = filmSettings[layerIndex];
+	const math::EColorSpace filmColorSpace = setting.getRendererOutputColorSpace();
+	const bool isNumeric = filmSetting.isNumeric();
+	if(filmColorSpace != math::EColorSpace::Linear_sRGB && !isNumeric)
+	{
+		PH_ASSERT(math::is_tristimulus(filmColorSpace));
+		frame.forEachPixel(
+			region,
+			[filmColorSpace](const HdrRgbFrame::PixelType& pixel)
+			{
+				math::TTristimulusSpectrum<math::EColorSpace::Linear_sRGB, HdrComponent> linearSrgb;
+				linearSrgb.transformFrom(pixel.toArray(), filmColorSpace, math::EColorUsage::EMR);
+				return HdrRgbFrame::PixelType(linearSrgb.getColorValues());
+			});
+	}
+
+	if(applyPostProcessing && !isNumeric)
+	{
+		//m_frameProcessor.process(frame, m_id);
+		// HACK
+		JRToneMapping().operateLocal(frame, region);
+	}
 }
 
 }// end namespace ph

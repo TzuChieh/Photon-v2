@@ -8,7 +8,7 @@
 #include "Engine/Core/Renderer/PM/TPhotonMap.h"
 #include "Engine/Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Engine/Core/Renderer/PM/TSPPMRadianceEvaluator.h"
-#include "Engine/Core/Renderer/RenderObservationInfo.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/Core/Renderer/RenderProgress.h"
 #include "Engine/Core/Renderer/RenderStats.h"
 #include "Engine/Math/math.h"
@@ -258,7 +258,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 	}// end while more pass needed
 }
 
-void StochasticProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
+void StochasticProgressivePMRenderer::retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	StochasticProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -285,7 +285,7 @@ RenderProgress StochasticProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void StochasticProgressivePMRenderer::asyncPeekFrame(
-	int32 layerIndex,
+	uint32 layerIndex,
 	const Region& region,
 	HdrRgbFrame& out_frame)
 {
@@ -301,9 +301,9 @@ void StochasticProgressivePMRenderer::asyncPeekFrame(
 	}
 }
 
-RenderObservationInfo StochasticProgressivePMRenderer::getObservationInfo() const
+RenderObservableInfo StochasticProgressivePMRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "finished passes");
 	info.setIntegerStat(1, "traced photons");
 	info.setIntegerStat(2, "photons/second");

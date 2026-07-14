@@ -29,11 +29,8 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 	}
 
 	const auto filter = makeSampleFilter();
-	auto filmLayers = makeFilmLayers(
-		ctx.getFrameSizePx().x(),
-		ctx.getFrameSizePx().y(),
-		viewport.getCroppedRegionPx(),
-		filter);
+	auto filmSettings = getFilmSettings();
+	auto filmLayers = makeFilmLayers(filmSettings, viewport, filter);
 
 	auto renderer = std::make_unique<EqualSamplingRenderer>(
 		makeEstimator(),
@@ -43,7 +40,7 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 		getScheduler(),
 		std::move(filmLayers));
 
-	cooked.addRenderer(std::move(renderer));
+	cooked.addRenderer(std::move(renderer), std::move(filmSettings));
 }
 
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const

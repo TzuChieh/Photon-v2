@@ -530,7 +530,7 @@ public:
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, float>, float>);
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, double>, double>);
 
-inline bool is_tristimulus(const EColorSpace colorSpace)
+inline constexpr bool is_tristimulus(const EColorSpace colorSpace) noexcept
 {
 	switch(colorSpace)
 	{
@@ -553,7 +553,7 @@ inline bool is_tristimulus(const EColorSpace colorSpace)
 }
 
 template<typename InColorValuesType, EColorSpace COLOR_SPACE>
-inline constexpr bool is_compatible()
+inline constexpr bool is_compatible() noexcept
 {
 	using ColorValuesType = std::remove_cvref_t<InColorValuesType>;
 	using ElementType = detail::TColorValuesElementType<ColorValuesType>;

@@ -58,12 +58,12 @@ To correctly use Photon-v2 API, please read the following notes:
 
 #include "CEngine/ph_c_core_types.h"
 
-typedef struct PhRenderObservationInfo
+typedef struct PhRenderObservableInfo
 {
-	PhSize numLayers;
-	PhSize numIntegerStats;
-	PhSize numRealStats;
-} PhRenderObservationInfo;
+	PhUInt32 numLayers;
+	PhUInt32 numIntegerStats;
+	PhUInt32 numRealStats;
+} PhRenderObservableInfo;
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,66 +99,75 @@ Writes `0` to outputs on failure.
 */
 extern PH_API void phGetRenderDimension(PhUInt64 sessionId, PhUInt32* out_widthPx, PhUInt32* out_heightPx);
 
-/*! @brief Gets counts of observable render outputs and stat channels.
+/*! @brief Gets counts of observable render output and statistic channels.
 Writes `0` to all fields in @p out_info on failure.
- */
-extern PH_API void phGetRenderObservationInfo(
+*/
+extern PH_API void phGetRenderObservableInfo(
 	PhUInt64 sessionId,
-	PhRenderObservationInfo* out_info);
+	PhRenderObservableInfo* out_info);
 
 /*! @brief Gets render layer display name.
+Use @ref phGetRenderObservableInfo() to query the number of available layers.
 @param sessionId Render session ID.
-@param layerIndex Layer index.
+@param layerIndex Layer index in the range [0, `numLayers`).
 @param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
 @param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
 If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
-If @p layerIndex is negative, `0` is used.
-If the requested name is unavailable, an empty string is returned.
+If @p layerIndex is out of range, an empty string is returned.
 If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
 extern PH_API void phGetRenderLayerName(
 	PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	PhUInt32 layerIndex,
 	PhChar* out_name,
 	PhSize* out_nameLength);
 
 /*! @brief Gets integer render stat display name.
+Use @ref phGetRenderObservableInfo() to query the number of available integer stats.
 @param sessionId Render session ID.
-@param statIndex Statistic index.
+@param statIndex Statistic index in the range [0, `numIntegerStats`).
 @param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
 @param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
 If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
-If @p statIndex is negative, `0` is used.
-If the requested name is unavailable, an empty string is returned.
+If @p statIndex is out of range, an empty string is returned.
 If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
 extern PH_API void phGetRenderIntegerStatName(
 	PhUInt64 sessionId,
-	PhInt32 statIndex,
+	PhUInt32 statIndex,
 	PhChar* out_name,
 	PhSize* out_nameLength);
 
 /*! @brief Gets real-number render stat display name.
+Use @ref phGetRenderObservableInfo() to query the number of available real stats.
 @param sessionId Render session ID.
-@param statIndex Statistic index.
+@param statIndex Statistic index in the range [0, `numRealStats`).
 @param out_name Output buffer for storing the name. Can be `nullptr` for size query only.
 @param out_nameLength Actual name length in bytes including NUL terminator if not `nullptr`.
 If @p out_name is provided, caller is responsible for ensuring the buffer is large enough.
-If @p statIndex is negative, `0` is used.
-If the requested name is unavailable, an empty string is returned.
+If @p statIndex is out of range, an empty string is returned.
 If both @p out_name and @p out_nameLength are `nullptr`, this call has no effect.
 */
 extern PH_API void phGetRenderRealStatName(
 	PhUInt64 sessionId,
-	PhInt32 statIndex,
+	PhUInt32 statIndex,
 	PhChar* out_name,
 	PhSize* out_nameLength);
 
 extern PH_API void phDeleteSession(PhUInt64 sessionId);
 extern PH_API void phSetWorkingDirectory(PhUInt64 sessionId, const PhChar* workingDirectory);
 
-extern PH_API PhResult phRetrieveFrame(PhUInt64 sessionId, PhInt32 layerIndex, PhUInt64 frameId);
-extern PH_API PhResult phRetrieveFrameRaw(PhUInt64 sessionId, PhInt32 layerIndex, PhUInt64 frameId);
+/*! @brief Retrieve Engine output and apply postprocessing to radiance layers.
+Radiance is converted to linear sRGB before postprocessing. Numeric layers stay unchanged.
+Use @ref phGetRenderObservableInfo() to query valid layer indices. An invalid index returns
+`PH_ERROR_OUT_OF_RANGE`.
+*/
+extern PH_API PhResult phRetrieveFrame(PhUInt64 sessionId, PhUInt32 layerIndex, PhUInt64 frameId);
+
+/*! @brief Retrieve Engine output without postprocessing.
+Similar to `phRetrieveFrame()`, just without post-processing.
+*/
+extern PH_API PhResult phRetrieveFrameRaw(PhUInt64 sessionId, PhUInt32 layerIndex, PhUInt64 frameId);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Frame Operations
@@ -251,18 +260,23 @@ extern PH_API PhSize phAsyncPollMergedUpdatedFrameRegions(
 	PhFrameRegionInfo* out_regionInfos,
 	PhSize regionInfoSize);
 
+/*! @brief Retrieve intermediate Engine output and apply postprocessing to radiance layers.
+*/
 extern PH_API void phAsyncPeekFrame(
 	PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	PhUInt32 layerIndex,
 	PhUInt32 xPx,
 	PhUInt32 yPx,
 	PhUInt32 widthPx,
 	PhUInt32 heightPx,
 	PhUInt64 frameId);
 
+/*! @brief Retrieve intermediate Engine output without postprocessing.
+Similar to `phAsyncPeekFrameRaw()`, just without post-processing.
+*/
 extern PH_API void phAsyncPeekFrameRaw(
 	PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	PhUInt32 layerIndex,
 	PhUInt32 xPx,
 	PhUInt32 yPx,
 	PhUInt32 widthPx,

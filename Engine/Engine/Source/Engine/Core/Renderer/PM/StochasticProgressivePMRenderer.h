@@ -20,17 +20,17 @@ public:
 		uint32         numWorkers);
 
 	void doRender() override;
-	void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) override;
+	void retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame) override;
 
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
 
 	void asyncPeekFrame(
-		int32 layerIndex,
+		uint32 layerIndex,
 		const Region& region,
 		HdrRgbFrame& out_frame) override;
 
-	RenderObservationInfo getObservationInfo() const override;
+	RenderObservableInfo getObservableInfo() const override;
 
 private:
 	void renderWithStochasticProgressivePM();

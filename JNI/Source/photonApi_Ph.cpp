@@ -336,12 +336,12 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncPeekFrame(
 {
 	phAsyncPeekFrame(
 		static_cast<PhUInt64>(engineId),
-		static_cast<PhUInt64>(channelIndex),
+		static_cast<PhUInt32>(channelIndex),
 		static_cast<PhUInt32>(xPx),
 		static_cast<PhUInt32>(yPx),
 		static_cast<PhUInt32>(wPx),
 		static_cast<PhUInt32>(hPx),
-		static_cast<PhUInt32>(frameId));
+		static_cast<PhUInt64>(frameId));
 }
 
 /*

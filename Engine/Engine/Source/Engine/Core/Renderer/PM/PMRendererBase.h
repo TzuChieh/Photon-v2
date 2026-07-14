@@ -29,17 +29,17 @@ public:
 		uint32         numWorkers);
 
 	void doRender() override = 0;
-	void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) override = 0;
+	void retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame) override = 0;
 
 	RenderStats asyncQueryRenderStats() override = 0;
 	RenderProgress asyncQueryRenderProgress() override = 0;
 
 	void asyncPeekFrame(
-		int32         layerIndex,
+		uint32        layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame) override = 0;
 
-	RenderObservationInfo getObservationInfo() const override = 0;
+	RenderObservableInfo getObservableInfo() const override = 0;
 
 	/*! @brief Gather cooked data. Perform any required initialization before render.
 	*/

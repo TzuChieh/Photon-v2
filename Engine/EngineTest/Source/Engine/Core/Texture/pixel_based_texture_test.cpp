@@ -1,7 +1,13 @@
 #include <Engine/Core/Texture/TNearestPixelTex2D.h>
 #include <Engine/Core/Texture/TBilinearPixelTex2D.h>
+#include <Engine/Core/Texture/Pixel/TColorPixelTexture2D.h>
+#include <Engine/Core/Texture/Pixel/TFrameBuffer2D.h>
 
 #include <gtest/gtest.h>
+
+#include <memory>
+#include <stdexcept>
+#include <utility>
 
 using namespace ph;
 using namespace ph::math;
@@ -117,4 +123,49 @@ TEST(PixelBasedTextureTest, BilinearFilteredTexture)
 
 	texture1.sample(uv(0.5_r, 0.5_r), &pixel);
 	EXPECT_FLOAT_EQ(pixel[0], (1.0f + 2.0f + 3.0f + 4.0f) / 4.0f);
+}
+
+TEST(PixelBasedTextureTest, RawRgbCompatibility)
+{
+	using Frame = TFrame<float32, 3>;
+	Frame frame(1, 1);
+	frame.setPixel(0, 0, Frame::PixelType({0.2f, 0.4f, 0.6f}));
+	auto pixelBuffer = std::make_shared<TFrameBuffer2D<float32, 3>>(std::move(frame));
+
+	if constexpr(is_tristimulus(Spectrum::getColorSpace()))
+	{
+		TColorPixelTexture2D<EColorSpace::Unspecified> texture(
+			pixelBuffer, pixel_texture::EPixelLayout::RGB);
+
+		Spectrum sampled;
+		texture.sample(SampleLocation(Vector2R(0.5_r, 0.5_r), EColorUsage::Raw), &sampled);
+		EXPECT_EQ(sampled[0], 0.2_r);
+		EXPECT_EQ(sampled[1], 0.4_r);
+		EXPECT_EQ(sampled[2], 0.6_r);
+	}
+	else
+	{
+		EXPECT_THROW(
+			TColorPixelTexture2D<EColorSpace::Unspecified>(
+				pixelBuffer, pixel_texture::EPixelLayout::RGB),
+			std::invalid_argument);
+	}
+}
+
+TEST(PixelBasedTextureTest, BroadcastsRawMonochrome)
+{
+	using Frame = TFrame<float32, 1>;
+	Frame frame(1, 1);
+	frame.setPixel(0, 0, Frame::PixelType(0.25f));
+
+	auto pixelBuffer = std::make_shared<TFrameBuffer2D<float32, 1>>(std::move(frame));
+	TColorPixelTexture2D<EColorSpace::Unspecified> texture(
+		pixelBuffer, pixel_texture::EPixelLayout::Monochromatic);
+
+	Spectrum sampled;
+	texture.sample(SampleLocation(Vector2R(0.5_r, 0.5_r), EColorUsage::Raw), &sampled);
+	for(const ColorValue value : sampled.getColorValues())
+	{
+		EXPECT_EQ(value, 0.25_r);
+	}
 }

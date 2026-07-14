@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <array>
+#include <type_traits>
 
 namespace ph::math
 {
@@ -28,26 +29,21 @@ using SampledSpectrum = TSampledSpectrum<
 	ColorValue, 
 	DefaultSpectralSampleProps>;
 
-#if PH_RENDER_MODE == PH_RENDER_MODE_LINEAR_SRGB
+/*! @brief Clor space used by @ref Spectrum.
+*/
+inline constexpr EColorSpace working_color_space = PH_WORKING_COLOR_SPACE_ENUM;
 
-using Spectrum = LinearSRGBSpectrum;
+static_assert(
+	working_color_space == EColorSpace::Linear_sRGB ||
+	working_color_space == EColorSpace::ACEScg ||
+	working_color_space == EColorSpace::Spectral,
+	"PH_WORKING_COLOR_SPACE must be Linear_sRGB, ACEScg, or Spectral.");
 
-#elif PH_RENDER_MODE == PH_RENDER_MODE_ACES
-
-using Spectrum = ACESSpectrum;
-
-#elif PH_RENDER_MODE == PH_RENDER_MODE_SPECTRAL
-
-using Spectrum = SampledSpectrum;
-
-#elif PH_RENDER_MODE == PH_RENDER_MODE_FULL_SPECTRAL
-
-// TODO
-
-#else
-
-using Spectrum = LinearSRGBSpectrum;
-
-#endif
+/*! @brief @ref Spectrum type under the working color space.
+*/
+using Spectrum = std::conditional_t<
+	working_color_space == EColorSpace::Spectral,
+	SampledSpectrum,
+	TTristimulusSpectrum<working_color_space, ColorValue>>;
 
 }// end namespace ph::math

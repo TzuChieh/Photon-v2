@@ -55,9 +55,9 @@ void copy_name_to_buffer(
 	}
 }
 
-bool get_render_observation_info(
+bool get_render_observable_info(
 	const PhUInt64 sessionId,
-	RenderObservationInfo* const out_info)
+	RenderObservableInfo* const out_info)
 {
 	PH_ASSERT(out_info);
 
@@ -67,7 +67,7 @@ bool get_render_observation_info(
 		return false;
 	}
 
-	*out_info = engine->getRenderer()->getObservationInfo();
+	*out_info = engine->getObservableInfo();
 	return true;
 }
 
@@ -178,20 +178,21 @@ void phUpdate(const PhUInt64 sessionId)
 
 PhResult phRetrieveFrame(
 	const PhUInt64 sessionId,
-	const PhInt32 layerIndex,
+	const PhUInt32 layerIndex,
 	const PhUInt64 frameId)
 {
-	if(layerIndex < 0)
-	{
-		PH_LOG(CAPI, Warning, "invalid layer index {} for frame retrieval", layerIndex);
-		return PH_ERROR_OUT_OF_RANGE;
-	}
+	Engine* engine = ApiDatabase::getResource<Engine>(sessionId);
+	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 
-	Engine*      engine = ApiDatabase::getResource<Engine>(sessionId);
-	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(!engine || !frame)
 	{
 		return PH_ERROR_NOT_FOUND;
+	}
+
+	if(layerIndex >= engine->getFilmSettings().size())
+	{
+		PH_LOG(CAPI, Warning, "invalid layer index {} for frame retrieval", layerIndex);
+		return PH_ERROR_OUT_OF_RANGE;
 	}
 
 	engine->retrieveFrame(layerIndex, *frame);
@@ -200,20 +201,21 @@ PhResult phRetrieveFrame(
 
 PhResult phRetrieveFrameRaw(
 	const PhUInt64 sessionId,
-	const PhInt32 layerIndex,
+	const PhUInt32 layerIndex,
 	const PhUInt64 frameId)
 {
-	if(layerIndex < 0)
-	{
-		PH_LOG(CAPI, Warning, "invalid layer index {} for raw frame retrieval", layerIndex);
-		return PH_ERROR_OUT_OF_RANGE;
-	}
+	Engine* engine = ApiDatabase::getResource<Engine>(sessionId);
+	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 
-	Engine*      engine = ApiDatabase::getResource<Engine>(sessionId);
-	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(!engine || !frame)
 	{
 		return PH_ERROR_NOT_FOUND;
+	}
+
+	if(layerIndex >= engine->getFilmSettings().size())
+	{
+		PH_LOG(CAPI, Warning, "invalid layer index {} for raw frame retrieval", layerIndex);
+		return PH_ERROR_OUT_OF_RANGE;
 	}
 
 	engine->retrieveFrame(layerIndex, *frame, false);
@@ -238,40 +240,35 @@ void phGetRenderDimension(const PhUInt64 sessionId, PhUInt32* const out_widthPx,
 	*out_heightPx = static_cast<PhUInt32>(dim.y());
 }
 
-void phGetRenderObservationInfo(
+void phGetRenderObservableInfo(
 	const PhUInt64 sessionId,
-	PhRenderObservationInfo* const out_info)
+	PhRenderObservableInfo* const out_info)
 {
 	PH_ASSERT(out_info);
 	out_info->numLayers = 0;
 	out_info->numIntegerStats = 0;
 	out_info->numRealStats = 0;
 
-	RenderObservationInfo info;
-	if(!get_render_observation_info(sessionId, &info))
+	RenderObservableInfo info;
+	if(!get_render_observable_info(sessionId, &info))
 	{
 		return;
 	}
 
-	out_info->numLayers = static_cast<PhSize>(info.numLayers());
-	out_info->numIntegerStats = static_cast<PhSize>(info.numIntegerStats());
-	out_info->numRealStats = static_cast<PhSize>(info.numRealStats());
+	out_info->numLayers = info.numLayers();
+	out_info->numIntegerStats = info.numIntegerStats();
+	out_info->numRealStats = info.numRealStats();
 }
 
 void phGetRenderLayerName(
 	const PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	const PhUInt32 layerIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	if(layerIndex < 0)
-	{
-		layerIndex = 0;
-	}
-
 	std::string layerName;
-	RenderObservationInfo info;
-	if(get_render_observation_info(sessionId, &info) && layerIndex < info.numLayers())
+	RenderObservableInfo info;
+	if(get_render_observable_info(sessionId, &info) && layerIndex < info.numLayers())
 	{
 		layerName = info.getLayerName(layerIndex);
 	}
@@ -282,15 +279,13 @@ void phGetRenderLayerName(
 
 void phGetRenderIntegerStatName(
 	const PhUInt64 sessionId,
-	PhInt32 statIndex,
+	const PhUInt32 statIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	PH_ASSERT_GE(statIndex, 0);
-
 	std::string statName;
-	RenderObservationInfo info;
-	if(get_render_observation_info(sessionId, &info) && statIndex < info.numIntegerStats())
+	RenderObservableInfo info;
+	if(get_render_observable_info(sessionId, &info) && statIndex < info.numIntegerStats())
 	{
 		statName = info.getIntegerStatName(statIndex);
 	}
@@ -301,15 +296,13 @@ void phGetRenderIntegerStatName(
 
 void phGetRenderRealStatName(
 	const PhUInt64 sessionId,
-	PhInt32 statIndex,
+	const PhUInt32 statIndex,
 	PhChar* const out_name,
 	PhSize* const out_nameLength)
 {
-	PH_ASSERT_GE(statIndex, 0);
-	
 	std::string statName;
-	RenderObservationInfo info;
-	if(get_render_observation_info(sessionId, &info) && statIndex < info.numRealStats())
+	RenderObservableInfo info;
+	if(get_render_observable_info(sessionId, &info) && statIndex < info.numRealStats())
 	{
 		statName = info.getRealStatName(statIndex);
 	}
@@ -686,7 +679,7 @@ PhSize phAsyncPollMergedUpdatedFrameRegions(
 
 void phAsyncPeekFrame(
 	PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	PhUInt32 layerIndex,
 	PhUInt32 xPx,
 	PhUInt32 yPx,
 	PhUInt32 widthPx,
@@ -704,7 +697,7 @@ void phAsyncPeekFrame(
 
 void phAsyncPeekFrameRaw(
 	PhUInt64 sessionId,
-	PhInt32 layerIndex,
+	PhUInt32 layerIndex,
 	PhUInt32 xPx,
 	PhUInt32 yPx,
 	PhUInt32 widthPx,

@@ -213,7 +213,7 @@ std::size_t AdaptiveSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegion
 // If correctness is not guaranteed, develop methods should be reimplemented. 
 // (correctness is guaranteed currently)
 void AdaptiveSamplingRenderer::asyncPeekFrame(
-	const int32       layerIndex,
+	const uint32      layerIndex,
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
@@ -242,7 +242,7 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	}
 }
 
-void AdaptiveSamplingRenderer::retrieveFrame(const int32 layerIndex, HdrRgbFrame& out_frame)
+void AdaptiveSamplingRenderer::retrieveFrame(const uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -306,15 +306,13 @@ RenderProgress AdaptiveSamplingRenderer::asyncQueryRenderProgress()
 	return totalProgress;
 }
 
-RenderObservationInfo AdaptiveSamplingRenderer::getObservationInfo() const
+RenderObservableInfo AdaptiveSamplingRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "paths/pixel (avg.)");
 	info.setIntegerStat(1, "noisy regions");
-	info.setRealStat   (0, "paths/second");
-
+	info.setRealStat(0, "paths/second");
 	info.setProgressTimeMeasurement("CPU time");
-
 	return info;
 }
 

@@ -63,9 +63,9 @@ public:
 
 		TSdlEnumField<OwnerType, math::EColorSpace> numericColorSpace(&OwnerType::m_numericColorSpace);
 		numericColorSpace.description(
-			"The tristimulus color space to use when using the image as a numeric texture. "
-			"The default is to use the current tristimulus space, and linear-sRGB when the engine "
-			"is in spectral mode.");
+			"Tristimulus output color space when the image is used as a numeric texture. The "
+			"default is the working color space when it is tristimulus, and linear sRGB when it "
+			"is spectral.");
 		numericColorSpace.defaultTo(math::EColorSpace::Unspecified);
 		numericColorSpace.optional();
 		clazz.addField(numericColorSpace);

@@ -100,33 +100,21 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 	{
 		if(m_values.size() == 0)
 		{
-			return std::make_shared<TConstantTexture<math::Spectrum>>(
-				math::Spectrum(0));
+			return std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(0));
 		}
 		else if(m_values.size() == 1)
 		{
 			return std::make_shared<TConstantTexture<math::Spectrum>>(
 				math::Spectrum(static_cast<math::ColorValue>(m_values[0])));
 		}
-		// 3 input values and a direct conversion is not possible: fallback to linear sRGB
-		else if(m_values.size() == 3 && m_values.size() != math::Spectrum::NUM_VALUES)
-		{
-			const math::Vector3D rawValues(m_values[0], m_values[1], m_values[2]);
-
-			PH_DEBUG_LOG(ConstantImage,
-				"Fallback to linear sRGB with values: {}", rawValues);
-
-			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(
-				math::TVector3<math::ColorValue>(rawValues).toArray());
-		}
-		// Fill input values directly as much as we can
+		// Fill input values directly as much as possible.
 		else
 		{
 			if(m_values.size() != math::Spectrum::NUM_VALUES)
 			{
 				PH_LOG(ConstantImage, Warning,
-					"Unexpected number of input values ({} provided) when treating the values as "
-					"raw data; generated texture may not be what you want.", m_values.size());
+					"Unexpected number of Raw values ({} provided); missing working color space "
+					"components remain zero and excess values are ignored.", m_values.size());
 			}
 
 			math::Spectrum rawValues(0);
@@ -135,8 +123,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 				rawValues[i] = static_cast<math::ColorValue>(m_values[i]);
 			}
 
-			return std::make_shared<TConstantTexture<math::Spectrum>>(
-				math::Spectrum(rawValues));
+			return std::make_shared<TConstantTexture<math::Spectrum>>(rawValues);
 		}
 	}
 	else

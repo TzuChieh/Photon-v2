@@ -5,7 +5,6 @@
 #include <Common/primitive_type.h>
 #include <Engine/Math/Geometry/TAABB2D.h>
 
-#include <cstddef>
 #include <vector>
 
 namespace ph::editor::render
@@ -20,7 +19,7 @@ public:
 	struct Input final
 	{
 		/*! Index of the target frame layer for retrieving data. */
-		std::size_t layerIndex = 0;
+		uint32 layerIndex = 0;
 
 		/*! Texture to store render result. */
 		ghi::TextureHandle resultHandle;

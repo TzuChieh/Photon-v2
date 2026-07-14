@@ -19,34 +19,32 @@ PH_DEFINE_INTERNAL_LOG_GROUP(BlackBodyRadiationImage, Image);
 std::shared_ptr<TTexture<Image::NumericType>> BlackBodyRadiationImage::genNumericTexture(
 	const CookingContext& ctx)
 {
-	constexpr bool isTristimulusMode = 
+	constexpr bool isTristimulusWorkingColorSpace =
 		math::TColorSpaceDef<math::Spectrum::getColorSpace()>::isTristimulus();
 
 	const math::Spectrum radiation = getRadiation();
 
-	math::TristimulusValues triValues;
-	triValues.fill(0);
-	if(m_numericColorSpace == math::EColorSpace::Unspecified)
+	math::EColorSpace numericColorSpace;
+	if(m_numericColorSpace != math::EColorSpace::Unspecified)
 	{
-		if(isTristimulusMode)
-		{
-			triValues = radiation.getColorValues();
-		}
-		else
-		{
-			triValues = radiation.toLinearSRGB(math::EColorUsage::EMR);
-		}
+		numericColorSpace = m_numericColorSpace;
+	}
+	else if constexpr(isTristimulusWorkingColorSpace)
+	{
+		numericColorSpace = math::Spectrum::getColorSpace();
 	}
 	else
 	{
-		if(!math::is_tristimulus(m_numericColorSpace))
-		{
-			throw CookException(
-				"numeric color space cannot be spectral (too many components)");
-		}
-
-		radiation.transformTo(&triValues, m_numericColorSpace, math::EColorUsage::EMR);
+		numericColorSpace = math::EColorSpace::Linear_sRGB;
 	}
+
+	if(!math::is_tristimulus(numericColorSpace))
+	{
+		throw CookException("numeric color space cannot be spectral (too many components)");
+	}
+
+	math::TristimulusValues triValues;
+	radiation.transformTo(&triValues, numericColorSpace, math::EColorUsage::EMR);
 
 	if(triValues.size() > Image::NUMERIC_TYPE_WIDTH)
 	{
@@ -91,7 +89,7 @@ math::Spectrum BlackBodyRadiationImage::getRadiation() const
 		if(m_isSpectralRadiance)
 		{
 			radiation.setSpectral(
-				math::resample_black_body_spectral_radiance<ColorT>(m_temperatureK), 
+				math::resample_black_body_spectral_radiance<ColorT>(m_temperatureK),
 				math::EColorUsage::EMR);
 		}
 		else

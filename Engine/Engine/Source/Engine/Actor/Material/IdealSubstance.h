@@ -97,7 +97,7 @@ public:
 		iorInner.optional();
 		clazz.addField(iorInner);
 
-		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::Raw, &OwnerType::m_f0);
+		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::ECF, &OwnerType::m_f0);
 		f0.description(
 			"Surface reflectance on normal incidence. This value is expected "
 			"to be given in linear-sRGB space. When this parameter is used, "

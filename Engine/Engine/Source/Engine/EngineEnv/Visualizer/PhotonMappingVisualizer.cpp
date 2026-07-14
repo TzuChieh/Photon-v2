@@ -26,8 +26,8 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 		viewport = Viewport(ctx.getFrameSizePx(), *optCropWindow);
 	}
 
-	const auto filmTypes = getFilmTypes();
-	if(filmTypes.size() != 1 || filmTypes[0] != EFilm::Beauty)
+	auto filmSettings = getFilmSettings();
+	if(filmSettings.size() != 1 || filmSettings[0].getType() != EFilm::Beauty)
 	{
 		throw SdlLoadError("photon mapping visualizer currently supports beauty film only");
 	}
@@ -103,7 +103,7 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 	}
 	}
 
-	cooked.addRenderer(std::move(renderer));
+	cooked.addRenderer(std::move(renderer), std::move(filmSettings));
 }
 
 PMCommonParams PhotonMappingVisualizer::makeCommonParams() const

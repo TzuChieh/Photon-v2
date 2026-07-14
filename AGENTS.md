@@ -33,6 +33,14 @@ You can find the main entries in `Main/Documentation/`.
 
 Follow the style of existing/surrounding code. Favor code with better quality and less prone to human errors. If specific rules are needed, the project has a detailed C++ coding standard in `Main/Documentation/coding_standard.md`.
 - In hot C++ polymorphic paths, do not assume MSVC devirtualizes unqualified virtual calls on concrete objects or value members; when exact concrete dispatch is intended, use qualified calls and verify speed claims with generated assembly plus repeated workload timing.
+- Keep C++ function calls with fewer than three arguments on one line unless it would exceed 100 characters or splitting materially improves clarity.
+- Do not add `static_cast` for identity or clearly non-narrowing standard conversions. Keep
+  explicit casts for narrowing, signedness or precision changes, enums, pointer downcasts or
+  cross-casts, user-defined conversions, and overload selection.
+- Choose C++ helper placement by clarity and ownership: keep a one-off operation at its call site
+  when clearer, use a private member when it primarily uses one class's state, and use an anonymous
+  file-local helper for class-independent implementation details.
+- Keep comments concise: state a contract or non-obvious reason without restating the code.
 - Never remove existing comments unless the user explicitly asks; update them in place when surrounding behavior changes.
 
 ## Rules

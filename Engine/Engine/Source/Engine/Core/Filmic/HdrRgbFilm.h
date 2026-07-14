@@ -13,9 +13,10 @@
 namespace ph
 {
 
-/*! @brief A film that records RGB values internally.
-Although film samples are added as spectral values, they are automatically converted to linear sRGB
-values for storage. 
+/*! @brief Records tristimulus sample values.
+Tristimulus samples are stored as-is without assuming any color space.
+Spectral samples are stored as linear sRGB.
+@ref FilmSetting reports the actual color space if the film is for a render output layer.
 */
 class HdrRgbFilm : public TSamplingFilm<math::Spectrum>
 {
@@ -42,23 +43,23 @@ public:
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
-	/*! @brief Add a pixel sample.
+	/*! @brief Add a tristimulus pixel sample without any color conversion.
 	@param xPx The pixel's x coordinate.
 	@param yPx The pixel's y coordinate.
-	@param rgb The RGB values of the pixel.
+	@param rgb The three tristimulus components.
 	*/
 	///@{
 	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3R& rgb);
 	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3D& rgb);
 	///@}
 
-	/*! @brief Set a pixel directly.
+	/*! @brief Set tristimulus pixel values directly without any color conversion.
 	Filter is not applied when setting a pixel directly (effectively applying a box filter).
 	The pixel coordinate is not integral as the implementation may choose to store the values in
 	higher resolution (e.g., super sampling).
 	@param xPx The pixel's x coordinate.
 	@param yPx The pixel's y coordinate.
-	@param rgb The RGB values of the pixel.
+	@param rgb The three tristimulus components.
 	@param weight The weight of the pixel.
 	*/
 	///@{

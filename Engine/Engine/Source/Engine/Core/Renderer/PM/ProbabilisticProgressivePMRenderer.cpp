@@ -8,7 +8,7 @@
 #include "Engine/Core/Renderer/PM/TPhotonMap.h"
 #include "Engine/Core/Renderer/PM/TVPMRadianceEvaluator.h"
 #include "Engine/Core/Renderer/PM/TViewPathTracingWork.h"
-#include "Engine/Core/Renderer/RenderObservationInfo.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/Core/Renderer/RenderProgress.h"
 #include "Engine/Core/Renderer/RenderStats.h"
 #include "Engine/Math/math.h"
@@ -254,7 +254,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 	});// end parallel work
 }
 
-void ProbabilisticProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
+void ProbabilisticProgressivePMRenderer::retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	ProbabilisticProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -281,7 +281,7 @@ RenderProgress ProbabilisticProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void ProbabilisticProgressivePMRenderer::asyncPeekFrame(
-	const int32   layerIndex,
+	const uint32  layerIndex,
 	const Region& region,
 	HdrRgbFrame&  out_frame)
 {
@@ -297,9 +297,9 @@ void ProbabilisticProgressivePMRenderer::asyncPeekFrame(
 	}
 }
 
-RenderObservationInfo ProbabilisticProgressivePMRenderer::getObservationInfo() const
+RenderObservableInfo ProbabilisticProgressivePMRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "finished passes");
 	info.setIntegerStat(1, "traced photons");
 	info.setIntegerStat(2, "photons/second");

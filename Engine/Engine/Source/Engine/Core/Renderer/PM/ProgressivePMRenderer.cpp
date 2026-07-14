@@ -9,7 +9,7 @@
 #include "Engine/Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Engine/Core/Renderer/PM/TPPMViewpointCollector.h"
 #include "Engine/Core/Renderer/PM/TPPMRadianceEvaluationWork.h"
-#include "Engine/Core/Renderer/RenderObservationInfo.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/Core/Renderer/RenderProgress.h"
 #include "Engine/Core/Renderer/RenderStats.h"
 #include "Engine/Math/math.h"
@@ -178,7 +178,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 	}// end while more pass needed
 }
 
-void ProgressivePMRenderer::retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame)
+void ProgressivePMRenderer::retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame)
 {
 	ProgressivePMRenderer::asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
@@ -205,7 +205,7 @@ RenderProgress ProgressivePMRenderer::asyncQueryRenderProgress()
 }
 
 void ProgressivePMRenderer::asyncPeekFrame(
-	int32         layerIndex,
+	uint32        layerIndex,
 	const Region& region,
 	HdrRgbFrame&  out_frame)
 {
@@ -221,9 +221,9 @@ void ProgressivePMRenderer::asyncPeekFrame(
 	}
 }
 
-RenderObservationInfo ProgressivePMRenderer::getObservationInfo() const
+RenderObservableInfo ProgressivePMRenderer::getObservableInfo() const
 {
-	RenderObservationInfo info;
+	RenderObservableInfo info;
 	info.setIntegerStat(0, "finished passes");
 	info.setIntegerStat(1, "traced photons");
 	info.setIntegerStat(2, "photons/second");

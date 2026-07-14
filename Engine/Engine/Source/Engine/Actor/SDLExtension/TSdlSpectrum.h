@@ -22,6 +22,18 @@
 namespace ph
 {
 
+/*! @brief Reads and writes an SDL field stored as @ref math::Spectrum.
+Field owner declares the field as `Raw`, `EMR`, or `ECF` to indicate its intended usage;
+scene description does not select the usage.
+- `Raw` means per-component or per-wavelength numeric data, such as IoR or absorption coefficients.
+- With a tristimulus working color space, Raw triples are stored directly;
+  any tristimulus tag is ignored.
+- With a spectral working color space, tagged Raw triples use the tagged tristimulus color space;
+  untagged Raw triples are interpreted as linear sRGB.
+- An untagged Raw scalar fills every working color space component.
+- EMR and ECF triples are colors; their tag selects the input color space and defaults to linear sRGB.
+- SPD input is converted to the working color space.
+*/
 template<typename Owner, typename SdlValueType = TSdlValue<math::Spectrum, Owner>>
 class TSdlSpectrum : public SdlValueType
 {
@@ -31,7 +43,7 @@ class TSdlSpectrum : public SdlValueType
 public:
 	template<typename ValueType>
 	TSdlSpectrum(
-		std::string valueName, 
+		std::string valueName,
 		const math::EColorUsage usage,
 		ValueType Owner::* const valuePtr)
 
@@ -102,7 +114,7 @@ protected:
 	{
 		if(const math::Spectrum* value = this->getConstValue(owner); value)
 		{
-			sdl::save_spectrum(*value, out_clause.value, out_clause.tag);
+			sdl::save_spectrum(*value, m_usage, out_clause.value, out_clause.tag);
 		}
 		else
 		{

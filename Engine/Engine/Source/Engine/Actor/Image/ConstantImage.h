@@ -21,6 +21,10 @@ public:
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) override;
 
+	/*! @brief Set values without color conversion.
+	Fills every working color space component in order. Missing components are zero and excess values are ignored.
+	*/
+	///@{
 	template<typename T>
 	void setRaw(T value);
 
@@ -29,6 +33,7 @@ public:
 
 	template<typename T>
 	void setRaw(std::vector<T> values);
+	///@}
 
 	/*! @brief Set as a monochromatic color value.
 	*/
@@ -53,8 +58,8 @@ public:
 		clazz.typeName("constant");
 		clazz.docName("Constant Image");
 		clazz.description(
-			"An image that stores constant values. It can be a single scalar, a vector or a color. "
-			"By default, all values are treated as raw data (bypass any color space conversion).");
+			"An image that stores a constant scalar, vector, or color. Values are Raw by default "
+			"and bypass color-space conversion if color space is not specified.");
 		clazz.baseOn<Image>();
 
 		TSdlRealArray<OwnerType, float64> values("values", &OwnerType::m_values);
@@ -64,10 +69,10 @@ public:
 
 		TSdlEnumField<OwnerType, math::EColorSpace> colorSpace(&OwnerType::m_colorSpace);
 		colorSpace.description(
-			"Associated color space of the constant. By default, values are raw data. If a color "
-			"space is specified, then values will be treated as if in the specified color space. "
-			"When the engine is in spectral mode, raw data may be treated as linear sRGB if a "
-			"direct conversion is impossible.");
+			"Source color space. Unspecified values are Raw: a scalar fills every working color "
+			"space component and arrays fill components in order, with missing components zero "
+			"and excess values ignored. Specify a source color space to transform color data into "
+			"the working color space upon cook.");
 		colorSpace.defaultTo(math::EColorSpace::Unspecified);
 		colorSpace.optional();
 		clazz.addField(colorSpace);

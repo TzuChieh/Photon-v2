@@ -90,14 +90,13 @@ template<EColorSpace COLOR_SPACE>
 using TColorSpaceDef = TColorSpaceDefinition<COLOR_SPACE, ColorValue>;
 
 /*! @brief Check whether @p colorSpace is a tristimulus color space.
-This is a runtime check. For compile-time check, use `TColorSpaceDef<?>::isTristimulus()`.
 */
-bool is_tristimulus(EColorSpace colorSpace);
+constexpr bool is_tristimulus(EColorSpace colorSpace) noexcept;
 
 /*! @brief Check whether @p InColorValuesType is suitable to represent values in @p COLOR_SPACE.
 */
 template<typename InColorValuesType, EColorSpace COLOR_SPACE>
-constexpr bool is_compatible();
+constexpr bool is_compatible() noexcept;
 
 /*!
 @param srcColorValues A @p TTristimulusValues or a @p TSpectralSampleValues depending on

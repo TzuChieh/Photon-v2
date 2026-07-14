@@ -7,12 +7,14 @@
 #include "Engine/Frame/frame_fwd.h"
 #include "Engine/Frame/FrameProcessor.h"
 #include "Engine/Core/Scheduler/Region.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/DataIO/FileSystem/Path.h"
 #include "Engine/EngineEnv/CoreCookedUnit.h"
 
 #include <Common/primitive_type.h>
 
 #include <string>
+#include <vector>
 
 namespace ph
 {
@@ -29,8 +31,10 @@ public:
 	void update();
 	void render();
 
+	/*! @brief Retrieve a completed frame.
+	*/
 	void retrieveFrame(
-		int32        layerIndex,
+		uint32       layerIndex,
 		HdrRgbFrame& out_frame,
 		bool         applyPostProcessing = true);
 
@@ -41,8 +45,11 @@ public:
 	*/
 	void setNumThreads(uint32 numThreads);
 
+	/*! @brief Retrieve an intermediate frame.
+	The contract matches @ref retrieveFrame() except that correctness is not guaranteed.
+	*/
 	void asyncPeekFrame(
-		int32         layerIndex,
+		uint32        layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame, 
 		bool          applyPostProcessing = true) const;
@@ -52,9 +59,25 @@ public:
 
 	void setWorkingDirectory(const Path& directory);
 
+	/*! @brief Get descriptions for all currently observable render data.
+	*/
+	RenderObservableInfo getObservableInfo() const;
+
 	Renderer* getRenderer() const;
 
+	/*! @brief Get settings for each frame layer.
+	*/
+	const std::vector<FilmSetting>& getFilmSettings() const;
+
 private:
+	/*! @brief Apply the configured post-render pipeline to renderer output.
+	*/
+	void postProcessRendererFrame(
+		uint32 layerIndex,
+		HdrRgbFrame& frame,
+		const math::TAABB2D<uint32>& region,
+		bool applyPostProcessing) const;
+
 	SdlSceneFileReader m_sceneParser;
 	SceneDescription m_rawScene;
 	VisualWorld m_visualWorld;
@@ -71,6 +94,11 @@ private:
 inline Renderer* Engine::getRenderer() const
 {
 	return m_cooked.getRenderer();
+}
+
+inline const std::vector<FilmSetting>& Engine::getFilmSettings() const
+{
+	return m_cooked.getFilmSettings();
 }
 
 }// end namespace ph

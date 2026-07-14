@@ -4,6 +4,8 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 
+#include <utility>
+
 namespace ph
 {
 
@@ -16,6 +18,16 @@ void AbradedTranslucent::storeCooked(
 		m_microsurfaceInfo.genMicrofacet(ctx));
 
 	// TODO: generate ideal dielectric if roughness == 0
+}
+
+void AbradedTranslucent::setRoughnessMap(std::shared_ptr<Image> roughnessMap)
+{
+	m_microsurfaceInfo.setRoughnessMap(std::move(roughnessMap));
+}
+
+void AbradedTranslucent::setRoughnessVMap(std::shared_ptr<Image> roughnessVMap)
+{
+	m_microsurfaceInfo.setRoughnessVMap(std::move(roughnessVMap));
 }
 
 }// end namespace ph

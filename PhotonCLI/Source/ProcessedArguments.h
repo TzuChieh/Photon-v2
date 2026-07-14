@@ -45,7 +45,7 @@ public:
 	EExecutionMode getExecutionMode() const;
 	std::string    getSceneFilePath() const;
 	std::string    getPrimaryImageOutputStem() const;
-	std::string    getImageFilePath(int32 imageIndex, int32 numImages) const;
+	std::string    getImageFilePath(uint32 imageIndex, uint32 numImages) const;
 	std::string    getImageFileFormat() const;
 	uint32         numThreads() const;
 	bool           isPostProcessRequested() const;
@@ -77,7 +77,7 @@ private:
 	void setSceneFilePath(const std::string& sceneFilePath);
 	void setImageOutputStem(const std::string& imageOutputStem);
 	void setImageOutputStemOverrides(std::vector<std::string> imageOutputStemOverrides);
-	std::string getImageOutputStem(int32 imageIndex, int32 numImages) const;
+	std::string getImageOutputStem(uint32 imageIndex, uint32 numImages) const;
 
 	EExecutionMode           m_executionMode;
 	std::string              m_sceneFilePath;

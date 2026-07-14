@@ -1,4 +1,4 @@
-﻿# Actor Guide
+# Actor Guide
 
 ## Actor Cooking
 - `preCook()` checks actor-owned completeness and prepares dependency-free data such as base transforms; cooked SDL dependency and actor-cache access belongs in `cook()`, which must be skipped for uncookable reports.
@@ -10,6 +10,13 @@
 ## SDL Fields
 - For SDL-backed actor/material fields, keep defaults in SDL field declarations such as `defaultTo(...)` rather than duplicating member initializers unless a non-SDL construction path requires one.
 - For paired scalar/map fields, use the base field name for the scalar value and `<field>-map` for the mapped input; prefer non-optional scalar fields with SDL defaults, optional map fields, and one class-level precedence statement over repeated per-field wording. The mapped input takes precedence when both are specified.
+- For `TSdlSpectrum`, interpret serialized input as tristimulus or SPD from its representation,
+  never from actor-declared `EColorUsage`. `Raw` triples bypass color transforms with a tristimulus
+  working color space; with a spectral working color space, they are reconstructed from the
+  explicit tag or linear sRGB when untagged.
+  Untagged EMR and ECF triples also default to linear sRGB.
+- Do not apply `TSdlSpectrum`'s untagged-triple default to image resources; an unspecified image
+  color space means Raw data.
 
 ## Blender PLY Models
 - Actor/model cooking owns Blender material-slot metadata injection. Geometry may expose `CookedGeometry::faceIdToMetadataSlot`, but the actor combines it with material-slot metadata.

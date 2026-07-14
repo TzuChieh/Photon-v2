@@ -11,7 +11,7 @@
 #include "Engine/Core/Renderer/RenderStats.h"
 #include "Engine/Core/Scheduler/Region.h"
 #include "Engine/Core/Renderer/RenderRegionStatus.h"
-#include "Engine/Core/Renderer/RenderObservationInfo.h"
+#include "Engine/Core/Renderer/RenderObservableInfo.h"
 #include "Engine/Frame/Viewport.h"
 #include "Engine/Utility/Timer.h"
 #include "Engine/Utility/TSpan.h"
@@ -51,9 +51,12 @@ public:
 	*/
 	virtual void doRender() = 0;
 
-	/*! @brief Get the rendered result.
+	/*! @brief Retrieve a renderer output frame.
+	The frame is rendered in the working color space. Use `Engine::retrieveFrame()` for linear-sRGB
+	radiance output.
+	@ref FilmSetting defines layer order, semantics, and color spaces.
 	*/
-	virtual void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) = 0;
+	virtual void retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame) = 0;
 
 	/*! @brief Get the rendering regions that have been updated.
 	Status of a region will always transition to `ERegionStatus::Finished`, and this ordering guarantee
@@ -66,8 +69,8 @@ public:
 	virtual std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) = 0;
 	
 	/*! @brief Get general information of the ongoing rendering process.
-	More information can be provided by the implementation. The meaning of each stat can be obtained
-	via `getObservationInfo()`.
+	More information can be provided by the implementation. The meaning of each stat is described by
+	`Engine::getObservableInfo()`.
 	*/
 	virtual RenderStats asyncQueryRenderStats() = 0;
 
@@ -77,20 +80,19 @@ public:
 	*/
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
-	/*! @brief Get the intermediate render result.
-	This method is similar to `retrieveFrame()`, except that correctness is not guaranteed for the
-	returned frame.
+	/*! @brief Retrieve intermediate renderer output without a completeness guarantee.
+	The layer semantics and color-space contract match @ref retrieveFrame().
 	*/
 	virtual void asyncPeekFrame(
-		int32         layerIndex,
+		uint32        layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame) = 0;
 
-	/*! @brief Get information about available transient outputs of an ongoing render operation.
-	This information will be determined after each update (constant throughout the following rendering 
-	process). The actual data and can be retrieved via async<X>() methods.
+	/*! @brief Get implementation-specific progress and statistic descriptions.
+	This information is constant throughout rendering after each update.
+	The actual data and can be retrieved via async<X>() methods.
 	*/
-	virtual RenderObservationInfo getObservationInfo() const = 0;
+	virtual RenderObservableInfo getObservableInfo() const = 0;
 
 	/*! @brief Start updating.
 	*/

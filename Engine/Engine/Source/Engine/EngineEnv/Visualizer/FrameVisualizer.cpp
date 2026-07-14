@@ -2,6 +2,7 @@
 #include "Engine/Core/Filmic/SampleFilter.h"
 #include "Engine/Core/Filmic/HdrRgbFilm.h"
 #include "Engine/Core/Filmic/HdrRgbVarianceFilm.h"
+#include "Engine/Frame/Viewport.h"
 #include "Engine/SDL/sdl_exceptions.h"
 
 #include <Common/logging.h>
@@ -38,17 +39,14 @@ SampleFilter FrameVisualizer::makeSampleFilter() const
 	return {};
 }
 
-std::vector<EFilm> FrameVisualizer::getFilmTypes() const
+std::vector<FilmSetting> FrameVisualizer::getFilmSettings() const
 {
 	if(m_filmSettings.empty())
 	{
 		PH_LOG(FrameVisualizer, Note,
 			"film type unspecified, using beauty film");
-		return {EFilm::Beauty};
+		return {FilmSetting(EFilm::Beauty)};
 	}
-
-	std::vector<EFilm> filmTypes;
-	filmTypes.reserve(m_filmSettings.size());
 
 	std::unordered_set<EFilm> uniqueFilmTypes;
 	for(const auto& filmSetting : m_filmSettings)
@@ -59,39 +57,38 @@ std::vector<EFilm> FrameVisualizer::getFilmTypes() const
 			throw SdlLoadError(
 				"duplicated film type in film list; per-film dimensions/rect are not supported");
 		}
-
-		filmTypes.push_back(filmType);
 	}
 
-	return filmTypes;
+	return m_filmSettings;
 }
 
 std::vector<SamplingFilmLayer<math::Spectrum>> FrameVisualizer::makeFilmLayers(
-	const int64                 actualWidthPx,
-	const int64                 actualHeightPx,
-	const math::TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter&         filter) const
+	const std::vector<FilmSetting>& filmSettings,
+	const Viewport&                 viewport,
+	const SampleFilter&             filter)
 {
+	const auto frameSizePx       = viewport.getBaseSizePx();
+	const auto effectiveWindowPx = viewport.getCroppedRegionPx();
+
 	std::vector<SamplingFilmLayer<math::Spectrum>> filmLayers;
-	for(const auto filmType : getFilmTypes())
+	for(const FilmSetting& filmSetting : filmSettings)
 	{
 		SamplingFilmLayer<math::Spectrum> filmLayer;
-		filmLayer.name = TSdlEnum<EFilm>{}[filmType];
-		if(filmLayer.name.empty())
+		if(filmSetting.getName().empty())
 		{
 			throw SdlLoadError("unsupported film type");
 		}
 
-		switch(filmType)
+		switch(filmSetting.getType())
 		{
 		case EFilm::Beauty:
 			filmLayer.film = std::make_unique<HdrRgbFilm>(
-				actualWidthPx, actualHeightPx, effectiveWindowPx, filter);
+				frameSizePx.x(), frameSizePx.y(), effectiveWindowPx, filter);
 			break;
 
 		case EFilm::Variance:
 			filmLayer.film = std::make_unique<HdrRgbVarianceFilm>(
-				actualWidthPx, actualHeightPx, effectiveWindowPx, filter);
+				frameSizePx.x(), frameSizePx.y(), effectiveWindowPx, filter);
 			break;
 
 		default:

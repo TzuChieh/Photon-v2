@@ -13,9 +13,9 @@
 namespace ph
 {
 
-/*! @brief A film that records per-channel sample variance internally.
-Although film samples are added as spectral values, they are automatically converted to linear sRGB
-values for storage.
+/*! @brief Records per-channel sample variance.
+Stores color components directly for tristimulus working color spaces.
+Stores linear sRGB components for spectral working color space.
 */
 class HdrRgbVarianceFilm : public TSamplingFilm<math::Spectrum>
 {

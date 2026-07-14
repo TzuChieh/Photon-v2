@@ -147,6 +147,15 @@ message(STATUS
 set(USE_FAST_MATH_DEFAULT OFF)
 set(USE_SIMD_DEFAULT ON)
 
+set(PH_WORKING_COLOR_SPACE_VALUES Linear_sRGB ACEScg Spectral)
+set(PH_WORKING_COLOR_SPACE "Linear_sRGB" CACHE STRING "Working color space for rendering.")
+set_property(CACHE PH_WORKING_COLOR_SPACE PROPERTY STRINGS ${PH_WORKING_COLOR_SPACE_VALUES})
+if(NOT PH_WORKING_COLOR_SPACE IN_LIST PH_WORKING_COLOR_SPACE_VALUES)
+	message(FATAL_ERROR
+		"Unsupported PH_WORKING_COLOR_SPACE: ${PH_WORKING_COLOR_SPACE}. "
+		"Expected Linear_sRGB, ACEScg, or Spectral.")
+endif()
+
 option(PH_DEBUG
     "Enable debug functionalities."
     ON)

@@ -48,6 +48,7 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         
         if self.color_space == 'auto':
             # FIXME: properly obtain the scene linear color space Blender uses, how to obtain? access to OCIO config?
+            # Constant images need an explicit color-space tag; omission means Raw.
             creator.set_color_space(sdl.Enum('LSRGB'))
         elif not self.is_raw_data:
             creator.set_color_space(sdl.Enum(self.color_space))

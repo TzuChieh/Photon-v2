@@ -15,6 +15,9 @@ public:
 		const CookingContext& ctx,
 		CookedMaterial& out_material) const override;
 
+	void setRoughnessMap(std::shared_ptr<Image> roughnessMap);
+	void setRoughnessVMap(std::shared_ptr<Image> roughnessVMap);
+
 private:
 	DielectricInterfaceInfo m_interfaceInfo;
 	MicrosurfaceInfo        m_microsurfaceInfo;

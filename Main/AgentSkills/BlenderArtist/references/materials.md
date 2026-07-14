@@ -8,7 +8,7 @@ Read this reference completely only for material creation, conversion, repair, o
 2. Treat imported Cycles, Principled, or legacy FBX nodes as evidence, not authority, when they conflict with the source. In the Bistro conversion, imported nodes and generic FBX properties did not preserve the source material behavior.
 3. Derive channel packing, alpha meaning, normal handedness, and color spaces from authoritative metadata. Do not assume a universal ORM layout, opacity-in-alpha convention, or DirectX/OpenGL normal format; OpenPBR does not define those texture encodings.
 4. Once channel semantics are verified, treat every nonconstant authored value, including slight variation, as mapped.
-5. Transform color-managed inputs from their declared source space into the active working space. Keep scalar and vector data raw.
+5. Transform color-managed inputs from their declared source color space into the active working color space. Keep scalar and vector data raw.
 6. Compare every source parameter with the installed Photon node inputs. Record it as exact, qualitative approximation, or unsupported; do not describe a partial mapping as a complete OpenPBR conversion.
 
 ## Build Photon graphs

@@ -355,14 +355,14 @@ A block of data.
 * Type: `Constant`
 * Note: **concrete**, based on **Image**
 
-An image that stores constant values. It can be a single scalar, a vector or a color. By default, all values are treated as raw data (bypass any color space conversion).
+An image that stores a constant scalar, vector, or color. Values are Raw by default and bypass color-space conversion.
 
 > Creation: `image(constant)`
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
 | values | `real-array` | A series of values to initialize the constant. |
-| color-space | `enum` | Associated color space of the constant. By default, values are raw data. If a color space is specified, then values will be treated as if in the specified color space. When the engine is in spectral mode, raw data may be treated as linear sRGB if a direct conversion is impossible. |
+| color-space | `enum` | Source color space. Unspecified values are Raw: a scalar fills every working color space component and arrays fill components in order, with missing components zero and excess values ignored. Specify a source color space to transform color data into the working color space. |
 
 
 ## Base of Raster Image
@@ -393,8 +393,8 @@ Raster-based image file (most common image file formats belongs to this category
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
 | image-file | `PRI` | The image file. |
-| color-space | `enum` | Color space of the raster image. By default, color space is retrieved from the file, and if such information is not available, the engine will make an educated guess. If user has specified a non-default color space, then the engine will use it instead (even if the file said otherwise). Note that when the image is used in numeric mode, the engine still follow the same convention--color space is dropped and raw values are used. |
-| is-color | `bool` | If this flag is set to false, then the raster image will be treated as raw data even if the image is used in color mode. This is useful for situations where color-related numeric values are used (e.g., math operations involving other color data). When the engine is in spectral mode, raw data may be treated as linear sRGB if a direct conversion is impossible. |
+| color-space | `enum` | Source color space. By default, it is read from the file when available; otherwise, the engine makes an educated guess. An explicit value overrides the result. Numeric textures always use Raw pixel values and ignore color space. |
+| is-color | `bool` | False treats pixels as Raw even in color mode, which is useful for color-related numeric data such as image math. Monochromatic Raw pixels fill every working color space component. Other Raw layouts require a tristimulus working color space, where channels map directly to its components. |
 
 
 ## Math Image
@@ -448,7 +448,7 @@ An image outputs the value of black-body radiation.
 | temperature-k | `real` | Temperature (in Kelvin) that the black-body radiates on. |
 | is-spectral-radiance | `bool` | false (default): The energy unit is in radiance; true: The energy unit is in spectral radiance. If "energy" value is specified, this option will have no effect (the user is then responsible for specifying "energy" value in their desired unit). |
 | energy | `real` | If specified, the resulting radiation will be adjusted (scaled) to the target energy level; otherwise, the true energy level at the temperature will be used. |
-| color-space | `enum` | The tristimulus color space to use when using the image as a numeric texture. The default is to use the current tristimulus space, and linear-sRGB when the engine is in spectral mode. |
+| color-space | `enum` | Tristimulus output color space when the image is used as a numeric texture. The default is the working color space when it is tristimulus, and linear sRGB when it is spectral. |
 
 
 ## Observer

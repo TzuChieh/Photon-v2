@@ -19,7 +19,6 @@
 #include <Engine/Frame/TFrame.h>
 #include <Engine/Core/Renderer/RenderProgress.h>
 #include <Engine/Core/Renderer/RenderStats.h>
-#include <Engine/Frame/Operator/JRToneMapping.h>
 #include <Engine/DataIO/FileSystem/Filesystem.h>
 
 #include <memory>
@@ -181,32 +180,32 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 	std::jthread statsRequestThread;
 	if(config.enableStatsRequest)
 	{
-		RenderObservationInfo entries = renderer->getObservationInfo();
+		RenderObservableInfo observableInfo = renderEngine->getObservableInfo();
 		Viewport viewport = renderer->getViewport();
 
 		// Load stats that are constant throughout the rendering process once
 		m_syncedRenderStats.locked(
-			[&viewport, &entries](OfflineRenderStats& stats)
+			[&viewport, &observableInfo](OfflineRenderStats& stats)
 			{
 				stats = OfflineRenderStats{};
 				stats.viewport = viewport;
 
-				for(std::size_t i = 0; i < entries.numLayers(); ++i)
+				for(uint32 i = 0; i < observableInfo.numLayers(); ++i)
 				{
-					stats.layerNames.push_back(entries.getLayerName(i));
+					stats.layerNames.push_back(observableInfo.getLayerName(i));
 				}
 				
-				for(std::size_t i = 0; i < entries.numIntegerStats(); ++i)
+				for(uint32 i = 0; i < observableInfo.numIntegerStats(); ++i)
 				{
 					stats.numericInfos.push_back({
-						.name = entries.getIntegerStatName(i),
+						.name = observableInfo.getIntegerStatName(i),
 						.isInteger = true});
 				}
 
-				for(std::size_t i = 0; i < entries.numRealStats(); ++i)
+				for(uint32 i = 0; i < observableInfo.numRealStats(); ++i)
 				{
 					stats.numericInfos.push_back({
-						.name = entries.getRealStatName(i),
+						.name = observableInfo.getRealStatName(i),
 						.isInteger = false});
 				}
 			});
@@ -219,7 +218,7 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 	if(config.enablePeekingFrame)
 	{
 		// Respond to peek request
-		peekFrameThread = makePeekFrameThread(renderer, config.minFramePeekPeriodMs);
+		peekFrameThread = makePeekFrameThread(renderEngine.get(), config.minFramePeekPeriodMs);
 	}
 
 	setRenderStage(EOfflineRenderStage::Rendering);
@@ -238,11 +237,7 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 	// Get completed frame
 	HdrRgbFrame frame(renderer->getRenderWidthPx(), renderer->getRenderHeightPx());
 	math::TAABB2D<uint32> fullRegion({0, 0}, frame.getSizePx());
-	renderer->retrieveFrame(0, frame);
-	if(config.performToneMapping)
-	{
-		JRToneMapping{}.operateLocal(frame, fullRegion);
-	}
+	renderEngine->retrieveFrame(0, frame, config.performToneMapping);
 
 	if(config.enablePeekingFrame)
 	{
@@ -390,10 +385,15 @@ std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 
 	});
 }
 
-std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs)
+std::jthread OfflineRenderer::makePeekFrameThread(Engine* engine, uint32 minPeriodMs)
 {
-	return std::jthread([this, renderer, minPeriodMs](std::stop_token token)
+	PH_ASSERT(engine);
+
+	return std::jthread([this, engine, minPeriodMs](std::stop_token token)
 	{
+		Renderer* const renderer = engine->getRenderer();
+		PH_ASSERT(renderer);
+
 		// We need to decide how many regions to poll in one peek request. Too small, we might
 		// never catch up with the speed of newly added regions. The number of concurrent CPU
 		// threads is a nice value to multiply from as the rendering speed should be roughly
@@ -461,11 +461,11 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 				if(auto locked = m_synchedFrameData.tryLock())
 				{
 					locked->frame.setSize(renderer->getViewport().getBaseSizePx());
-					renderer->asyncPeekFrame(cachedInput.layerIndex, updatedRegion, locked->frame);
-					if(cachedInput.performToneMapping)
-					{
-						JRToneMapping{}.operateLocal(locked->frame, math::TAABB2D<uint32>(updatedRegion));
-					}
+					engine->asyncPeekFrame(
+						cachedInput.layerIndex,
+						updatedRegion,
+						locked->frame,
+						cachedInput.performToneMapping);
 
 					// Append the new region to output
 					locked->updatedRegion.unionWith(math::TAABB2D<int32>(updatedRegion));

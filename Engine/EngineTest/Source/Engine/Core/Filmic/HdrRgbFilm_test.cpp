@@ -4,6 +4,7 @@
 #include <Engine/Core/Filmic/SampleFilter.h>
 #include <Engine/Frame/TFrame.h>
 #include <Engine/Math/Color/Spectrum.h>
+#include <Engine/Math/Color/spectral_samples.h>
 #include <Engine/Math/Function/THeavisideStep2D.h>
 
 #include <gtest/gtest.h>
@@ -58,7 +59,7 @@ TEST(HdrRgbFilmTest, CorrectRasterCoordinates)
 	
 }
 
-TEST(HdrRgbFilmTest, DevelopesToFrame)
+TEST(HdrRgbFilmTest, DevelopsToFrame)
 {
 	// Symmetric filter
 	{
@@ -73,18 +74,18 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		const float64 testSamplePos1Ypx = film.getSampleWindowPx().getMinVertex().y() + 0.2;
 		const float64 testSamplePos2Xpx = film.getSampleWindowPx().getMinVertex().x() + 0.4;
 		const float64 testSamplePos2Ypx = film.getSampleWindowPx().getMinVertex().y() + 0.4;
-		film.addSample(testSamplePos1Xpx, testSamplePos1Ypx, Spectrum(0.7_r));
-		film.addSample(testSamplePos2Xpx, testSamplePos2Ypx, Spectrum(0.3_r));
+		const Vector3D sample1(0.7);
+		const Vector3D sample2(0.3);
+		film.addRgbSample(testSamplePos1Xpx, testSamplePos1Ypx, sample1);
+		film.addRgbSample(testSamplePos2Xpx, testSamplePos2Ypx, sample2);
 		film.develop(frame);
 
 		HdrRgbFrame::PixelType pixel;
 		frame.getPixel(0, 0, &pixel);
 
-		// r, g, b should be equal - since the input samples are monochrome
+		// All components are equal and nonzero for these monochrome samples.
 		EXPECT_NEAR(pixel[0], pixel[1], TEST_FLOAT32_EPSILON);
 		EXPECT_NEAR(pixel[1], pixel[2], TEST_FLOAT32_EPSILON);
-
-		// r, g, b should be non-zero
 		EXPECT_TRUE(pixel[0] != 0 && pixel[1] != 0 && pixel[2] != 0);
 
 		// predicting the pixel value
@@ -98,9 +99,14 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		EXPECT_TRUE(weight1 > 0.0_r);
 		EXPECT_TRUE(weight2 > 0.0_r);
 		EXPECT_TRUE(weight1 != weight2);
-		EXPECT_NEAR(pixel[0],
-		            (weight1 * 0.7_r + weight2 * 0.3_r) / (weight1 + weight2), 
-		            TEST_REAL_EPSILON);
+
+		for(PhUInt32 componentIdx = 0; componentIdx < 3; ++componentIdx)
+		{
+			const real expected =
+				(weight1 * sample1[componentIdx] + weight2 * sample2[componentIdx]) /
+				(weight1 + weight2);
+			EXPECT_NEAR(pixel[componentIdx], expected, TEST_FLOAT32_EPSILON);
+		}
 	}
 
 	// Asymmetric filter
@@ -121,13 +127,15 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		const float64 testSamplePos2XPx = 0.5 + 0.25;
 		const float64 testSamplePos2YPx = 0.5 - 0.54321;
 
-		film.addSample(testSamplePos1XPx, testSamplePos1YPx, Spectrum(3.0_r));
-		film.addSample(testSamplePos2XPx, testSamplePos2YPx, Spectrum(1.0_r));
+		const Vector3D sample1(3.0);
+		const Vector3D sample2(1.0);
+		film.addRgbSample(testSamplePos1XPx, testSamplePos1YPx, sample1);
+		film.addRgbSample(testSamplePos2XPx, testSamplePos2YPx, sample2);
 		film.develop(frame);
 		
 		// We have 2 samples, this is how the reconstructed pixel value would be calculated:
-		// * The first sample contributes 3 * 1 = 3
-		// * The second sample contributes 1 * 0 = 0
+		// * `sample1` contributes 3 * 1 = 3
+		// * `sample2` contributes 1 * 0 = 0
 		// Normalization goes as (3 + 0) / (1 + 0) = 3 / 1 = 3
 		// 
 		// Note that if the filter function is evaluated the other way around (i.e., rather than
@@ -136,9 +144,10 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		// a film/image as point samples of a continuous function, where the function is reconstructed
 		// by placing a filter function on each sample point.
 		//
-		for(auto componentValue : frame.getPixel({0, 0}))
+		const auto pixel = frame.getPixel({0, 0});
+		for(PhUInt32 componentIdx = 0; componentIdx < 3; ++componentIdx)
 		{
-			EXPECT_NEAR(componentValue, 3.0_r, TEST_FLOAT32_EPSILON);
+			EXPECT_NEAR(pixel[componentIdx], sample1[componentIdx], TEST_FLOAT32_EPSILON);
 		}
 	}
 }
@@ -189,6 +198,47 @@ TEST(HdrRgbFilmTest, MakeCopyCanSkipOrCopySamples)
 	for(const auto componentValue : copiedWithSamplesFrame.getPixel({0, 0}))
 	{
 		EXPECT_NEAR(componentValue, 2.0_r, TEST_FLOAT32_EPSILON);
+	}
+}
+
+TEST(HdrRgbFilmTest, DevelopsTristimulusSample)
+{
+	if constexpr(is_tristimulus(Spectrum::getColorSpace()))
+	{
+		HdrRgbFilm film(1, 1, SampleFilter::makeBox());
+		Spectrum sample;
+		sample.setColorValues({0.25_r, 0.5_r, 0.75_r});
+		film.addSample(0.5, 0.5, sample);
+
+		HdrRgbFrame frame(1, 1);
+		film.develop(frame);
+
+		const auto pixel = frame.getPixel({0, 0});
+		EXPECT_NEAR(pixel[0], 0.25_r, TEST_FLOAT32_EPSILON);
+		EXPECT_NEAR(pixel[1], 0.5_r, TEST_FLOAT32_EPSILON);
+		EXPECT_NEAR(pixel[2], 0.75_r, TEST_FLOAT32_EPSILON);
+	}
+}
+
+TEST(HdrRgbFilmTest, DevelopsSpectralSample)
+{
+	if constexpr(!is_tristimulus(Spectrum::getColorSpace()))
+	{
+		Spectrum sample;
+		sample.setSpectral(resample_illuminant_D65<ColorValue>(), EColorUsage::EMR);
+
+		HdrRgbFilm film(1, 1, SampleFilter::makeBox());
+		film.addSample(0.5, 0.5, sample);
+
+		HdrRgbFrame frame(1, 1);
+		film.develop(frame);
+
+		const auto pixel = frame.getPixel({0, 0});
+		// D65 maps to unit linear sRGB.
+		constexpr real ACCEPTABLE_ERROR = 0.001_r;
+		EXPECT_NEAR(pixel[0], 1.0_r, ACCEPTABLE_ERROR);
+		EXPECT_NEAR(pixel[1], 1.0_r, ACCEPTABLE_ERROR);
+		EXPECT_NEAR(pixel[2], 1.0_r, ACCEPTABLE_ERROR);
 	}
 }
 

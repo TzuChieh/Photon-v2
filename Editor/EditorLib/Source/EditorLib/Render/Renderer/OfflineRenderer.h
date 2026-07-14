@@ -67,7 +67,7 @@ private:
 	void setRenderStage(EOfflineRenderStage stage);
 
 	std::jthread makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs);
-	std::jthread makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs);
+	std::jthread makePeekFrameThread(Engine* engine, uint32 minPeriodMs);
 
 	TSPSCExecutor<EngineWork> m_engineThread;
 	TRelaxedAtomic<EOfflineRenderStage> m_renderStage;

@@ -1,10 +1,17 @@
 #include <Engine/Math/Color/color_spaces.h>
+#include <Engine/Math/Color/Spectrum.h>
 #include <Engine/Math/Color/spectral_samples.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
 using namespace ph::math;
+
+static_assert(Spectrum::getColorSpace() == working_color_space);
+static_assert(is_tristimulus(EColorSpace::ACEScg));
+static_assert(!is_tristimulus(EColorSpace::Spectral));
+static_assert(is_compatible<TristimulusValues, EColorSpace::ACEScg>());
+static_assert(is_compatible<SpectralSampleValues, EColorSpace::Spectral>());
 
 TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 {

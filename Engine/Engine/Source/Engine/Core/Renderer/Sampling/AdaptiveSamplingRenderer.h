@@ -31,17 +31,17 @@ class AdaptiveSamplingRenderer : public SamplingRenderer
 public:
 	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
-	void retrieveFrame(int32 layerIndex, HdrRgbFrame& out_frame) override;
+	void retrieveFrame(uint32 layerIndex, HdrRgbFrame& out_frame) override;
 
 	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override;
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekFrame(
-		int32 layerIndex,
+		uint32 layerIndex,
 		const Region& region,
 		HdrRgbFrame&  out_frame) override;
 
-	RenderObservationInfo getObservationInfo() const override;
+	RenderObservableInfo getObservableInfo() const override;
 
 private:
 	using RayProcessor = TStepperReceiverMeasurementProcessor<math::Spectrum>;

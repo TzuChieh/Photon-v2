@@ -2,6 +2,7 @@
 
 #include "Engine/Utility/IMoveOnly.h"
 #include "Engine/Core/Transform/Transform.h"
+#include "Engine/EngineEnv/Visualizer/FilmSetting.h"
 
 #include <Common/assertion.h>
 
@@ -24,13 +25,23 @@ public:
 	/*bool gatherFromRaw(const SceneDescription& scene);
 	bool gatherFromCooked(const VisualWorld& world);*/
 
-	void addRenderer(std::unique_ptr<Renderer> renderer);
+	/*! @brief Install a renderer and its ordered output film settings.
+	*/
+	void addRenderer(
+		std::unique_ptr<Renderer> renderer,
+		std::vector<FilmSetting> filmSettings);
+
 	void addReceiver(std::unique_ptr<Receiver> receiver);
 	void addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 
 	void addTransform(std::unique_ptr<Transform> transform);
 
 	Renderer* getRenderer() const;
+
+	/*! @brief Get settings corresponding one-to-one with Renderer frame layer indices.
+	*/
+	const std::vector<FilmSetting>& getFilmSettings() const;
+
 	Receiver* getReceiver() const;
 	SampleGenerator* getSampleGenerator() const;
 
@@ -42,6 +53,7 @@ private:
 	std::unique_ptr<Renderer>        m_renderer;
 	std::unique_ptr<Receiver>        m_receiver;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
+	std::vector<FilmSetting>         m_filmSettings;
 
 	std::vector<std::unique_ptr<Transform>> m_transforms;
 
@@ -58,8 +70,13 @@ inline Renderer* CoreCookedUnit::getRenderer() const
 	return m_renderer.get();
 }
 
+inline const std::vector<FilmSetting>& CoreCookedUnit::getFilmSettings() const
+{
+	return m_filmSettings;
+}
+
 inline Receiver* CoreCookedUnit::getReceiver() const
-{ 
+{
 	return m_receiver.get();
 }
 

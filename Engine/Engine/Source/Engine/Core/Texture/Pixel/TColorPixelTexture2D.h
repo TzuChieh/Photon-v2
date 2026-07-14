@@ -10,7 +10,6 @@
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
-#include <Common/logging.h>
 
 #include <array>
 #include <cstddef>
@@ -20,12 +19,11 @@
 
 namespace ph
 {
-	
-/*!
-@tparam COLOR_SPACE Source color space. The color space of the contained pixel data. If is
-`math::EColorSpace::Unspecified`, then raw color data is used (without any space transformations).
-Using `math::EColorSpace::Unspecified` when the engine is in spectral mode may fallback to
-`math::EColorSpace::Linear_sRGB` if a direct conversion is impossible.
+
+/*! @brief Pixel texture with explicit tristimulus or Raw component semantics.
+@tparam COLOR_SPACE Source color space. `Unspecified` stores Raw values without color transforms.
+Monochromatic Raw pixels fill every working color space component. Other Raw layouts require a
+tristimulus working color space, where channels map directly to its components.
 */
 template<math::EColorSpace COLOR_SPACE>
 class TColorPixelTexture2D : public TPixelTexture2D<math::Spectrum>
@@ -48,7 +46,7 @@ public:
 		pixel_texture::EWrapMode              wrapModeT);
 
 	void sample(
-		const SampleLocation& sampleLocation, 
+		const SampleLocation& sampleLocation,
 		math::Spectrum*       out_value) const override;
 
 private:
@@ -95,14 +93,16 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 			layoutSize, pixelSize));
 	}
 
-#if PH_DEBUG
-	if(COLOR_SPACE == math::EColorSpace::Unspecified && math::Spectrum::NUM_VALUES != 3)
+	if constexpr(
+		COLOR_SPACE == math::EColorSpace::Unspecified &&
+		!math::is_tristimulus(math::Spectrum::getColorSpace()))
 	{
-		PH_DEFAULT_DEBUG_LOG(
-			"`TColorPixelTexture2D` will fallback to treating values as linear sRGB (reason: direct "
-			"value conversion cannot be performed).");
+		if(m_colorLayout != pixel_texture::EPixelLayout::Monochromatic)
+		{
+			throw std::invalid_argument(
+				"Raw non-monochromatic pixels require a tristimulus working color space");
+		}
 	}
-#endif
 }
 
 template<math::EColorSpace COLOR_SPACE>
@@ -182,23 +182,24 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 		static_cast<math::ColorValue>(color.g()),
 		static_cast<math::ColorValue>(color.b())};
 
-	// Transform color values to the engine color space
+	// Produce working color space values from the sampled components
 	if constexpr(COLOR_SPACE != math::EColorSpace::Unspecified)
 	{
 		out_value->setTransformed<COLOR_SPACE>(castedColor, sampleLocation.expectedUsage());
 	}
-	// This is raw color values
+	// Store Raw values without color conversion
 	else
 	{
-		// No transform needed when direct conversion is possible
-		if constexpr(math::Spectrum::NUM_VALUES == 3)
+		if constexpr(math::is_tristimulus(math::Spectrum::getColorSpace()))
 		{
+			// Store Raw components directly
 			out_value->setColorValues(castedColor);
 		}
-		// Best guess: raw data is in linear sRGB (as a fallback)
 		else
 		{
-			out_value->setLinearSRGB(castedColor, sampleLocation.expectedUsage());
+			// Fill every spectral component with the monochromatic Raw value.
+			PH_ASSERT(m_colorLayout == pixel_texture::EPixelLayout::Monochromatic);
+			out_value->setColorValues(castedColor[0]);
 		}
 	}
 }

@@ -9,8 +9,7 @@ enum class EColorSpace
 	Update `is_tristimulus()` if entries are modified.
 	*/
 
-	/*! If applicable, most likely will treat values as raw data or fallback to linear sRGB. 
-	Will result in error if used in a non-applicable situation.
+	/*! No color space is assigned. Will result in error if used in a non-applicable situation.
 	*/
 	Unspecified = 0,
 
@@ -95,9 +94,9 @@ enum class EReferenceWhite
 
 	// Custom White Points
 
-	/*! 
-	The Academy Color Encoding System (ACES) white point, it is close to D60 
-	(but not D60! many implementations got this wrong). 
+	/*!
+	The Academy Color Encoding System (ACES) white point, it is close to D60
+	(but not D60! many implementations got this wrong).
 	*/
 	ACES,
 
@@ -133,25 +132,25 @@ enum class EChromaticAdaptation
 };
 
 /*!
-These can be considered as hints that can be specified while converting data between color spaces. 
+Hints that can be specified while converting data between color spaces.
 Specifying a hint to a method may result in better-converted data depending on the implementation.
 */
 enum class EColorUsage
 {
 	Unspecified = 0,
 
-	/*!
+	/*! @brief Per-component or per-wavelength numeric data.
 	Raw numeric data such as position, normal, density information.
 	*/
 	Raw,
 
 	/*!
-	EMR stands for ElectroMagnetic Radiation, used by energy emitters such as light sources.
+	Stands for ElectroMagnetic Radiation, such as emitted light.
 	*/
 	EMR,
 
 	/*!
-	ECF stands for Energy Conservative Fraction; surface albedo, reflectance, transmittance... are 
+	Stands for Energy Conservative Fraction; surface albedo, reflectance, transmittance... are
 	all ECFs. It is required that an ECF have value within [0, 1].
 	*/
 	ECF
