@@ -206,6 +206,21 @@ inline PythonClass gen_sdl_reference_class(const std::string_view categoryName)
 	return clazz;
 }
 
+inline PythonMethod gen_sdl_input_method(const SdlField& field, const std::string_view commandClassName)
+{
+	const auto fieldName = sdl::name_to_snake_case(field.getFieldName());
+
+	PythonMethod inputMethod("set_" + fieldName);
+	inputMethod.setDoc(std::string(field.getDescription()));
+	inputMethod.addInput(fieldName, "", "AbstractData");
+
+	// A field named "input" will generate `set_input()` so we should qualify it to avoid recursion
+	inputMethod.addCodeLine(
+		"{}.set_input(self, \"{}\", {})", commandClassName, field.getFieldName(), fieldName);
+
+	return inputMethod;
+}
+
 inline PythonClass gen_sdl_creator_class(const SdlClass& sdlClass)
 {
 	PythonClass clazz(gen_creator_class_name(sdlClass));
@@ -237,13 +252,7 @@ inline PythonClass gen_sdl_creator_class(const SdlClass& sdlClass)
 	for(std::size_t i = 0; i < sdlClass.numFields(); ++i)
 	{
 		const SdlField& field = *sdlClass.getField(i);
-		const auto fieldName = sdl::name_to_snake_case(field.getFieldName());
-
-		PythonMethod inputMethod("set_" + fieldName);
-		inputMethod.setDoc(std::string(field.getDescription()));
-		inputMethod.addInput(fieldName, "", "AbstractData");
-		inputMethod.addCodeLine("self.set_input(\"{}\", {})", field.getFieldName(), fieldName);
-		clazz.addMethod(inputMethod);
+		clazz.addMethod(gen_sdl_input_method(field, "CreatorCommand"));
 	}
 
 	return clazz;
@@ -271,13 +280,7 @@ inline PythonClass gen_sdl_explicit_executor_class(const SdlFunction& sdlFunctio
 	for(std::size_t i = 0; i < sdlFunction.numParams(); ++i)
 	{
 		const SdlField& param = *sdlFunction.getParam(i);
-		const auto paramName = sdl::name_to_snake_case(param.getFieldName());
-
-		PythonMethod inputMethod("set_" + paramName);
-		inputMethod.setDoc(std::string(param.getDescription()));
-		inputMethod.addInput(paramName, "", "AbstractData");
-		inputMethod.addCodeLine("self.set_input(\"{}\", {})", param.getFieldName(), paramName);
-		clazz.addMethod(inputMethod);
+		clazz.addMethod(gen_sdl_input_method(param, "ExplicitExecutorCommand"));
 	}
 
 	return clazz;
@@ -359,11 +362,7 @@ inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<cons
 				continue;
 			}
 
-			PythonMethod inputMethod("set_" + paramName);
-			inputMethod.setDoc(std::string(param.getDescription()));
-			inputMethod.addInput(paramName, "", "AbstractData");
-			inputMethod.addCodeLine("self.set_input(\"{}\", {})", param.getFieldName(), paramName);
-			clazz.addMethod(inputMethod);
+			clazz.addMethod(gen_sdl_input_method(param, "ImplicitExecutorCommand"));
 		}
 	}
 

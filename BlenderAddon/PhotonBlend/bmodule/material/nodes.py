@@ -6,6 +6,7 @@ from bmodule.material import (
     surface_nodes,
     volume_nodes,
     math_nodes,
+    conversion_nodes,
     group_nodes,
     )
 from psdl import sdl
@@ -71,6 +72,8 @@ class MaterialNodes(blender.BlenderModule):
         volume_nodes.PhIdealMediumNode,
         math_nodes.PhArithmeticNode,
         math_nodes.PhClampNode,
+        conversion_nodes.PhSplitImageNode,
+        conversion_nodes.PhLuminanceNode,
         group_nodes.PhGroupNode,
         ]
         

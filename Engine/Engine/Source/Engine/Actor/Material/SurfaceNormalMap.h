@@ -20,9 +20,9 @@ public:
 private:
 	std::shared_ptr<SurfaceMaterial> m_material;
 	std::shared_ptr<Image> m_map;
+	ENormalMapFormat m_format;
 	real m_strength;
 	std::shared_ptr<Image> m_strengthMap;
-	ENormalMapFormat m_format;
 
 public:
 	PH_DEFINE_SDL_CLASS(SurfaceNormalMap, clazz)
@@ -45,6 +45,12 @@ public:
 		map.required();
 		clazz.addField(map);
 
+		TSdlEnumField<OwnerType, ENormalMapFormat> format("format", &OwnerType::m_format);
+		format.description("Format convention of the normal map.");
+		format.optional();
+		format.defaultTo(ENormalMapFormat::PXPYPZ_8Bits);
+		clazz.addField(format);
+
 		TSdlReal<OwnerType> strength("strength", &OwnerType::m_strength);
 		strength.description(
 			"Nonnegative scale applied to the tangent components of the normal map.");
@@ -57,12 +63,6 @@ public:
 			"Texture-mapped strength.");
 		strengthMap.optional();
 		clazz.addField(strengthMap);
-
-		TSdlEnumField<OwnerType, ENormalMapFormat> format("format", &OwnerType::m_format);
-		format.description("Format convention of the normal map.");
-		format.optional();
-		format.defaultTo(ENormalMapFormat::PXPYPZ_8Bits);
-		clazz.addField(format);
 	}
 };
 

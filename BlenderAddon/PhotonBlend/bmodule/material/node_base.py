@@ -584,5 +584,9 @@ class PhMaterialMathNode(PhMaterialNode):
     node_category = NodeCategory('MATH', "Math")
 
 
+class PhMaterialConversionNode(PhMaterialNode):
+    node_category = NodeCategory('CONVERSION', "Conversion")
+
+
 class PhMaterialGroupNode(PhMaterialNode):
     node_category = NodeCategory('GROUP', "Group")

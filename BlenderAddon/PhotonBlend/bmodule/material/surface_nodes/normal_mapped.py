@@ -34,11 +34,11 @@ class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_material(sdl.Material(material_res_name))
         creator.set_map(sdl.Image(normal_map_res_name))
+        creator.set_format(sdl.Enum(self.normal_map_format))
         if strength_map_res_name:
             creator.set_strength_map(sdl.Image(strength_map_res_name))
         else:
             creator.set_strength(sdl.Real(self.get_default_input_value(2)))
-        creator.set_format(sdl.Enum(self.normal_map_format))
         sdlconsole.queue_command(creator)
 
     def draw_buttons(self, b_context, b_layout):
