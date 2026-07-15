@@ -1,9 +1,11 @@
 #include "Engine/Actor/Material/SurfaceNormalMap.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TMicrofacetNormalMapper.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/Actor/Basic/exceptions.h"
+
+#include <algorithm>
 
 namespace ph
 {
@@ -24,11 +26,44 @@ void SurfaceNormalMap::storeCooked(
 	
 	if(m_map)
 	{
-		std::shared_ptr<TTexture<math::Vector3R>> mapTexture = m_map->genVector3RTexture(ctx);
+		const auto mapTexture = m_map->genVector3RTexture(ctx);
 
-		auto const normalMappedSurface = ctx.getResources().makeSurfaceOptics<MicrofacetNormalMapper>(
-			out_material.surfaceOptics, mapTexture, m_format);
-		out_material.surfaceOptics = normalMappedSurface;
+		if(m_strengthMap)
+		{
+			using Strength = TTexturedSurfaceProperty<real>;
+			using Optics = TMicrofacetNormalMapper<Strength>;
+
+			out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<Optics>(
+				out_material.surfaceOptics,
+				mapTexture,
+				m_format,
+				Strength{m_strengthMap->genRealTexture(ctx)});
+		}
+		else
+		{
+			const real strength = std::max(0.0_r, m_strength);
+			if(strength == 0.0_r)
+			{
+				return;
+			}
+
+			if(strength == 1.0_r)
+			{
+				out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<MicrofacetNormalMapper>(
+					out_material.surfaceOptics, mapTexture, m_format);
+			}
+			else
+			{
+				using Strength = TConstantSurfaceProperty<real>;
+				using Optics = TMicrofacetNormalMapper<Strength>;
+
+				out_material.surfaceOptics = ctx.getResources().makeSurfaceOptics<Optics>(
+					out_material.surfaceOptics,
+					mapTexture,
+					m_format,
+					Strength{strength});
+			}
+		}
 	}
 	else
 	{

@@ -20,6 +20,8 @@ public:
 private:
 	std::shared_ptr<SurfaceMaterial> m_material;
 	std::shared_ptr<Image> m_map;
+	real m_strength;
+	std::shared_ptr<Image> m_strengthMap;
 	ENormalMapFormat m_format;
 
 public:
@@ -27,7 +29,9 @@ public:
 	{
 		clazz.typeName("surface-normal-map");
 		clazz.docName("Surface Normal Map");
-		clazz.description("Normal mapping for a surface material.");
+		clazz.description(
+			"Normal mapping for a surface material. For paired value/map inputs, "
+			"map inputs have higher precedence.");
 		clazz.baseOn<SurfaceMaterial>();
 
 		TSdlReference<SurfaceMaterial, OwnerType> material("material", &OwnerType::m_material);
@@ -40,6 +44,19 @@ public:
 			"A map that records the perturbed orientation of surface normal.");
 		map.required();
 		clazz.addField(map);
+
+		TSdlReal<OwnerType> strength("strength", &OwnerType::m_strength);
+		strength.description(
+			"Nonnegative scale applied to the tangent components of the normal map.");
+		strength.optional();
+		strength.defaultTo(1.0_r);
+		clazz.addField(strength);
+
+		TSdlReference<Image, OwnerType> strengthMap("strength-map", &OwnerType::m_strengthMap);
+		strengthMap.description(
+			"Texture-mapped strength.");
+		strengthMap.optional();
+		clazz.addField(strengthMap);
 
 		TSdlEnumField<OwnerType, ENormalMapFormat> format("format", &OwnerType::m_format);
 		format.description("Format convention of the normal map.");

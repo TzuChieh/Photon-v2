@@ -267,7 +267,7 @@ void Engine::postProcessRendererFrame(
 	}
 
 	const FilmSetting& filmSetting = filmSettings[layerIndex];
-	const math::EColorSpace filmColorSpace = setting.getRendererOutputColorSpace();
+	const math::EColorSpace filmColorSpace = filmSetting.getRendererOutputColorSpace();
 	const bool isNumeric = filmSetting.isNumeric();
 	if(filmColorSpace != math::EColorSpace::Linear_sRGB && !isNumeric)
 	{

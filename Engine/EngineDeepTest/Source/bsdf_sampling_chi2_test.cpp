@@ -50,7 +50,7 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TLbLayerProperty.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TMicrofacetNormalMapper.h>
 
 #include <gtest/gtest.h>
 

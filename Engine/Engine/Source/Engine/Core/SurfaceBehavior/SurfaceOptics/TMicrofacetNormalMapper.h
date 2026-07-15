@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
 #include "Engine/Core/Texture/texture_fwd.h"
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/TVector3.h"
@@ -8,10 +9,12 @@
 #include "Engine/Core/SurfaceBehavior/Property/enums.h"
 
 #include <Common/assertion.h>
+#include <Common/compiler.h>
 #include <Common/primitive_type.h>
 
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <memory>
 
 namespace ph
@@ -20,13 +23,24 @@ namespace ph
 /*! @brief Microfacet-based normal mapping.
 Implements the "normalmap_microfacet_default" model in the original paper.
 */
-class MicrofacetNormalMapper : public SurfaceOptics
+template<typename Strength>
+class TMicrofacetNormalMapper : public SurfaceOptics
 {
+	static_assert(CSurfaceProperty<Strength, real>,
+		"`Strength` must accept `SurfaceHit` and return a real-convertible value.");
+
 public:
-	MicrofacetNormalMapper(
+	TMicrofacetNormalMapper(
 		const SurfaceOptics* target,
 		const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
-		ENormalMapFormat format = ENormalMapFormat::PXPYPZ_8Bits);
+		ENormalMapFormat format = ENormalMapFormat::PXPYPZ_8Bits)
+		requires std::same_as<Strength, TConstantSurfaceProperty<real>>;
+
+	TMicrofacetNormalMapper(
+		const SurfaceOptics* target,
+		const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
+		ENormalMapFormat format,
+		Strength strength);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -49,6 +63,7 @@ public:
 	std::string toString() const override;
 
 	static math::Vector3R decodeNormalMap(math::Vector3R encodedNormal, ENormalMapFormat format);
+	static math::Vector3R applyStrength(math::Vector3R localNormal, real strength);
 
 private:
 	/*!
@@ -66,19 +81,29 @@ private:
 	std::shared_ptr<TTexture<math::Vector3R>> m_normalMap;
 	TSampler<math::Vector3R>                  m_sampler;
 	ENormalMapFormat                          m_format;
+
+	[[PH_NO_UNIQUE_ADDRESS]]
+	Strength m_strength;
 };
+
+using MicrofacetNormalMapper = TMicrofacetNormalMapper<TConstantSurfaceProperty<real>>;
+
+extern template class TMicrofacetNormalMapper<TConstantSurfaceProperty<real>>;
+extern template class TMicrofacetNormalMapper<TTexturedSurfaceProperty<real>>;
 
 // In-header Implementations:
 
-inline std::string MicrofacetNormalMapper::toString() const
+template<typename Strength>
+inline std::string TMicrofacetNormalMapper<Strength>::toString() const
 {
-	return 
+	return
 		"Microfacet Normal Mapper (Surface Optics), "
-		"target: <" + (m_target ? m_target->toString() : "null" ) + ">" +
+		"target: <" + (m_target ? m_target->toString() : "null") + ">" +
 		", " + SurfaceOptics::toString();
 }
 
-inline math::Vector3R MicrofacetNormalMapper::decodeNormalMap(
+template<typename Strength>
+inline math::Vector3R TMicrofacetNormalMapper<Strength>::decodeNormalMap(
 	math::Vector3R encodedNormal,
 	const ENormalMapFormat format)
 {
@@ -110,7 +135,16 @@ inline math::Vector3R MicrofacetNormalMapper::decodeNormalMap(
 	}
 }
 
-inline bool MicrofacetNormalMapper::isPerturbationTooSmall(real cosPerturbation) const
+template<typename Strength>
+inline math::Vector3R TMicrofacetNormalMapper<Strength>::applyStrength(math::Vector3R localNormal, const real strength)
+{
+	localNormal.x() *= strength;
+	localNormal.z() *= strength;
+	return localNormal;
+}
+
+template<typename Strength>
+inline bool TMicrofacetNormalMapper<Strength>::isPerturbationTooSmall(const real cosPerturbation) const
 {
 	PH_ASSERT_GE(cosPerturbation, 0);
 

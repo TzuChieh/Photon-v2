@@ -1,4 +1,4 @@
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/MicrofacetNormalMapper.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TMicrofacetNormalMapper.h"
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -13,9 +13,13 @@
 #include <cmath>
 #include <algorithm>
 #include <array>
+#include <utility>
 
 namespace ph
 {
+
+template class TMicrofacetNormalMapper<TConstantSurfaceProperty<real>>;
+template class TMicrofacetNormalMapper<TTexturedSurfaceProperty<real>>;
 
 namespace
 {
@@ -37,9 +41,9 @@ inline real heaviside(const real x)
 
 template<bool IS_PERTURBED_FACET>
 inline real G1(
-	const math::Vector3R& Ng, 
-	const math::Vector3R& Np, 
-	const math::Vector3R& Nt, 
+	const math::Vector3R& Ng,
+	const math::Vector3R& Np,
+	const math::Vector3R& Nt,
 	math::Vector3R L)
 {
 	// If light is coming from back face, flip its direction to correctly account for invisible facets
@@ -102,7 +106,7 @@ inline real lambda(
 	const real sinNgDotNp = std::sqrt(1 - NgDotNp2);
 	const real lambdaP = math::safe_clamp(
 		positiveDot(Np, L) / (positiveDot(Np, L) + positiveDot(Nt, L) * sinNgDotNp),
-		0.0_r, 
+		0.0_r,
 		1.0_r);
 
 	if constexpr(IS_PERTURBED_FACET)
@@ -153,15 +157,32 @@ inline SurfaceHit perturbX(
 
 }// end namespace
 
-MicrofacetNormalMapper::MicrofacetNormalMapper(
+template<typename Strength>
+TMicrofacetNormalMapper<Strength>::TMicrofacetNormalMapper(
 	const SurfaceOptics* target,
 	const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
 	const ENormalMapFormat format)
+	requires std::same_as<Strength, TConstantSurfaceProperty<real>>
+
+	: TMicrofacetNormalMapper(
+		target,
+		normalMap,
+		format,
+		Strength{1.0_r})
+{}
+
+template<typename Strength>
+TMicrofacetNormalMapper<Strength>::TMicrofacetNormalMapper(
+	const SurfaceOptics* target,
+	const std::shared_ptr<TTexture<math::Vector3R>>& normalMap,
+	const ENormalMapFormat format,
+	Strength strength)
 
 	: m_target(target)
 	, m_normalMap(normalMap)
 	, m_sampler(math::EColorUsage::Raw)
 	, m_format(format)
+	, m_strength(std::move(strength))
 {
 	PH_ASSERT(target);
 	PH_ASSERT(normalMap);
@@ -170,12 +191,15 @@ MicrofacetNormalMapper::MicrofacetNormalMapper(
 	m_numElementals = m_target->numElementals();
 }
 
-ESurfacePhenomenon MicrofacetNormalMapper::getPhenomenonOf(const SurfaceElemental elemental) const
+template<typename Strength>
+ESurfacePhenomenon TMicrofacetNormalMapper<Strength>::getPhenomenonOf(
+	const SurfaceElemental elemental) const
 {
 	return m_target->getPhenomenonOf(elemental);
 }
 
-void MicrofacetNormalMapper::calcElementalBsdf(
+template<typename Strength>
+void TMicrofacetNormalMapper<Strength>::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -211,7 +235,7 @@ void MicrofacetNormalMapper::calcElementalBsdf(
 		}
 	}
 
-	// Case i -> p -> t -> o; cannot exit from backface 
+	// Case i -> p -> t -> o; cannot exit from backface
 	if(in.getL().dot(Nt) > 0)
 	{
 		// Reflect on the tangent facet (saved some negation here)
@@ -250,7 +274,8 @@ void MicrofacetNormalMapper::calcElementalBsdf(
 	out.setBsdf(weight / N.absDot(in.getL()));
 }
 
-void MicrofacetNormalMapper::genElementalBsdfSample(
+template<typename Strength>
+void TMicrofacetNormalMapper<Strength>::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -342,7 +367,8 @@ void MicrofacetNormalMapper::genElementalBsdfSample(
 	}
 }
 
-void MicrofacetNormalMapper::calcElementalBsdfPdf(
+template<typename Strength>
+void TMicrofacetNormalMapper<Strength>::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
@@ -378,7 +404,7 @@ void MicrofacetNormalMapper::calcElementalBsdfPdf(
 		}
 	}
 
-	// Case i -> p -> t -> o; cannot exit from backface 
+	// Case i -> p -> t -> o; cannot exit from backface
 	if(in.getL().dot(Nt) > 0)
 	{
 		// Reflect on the tangent facet (saved some negation here)
@@ -416,9 +442,13 @@ void MicrofacetNormalMapper::calcElementalBsdfPdf(
 	out.setSampleDirPdf(lta::PDF::W(pdfW));
 }
 
-math::Vector3R MicrofacetNormalMapper::samplePerturbedNormal(const SurfaceHit& X) const
+template<typename Strength>
+math::Vector3R TMicrofacetNormalMapper<Strength>::samplePerturbedNormal(
+	const SurfaceHit& X) const
 {
 	math::Vector3R Np = decodeNormalMap(m_sampler.sample(*m_normalMap, X), m_format);
+
+	Np = applyStrength(Np, m_strength(X));
 
 	// Renormalize local normal, in case they it is interpolated or not stored in unit length.
 	// Some normal map also have quantization error and renormalization helps.
