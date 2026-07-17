@@ -25,3 +25,7 @@
 - Sample filters tabulate non-box kernels through `SampleFilter::make(..., useTabulated)` with `use-tabulated-sample-filter` defaulting to true; keep the box filter direct because its exact math is already cheaper than table lookup.
 - Keep vector normalization routed through shared length helpers; when profiling shows fixed-extent loops compile poorly, specialize the helper with direct expressions instead of duplicating math at callsites.
 - Keep straightforward finite checks unless assembly and renderer timing justify a less obvious rewrite.
+
+## Procedural Noise
+- Keep raw procedural-noise primitives in the math layer; texture/material layers own output
+  scaling, fBM aggregation, distortion, and use-case-specific coordinate policy.

@@ -38,7 +38,10 @@ Goal: prevent subtle test/report regressions with simple, deterministic rules.
 - Rendering methods may share beauty reference scenes/images when the expected radiance is the same; do not create method-specific beauty reference scenes just to vary the tested method.
 - Variance references are keyed by sampling distribution, not by test row. Share them for intentionally equivalent variants such as thread count, scene format, or rigid scene shifts; split `bvpt`/`bneept`, material, geometry, lighting, filter, and renderer-config variants unless equivalence is justified.
 - Do not use `ZTestVerifier` for photon-mapping methods. Their progressive biased estimators do not share the independent-sample variance model used by path tracing.
-- Scenes, fixtures, and references come from the separate `Photon-v2-Resource` repo through the ignored `build/Photon-v2-Resource/` setup copy; update the source resource repo, and sync the build copy before validation when not rerunning setup.
+- Scenes, fixtures, and references come from the separate `Photon-v2-Resource` repo through the
+  ignored `build/Photon-v2-Resource/` setup copy; after geometry, framing, or resolution changes,
+  regenerate references in the source repo, sync the build copy when not rerunning setup, and
+  inspect raw output at the intended dimensions.
 - Prefer stronger references and appropriate tested sample counts before loosening verifier tolerances; record metric/threshold usage when retuning.
 - Reference image stems should use semantic suffixes (`_beauty`, `_var`). Keep batch ref generation explicit with a scene-to-output map that matches the active ref set.
 - For `ZTestVerifier`, the reference scene must explicitly render a variance film; declaring `"var"` in the ref-output map only validates expected files and does not make the renderer produce variance output.

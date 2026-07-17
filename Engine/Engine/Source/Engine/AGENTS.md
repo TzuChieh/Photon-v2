@@ -5,6 +5,12 @@
   `defaultTo()` values in owner member initializers.
 - For SDL-reflected types, do not add default constructors solely to reproduce SDL defaults; use
   `TSdl<T>::make()` or `makeResource()` when an instance must be initialized from SDL metadata.
+- Keep SDL-facing type and field names and descriptions implementation-neutral and extension-oriented;
+  put external-renderer compatibility claims and terminology in concrete implementation comments.
+
+## External Algorithms
+- For rewritten external algorithms, keep original-author/source provenance and immutable
+  path/function permalinks beside the corresponding implementation; do not cite unused helpers.
 
 ## Film and Observable Metadata
 - `EFilm` defines each film output's meaning; do not add a parallel semantic enum when film type
