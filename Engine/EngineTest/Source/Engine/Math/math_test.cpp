@@ -192,7 +192,10 @@ TEST(MathTest, RetrieveFractionalPartOfANumber)
 	EXPECT_DOUBLE_EQ(fractional_part( 0.00), 0.00);
 	EXPECT_DOUBLE_EQ(fractional_part( 0.44), 0.44);
 	EXPECT_DOUBLE_EQ(fractional_part( 3.55), 0.55);
-	EXPECT_DOUBLE_EQ(fractional_part(-3.66),-0.66);
+
+	double integralPart;
+	EXPECT_DOUBLE_EQ(fractional_part(-3.66, &integralPart), -0.66);
+	EXPECT_DOUBLE_EQ(integralPart, -3.0);
 }
 
 TEST(MathTest, ConstructsMatrix)

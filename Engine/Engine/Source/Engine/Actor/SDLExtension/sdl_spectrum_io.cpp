@@ -16,31 +16,33 @@ namespace ph::sdl
 
 math::Spectrum tristimulus_to_spectrum(
 	const math::TVector3<math::ColorValue>& tristimulus,
-	math::EColorSpace colorSpace,
-	math::EColorUsage usage)
+	const math::EColorSpace taggedColorSpace,
+	const math::EColorUsage usage)
 {
+	math::EColorSpace resolvedColorSpace = taggedColorSpace;
+
 	if(usage == math::EColorUsage::Raw)
 	{
 		if constexpr(math::is_tristimulus(math::Spectrum::getColorSpace()))
 		{
 			// Set raw values directly as if in working color space, ignoring specified color space
-			colorSpace = math::Spectrum::getColorSpace();
+			resolvedColorSpace = math::Spectrum::getColorSpace();
 		}
 		else
 		{
-			if(colorSpace == math::EColorSpace::Unspecified)
+			if(resolvedColorSpace == math::EColorSpace::Unspecified)
 			{
 				// For spectral space, untagged triples default to linear sRGB
-				colorSpace = math::EColorSpace::Linear_sRGB;
+				resolvedColorSpace = math::EColorSpace::Linear_sRGB;
 			}
 		}
 	}
-	else if(colorSpace == math::EColorSpace::Unspecified)
+	else if(resolvedColorSpace == math::EColorSpace::Unspecified)
 	{
-		colorSpace = math::EColorSpace::Linear_sRGB;
+		resolvedColorSpace = math::EColorSpace::Linear_sRGB;
 	}
 
-	switch(colorSpace)
+	switch(resolvedColorSpace)
 	{
 	case math::EColorSpace::CIE_XYZ:
 		return math::Spectrum().setTransformed<math::EColorSpace::CIE_XYZ>(tristimulus.toArray(), usage);
@@ -67,13 +69,13 @@ math::Spectrum load_spectrum(
 	std::string_view tag,
 	math::EColorUsage usage)
 {
-	const math::EColorSpace colorSpace = TSdlEnum<math::EColorSpace>()[tag];
-	return load_spectrum(sdlSpectrumStr, colorSpace, usage);
+	const math::EColorSpace taggedColorSpace = TSdlEnum<math::EColorSpace>()[tag];
+	return load_spectrum(sdlSpectrumStr, taggedColorSpace, usage);
 }
 
 math::Spectrum load_spectrum(
 	std::string_view sdlSpectrumStr,
-	const math::EColorSpace colorSpace,
+	const math::EColorSpace taggedColorSpace,
 	const math::EColorUsage usage)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
@@ -85,36 +87,36 @@ math::Spectrum load_spectrum(
 		tokenizer.tokenize(std::string(sdlSpectrumStr), tokens);
 
 		// 3 input values correspond to tristimulus color
-		if(tokens.size() == 3)
+		if(tokens.size() == 3 && taggedColorSpace != math::EColorSpace::Spectral)
 		{
 			math::TVector3<math::ColorValue> tristimulus(
 				load_number<math::ColorValue>(tokens[0]),
 				load_number<math::ColorValue>(tokens[1]),
 				load_number<math::ColorValue>(tokens[2]));
 
-			return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
+			return tristimulus_to_spectrum(tristimulus, taggedColorSpace, usage);
 		}
 		// 1 input value represents a constant in the tagged color space
 		else if(tokens.size() == 1)
 		{
 			const auto value = load_number<math::ColorValue>(tokens[0]);
-			if(colorSpace == math::EColorSpace::Spectral)
+			if(taggedColorSpace == math::EColorSpace::Spectral)
 			{
 				const math::SampledSpectrum spectrum(value);
 				return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
 			}
 			else if(usage == math::EColorUsage::Raw &&
-			        colorSpace == math::EColorSpace::Unspecified)
+			        taggedColorSpace == math::EColorSpace::Unspecified)
 			{
 				return math::Spectrum(value);
 			}
 
 			math::TVector3<math::ColorValue> tristimulus(value);
-			return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
+			return tristimulus_to_spectrum(tristimulus, taggedColorSpace, usage);
 		}
 		// Exact representation of a spectrum
 		else if(tokens.size() == math::SampledSpectrum::NUM_VALUES &&
-		        colorSpace == math::EColorSpace::Spectral)
+		        taggedColorSpace == math::EColorSpace::Spectral)
 		{
 			math::SampledSpectrum spectrum;
 			for(std::size_t i = 0; i < math::SampledSpectrum::NUM_VALUES; ++i)
@@ -126,7 +128,7 @@ math::Spectrum load_spectrum(
 		// If there are even values, assume to be wavelength-value data points
 		// (N wavelength values followed by N sample values)
 		else if(!tokens.empty() && math::is_even(tokens.size()) &&
-		        colorSpace == math::EColorSpace::Spectral)
+		        taggedColorSpace == math::EColorSpace::Spectral)
 		{
 			const auto N = tokens.size() / 2;
 

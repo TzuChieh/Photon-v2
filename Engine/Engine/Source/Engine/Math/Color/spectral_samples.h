@@ -6,6 +6,7 @@
 
 #include <Common/assertion.h>
 
+#include <type_traits>
 #include <utility>
 #include <cstddef>
 
@@ -52,8 +53,8 @@ constexpr TSpectralSampleValues<T, SampleProps> constant_spectral_samples(T cons
 */
 template<typename T, typename U = T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
-	TSpanView<U>      wavelengthsNM,
-	TSpanView<U>      values,
+	TSpanView<std::type_identity_t<U>> wavelengthsNM,
+	TSpanView<std::type_identity_t<U>> values,
 	ESpectralResample algorithm = ESpectralResample::Default);
 
 /*! @brief SPD of standard illuminants.

@@ -1,4 +1,5 @@
 #include <Engine/Math/hash.h>
+#include <Engine/Math/TVector2.h>
 #include <Common/primitive_type.h>
 
 #include <gtest/gtest.h>
@@ -10,6 +11,22 @@
 
 using namespace ph;
 using namespace ph::math;
+
+TEST(HashTest, JenkinsLookup3MapsToUnitInterval)
+{
+	const Vector2F seed2(-7.0f, 11.0f);
+	const float32 samples[] = {
+		jenkins_lookup3_to_unit(-123.5f),
+		jenkins_lookup3_to_unit(0.0f),
+		jenkins_lookup3_to_unit(42.25f),
+		jenkins_lookup3_to_unit(seed2.toView())};
+
+	for(const float32 sample : samples)
+	{
+		EXPECT_GE(sample, 0.0f);
+		EXPECT_LE(sample, 1.0f);
+	}
+}
 
 TEST(HashTest, MurmurHash3_32_Test)
 {

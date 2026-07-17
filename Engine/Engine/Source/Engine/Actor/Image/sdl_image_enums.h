@@ -5,6 +5,38 @@
 namespace ph
 {
 
+enum class ENoiseAlgorithm
+{
+	PerlinFbm = 0
+};
+
+PH_DEFINE_SDL_ENUM(ENoiseAlgorithm, e)
+{
+	e.name("noise-algorithm");
+	e.description("The algorithm used to generate procedural noise.");
+
+	e.addEntry(EnumType::PerlinFbm, "perlin-fbm");
+}
+
+enum class ENoiseDimension
+{
+	D1 = 1,
+	D2 = 2,
+	D3 = 3,
+	D4 = 4
+};
+
+PH_DEFINE_SDL_ENUM(ENoiseDimension, e)
+{
+	e.name("noise-dimension");
+	e.description("The dimensionality of the procedural noise domain.");
+
+	e.addEntry(EnumType::D1, "1d");
+	e.addEntry(EnumType::D2, "2d");
+	e.addEntry(EnumType::D3, "3d");
+	e.addEntry(EnumType::D4, "4d");
+}
+
 enum class EImageSampleMode
 {
 	Unspecified = 0,

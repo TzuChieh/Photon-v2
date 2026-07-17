@@ -66,8 +66,8 @@ inline constexpr TSpectralSampleValues<T, SampleProps> constant_spectral_samples
 
 template<typename T, typename U, CSpectralSampleProps SampleProps>
 inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
-	const TSpanView<U>      wavelengthsNM,
-	const TSpanView<U>      values,
+	const TSpanView<std::type_identity_t<U>> wavelengthsNM,
+	const TSpanView<std::type_identity_t<U>> values,
 	const ESpectralResample algorithm)
 {
 	PH_ASSERT_EQ(wavelengthsNM.size(), values.size());

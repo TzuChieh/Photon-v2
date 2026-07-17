@@ -13,6 +13,9 @@
 ## Test Design
 - Keep a focused unit test to one behavior and prefer independently obvious expected results; when
   derivation is necessary, keep it independent of the implementation and easy to verify.
+- Use exact numeric samples only when they come from an authoritative external reference or an
+  independently obvious corner case; otherwise test qualitative invariants or equivalent public
+  configurations.
 - Do not duplicate implementation constants or compute expected values with the production helper
   under test.
 - Name tests concisely for observable behavior; use consistent wording for paired cases.

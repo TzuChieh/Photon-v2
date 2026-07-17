@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Math/hash.h"
+#include "Engine/Math/Random/sample.h"
 #include "Engine/Math/TVector3.h"
 
 #include <Common/assertion.h>
@@ -66,6 +67,122 @@ inline std::size_t discrete_spatial_hash(
 		static_cast<std::size_t>(std::floor(point.y / cellSize.y)), 
 		static_cast<std::size_t>(std::floor(point.z / cellSize.z)), 
 		hashTableSize);
+}
+
+/*
+Algorithm provenance:
+- Original: Bob Jenkins, `lookup3.c`, functions `mix()`, `final()`, and `hashword()`:
+  http://burtleburtle.net/bob/c/lookup3.c
+- Reference implementation: Blender Cycles `src/util/hash.h`, functions `mix`, `final`, `hash_uint`,
+  `hash_uint2`, `hash_uint3`, and `hash_uint4`:
+  https://github.com/blender/cycles/blob/97dbe6f57cdf4ede2d2b75ebdda507c8712edb7a/src/util/hash.h#L78-L184
+- Conversion reference: Blender Cycles `src/util/hash.h`, functions `hash_float_to_float` and
+  `hash_float2_to_float`:
+  https://github.com/blender/cycles/blob/97dbe6f57cdf4ede2d2b75ebdda507c8712edb7a/src/util/hash.h#L217-L225
+*/
+namespace detail::jenkins
+{
+
+inline void finalize_3(uint32& a, uint32& b, uint32& c)
+{
+	c ^= b;
+	c -= std::rotl(b, 14);
+	a ^= c;
+	a -= std::rotl(c, 11);
+	b ^= a;
+	b -= std::rotl(a, 25);
+	c ^= b;
+	c -= std::rotl(b, 16);
+	a ^= c;
+	a -= std::rotl(c, 4);
+	b ^= a;
+	b -= std::rotl(a, 14);
+	c ^= b;
+	c -= std::rotl(b, 24);
+}
+
+inline void mix_3(uint32& a, uint32& b, uint32& c)
+{
+	a -= c;
+	a ^= std::rotl(c, 4);
+	c += b;
+	b -= a;
+	b ^= std::rotl(a, 6);
+	a += c;
+	c -= b;
+	c ^= std::rotl(b, 8);
+	b += a;
+	a -= c;
+	a ^= std::rotl(c, 16);
+	c += b;
+	b -= a;
+	b ^= std::rotl(a, 19);
+	a += c;
+	c -= b;
+	c ^= std::rotl(b, 4);
+	b += a;
+}
+
+}// end namespace detail::jenkins
+
+inline uint32 jenkins_lookup3_32(const uint32 x)
+{
+	uint32 a = 0xDEADBEEFU + (1U << 2U) + 13U;
+	uint32 b = a;
+	uint32 c = a;
+	a += x;
+	detail::jenkins::finalize_3(a, b, c);
+	return c;
+}
+
+inline uint32 jenkins_lookup3_32(const TSpanView<uint32, 2> words)
+{
+	uint32 a = 0xDEADBEEFU + (2U << 2U) + 13U;
+	uint32 b = a;
+	uint32 c = a;
+	a += words[0];
+	b += words[1];
+	detail::jenkins::finalize_3(a, b, c);
+	return c;
+}
+
+inline uint32 jenkins_lookup3_32(const TSpanView<uint32, 3> words)
+{
+	uint32 a = 0xDEADBEEFU + (3U << 2U) + 13U;
+	uint32 b = a;
+	uint32 c = a;
+	a += words[0];
+	b += words[1];
+	c += words[2];
+	detail::jenkins::finalize_3(a, b, c);
+	return c;
+}
+
+inline uint32 jenkins_lookup3_32(const TSpanView<uint32, 4> words)
+{
+	uint32 a = 0xDEADBEEFU + (4U << 2U) + 13U;
+	uint32 b = a;
+	uint32 c = a;
+	a += words[0];
+	b += words[1];
+	c += words[2];
+	detail::jenkins::mix_3(a, b, c);
+	a += words[3];
+	detail::jenkins::finalize_3(a, b, c);
+	return c;
+}
+
+inline float32 jenkins_lookup3_to_unit(const float32 seed)
+{
+	return bits_to_sample<float32>(jenkins_lookup3_32(std::bit_cast<uint32>(seed)));
+}
+
+inline float32 jenkins_lookup3_to_unit(const TSpanView<float32, 2> seeds)
+{
+	const uint32 words[] = {
+		std::bit_cast<uint32>(seeds[0]),
+		std::bit_cast<uint32>(seeds[1])};
+	return bits_to_sample<float32>(jenkins_lookup3_32(words));
 }
 
 inline uint32 murmur3_bit_mix_32(uint32 v)

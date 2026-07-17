@@ -3,3 +3,4 @@ from bmodule.material.input_nodes.constant_vector import PhConstantVectorInputNo
 from bmodule.material.input_nodes.constant_color import PhConstantColorInputNode
 from bmodule.material.input_nodes.picture import PhPictureNode
 from bmodule.material.input_nodes.black_body import PhBlackBodyInputNode
+from bmodule.material.input_nodes.noise import PhNoiseInputNode

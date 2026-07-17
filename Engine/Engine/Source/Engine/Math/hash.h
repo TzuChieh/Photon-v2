@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Math/math_fwd.h"
+#include "Engine/Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
 
@@ -47,6 +48,26 @@ std::size_t discrete_spatial_hash(
 	const TVector3<T>& point, 
 	const TVector3<T>& cellSize,
 	std::size_t hashTableSize);
+
+/*! @brief Generate a 32-bit Jenkins Lookup3 hash from an ordered sequence of 32-bit words.
+These overloads accept one to four words and use an initialization value of 13. The exact result is
+stable and suitable for procedural generation, but is not a cryptographic hash. These are
+fixed-arity forms of Bob Jenkins' Lookup3 `hashword()` algorithm.
+*/
+///@{
+uint32 jenkins_lookup3_32(uint32 x);
+uint32 jenkins_lookup3_32(TSpanView<uint32, 2> words);
+uint32 jenkins_lookup3_32(TSpanView<uint32, 3> words);
+uint32 jenkins_lookup3_32(TSpanView<uint32, 4> words);
+///@}
+
+/*! @brief Hash floating-point seeds to [0, 1] with Jenkins Lookup3.
+The two-seed overload hashes both seeds' bit representations.
+*/
+///@{
+float32 jenkins_lookup3_to_unit(float32 seed);
+float32 jenkins_lookup3_to_unit(TSpanView<float32, 2> seeds);
+///@}
 
 /*! @brief MurmurHash3's bit mixer.
 32-bit version.

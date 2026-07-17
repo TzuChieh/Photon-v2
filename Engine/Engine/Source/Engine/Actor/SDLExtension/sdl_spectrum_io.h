@@ -12,7 +12,7 @@ namespace ph::sdl
 
 math::Spectrum tristimulus_to_spectrum(
 	const math::TVector3<math::ColorValue>& tristimulus,
-	math::EColorSpace colorSpace,
+	math::EColorSpace taggedColorSpace,
 	math::EColorUsage usage);
 
 /*! @brief Load an SDL spectrum using tag and usage-aware color semantics.
@@ -32,7 +32,7 @@ math::Spectrum load_spectrum(
 
 math::Spectrum load_spectrum(
 	std::string_view sdlSpectrumStr,
-	math::EColorSpace colorSpace,
+	math::EColorSpace taggedColorSpace,
 	math::EColorUsage usage);
 ///@}
 

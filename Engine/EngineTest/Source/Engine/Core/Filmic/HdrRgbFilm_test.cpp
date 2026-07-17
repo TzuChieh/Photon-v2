@@ -100,7 +100,7 @@ TEST(HdrRgbFilmTest, DevelopsToFrame)
 		EXPECT_TRUE(weight2 > 0.0_r);
 		EXPECT_TRUE(weight1 != weight2);
 
-		for(PhUInt32 componentIdx = 0; componentIdx < 3; ++componentIdx)
+		for(int componentIdx = 0; componentIdx < 3; ++componentIdx)
 		{
 			const real expected =
 				(weight1 * sample1[componentIdx] + weight2 * sample2[componentIdx]) /
@@ -145,7 +145,7 @@ TEST(HdrRgbFilmTest, DevelopsToFrame)
 		// by placing a filter function on each sample point.
 		//
 		const auto pixel = frame.getPixel({0, 0});
-		for(PhUInt32 componentIdx = 0; componentIdx < 3; ++componentIdx)
+		for(int componentIdx = 0; componentIdx < 3; ++componentIdx)
 		{
 			EXPECT_NEAR(pixel[componentIdx], sample1[componentIdx], TEST_FLOAT32_EPSILON);
 		}

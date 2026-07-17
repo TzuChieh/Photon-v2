@@ -253,12 +253,13 @@ inline T log2_floor(const T value)
 The result is not guaranteed to be the same as the bit representation of
 <value>'s fractional part. The result is undefined if input value is NaN or
 +-Inf.
+@param[out] out_integralPart If non-null, receives the integral part rounded toward zero.
 */
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline T fractional_part(const T value)
+inline T fractional_part(const T value, T* const out_integralPart = nullptr)
 {
-	long double integralPart;
-	return static_cast<T>(std::modf(static_cast<long double>(value), &integralPart));
+	T integralPart;
+	return std::modf(value, out_integralPart ? out_integralPart : &integralPart);
 }
 
 /*! @brief Wraps an integer around [lower-bound, upper-bound].

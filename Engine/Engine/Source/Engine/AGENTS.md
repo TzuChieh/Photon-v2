@@ -3,6 +3,8 @@
 ## SDL Metadata
 - For SDL-reflected fields, keep `defaultTo()` or `noDefault()` authoritative; do not repeat
   `defaultTo()` values in owner member initializers.
+- For SDL-reflected types, do not add default constructors solely to reproduce SDL defaults; use
+  `TSdl<T>::make()` or `makeResource()` when an instance must be initialized from SDL metadata.
 
 ## Film and Observable Metadata
 - `EFilm` defines each film output's meaning; do not add a parallel semantic enum when film type
