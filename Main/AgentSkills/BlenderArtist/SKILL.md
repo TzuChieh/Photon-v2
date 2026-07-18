@@ -18,8 +18,8 @@ description: Author and repair Photon scenes in the currently open Blender insta
 2. Inspect relevant live state. Preserve all out-of-scope objects, bindings, world/IBL, cameras, exposure, and settings.
 3. For material creation, conversion, repair, or audit, read [the material-authoring reference](references/materials.md) completely before editing. Do not load it for non-material work.
 4. Save or create an undo checkpoint before broad changes or arbitrary code execution.
-5. Author the change through the connected Blender process. Inspect the resulting live state instead of assuming execution succeeded.
-6. Save the live scene after validation.
+5. Preflight target identities, schemas, and links before mutation. Author the change through the connected Blender process, then inspect the resulting live state instead of assuming execution succeeded.
+6. Save the live scene after validation. In a fresh MCP query, confirm the filepath is unchanged and `bpy.data.is_dirty` is false; save handlers may settle after the save call returns.
 
 ## Guardrails
 

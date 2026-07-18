@@ -26,9 +26,15 @@ Photon evaluates:
 `Material A * Factor + Material B * (1 - Factor)`
 
 - Put the material selected by factor 1 in A and the material selected by factor 0 in B.
-- Select the color-factor socket when linking a Picture color output. Linked float and color sockets both export an engine factor map; unlinked float constants are replicated across RGB, while unlinked color constants retain their channels.
-- Extract a packed scalar channel before using it as a scalar mix factor. Connecting packed RGB directly produces separate per-channel mix factors.
-- Photon Engine supports image swizzling, but the Blender add-on's Picture node exposes only a color output. If the installed add-on offers no extraction node, create the required channel-extracted texture beside the active scene or in a scoped subdirectory.
+- Set Factor Type to Float and use the float Factor socket for scalar control, including Split, Luminance, and Noise Value outputs. Use Color only when per-channel mixing is authored. Photon exports only the socket selected by Factor Type.
+- Extract a verified packed scalar channel with Split Image before using it as a scalar mix factor. Connecting packed RGB directly produces separate per-channel mix factors.
+
+## Convert image values
+
+- Keep dedicated scalar maps as Raw Data and connect them directly. Do not insert Split Image or Luminance without source semantics that require conversion.
+- Use Split Image only for verified R/G/B/A packing. Use Luminance for color-to-scalar intent after the declared color-space transform. A Picture color output connected directly to a scalar consumer reads channel 0; rely on that only when channel 0 is the authored meaning.
+- Reuse a Picture node only when its file, color space, Raw Data state, sample mode, and wrap mode are identical for every consumer. Keep separate nodes when any of those semantics differ.
+- Materialize a derived sidecar image only when installed nodes or the renderer's file loader cannot represent the source. After rewiring, compare live Picture paths with scoped sidecar files and remove only verified unreferenced or byte-identical resources.
 
 ## Map supported surface behavior
 
@@ -43,10 +49,19 @@ Photon evaluates:
 - Layered coating: use Layered Surface only for behavior its layer inputs encode. Surface Layer exposes roughness, complex IOR, thickness, phase asymmetry, absorption, and scattering, but no diffuse albedo.
 - Ambient occlusion: OpenPBR has no AO parameter. Map AO only to a documented Photon input; otherwise preserve and report it rather than silently multiplying base color.
 
+## Map procedural inputs
+
+- Trace only source nodes reachable from the active material output. Do not add a supported procedural node when its only downstream consumer, such as Bump, remains unsupported.
+- For Cycles Perlin fBM Noise, map Dimensions directly, Normalize directly, Scale to Frequency, Detail to `Num Layers = Detail + 1`, Roughness to Amplitude Ratio, Lacunarity to Frequency Ratio, and Distortion to Warp. Linked controls require compatible Photon image resources.
+- Map Cycles Fac to Photon Value. Photon Noise Color broadcasts the scalar result across color channels; it does not reproduce Cycles' colored Noise output.
+- When Photon Coordinates is unlinked, the engine uses hit UVW. An unlinked Cycles Noise Vector uses Generated coordinates. Inspect the complete coordinate chain and every assigned object before calling the result exact; shared materials can require incompatible domains. Document frequency compensation as qualitative if translation, orientation, or phase cannot be preserved.
+- Lower a two-stop, linear, black-to-white Color Ramp exactly as `clamp((x - low) / (high - low), 0, 1)` with Subtract, Divide, and Clamp. Preserve arbitrary colors, extra stops, and other interpolation modes as unsupported until a general ramp node exists.
+
 ## Preserve secondary behavior
 
 - Wrap the completed base-surface mixture with Normal Mapped Surface so the wrapper applies to the complete Photon surface.
 - Set the normal format from source metadata: `opengl`, `directx`, or `directx-rg`. The node defaults to OpenGL.
+- Map constant or linked Normal Map Strength when the source chain is representable. Recreate saved Normal Mapped Surface nodes that lack the current Strength socket, restoring links by meaning plus the original layout and format.
 - Connect an alpha-extracted opacity image to Surface Mask. A Picture color output consumed as a scalar reads channel 0, not alpha.
 - Connect actual emission maps. The current mesh exporter warns that masking emission is unsupported; report that limitation.
 
@@ -57,10 +72,12 @@ For every changed Photon material, verify:
 - The output surface is linked and every referenced resource exists.
 - The material family matches source metalness, transmission, and layering intent.
 - Every varying source property is linked and every constant matches its source.
+- Every new image/math/procedural node is upstream-reachable from Photon Output; node presence alone is not validation.
 - Binary Mix order, factor socket, extracted channel, and map are correct.
 - Roughness semantics and conversion are correct exactly once.
 - Normal format, opacity, emission, color spaces, assignments, and bindings survive conversion.
 - No stale node schema remains.
+- Live Picture paths exist, and scoped external material data contains no newly unreferenced resource.
 
 Report exact mappings separately from qualitative approximations and unsupported source behavior.
 
@@ -72,4 +89,6 @@ Report exact mappings separately from qualitative approximations and unsupported
 - Binary Mix: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/binary_mixed.py`, `Engine/Engine/Source/Engine/Actor/Material/BinaryMixedSurfaceMaterial.h`, and `Engine/Engine/Source/Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.ipp`
 - Matte and microfacet materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/diffuse.py`, `abraded_opaque.py`, `abraded_translucent.py`, and `Engine/Engine/Source/Engine/Actor/Material/Component/RoughnessToAlphaMapping.h`
 - Ideal, thin, layered, and normal-mapped materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/ideal_substance.py`, `thin_dielectric_surface.py`, `surface_layer.py`, and `normal_mapped.py`
-- Channel, mask, and emission behavior: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `Engine/Engine/Source/Engine/Actor/Image/Image.cpp`, `Engine/Engine/Source/Engine/Actor/Image/SwizzledImage.cpp`, and `BlenderAddon/PhotonBlend/bmodule/mesh/export.py`
+- Picture and conversion nodes: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/split_image.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/luminance.py`, `Engine/Engine/Source/Engine/Actor/Image/SwizzledImage.cpp`, and `Engine/Engine/Source/Engine/Actor/Image/LuminanceImage.cpp`
+- Procedural noise and scalar remapping: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/noise.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/arithmetic.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/clamp.py`, `Engine/Engine/Source/Engine/Actor/Image/NoiseImage.cpp`, and `Engine/Engine/Source/Engine/Core/Texture/TFbmNoiseTexture.cpp`
+- Mask and emission behavior: `Engine/Engine/Source/Engine/Actor/Image/Image.cpp` and `BlenderAddon/PhotonBlend/bmodule/mesh/export.py`

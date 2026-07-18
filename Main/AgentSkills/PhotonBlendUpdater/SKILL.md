@@ -5,12 +5,16 @@ description: Use this skill when the user wants to update PhotonBlend, Blender a
 
 # PhotonBlend Updater
 
-Use the Python version bundled with the target Blender:
+Read the [Blender Python Versions table](../../../BlenderAddon/README.md#blender-python-versions),
+then replace `<python-version>` below with the version bundled with the target Blender. Use the same
+version for all build steps sharing a build directory.
 
-| Blender version | Bundled Python version |
-| --- | --- |
-| Blender 4.5.7 LTS | Python 3.11 |
-| Blender 3.6.5 LTS | Python 3.10 |
+If PhotonBlend runtime code consumes `bin/photon_renderer`, clean-build `SDLPyBind` with the matching
+Python version:
+
+```shell
+python ./scripts/dev_setup_and_build.py --py-ver <python-version> --target SDLPyBind
+```
 
 To regenerate `BlenderAddon/PhotonBlend/generated/pysdl.py` and reinstall PhotonBlend:
 
@@ -21,7 +25,14 @@ python ./scripts/dev_update_blender_addon.py
 If C++ SDL declarations changed, first do a clean `SDLGenCLI` refresh/build with the matching Python version:
 
 ```shell
-python ./scripts/dev_setup_and_build.py --py-ver 3.11 --target SDLGenCLI
+python ./scripts/dev_setup_and_build.py --py-ver <python-version> --target SDLGenCLI
 ```
 
-Do not add `--no-setup` or `--no-cmake`; setup regenerates SDL definition sources. If the user did not request a build, do not run it and report that `SDLGenCLI` may be stale.
+The `photon_renderer` extension is Python-versioned, but its shared `nanobind` library is not. Building
+`SDLPyBind` for another Python version in the same output directory can leave Blender's extension next
+to an incompatible `nanobind` library. On `DLL load failed while importing photon_renderer`, first
+clean-build `SDLPyBind` with the target Blender's Python version and restart Blender; do not add an
+export fallback for this build-artifact mismatch.
+
+Do not add `--no-setup` or `--no-cmake`; setup regenerates SDL definition sources. If the user did not
+request a build, do not run it and report that `SDLGenCLI` or `SDLPyBind` may be stale.
