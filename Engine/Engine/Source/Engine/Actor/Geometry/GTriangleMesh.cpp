@@ -1,7 +1,6 @@
 #include "Engine/Actor/Geometry/GTriangleMesh.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/Actor/Geometry/GeometrySoup.h"
 #include "Engine/Actor/Basic/exceptions.h"
 
 #include <utility>
@@ -87,19 +86,16 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 	return gTriangles;
 }
 
-// TODO: can actually gen a transformed GTriangleMesh
-std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
-	const StaticAffineTransform& transform) const
+void GTriangleMesh::storeCookedWithBakedTransform(
+	const CookingContext& ctx,
+	const StaticAffineTransform& transform,
+	CookedGeometry& out_geometry) const
 {
 	const auto gTriangles = genTriangles();
-
-	auto geometrySoup = TSdl<GeometrySoup>::makeResource();
 	for(const auto& gTriangle : gTriangles)
 	{
-		geometrySoup->add(std::make_shared<GTriangle>(gTriangle));
+		gTriangle.storeCookedWithBakedTransform(ctx, transform, out_geometry);
 	}
-
-	return geometrySoup->genTransformed(transform);
 }
 
 void GTriangleMesh::addTriangle(const GTriangle& gTriangle)

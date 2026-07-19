@@ -33,50 +33,44 @@ void GTriangle::storeCooked(
 	triangle.setUVWb(m_uvwB);
 	triangle.setUVWc(m_uvwC);
 
-	// Renormalize vertex normal; use face normal if vertex normal was not supplied
-	triangle.setNa(m_nA.safeNormalize(triangle.getNa()));
-	triangle.setNb(m_nB.safeNormalize(triangle.getNb()));
-	triangle.setNc(m_nC.safeNormalize(triangle.getNc()));
+	// Renormalize supplied vertex normals; missing normals use the face normal
+	if(!m_nA.isZero() || !m_nB.isZero() || !m_nC.isZero())
+	{
+		const math::Vector3R faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).safeGetFaceNormal({0, 1, 0});
+		triangle.setNa(m_nA.safeNormalize(faceNormal));
+		triangle.setNb(m_nB.safeNormalize(faceNormal));
+		triangle.setNc(m_nC.safeNormalize(faceNormal));
+	}
 
 	out_geometry.primitives.push_back(
 		ctx.getResources().makeIntersectable<PTriangle>(triangle));
 }
 
-std::shared_ptr<Geometry> GTriangle::genTransformed(
-	const StaticAffineTransform& transform) const
+void GTriangle::storeCookedWithBakedTransform(
+	const CookingContext& ctx,
+	const StaticAffineTransform& transform,
+	CookedGeometry& out_geometry) const
 {
-	auto tTriangle = std::make_shared<GTriangle>(*this);
+	GTriangle transformed = *this;
 
-	transform.transformP(m_vA, &tTriangle->m_vA);
-	transform.transformP(m_vB, &tTriangle->m_vB);
-	transform.transformP(m_vC, &tTriangle->m_vC);
+	transform.transformP(m_vA, &transformed.m_vA);
+	transform.transformP(m_vB, &transformed.m_vB);
+	transform.transformP(m_vC, &transformed.m_vC);
 
 	// UVW are not affected by transformations
 
-	// Only transform vertex normals if they were supplied
-
-	if(!m_nA.isZero())
+	// Missing normals use original triangle's face normal, so they have consistent orientation;
+	// otherwise, a reflected bake would cause the face normal to flip
+	if(!m_nA.isZero() || !m_nB.isZero() || !m_nC.isZero())
 	{
-		math::Vector3R tN;
-		transform.transformO(m_nA, &tN);
-		tTriangle->m_nA = tN;
+		const math::Vector3R faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).safeGetFaceNormal({0, 1, 0});
+		transform.transformO(m_nA.isZero() ? faceNormal : m_nA, &transformed.m_nA);
+		transform.transformO(m_nB.isZero() ? faceNormal : m_nB, &transformed.m_nB);
+		transform.transformO(m_nC.isZero() ? faceNormal : m_nC, &transformed.m_nC);
 	}
 
-	if(!m_nB.isZero())
-	{
-		math::Vector3R tN;
-		transform.transformO(m_nB, &tN);
-		tTriangle->m_nB = tN;
-	}
-
-	if(!m_nC.isZero())
-	{
-		math::Vector3R tN;
-		transform.transformO(m_nC, &tN);
-		tTriangle->m_nC = tN;
-	}
-
-	return tTriangle;
+	transformed.storeCooked(ctx, out_geometry);
+	out_geometry.isWindingFlipped = transform.isWindingFlipped();
 }
 
 bool GTriangle::isDegenerate() const

@@ -28,6 +28,10 @@ public:
 	explicit TArithmeticArrayBase(T value);
 	explicit TArithmeticArrayBase(Elements values);
 
+	/*! @brief Generate a hash.
+	*/
+	std::size_t genHash() const;
+
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:

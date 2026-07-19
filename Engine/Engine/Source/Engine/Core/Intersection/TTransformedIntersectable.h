@@ -19,8 +19,9 @@ namespace ph
 {
 
 /*! @brief Applies general transformation to an intersectable.
+@tparam SHOULD_FLIP_NG Whether to flip the world-space geometric normal.
 */
-template<typename IntersectableGetter>
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG = false>
 class TTransformedIntersectable : public Intersectable
 {
 	// FIXME: intersecting routines' time correctness
@@ -56,8 +57,8 @@ protected:
 	const Transform* m_worldToLocal;
 };
 
-template<typename IntersectableGetter>
-inline TTransformedIntersectable<IntersectableGetter>::TTransformedIntersectable(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::TTransformedIntersectable(
 	IntersectableGetter intersectableGetter,
 	const Transform* const localToWorld,
 	const Transform* const worldToLocal)
@@ -72,8 +73,8 @@ inline TTransformedIntersectable<IntersectableGetter>::TTransformedIntersectable
 	PH_ASSERT(worldToLocal);
 }
 
-template<typename IntersectableGetter>
-inline bool TTransformedIntersectable<IntersectableGetter>::isIntersecting(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::isIntersecting(
 	const Ray& ray,
 	HitProbe& probe) const
 {
@@ -90,8 +91,8 @@ inline bool TTransformedIntersectable<IntersectableGetter>::isIntersecting(
 	}
 }
 
-template<typename IntersectableGetter>
-inline bool TTransformedIntersectable<IntersectableGetter>::reintersect(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::reintersect(
 	const Ray& ray,
 	HitProbe& probe,
 	const Ray& srcRay,
@@ -114,8 +115,8 @@ inline bool TTransformedIntersectable<IntersectableGetter>::reintersect(
 	}
 }
 
-template<typename IntersectableGetter>
-inline void TTransformedIntersectable<IntersectableGetter>::calcHitDetail(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline void TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::calcHitDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
@@ -144,10 +145,15 @@ inline void TTransformedIntersectable<IntersectableGetter>::calcHitDetail(
 	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
 		out_detail->getGlobalPrimitiveID(),
 		math::moremur_bit_mix_64(reinterpret_cast<uint64>(m_worldToLocal))));
+
+	if constexpr(SHOULD_FLIP_NG)
+	{
+		out_detail->setFlippedGeometryNormal();
+	}
 }
 
-template<typename IntersectableGetter>
-inline bool TTransformedIntersectable<IntersectableGetter>::isOccluding(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::isOccluding(
 	const Ray& ray) const
 {
 	Ray localRay;
@@ -155,15 +161,15 @@ inline bool TTransformedIntersectable<IntersectableGetter>::isOccluding(
 	return m_inner().isOccluding(localRay);
 }
 
-template<typename IntersectableGetter>
-inline bool TTransformedIntersectable<IntersectableGetter>::mayOverlapVolume(
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::mayOverlapVolume(
 	const math::AABB3D& volume) const
 {
 	return calcAABB().isIntersectingVolume(volume);
 }
 
-template<typename IntersectableGetter>
-inline math::AABB3D TTransformedIntersectable<IntersectableGetter>::calcAABB() const
+template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
+inline math::AABB3D TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::calcAABB() const
 {
 	const Time startTime(0, 0);
 	const Time endTime(0, 1);

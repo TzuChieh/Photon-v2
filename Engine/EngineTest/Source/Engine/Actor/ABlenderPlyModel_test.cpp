@@ -10,7 +10,6 @@
 #include <Engine/DataIO/FileSystem/TProjectPath.h>
 #include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
-#include <Engine/World/Foundation/CookedResourceKey.h>
 #include <Engine/World/Foundation/CookingContext.h>
 #include <Engine/World/Foundation/TransientVisualElement.h>
 

@@ -7,7 +7,6 @@
 #include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedGeometry.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
-#include <Engine/World/Foundation/CookedResourceKey.h>
 #include <Engine/World/Foundation/CookingContext.h>
 
 #include <gtest/gtest.h>

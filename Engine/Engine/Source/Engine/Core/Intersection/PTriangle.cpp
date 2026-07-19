@@ -24,6 +24,7 @@ PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const m
 	, m_uvwA(0, 0, 0)
 	, m_uvwB(1, 0, 0)
 	, m_uvwC(0, 1, 0)
+	, m_hasShadingNormals(false)
 {
 	m_faceNormal = m_triangle.safeGetFaceNormal(math::Vector3R(0, 1, 0));
 	PH_ASSERT_MSG(m_faceNormal.isFinite(), m_faceNormal.toString());
@@ -93,10 +94,15 @@ void PTriangle::calcHitDetail(
 	// TODO: respect primitive channel
 	// (if it's default channel, use vertex uvw; otherwise, use mapper)
 
-	out_detail->hitInfo(ECoordSys::Local).setAttributes(
-		hitPosition, 
-		m_faceNormal, 
-		hitShadingNormal);
+	HitInfo& localHitInfo = out_detail->hitInfo(ECoordSys::Local);
+	if(m_hasShadingNormals)
+	{
+		localHitInfo.setAttributes(hitPosition, m_faceNormal, hitShadingNormal);
+	}
+	else
+	{
+		localHitInfo.setAttributes(hitPosition, m_faceNormal);
+	}
 
 	math::Vector3R dPdU(0.0_r), dPdV(0.0_r);
 	math::Vector3R dNdU(0.0_r), dNdV(0.0_r);
@@ -119,8 +125,7 @@ void PTriangle::calcHitDetail(
 		}
 	}
 	
-	out_detail->hitInfo(ECoordSys::Local).setDerivatives(
-		dPdU, dPdV, dNdU, dNdV);
+	localHitInfo.setDerivatives(dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->hitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 	out_detail->setHitIntrinsics(

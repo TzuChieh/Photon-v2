@@ -7,6 +7,8 @@
 
 #include <Common/Utility/string_utils.h>
 
+#include <functional>
+
 namespace ph::math
 {
 
@@ -97,5 +99,19 @@ public:
 
 template<typename T>
 PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(ph::math::TVector3<T>);
+
+namespace std
+{
+
+template<typename T>
+struct hash<ph::math::TVector3<T>>
+{
+	std::size_t operator () (const ph::math::TVector3<T>& vec3) const
+	{
+		return vec3.genHash();
+	}
+};
+
+}// end namespace std
 
 #include "Engine/Math/TVector3.ipp"

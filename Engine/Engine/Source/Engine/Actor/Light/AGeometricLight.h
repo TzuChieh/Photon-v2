@@ -13,6 +13,7 @@ namespace ph
 {
 
 class Primitive;
+class CookedGeometry;
 
 class AGeometricLight : public ALight
 {
@@ -39,16 +40,19 @@ public:
 
 	PreCookReport preCook(const CookingContext& ctx) const override;
 	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override;
+	void setShouldFlipNg(bool shouldFlipNg);
+	bool shouldFlipNg() const;
 
-	/*!
-	Tries to return a geometry suitable for emitter calculations (can be the 
-	original one if it is already suitable). If the current actor has undesired 
-	configurations, nullptr is returned.
+	/*! @brief Get geometry cooked into a form suitable for emitter calculations.
+	If @p srcLocalToWorld contains scale, its complete transform is baked into a dedicated cooked
+	variant. Otherwise, the regular cooked geometry is used and the transform is left to primitive
+	instancing.
+	@return Cooked geometry, or nullptr if @p srcGeometry is empty.
 	*/
-	static std::shared_ptr<Geometry> getSanifiedGeometry(
+	static const CookedGeometry* getSanifiedGeometry(
 		const std::shared_ptr<Geometry>& srcGeometry,
 		const TransformInfo& srcLocalToWorld,
-		math::TDecomposedTransform<real>* out_remainingLocalToWorld = nullptr);
+		const CookingContext& ctx);
 
 protected:
 	/*!
@@ -60,6 +64,9 @@ protected:
 	bool m_useBsdfSample;
 	bool m_useDirectSample;
 	bool m_useEmissionSample;
+
+private:
+	bool m_shouldFlipNg = false;
 
 public:
 	PH_DEFINE_SDL_CLASS(AGeometricLight, clazz)
@@ -104,6 +111,14 @@ public:
 		emissionSample.defaultTo(true);
 		emissionSample.optional();
 		clazz.addField(emissionSample);
+
+		TSdlBool<OwnerType> shouldFlipNg("should-flip-ng", &OwnerType::m_shouldFlipNg);
+		shouldFlipNg.description(
+			"Flips only the geometric normal (Ng) after transform; the shading normal (Ns) is not flipped. "
+			"Flipping Ng will also affect the side of emission.");
+		shouldFlipNg.defaultTo(false);
+		shouldFlipNg.optional();
+		clazz.addField(shouldFlipNg);
 	}
 };
 

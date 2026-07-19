@@ -44,6 +44,12 @@ public:
 		const math::Vector3R& dNdU,
 		const math::Vector3R& dNdV);
 
+	/*! @brief Set the geometric normal to its flipped orientation.
+	Explicitly supplied shading normal is preserved.
+	Same as `computeBases()`--expecting attributes and derivatives are set.
+	*/
+	void setFlippedGeometryNormal();
+
 	void computeBases();
 
 	math::Vector3R getPos() const;
@@ -156,6 +162,22 @@ inline bool HitInfo::hasShadingNormal() const
 inline bool HitInfo::hasShadingTangent() const
 {
 	return m_hasShadingTangent;
+}
+
+inline void HitInfo::setFlippedGeometryNormal()
+{
+	const math::Vector3R flippedNg = -getGeometryNormal();
+	m_geometryBasis.setYAxis(flippedNg);
+	if(!hasShadingNormal())
+	{
+		m_shadingBasis.setYAxis(flippedNg);
+		m_dNdU = -m_dNdU;
+		m_dNdV = -m_dNdV;
+	}
+
+#if PH_DEBUG
+	m_isBasesComputed = false;
+#endif
 }
 
 inline void HitInfo::setAttributes(

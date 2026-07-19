@@ -1,6 +1,5 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-#include "Engine/World/Foundation/CookedResourceKey.h"
 #include "Engine/World/VisualWorld.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Material/Material.h"
@@ -22,7 +21,10 @@ PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 CookingContext::CookingContext(
 	CookedResourceCollection* const resources,
 	TransientResourceCache* const cache)
-	: m_config()
+	: m_commonConfig()
+	, m_geometryConfig()
+	, m_materialConfig()
+	, m_motionConfig()
 	, m_world(nullptr)
 	, m_resources(resources)
 	, m_cache(cache)
@@ -40,26 +42,88 @@ CookingContext::CookingContext(const VisualWorld* const world)
 	m_world = world;
 }
 
-const CookingConfig& CookingContext::getConfig() const
+const CommonCookingConfig& CookingContext::getCommonConfig() const
 {
-	return m_config;
+	return m_commonConfig;
 }
 
-CookedResourceKey CookingContext::getKey(const ISdlResource& resource) const
+const GeometryCookingConfig& CookingContext::getGeometryConfig() const
 {
-	return CookedResourceKey(resource, getConfig());
+	return m_geometryConfig;
 }
 
-CookedResourceKey CookingContext::getKey(const std::shared_ptr<const ISdlResource>& resource) const
+const MaterialCookingConfig& CookingContext::getMaterialConfig() const
+{
+	return m_materialConfig;
+}
+
+const MotionCookingConfig& CookingContext::getMotionConfig() const
+{
+	return m_motionConfig;
+}
+
+CookingContext CookingContext::withGeometryConfig(GeometryCookingConfig config) const
+{
+	CookingContext ctx = *this;
+	ctx.setGeometryConfig(std::move(config));
+	return ctx;
+}
+
+CookedGeometryKey CookingContext::getKey(const Geometry& resource) const
+{
+	return CookedGeometryKey(
+		resource.getId(), getCommonConfig(), getGeometryConfig());
+}
+
+CookedGeometryKey CookingContext::getKey(const std::shared_ptr<const Geometry>& resource) const
 {
 	PH_ASSERT(resource);
-
 	return getKey(*resource);
 }
 
-void CookingContext::setConfig(CookingConfig config)
+CookedMaterialKey CookingContext::getKey(const Material& resource) const
 {
-	m_config = std::move(config);
+	return CookedMaterialKey(
+		resource.getId(), getCommonConfig(), getMaterialConfig());
+}
+
+CookedMaterialKey CookingContext::getKey(const std::shared_ptr<const Material>& resource) const
+{
+	PH_ASSERT(resource);
+	return getKey(*resource);
+}
+
+CookedMotionKey CookingContext::getKey(const MotionSource& resource) const
+{
+	return CookedMotionKey(
+		resource.getId(), getCommonConfig(), getMotionConfig());
+}
+
+CookedMotionKey CookingContext::getKey(
+	const std::shared_ptr<const MotionSource>& resource) const
+{
+	PH_ASSERT(resource);
+	return getKey(*resource);
+}
+
+void CookingContext::setCommonConfig(CommonCookingConfig config)
+{
+	m_commonConfig = std::move(config);
+}
+
+void CookingContext::setGeometryConfig(GeometryCookingConfig config)
+{
+	m_geometryConfig = std::move(config);
+}
+
+void CookingContext::setMaterialConfig(MaterialCookingConfig config)
+{
+	m_materialConfig = std::move(config);
+}
+
+void CookingContext::setMotionConfig(MotionCookingConfig config)
+{
+	m_motionConfig = std::move(config);
 }
 
 CookedResourceCollection& CookingContext::getResources() const

@@ -13,17 +13,17 @@ TSynchronized<CookedNamedResource>& CookedResourceCollection::getNamed()
 	return m_namedResource;
 }
 
-const CookedGeometry* CookedResourceCollection::getGeometry(const CookedResourceKey& key) const
+const CookedGeometry* CookedResourceCollection::getGeometry(const CookedGeometryKey& key) const
 {
 	return getCookedResourceByKey(m_keyToGeometry, key);
 }
 
-const CookedMaterial* CookedResourceCollection::getMaterial(const CookedResourceKey& key) const
+const CookedMaterial* CookedResourceCollection::getMaterial(const CookedMaterialKey& key) const
 {
 	return getCookedResourceByKey(m_keyToMaterial, key);
 }
 
-const CookedMotion* CookedResourceCollection::getMotion(const CookedResourceKey& key) const
+const CookedMotion* CookedResourceCollection::getMotion(const CookedMotionKey& key) const
 {
 	return getCookedResourceByKey(m_keyToMotion, key);
 }

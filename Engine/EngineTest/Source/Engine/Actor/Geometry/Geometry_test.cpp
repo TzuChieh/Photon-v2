@@ -1,8 +1,7 @@
 #include <Engine/Actor/Geometry/GCuboid.h>
 #include <Engine/World/Foundation/CookedGeometry.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
-#include <Engine/World/Foundation/CookedResourceKey.h>
-#include <Engine/World/Foundation/CookingConfig.h>
+#include <Engine/World/Foundation/GeometryCookingConfig.h>
 #include <Engine/World/Foundation/CookingContext.h>
 #include <Engine/SDL/TSdl.h>
 
@@ -51,9 +50,9 @@ TEST(GeometryTest, CookKeepsDistinctConfigVariants)
 	ASSERT_NE(defaultCooked, nullptr);
 	cuboid->cook(ctx, *defaultCooked);
 
-	CookingConfig triangulatedConfig;
+	GeometryCookingConfig triangulatedConfig;
 	triangulatedConfig.forceTriangulated = 1;
-	ctx.setConfig(triangulatedConfig);
+	ctx.setGeometryConfig(triangulatedConfig);
 
 	// Cook with triangulated config
 	CookedGeometry* const triangulatedCooked = resources.makeGeometry(ctx.getKey(cuboid));
@@ -63,7 +62,7 @@ TEST(GeometryTest, CookKeepsDistinctConfigVariants)
 	EXPECT_EQ(ctx.getCooked(cuboid), triangulatedCooked);
 	EXPECT_NE(triangulatedCooked, defaultCooked);
 
-	ctx.setConfig(CookingConfig());
+	ctx.setGeometryConfig(GeometryCookingConfig());
 	EXPECT_EQ(ctx.getCooked(cuboid), defaultCooked);
 }
 

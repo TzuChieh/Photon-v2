@@ -4,7 +4,6 @@
 #include "Engine/Utility/TUniquePtrVector.h"
 #include "Engine/Utility/Concurrent/TSynchronized.h"
 #include "Engine/SDL/SdlResourceId.h"
-#include "Engine/World/Foundation/CookedResourceKey.h"
 
 #include <Common/exceptions.h>
 #include <Common/logging.h>
@@ -43,8 +42,8 @@ protected:
 	not needed during rendering and can be cleaned up in theory. It is kept for now for debugging
 	purposes.
 	*/
-	template<typename CookedType>
-	using TCookedResourceKeyMap = std::unordered_map<CookedResourceKey, std::unique_ptr<CookedType>>;
+	template<typename KeyType, typename CookedType>
+	using TCookedResourceKeyMap = std::unordered_map<KeyType, std::unique_ptr<CookedType>>;
 
 	template<typename DerivedType, typename BaseType, typename... DeducedArgs>
 	[[nodiscard]]
@@ -98,10 +97,10 @@ protected:
 		return resourcePtr;
 	}
 
-	template<typename CookedType, typename... DeducedArgs>
+	template<typename KeyType, typename CookedType, typename... DeducedArgs>
 	static CookedType* makeCookedResourceWithKey(
-		TSynchronized<TCookedResourceKeyMap<CookedType>>& syncedKeyToResource,
-		const CookedResourceKey& key,
+		TSynchronized<TCookedResourceKeyMap<KeyType, CookedType>>& syncedKeyToResource,
+		const KeyType& key,
 		DeducedArgs&&... args)
 	{
 		// Create resource in separate expression since no lock is required yet
@@ -145,10 +144,10 @@ protected:
 		return resourcePtr;
 	}
 
-	template<typename CookedType>
+	template<typename KeyType, typename CookedType>
 	static const CookedType* getCookedResourceByKey(
-		const TSynchronized<TCookedResourceKeyMap<CookedType>>& syncedKeyToResource,
-		const CookedResourceKey& key)
+		const TSynchronized<TCookedResourceKeyMap<KeyType, CookedType>>& syncedKeyToResource,
+		const KeyType& key)
 	{
 		const CookedType* resourcePtr = nullptr;
 		syncedKeyToResource.constLocked(

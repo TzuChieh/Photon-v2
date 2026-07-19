@@ -2,6 +2,7 @@
 
 #include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/TMetaInjectionPrimitive.h"
+#include "Engine/Core/Intersection/THitManipPrimitive.h"
 #include "Engine/Core/Intersection/TTransformedPrimitive.h"
 
 #include <concepts>
@@ -73,11 +74,12 @@ public:
 
 	/*! Applies a rigid transform and keeps the chain as a primitive.
 	*/
+	template<bool SHOULD_FLIP_NG = false>
 	auto rigidTransform(
 		const RigidTransform* const localToWorld,
 		const RigidTransform* const worldToLocal)
 	{
-		using TransformedPrimitive = TTransformedPrimitive<PrimitiveGetter>;
+		using TransformedPrimitive = TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>;
 
 		return TPrimitiveBuilder<TEmbeddedPrimitiveGetter<TransformedPrimitive>>(
 			TEmbeddedPrimitiveGetter<TransformedPrimitive>(
@@ -88,11 +90,12 @@ public:
 
 	/*! Applies a general transform and decays the chain to an intersectable.
 	*/
+	template<bool SHOULD_FLIP_NG = false>
 	auto transform(
 		const Transform* const localToWorld,
 		const Transform* const worldToLocal)
 	{
-		using TransformedIntersectable = TTransformedIntersectable<PrimitiveGetter>;
+		using TransformedIntersectable = TTransformedIntersectable<PrimitiveGetter, SHOULD_FLIP_NG>;
 
 		return TIntersectableBuilder<TEmbeddedIntersectableGetter<TransformedIntersectable>>(
 			TEmbeddedIntersectableGetter<TransformedIntersectable>(
@@ -127,6 +130,16 @@ public:
 			TEmbeddedPrimitiveGetter<MetaPrimitive>(
 				EmbeddedPrimitiveMetadataGetter(std::move(metadata)),
 				std::move(m_primitiveGetter)));
+	}
+
+	/*! Applies geometric normal flip.
+	*/
+	auto flipGeometryNormal()
+	{
+		using FlippedPrimitive = THitManipPrimitive<PrimitiveGetter, true>;
+
+		return TPrimitiveBuilder<TEmbeddedPrimitiveGetter<FlippedPrimitive>>(
+			TEmbeddedPrimitiveGetter<FlippedPrimitive>(std::move(m_primitiveGetter)));
 	}
 
 	/*! Uses externally-owned metadata slots and a face-ID-to-slot map.

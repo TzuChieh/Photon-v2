@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cmath>
+#include <functional>
 
 namespace ph::math
 {
@@ -105,5 +106,19 @@ public:
 };
 
 }// end namespace ph::math
+
+namespace std
+{
+
+template<typename T>
+struct hash<ph::math::TQuaternion<T>>
+{
+	std::size_t operator () (const ph::math::TQuaternion<T>& quaternion) const
+	{
+		return quaternion.genHash();
+	}
+};
+
+}// end namespace std
 
 #include "Engine/Math/TQuaternion.ipp"

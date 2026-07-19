@@ -16,8 +16,10 @@ public:
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;
 
-	std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const override;
+	void storeCookedWithBakedTransform(
+		const CookingContext& ctx,
+		const StaticAffineTransform& transform,
+		CookedGeometry& out_geometry) const override;
 
 	bool isDegenerate() const;
 

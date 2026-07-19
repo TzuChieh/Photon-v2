@@ -19,10 +19,13 @@ public:
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterials(std::vector<std::shared_ptr<Material>> materials);
+	void setShouldFlipNg(bool shouldFlipNg);
+	bool shouldFlipNg() const;
 
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::vector<std::shared_ptr<Material>> m_materials;
+	bool m_shouldFlipNg = false;
 
 public:
 	PH_DEFINE_SDL_CLASS(ABlenderPlyModel, clazz)
@@ -41,6 +44,13 @@ public:
 		materials.description("Materials indexed by Blender material slot.");
 		materials.required();
 		clazz.addField(materials);
+
+		TSdlBool<OwnerType> shouldFlipNg("should-flip-ng", &OwnerType::m_shouldFlipNg);
+		shouldFlipNg.description(
+			"Flips only the geometric normal (Ng) after trasnform; the shading normal (Ns) is not flipped.");
+		shouldFlipNg.defaultTo(false);
+		shouldFlipNg.optional();
+		clazz.addField(shouldFlipNg);
 	}
 };
 

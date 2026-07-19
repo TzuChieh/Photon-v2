@@ -20,6 +20,11 @@ public:
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;
 
+	void storeCookedWithBakedTransform(
+		const CookingContext& ctx,
+		const StaticAffineTransform& transform,
+		CookedGeometry& out_geometry) const override;
+
 protected:
 	IndexedTriangleBuffer loadTriangleBuffer(PlyFile& file) const;
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/World/Foundation/CookedResourceCollectionBase.h"
-#include "Engine/World/Foundation/CookedResourceKey.h"
+#include "Engine/World/Foundation/TCookedResourceKey.h"
 #include "Engine/Utility/TUniquePtrVector.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
 #include "Engine/World/Foundation/CookedMaterial.h"
@@ -102,19 +102,19 @@ public:
 	}
 
 	template<typename... DeducedArgs>
-	CookedGeometry* makeGeometry(const CookedResourceKey& key, DeducedArgs&&... args)
+	CookedGeometry* makeGeometry(const CookedGeometryKey& key, DeducedArgs&&... args)
 	{
 		return makeCookedResourceWithKey(m_keyToGeometry, key, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<typename... DeducedArgs>
-	CookedMaterial* makeMaterial(const CookedResourceKey& key, DeducedArgs&&... args)
+	CookedMaterial* makeMaterial(const CookedMaterialKey& key, DeducedArgs&&... args)
 	{
 		return makeCookedResourceWithKey(m_keyToMaterial, key, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<typename... DeducedArgs>
-	CookedMotion* makeMotion(const CookedResourceKey& key, DeducedArgs&&... args)
+	CookedMotion* makeMotion(const CookedMotionKey& key, DeducedArgs&&... args)
 	{
 		return makeCookedResourceWithKey(m_keyToMotion, key, std::forward<DeducedArgs>(args)...);
 	}
@@ -124,9 +124,9 @@ public:
 	*/
 	TSynchronized<CookedNamedResource>& getNamed();
 
-	const CookedGeometry* getGeometry(const CookedResourceKey& key) const;
-	const CookedMaterial* getMaterial(const CookedResourceKey& key) const;
-	const CookedMotion* getMotion(const CookedResourceKey& key) const;
+	const CookedGeometry* getGeometry(const CookedGeometryKey& key) const;
+	const CookedMaterial* getMaterial(const CookedMaterialKey& key) const;
+	const CookedMotion* getMotion(const CookedMotionKey& key) const;
 
 private:
 	TSynchronized<TUniquePtrVector<PrimitiveMetadata>> m_metadatas;
@@ -137,9 +137,9 @@ private:
 	TSynchronized<TUniquePtrVector<SurfaceOptics>> m_surfaceOptics;
 	TSynchronized<TUniquePtrVector<VolumeOptics>> m_volumeOptics;
 
-	TSynchronized<TCookedResourceKeyMap<CookedGeometry>> m_keyToGeometry;
-	TSynchronized<TCookedResourceKeyMap<CookedMaterial>> m_keyToMaterial;
-	TSynchronized<TCookedResourceKeyMap<CookedMotion>> m_keyToMotion;
+	TSynchronized<TCookedResourceKeyMap<CookedGeometryKey, CookedGeometry>> m_keyToGeometry;
+	TSynchronized<TCookedResourceKeyMap<CookedMaterialKey, CookedMaterial>> m_keyToMaterial;
+	TSynchronized<TCookedResourceKeyMap<CookedMotionKey, CookedMotion>> m_keyToMotion;
 
 	TSynchronized<CookedNamedResource> m_namedResource;
 };

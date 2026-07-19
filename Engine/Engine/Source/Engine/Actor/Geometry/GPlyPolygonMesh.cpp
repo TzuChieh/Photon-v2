@@ -13,6 +13,8 @@
 
 #include <Common/logging.h>
 
+#include <utility>
+
 namespace ph
 {
 
@@ -22,38 +24,30 @@ void GPlyPolygonMesh::storeCooked(
 	const CookingContext& ctx,
 	CookedGeometry& out_geometry) const
 {
-	IndexedTriangleBuffer* triangleBuffer = ctx.getResources().makeTriangleBuffer();
-
 	Timer loadTimer;
 	loadTimer.start();
 
-	*triangleBuffer = loadStandardTriangleBuffer();
+	IndexedTriangleBuffer triangleBuffer = loadStandardTriangleBuffer();
 
 	loadTimer.stop();
 
 	Timer buildTimer;
 	buildTimer.start();
 
-	// TODO: more index types
-	// TODO: count tree memory usage
-	auto* kdTreeMesh = ctx.getResources().makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
-		triangleBuffer);
+	storeCookedPolygonMesh(ctx, std::move(triangleBuffer), out_geometry);
 
 	buildTimer.stop();
 
-	out_geometry.primitives.push_back(kdTreeMesh);
-	out_geometry.triangleView = triangleBuffer;
-
 	// Log some stats for performance analysis
-	if(triangleBuffer)
+	if(out_geometry.triangleView)
 	{
 		PH_LOG(GPlyPolygonMesh, Note,
 			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
 			m_plyFile.getIdentifier(),
-			triangleBuffer->getVertexBuffer().numVertices(),
-			triangleBuffer->numFaces(),
-			math::bytes_to_MiB<double>(triangleBuffer->memoryUsage()),
-			triangleBuffer->averagePerPolygonMemoryUsage());
+			out_geometry.triangleView->getVertexBuffer().numVertices(),
+			out_geometry.triangleView->numFaces(),
+			math::bytes_to_MiB<double>(out_geometry.triangleView->memoryUsage()),
+			out_geometry.triangleView->averagePerPolygonMemoryUsage());
 
 		PH_LOG(GPlyPolygonMesh, Note,
 			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
@@ -63,11 +57,57 @@ void GPlyPolygonMesh::storeCooked(
 	}
 }
 
-std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
-	const StaticAffineTransform& transform) const
+void GPlyPolygonMesh::storeCookedWithBakedTransform(
+	const CookingContext& ctx,
+	const StaticAffineTransform& transform,
+	CookedGeometry& out_geometry) const
 {
-	// TODO
-	return nullptr;
+	IndexedTriangleBuffer triangleBuffer = loadStandardTriangleBuffer();
+	applyBakedTransform(triangleBuffer, transform);
+	storeCookedPolygonMesh(ctx, std::move(triangleBuffer), out_geometry);
+	out_geometry.isWindingFlipped = transform.isWindingFlipped();
+}
+
+void GPlyPolygonMesh::applyBakedTransform(
+	IndexedTriangleBuffer& triangleBuffer,
+	const StaticAffineTransform& transform)
+{
+	IndexedVertexBuffer& vertices = triangleBuffer.getVertexBuffer();
+	PH_ASSERT(vertices.hasAttribute(EVertexAttribute::Position_0));
+
+	for(std::size_t vi = 0; vi < vertices.numVertices(); ++vi)
+	{
+		math::Vector3R tPosition;
+		transform.transformP(vertices.getAttribute(EVertexAttribute::Position_0, vi), &tPosition);
+		vertices.setAttribute(EVertexAttribute::Position_0, vi, tPosition);
+	}
+
+	if(vertices.hasAttribute(EVertexAttribute::Normal_0))
+	{
+		for(std::size_t vi = 0; vi < vertices.numVertices(); ++vi)
+		{
+			math::Vector3R tNormal;
+			transform.transformO(vertices.getAttribute(EVertexAttribute::Normal_0, vi), &tNormal);
+			vertices.setAttribute(EVertexAttribute::Normal_0, vi, tNormal.normalizeLocal());
+		}
+	}
+}
+
+void GPlyPolygonMesh::storeCookedPolygonMesh(
+	const CookingContext& ctx,
+	IndexedTriangleBuffer triangleBuffer,
+	CookedGeometry& out_geometry)
+{
+	IndexedTriangleBuffer* const storedBuffer = ctx.getResources().makeTriangleBuffer(
+		std::move(triangleBuffer));
+
+	// TODO: more index types
+	// TODO: count tree memory usage
+	auto* const kdTreeMesh = ctx.getResources().makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
+		storedBuffer);
+
+	out_geometry.primitives.push_back(kdTreeMesh);
+	out_geometry.triangleView = storedBuffer;
 }
 
 IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(

@@ -11,16 +11,19 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Geometry, Geometry);
 
-std::shared_ptr<Geometry> Geometry::genTransformed(
-	const StaticAffineTransform& transform) const
+void Geometry::storeCookedWithBakedTransform(
+	const CookingContext& ctx,
+	const StaticAffineTransform& transform,
+	CookedGeometry& out_geometry) const
 {
 	auto triangulatedGeometry = genTriangulated();
 	if(triangulatedGeometry == nullptr)
 	{
-		return nullptr;
+		throw_formatted<CookException>(
+			"geometry does not support baked transforms (id: {})", getId());
 	}
 
-	return triangulatedGeometry->genTransformed(transform);
+	triangulatedGeometry->storeCookedWithBakedTransform(ctx, transform, out_geometry);
 }
 
 std::shared_ptr<Geometry> Geometry::genTriangulated() const
@@ -30,21 +33,28 @@ std::shared_ptr<Geometry> Geometry::genTriangulated() const
 
 void Geometry::cook(const CookingContext& ctx, CookedGeometry& out_geometry) const
 {
-	if(ctx.getConfig().forceTriangulated)
+	const GeometryCookingConfig& config = ctx.getGeometryConfig();
+
+	std::shared_ptr<Geometry> triangulatedGeometry;
+	if(config.forceTriangulated)
 	{
-		auto transientGeometry = genTriangulated();
-		if(transientGeometry == nullptr)
+		triangulatedGeometry = genTriangulated();
+		if(triangulatedGeometry == nullptr)
 		{
 			throw_formatted<CookException>(
 				"failed to force triangulation on geometry (id: {})", getId());
 		}
+	}
 
-		transientGeometry->storeCooked(ctx, out_geometry);
-	}
-	else
+	const Geometry& geometry = triangulatedGeometry ? *triangulatedGeometry : *this;
+	if(!config.forceBakedTransform || config.bakedTransform.isIdentity())
 	{
-		storeCooked(ctx, out_geometry);
+		geometry.storeCooked(ctx, out_geometry);
+		return;
 	}
+
+	const auto& transform = StaticAffineTransform::makeForward(config.bakedTransform);
+	geometry.storeCookedWithBakedTransform(ctx, transform, out_geometry);
 }
 
 }// end namespace ph

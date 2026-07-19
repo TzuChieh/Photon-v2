@@ -25,10 +25,9 @@ void GRectangle::storeCooked(
 	genTriangleMesh()->storeCooked(ctx, out_geometry);
 }
 
-std::shared_ptr<Geometry> GRectangle::genTransformed(
-	const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GRectangle::genTriangulated() const
 {
-	return genTriangleMesh()->genTransformed(transform);
+	return genTriangleMesh();
 }
 
 GRectangle& GRectangle::setWidth(const real width)

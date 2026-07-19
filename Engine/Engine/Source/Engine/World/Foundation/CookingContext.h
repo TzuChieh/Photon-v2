@@ -1,7 +1,11 @@
 #pragma once
 
+#include "Engine/World/Foundation/TCookedResourceKey.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
-#include "Engine/World/Foundation/CookingConfig.h"
+#include "Engine/World/Foundation/CommonCookingConfig.h"
+#include "Engine/World/Foundation/GeometryCookingConfig.h"
+#include "Engine/World/Foundation/MaterialCookingConfig.h"
+#include "Engine/World/Foundation/MotionCookingConfig.h"
 
 #include <memory>
 
@@ -19,8 +23,6 @@ class Actor;
 class CookedGeometry;
 class CookedMaterial;
 class CookedMotion;
-class CookedResourceKey;
-class ISdlResource;
 
 /*! @brief Information about the world being cooked.
 */
@@ -36,16 +38,32 @@ public:
 
 	explicit CookingContext(const VisualWorld* world);
 
-	const CookingConfig& getConfig() const;
+	const CommonCookingConfig& getCommonConfig() const;
+	const GeometryCookingConfig& getGeometryConfig() const;
+	const MaterialCookingConfig& getMaterialConfig() const;
+	const MotionCookingConfig& getMotionConfig() const;
+
+	/*! @brief Make a context using `config` for geometry cooking.
+	Other configuration and referenced world storage are preserved.
+	*/
+	CookingContext withGeometryConfig(GeometryCookingConfig config) const;
 
 	/*! @brief Make a cooked-resource key for `resource` using current config.
 	*/
 	///@{
-	CookedResourceKey getKey(const ISdlResource& resource) const;
-	CookedResourceKey getKey(const std::shared_ptr<const ISdlResource>& resource) const;
+	CookedGeometryKey getKey(const Geometry& resource) const;
+	CookedGeometryKey getKey(const std::shared_ptr<const Geometry>& resource) const;
+	CookedMaterialKey getKey(const Material& resource) const;
+	CookedMaterialKey getKey(const std::shared_ptr<const Material>& resource) const;
+	CookedMotionKey getKey(const MotionSource& resource) const;
+	CookedMotionKey getKey(const std::shared_ptr<const MotionSource>& resource) const;
 	///@}
 
-	void setConfig(CookingConfig config);
+	void setCommonConfig(CommonCookingConfig config);
+	void setGeometryConfig(GeometryCookingConfig config);
+	void setMaterialConfig(MaterialCookingConfig config);
+	void setMotionConfig(MotionCookingConfig config);
+	
 	CookedResourceCollection& getResources() const;
 	TransientResourceCache& getCache() const;
 
@@ -92,7 +110,10 @@ public:
 private:
 	const VisualWorld& getWorld() const;
 
-	CookingConfig m_config;
+	CommonCookingConfig m_commonConfig;
+	GeometryCookingConfig m_geometryConfig;
+	MaterialCookingConfig m_materialConfig;
+	MotionCookingConfig m_motionConfig;
 	const VisualWorld* m_world;
 	CookedResourceCollection* m_resources;
 	TransientResourceCache* m_cache;

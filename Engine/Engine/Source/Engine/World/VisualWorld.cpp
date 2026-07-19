@@ -21,8 +21,7 @@
 #include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-#include "Engine/World/Foundation/CookingConfig.h"
-#include "Engine/World/Foundation/CookedResourceKey.h"
+#include "Engine/World/Foundation/CommonCookingConfig.h"
 #include "Engine/SDL/ISdlResource.h"
 #include "Engine/SDL/SdlDependencyResolver.h"
 #include "Engine/SDL/sdl_helpers.h"
@@ -97,9 +96,9 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// TODO: clear cooked data
 
 	CookingContext ctx(this);
-	CookingConfig config;
+	CommonCookingConfig config;
 	config.timeStep = coreCtx.getTimeStep();
-	ctx.setConfig(config);
+	ctx.setCommonConfig(config);
 
 	std::vector<std::string> resourceNames;
 	std::vector<const ISdlResource*> resources = rawScene.getResources().listAll(&resourceNames);
@@ -242,7 +241,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Clean up cache as it is not needed afterwards
 	m_cache = nullptr;
 
-	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get(), ctx.getConfig().timeStep);
+	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get(), ctx.getCommonConfig().timeStep);
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }
 

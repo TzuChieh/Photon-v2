@@ -22,8 +22,10 @@ public:
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;
 
-	std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const override;
+	void storeCookedWithBakedTransform(
+		const CookingContext& ctx,
+		const StaticAffineTransform& transform,
+		CookedGeometry& out_geometry) const override;
 
 	const ResourceIdentifier& getPlyFile() const;
 	void setPlyFile(Path plyFile);
@@ -45,6 +47,15 @@ protected:
 		std::string_view vertexIndicesPropertyName) const;
 
 	IndexedTriangleBuffer loadStandardTriangleBuffer() const;
+
+	static void applyBakedTransform(
+		IndexedTriangleBuffer& triangleBuffer,
+		const StaticAffineTransform& transform);
+
+	static void storeCookedPolygonMesh(
+		const CookingContext& ctx,
+		IndexedTriangleBuffer triangleBuffer,
+		CookedGeometry& out_geometry);
 
 private:
 	ResourceIdentifier m_plyFile;

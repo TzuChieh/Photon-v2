@@ -23,8 +23,9 @@ namespace ph
 A transformed primitive accepts only rigid transformations. This way,
 properties such as surface area and volume are guaranteed to be the same
 during transformations.
+@tparam SHOULD_FLIP_NG Final cook-time decision to flip the world-space geometric normal.
 */
-template<typename PrimitiveGetter>
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG = false>
 class TTransformedPrimitive : public Primitive
 {
 	// FIXME: intersecting routines' time correctness
@@ -75,8 +76,8 @@ private:
 	const RigidTransform* m_worldToLocal;
 };
 
-template<typename PrimitiveGetter>
-inline TTransformedPrimitive<PrimitiveGetter>::TTransformedPrimitive(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::TTransformedPrimitive(
 	PrimitiveGetter       primitiveGetter,
 	const RigidTransform* const localToWorld,
 	const RigidTransform* const worldToLocal)
@@ -91,16 +92,17 @@ inline TTransformedPrimitive<PrimitiveGetter>::TTransformedPrimitive(
 	PH_ASSERT(worldToLocal);
 }
 
-template<typename PrimitiveGetter>
-inline bool TTransformedPrimitive<PrimitiveGetter>::isOccluding(const Ray& ray) const
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::isOccluding(
+	const Ray& ray) const
 {
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
 	return m_inner().isOccluding(localRay);
 }
 
-template<typename PrimitiveGetter>
-inline bool TTransformedPrimitive<PrimitiveGetter>::isIntersecting(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::isIntersecting(
 	const Ray& ray,
 	HitProbe& probe) const
 {
@@ -117,8 +119,8 @@ inline bool TTransformedPrimitive<PrimitiveGetter>::isIntersecting(
 	}
 }
 
-template<typename PrimitiveGetter>
-inline bool TTransformedPrimitive<PrimitiveGetter>::reintersect(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::reintersect(
 	const Ray& ray,
 	HitProbe& probe,
 	const Ray& srcRay,
@@ -141,8 +143,8 @@ inline bool TTransformedPrimitive<PrimitiveGetter>::reintersect(
 	}
 }
 
-template<typename PrimitiveGetter>
-inline void TTransformedPrimitive<PrimitiveGetter>::calcHitDetail(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline void TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::calcHitDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
@@ -174,17 +176,22 @@ inline void TTransformedPrimitive<PrimitiveGetter>::calcHitDetail(
 	out_detail->updateGlobalPrimitiveID(math::combine_hashes(
 		out_detail->getGlobalPrimitiveID(),
 		math::moremur_bit_mix_64(reinterpret_cast<uint64>(m_worldToLocal))));
+
+	if constexpr(SHOULD_FLIP_NG)
+	{
+		out_detail->setFlippedGeometryNormal();
+	}
 }
 
-template<typename PrimitiveGetter>
-inline bool TTransformedPrimitive<PrimitiveGetter>::mayOverlapVolume(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline bool TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::mayOverlapVolume(
 	const math::AABB3D& volume) const
 {
 	return calcAABB().isIntersectingVolume(volume);
 }
 
-template<typename PrimitiveGetter>
-inline math::AABB3D TTransformedPrimitive<PrimitiveGetter>::calcAABB() const
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline math::AABB3D TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::calcAABB() const
 {
 	const Time startTime(0, 0);
 	const Time endTime(0, 1);
@@ -203,8 +210,8 @@ inline math::AABB3D TTransformedPrimitive<PrimitiveGetter>::calcAABB() const
 	return worldAABB;
 }
 
-template<typename PrimitiveGetter>
-inline void TTransformedPrimitive<PrimitiveGetter>::genPosSample(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline void TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::genPosSample(
 	PrimitivePosSampleQuery& query,
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
@@ -249,34 +256,35 @@ inline void TTransformedPrimitive<PrimitiveGetter>::genPosSample(
 	query.outputs.setPdfDir(localQuery.outputs.getPdfDir());
 }
 
-template<typename PrimitiveGetter>
-inline void TTransformedPrimitive<PrimitiveGetter>::calcPosPdf(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline void TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::calcPosPdf(
 	PrimitivePosPdfQuery& query) const
 {
 	m_inner().calcPosPdf(query);
 }
 
-template<typename PrimitiveGetter>
-inline real TTransformedPrimitive<PrimitiveGetter>::calcExtendedArea() const
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline real TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::calcExtendedArea() const
 {
 	// Does not change under rigid transform
 	return m_inner().calcExtendedArea();
 }
 
-template<typename PrimitiveGetter>
-inline uint32 TTransformedPrimitive<PrimitiveGetter>::numMetadataSlots() const
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline uint32 TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::numMetadataSlots() const
 {
 	return m_inner().numMetadataSlots();
 }
 
-template<typename PrimitiveGetter>
-inline uint32 TTransformedPrimitive<PrimitiveGetter>::toMetadataSlot(const uint64 faceID) const
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline uint32 TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::toMetadataSlot(
+	const uint64 faceID) const
 {
 	return m_inner().toMetadataSlot(faceID);
 }
 
-template<typename PrimitiveGetter>
-inline const PrimitiveMetadata& TTransformedPrimitive<PrimitiveGetter>::getMetadata(
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline const PrimitiveMetadata& TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::getMetadata(
 	const uint32 slot) const
 {
 	return m_inner().getMetadata(slot);

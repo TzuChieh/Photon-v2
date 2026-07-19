@@ -45,6 +45,12 @@ public:
 		uint64                faceID = NO_FACE_ID,
 		FaceTopology          faceTopology = FaceTopology(EFaceTopology::General));
 
+	/*! @brief Set the world-space geometric normal and orientation-dependent topology to
+	their flipped orientation.
+	Explicit shading normals are preserved.
+	*/
+	void setFlippedGeometryNormal();
+
 	void computeBases();
 	void computeBasesOf(ECoordSys coordSys = ECoordSys::World);
 

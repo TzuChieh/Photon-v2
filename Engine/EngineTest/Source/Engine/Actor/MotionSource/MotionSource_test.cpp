@@ -2,7 +2,7 @@
 #include <Engine/Core/Quantity/TimeStep.h>
 #include <Engine/World/Foundation/CookedMotion.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
-#include <Engine/World/Foundation/CookingConfig.h>
+#include <Engine/World/Foundation/CommonCookingConfig.h>
 #include <Engine/World/Foundation/CookingContext.h>
 
 #include <gtest/gtest.h>
@@ -43,9 +43,9 @@ TEST(MotionSourceTest, CookKeepsDistinctConfigVariants)
 	ASSERT_NE(defaultCooked, nullptr);
 	motion.cook(ctx, *defaultCooked);
 
-	CookingConfig shiftedConfig;
+	CommonCookingConfig shiftedConfig;
 	shiftedConfig.timeStep = TimeStep(1, 1.0_r, 1.0_r);
-	ctx.setConfig(shiftedConfig);
+	ctx.setCommonConfig(shiftedConfig);
 
 	CookedMotion* const shiftedCooked = resources.makeMotion(ctx.getKey(motion));
 	ASSERT_NE(shiftedCooked, nullptr);
@@ -54,6 +54,6 @@ TEST(MotionSourceTest, CookKeepsDistinctConfigVariants)
 	EXPECT_EQ(ctx.getCooked(motion), shiftedCooked);
 	EXPECT_NE(shiftedCooked, defaultCooked);
 
-	ctx.setConfig(CookingConfig());
+	ctx.setCommonConfig(CommonCookingConfig());
 	EXPECT_EQ(ctx.getCooked(motion), defaultCooked);
 }

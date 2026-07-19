@@ -65,11 +65,12 @@ public:
 
 	/*! Applies a general transform and keeps the chain as an intersectable.
 	*/
+	template<bool SHOULD_FLIP_NG = false>
 	auto transform(
 		const Transform* const localToWorld,
 		const Transform* const worldToLocal)
 	{
-		using TransformedIntersectable = TTransformedIntersectable<IntersectableGetter>;
+		using TransformedIntersectable = TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>;
 
 		return TIntersectableBuilder<TEmbeddedIntersectableGetter<TransformedIntersectable>>(
 			TEmbeddedIntersectableGetter<TransformedIntersectable>(

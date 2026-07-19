@@ -60,6 +60,10 @@ public:
 	const math::Matrix4R& getTransformMatrix() const;
 	const math::Matrix4R& getInversedTransformMatrix() const;
 
+	/*! @brief Whether transforming vertex positions reverses their winding.
+	*/
+	bool isWindingFlipped() const;
+
 private:
 	void doTransformRay(
 		const Ray& ray,
@@ -169,6 +173,11 @@ inline const math::Matrix4R& StaticAffineTransform
 ::getInversedTransformMatrix() const
 {
 	return m_inverseTransformMatrix;
+}
+
+inline bool StaticAffineTransform::isWindingFlipped() const
+{
+	return m_transformMatrix.determinant() < 0;
 }
 
 inline void StaticAffineTransform::doTransformVector(

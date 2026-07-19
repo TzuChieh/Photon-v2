@@ -58,36 +58,55 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		return TransientVisualElement();
 	}
 
+	// Our default policy is Ng facing is unaffectd by winding change, 
+	// so if `isWindingFlipped` is true then that implies a flip, if `m_shouldFlipNg`
+	// is specified additionally then they can cancel out
+	const bool shouldFlipNg = m_shouldFlipNg != cookedGeometry->isWindingFlipped;
+
 	const CookedMaterial* cookedMaterial = ctx.getCooked(m_material);
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
+
+	const auto* const localToWorld = report.getBaseLocalToWorld();
+	const auto* const worldToLocal = report.getBaseWorldToLocal();
 
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto* metaPrimitive = ctx.getResources().copyIntersectable(
-			PrimitiveBuilder::referencing(primitive)
-				.injectMetadata(metadata)
-				.build());
+		auto primitiveBuilder = PrimitiveBuilder::referencing(primitive)
+			.injectMetadata(metadata);
 
-		result.add(metaPrimitive);
-	}
-	
-	if(!m_localToWorld.getDecomposed().isIdentity())
-	{
-		// Cannot have primitive view as we are transforming as intersectable
-		result.primitivesView.clear();
-
-		auto localToWorld = report.getBaseLocalToWorld();
-		auto worldToLocal = report.getBaseWorldToLocal();
-
-		for(auto& intersectable : result.intersectables)
+		// Have transform
+		if(localToWorld)
 		{
-			auto* transformedIntersectable = ctx.getResources().copyIntersectable(
-				IntersectableBuilder::referencing(intersectable)
-					.transform(localToWorld, worldToLocal)
-					.build());
-
-			intersectable = transformedIntersectable;
+			PH_ASSERT(worldToLocal);
+			if(shouldFlipNg)
+			{
+				result.intersectables.push_back(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.transform<true>(localToWorld, worldToLocal).build()));
+			}
+			else
+			{
+				result.intersectables.push_back(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.transform(localToWorld, worldToLocal).build()));
+			}
+		}
+		// No transform
+		else
+		{
+			if(shouldFlipNg)
+			{
+				result.add(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.flipGeometryNormal().build()));
+			}
+			else
+			{
+				result.add(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.build()));
+			}
 		}
 	}
 
@@ -141,6 +160,16 @@ void AModel::setMaterial(const std::shared_ptr<Material>& material)
 void AModel::setMotionSource(const std::shared_ptr<MotionSource>& motion)
 {
 	m_motionSource = motion;
+}
+
+void AModel::setShouldFlipNg(const bool shouldFlipNg)
+{
+	m_shouldFlipNg = shouldFlipNg;
+}
+
+bool AModel::shouldFlipNg() const
+{
+	return m_shouldFlipNg;
 }
 
 const Geometry* AModel::getGeometry() const

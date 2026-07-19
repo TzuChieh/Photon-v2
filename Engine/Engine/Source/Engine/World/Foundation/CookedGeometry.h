@@ -22,6 +22,9 @@ public:
 	const IndexedTriangleBuffer* triangleView = nullptr;
 
 	TIndexRangeMap<uint64, uint32> faceIdToMetadataSlot;
+
+	/*! Whether a baked transform reversed the stored vertex winding. */
+	bool isWindingFlipped = false;
 };
 
 }// end namespace ph

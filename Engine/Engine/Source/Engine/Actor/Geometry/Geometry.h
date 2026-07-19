@@ -20,14 +20,20 @@ class PrimitiveBuildingMaterial;
 class Geometry : public TSdlResourceBase<ESdlTypeCategory::Ref_Geometry>
 {
 public:
-	/*! @brief Store data suitable for rendering into `out_geometry`.
+	/*! @brief Store geometry suitable for rendering.
 	*/
 	virtual void storeCooked(
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const = 0;
 
-	virtual std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const;
+	/*! @brief Store geometry with @p transform baked into its data.
+	For polygon meshes, vertex winding order is unchanged. Whether any orientation
+	reversal caused by @p transform is recorded in `CookedGeometry::isWindingFlipped`.
+	*/
+	virtual void storeCookedWithBakedTransform(
+		const CookingContext& ctx,
+		const StaticAffineTransform& transform,
+		CookedGeometry& out_geometry) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
 

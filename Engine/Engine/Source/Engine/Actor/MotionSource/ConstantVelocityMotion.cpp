@@ -17,9 +17,9 @@ void ConstantVelocityMotion::storeCooked(
 	CookedMotion& out_motion) const
 {
 	const math::Vector3R translationT0 = m_velocity.mul(
-		ctx.getConfig().getTimeStepStart().getAbsoluteS());
+		ctx.getCommonConfig().getTimeStepStart().getAbsoluteS());
 	const math::Vector3R translationT1 = m_velocity.mul(
-		ctx.getConfig().getTimeStepEnd().getAbsoluteS());
+		ctx.getCommonConfig().getTimeStepEnd().getAbsoluteS());
 	const DynamicLinearTranslation translation(translationT0, translationT1);
 
 	out_motion.localToWorld = ctx.getResources().makeTransform<DynamicLinearTranslation>(

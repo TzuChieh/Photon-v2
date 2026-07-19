@@ -32,7 +32,7 @@ void GSphere::storeCooked(
 	const CookingContext& ctx,
 	CookedGeometry& out_geometry) const
 {
-	if(ctx.getConfig().preferTriangulated)
+	if(ctx.getGeometryConfig().preferTriangulated)
 	{
 		genTriangleMesh()->storeCooked(ctx, out_geometry);
 	}
@@ -43,10 +43,9 @@ void GSphere::storeCooked(
 	}
 }
 
-std::shared_ptr<Geometry> GSphere::genTransformed(
-	const StaticAffineTransform& transform) const
+std::shared_ptr<Geometry> GSphere::genTriangulated() const
 {
-	return genTriangleMesh()->genTransformed(transform);
+	return genTriangleMesh();
 }
 
 GSphere& GSphere::setRadius(const real radius)

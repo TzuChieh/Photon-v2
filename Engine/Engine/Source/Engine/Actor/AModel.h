@@ -23,11 +23,14 @@ public:
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
 	void setMotionSource(const std::shared_ptr<MotionSource>& motion);
+	void setShouldFlipNg(bool shouldFlipNg);
+	bool shouldFlipNg() const;
 
 private:
 	std::shared_ptr<Geometry>     m_geometry;
 	std::shared_ptr<Material>     m_material;
 	std::shared_ptr<MotionSource> m_motionSource;
+	bool m_shouldFlipNg = false;
 
 public:
 	PH_DEFINE_SDL_CLASS(AModel, clazz)
@@ -51,6 +54,13 @@ public:
 		motion.description("Movement of this actor.");
 		motion.optional();
 		clazz.addField(motion);
+
+		TSdlBool<OwnerType> shouldFlipNg("should-flip-ng", &OwnerType::m_shouldFlipNg);
+		shouldFlipNg.description(
+			"Flips only the geometric normal (Ng) after transform; the shading normal (Ns) is not flipped.");
+		shouldFlipNg.defaultTo(false);
+		shouldFlipNg.optional();
+		clazz.addField(shouldFlipNg);
 	}
 };
 

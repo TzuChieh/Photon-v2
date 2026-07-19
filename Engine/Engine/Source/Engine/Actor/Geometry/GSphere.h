@@ -20,8 +20,7 @@ public:
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;
 
-	std::shared_ptr<Geometry> genTransformed(
-		const StaticAffineTransform& transform) const override;
+	std::shared_ptr<Geometry> genTriangulated() const override;
 
 	GSphere& setRadius(real radius);
 

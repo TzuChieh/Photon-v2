@@ -1,6 +1,5 @@
-﻿#include "Engine/Actor/ABlenderPlyModel.h"
+#include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
-#include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -64,6 +63,11 @@ TransientVisualElement ABlenderPlyModel::cook(
 		return TransientVisualElement();
 	}
 
+	// Our default policy is Ng facing is unaffectd by winding change, 
+	// so if `isWindingFlipped` is true then that implies a flip, if `m_shouldFlipNg`
+	// is specified additionally then they can cancel out
+	const bool shouldFlipNg = m_shouldFlipNg != cookedGeometry->isWindingFlipped;
+
 	if(cookedGeometry->faceIdToMetadataSlot.isEmpty())
 	{
 		throw ActorCookException(
@@ -103,6 +107,9 @@ TransientVisualElement ABlenderPlyModel::cook(
 		metadatas[slotIndex] = metadata;
 	}
 
+	const auto* const localToWorld = report.getBaseLocalToWorld();
+	const auto* const worldToLocal = report.getBaseWorldToLocal();
+
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
@@ -112,32 +119,43 @@ TransientVisualElement ABlenderPlyModel::cook(
 			copiedMetadatas[slotIndex] = metadatas[slotIndex];
 		}
 
-		auto* metaPrimitive = ctx.getResources().copyIntersectable(
+		auto primitiveBuilder =
 			PrimitiveBuilder::referencing(primitive)
 				.injectMetadataArray(
 					std::move(copiedMetadatas),
 					numMetadataSlots,
-					&cookedGeometry->faceIdToMetadataSlot)
-				.build());
-
-		result.add(metaPrimitive);
-	}
-
-	if(!m_localToWorld.getDecomposed().isIdentity())
-	{
-		result.primitivesView.clear();
-
-		auto localToWorld = report.getBaseLocalToWorld();
-		auto worldToLocal = report.getBaseWorldToLocal();
-
-		for(auto& intersectable : result.intersectables)
+					&cookedGeometry->faceIdToMetadataSlot);
+		// Have transform
+		if(localToWorld)
 		{
-			auto* transformedIntersectable = ctx.getResources().copyIntersectable(
-				IntersectableBuilder::referencing(intersectable)
-					.transform(localToWorld, worldToLocal)
-					.build());
-
-			intersectable = transformedIntersectable;
+			if(shouldFlipNg)
+			{
+				result.intersectables.push_back(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.transform<true>(localToWorld, worldToLocal).build()));
+			}
+			else
+			{
+				result.intersectables.push_back(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.transform(localToWorld, worldToLocal).build()));
+			}
+		}
+		// No transform
+		else
+		{
+			if(shouldFlipNg)
+			{
+				result.add(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.flipGeometryNormal().build()));
+			}
+			else
+			{
+				result.add(
+					ctx.getResources().copyIntersectable(
+						primitiveBuilder.build()));
+			}
 		}
 	}
 
@@ -152,6 +170,16 @@ void ABlenderPlyModel::setGeometry(const std::shared_ptr<Geometry>& geometry)
 void ABlenderPlyModel::setMaterials(std::vector<std::shared_ptr<Material>> materials)
 {
 	m_materials = std::move(materials);
+}
+
+void ABlenderPlyModel::setShouldFlipNg(const bool shouldFlipNg)
+{
+	m_shouldFlipNg = shouldFlipNg;
+}
+
+bool ABlenderPlyModel::shouldFlipNg() const
+{
+	return m_shouldFlipNg;
 }
 
 }// end namespace ph

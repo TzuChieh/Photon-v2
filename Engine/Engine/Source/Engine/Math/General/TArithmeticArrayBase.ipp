@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Engine/Math/General/TArithmeticArrayBase.h"
+#include "Engine/Math/hash.h"
 #include "Engine/Math/math.h"
 
 #include <Common/assertion.h>
 
 #include <cmath>
+#include <functional>
 #include <utility>
 
 namespace ph::math
@@ -21,6 +23,17 @@ template<typename Derived, typename T, std::size_t N>
 inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(Elements values) :
 	m(std::move(values))
 {}
+
+template<typename Derived, typename T, std::size_t N>
+inline std::size_t TArithmeticArrayBase<Derived, T, N>::genHash() const
+{
+	std::size_t hash = std::hash<T>{}(m[0]);
+	for(std::size_t i = 1; i < N; ++i)
+	{
+		hash = combine_hashes(hash, std::hash<T>{}(m[i]));
+	}
+	return hash;
+}
 
 template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::add(const Derived& rhs) const

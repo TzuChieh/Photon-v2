@@ -55,6 +55,19 @@ void HitDetail::computeBasesOf(ECoordSys coordSys)
 	m_hitInfos[enum_to_value(coordSys)].computeBases();
 }
 
+void HitDetail::setFlippedGeometryNormal()
+{
+	m_hitInfos[enum_to_value(ECoordSys::World)].setFlippedGeometryNormal();
+
+	constexpr EFaceTopology curvatureFlags = EFaceTopology::Convex | EFaceTopology::Concave;
+	PH_ASSERT(!m_faceTopology.hasAll(curvatureFlags));
+	if(m_faceTopology.hasAny(curvatureFlags))
+	{
+		// Toggle between curvatures
+		m_faceTopology.set(static_cast<EFaceTopology>(m_faceTopology.get() ^ enum_to_value(curvatureFlags)));
+	}
+}
+
 uint64 HitDetail::getGlobalFaceID() const
 {
 	if(m_globalPrimitiveID == NO_FACE_ID)

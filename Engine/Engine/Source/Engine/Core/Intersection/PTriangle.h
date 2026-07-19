@@ -84,6 +84,7 @@ private:
 	math::Vector3R m_uvwC;
 
 	math::Vector3R m_faceNormal;
+	bool m_hasShadingNormals;
 };
 
 inline void PTriangle::setNa(const math::Vector3R& nA)
@@ -92,6 +93,7 @@ inline void PTriangle::setNa(const math::Vector3R& nA)
 	PH_ASSERT_IN_RANGE(nA.lengthSquared(), 0.9_r, 1.1_r);
 
 	m_nA = nA;
+	m_hasShadingNormals = true;
 }
 
 inline void PTriangle::setNb(const math::Vector3R& nB)
@@ -100,6 +102,7 @@ inline void PTriangle::setNb(const math::Vector3R& nB)
 	PH_ASSERT_IN_RANGE(nB.lengthSquared(), 0.9_r, 1.1_r);
 
 	m_nB = nB;
+	m_hasShadingNormals = true;
 }
 
 inline void PTriangle::setNc(const math::Vector3R& nC)
@@ -108,6 +111,7 @@ inline void PTriangle::setNc(const math::Vector3R& nC)
 	PH_ASSERT_IN_RANGE(nC.lengthSquared(), 0.9_r, 1.1_r);
 
 	m_nC = nC;
+	m_hasShadingNormals = true;
 }
 
 inline void PTriangle::setUVWa(const math::Vector3R& uvwA)

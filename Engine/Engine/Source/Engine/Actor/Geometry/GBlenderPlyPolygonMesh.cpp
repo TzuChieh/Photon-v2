@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <cstring>
 #include <format>
+#include <utility>
 
 namespace ph
 {
@@ -214,17 +215,27 @@ void GBlenderPlyPolygonMesh::storeCooked(
 	const CookingContext& ctx,
 	CookedGeometry& out_geometry) const
 {
-	IndexedTriangleBuffer* triangleBuffer = ctx.getResources().makeTriangleBuffer();
-
 	PlyFile file(getPlyFile().getPath());
-	*triangleBuffer = loadTriangleBuffer(file);
+	
+	IndexedTriangleBuffer triangleBuffer = loadTriangleBuffer(file);
+	storeCookedPolygonMesh(ctx, std::move(triangleBuffer), out_geometry);
+
 	out_geometry.faceIdToMetadataSlot = load_face_id_to_material_slot_map(file);
+}
 
-	auto* kdTreeMesh = ctx.getResources().makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
-		triangleBuffer);
+void GBlenderPlyPolygonMesh::storeCookedWithBakedTransform(
+	const CookingContext& ctx,
+	const StaticAffineTransform& transform,
+	CookedGeometry& out_geometry) const
+{
+	PlyFile file(getPlyFile().getPath());
 
-	out_geometry.primitives.push_back(kdTreeMesh);
-	out_geometry.triangleView = triangleBuffer;
+	IndexedTriangleBuffer triangleBuffer = loadTriangleBuffer(file);
+	applyBakedTransform(triangleBuffer, transform);
+	storeCookedPolygonMesh(ctx, std::move(triangleBuffer), out_geometry);
+	out_geometry.isWindingFlipped = transform.isWindingFlipped();
+	
+	out_geometry.faceIdToMetadataSlot = load_face_id_to_material_slot_map(file);
 }
 
 }// end namespace ph

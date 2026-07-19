@@ -4,11 +4,14 @@
 #include "Engine/Math/TQuaternion.h"
 #include "Engine/Math/TMatrix4.h"
 #include "Engine/Math/math.h"
+#include "Engine/Math/hash.h"
 
 #include <Common/assertion.h>
 #include <Common/compiler.h>
 
 #include <cstdlib>
+#include <cstddef>
+#include <functional>
 
 namespace ph::math
 {
@@ -264,3 +267,22 @@ inline TVector3<T> TDecomposedTransform<T>::getScale() const
 }
 
 }// end namespace ph::math
+
+namespace std
+{
+
+template<typename T>
+struct hash<ph::math::TDecomposedTransform<T>>
+{
+	std::size_t operator () (const ph::math::TDecomposedTransform<T>& transform) const
+	{
+		std::size_t hash = std::hash<ph::math::TVector3<T>>{}(transform.getPos());
+		hash = ph::math::combine_hashes(
+			hash, std::hash<ph::math::TQuaternion<T>>{}(transform.getRot()));
+		hash = ph::math::combine_hashes(
+			hash, std::hash<ph::math::TVector3<T>>{}(transform.getScale()));
+		return hash;
+	}
+};
+
+}// end namespace std
