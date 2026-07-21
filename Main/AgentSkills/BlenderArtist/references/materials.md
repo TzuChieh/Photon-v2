@@ -47,9 +47,11 @@ Photon evaluates:
 
 ## Convert image values
 
-- Keep maps explicitly authored as scalar data in Raw Data mode and connect them directly. Do not insert Split Image or Luminance without source semantics that require conversion.
-- Preserve a color image's declared color-space transform even when it eventually drives a scalar. Cycles implicitly converts Color to Float with scene-linear RGB-to-Y weights; use Photon Luminance only after the source transform and only call it exact when the working primaries match.
-- Use Split Image only for verified R/G/B/A packing. A Picture color output connected directly to a Photon scalar consumer reads channel 0; rely on that only when channel 0 is the authored meaning.
+- Choose Direct, Split Image, or Luminance from the image's authored semantics, not from the destination socket type or grayscale appearance. Establish channel meaning from authoritative metadata; use channel sampling only as supporting evidence.
+- For a dedicated scalar map whose authored value is channel 0, including replicated R=G=B storage, set Picture to Raw Data and connect it directly to the scalar consumer. Photon reads numeric channel 0 for a direct Picture-to-scalar connection. Do not add Luminance merely because Cycles connects Image Color to a Float socket, and do not add Split R when it would select the same channel.
+- For a packed data image, set Picture to Raw Data and use Split Image to select the verified R, G, B, or A channel. Split selects a component; it does not perform color-to-grayscale conversion.
+- For a genuinely color-authored image that drives a scalar conversion, preserve its declared color-space transform and use Luminance afterward. Cycles implicitly converts Color to Float with scene-linear RGB-to-Y weights; call the Photon mapping exact only when the working primaries match. Keep Luminance when the channels carry color meaning or differ and the source does not select one explicitly.
+- Do not classify a color-managed grayscale image as raw solely because sampled R, G, and B values match; bypassing its declared transfer function changes the scalar.
 - Reuse a Picture node only when its file, color space, Raw Data state, sample mode, and wrap mode are identical for every consumer. Keep separate nodes when any of those semantics differ.
 - Materialize a derived sidecar image only when installed nodes or the renderer's file loader cannot represent the source. After rewiring, compare live Picture paths with scoped sidecar files and remove only verified unreferenced or byte-identical resources.
 
@@ -102,6 +104,7 @@ For every changed Photon material, verify:
 - The material family matches source metalness, transmission, layering, and surface-versus-volume intent; a volume-only source has no opaque Photon proxy.
 - Every behavior-bearing source socket has a recorded linked/default state and effective expression; every varying property is linked and every effective constant matches its source.
 - Every new image, math, conversion, and procedural node is reverse-reachable from a used Photon Output input, including surface, emission, and mask. Node presence alone is not validation; remove only nodes proven obsolete and unreachable.
+- For every Picture-to-scalar path, record one justified form: direct channel 0 for authored scalar data, Split with the verified packed channel, or Luminance with the source color-space conversion. Remove Split or Luminance nodes that have no such semantic justification.
 - For every Binary Mix, independently derive expected Factor Type from source semantics, then verify actual mode, active linked factor socket, inactive unlinked factor socket, A/B order, extracted channel, and map.
 - Roughness semantics and conversion are correct exactly once.
 - Normal format, opacity, emission, color spaces, assignments, and bindings survive conversion.
@@ -120,7 +123,7 @@ Keep a per-material ledger with the assigned objects/role, source socket state, 
 - Binary Mix: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/binary_mixed.py`, `Engine/Engine/Source/Engine/Actor/Material/BinaryMixedSurfaceMaterial.h`, and `Engine/Engine/Source/Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.ipp`
 - Matte and microfacet materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/diffuse.py`, `abraded_opaque.py`, `abraded_translucent.py`, and `Engine/Engine/Source/Engine/Actor/Material/Component/RoughnessToAlphaMapping.h`
 - Ideal, thin, layered, and normal-mapped materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/ideal_substance.py`, `thin_dielectric_surface.py`, `surface_layer.py`, and `normal_mapped.py`
-- Picture and conversion nodes: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/split_image.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/luminance.py`, `Engine/Engine/Source/Engine/Actor/Image/SwizzledImage.cpp`, and `Engine/Engine/Source/Engine/Actor/Image/LuminanceImage.cpp`
+- Picture and conversion nodes: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/split_image.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/luminance.py`, `Engine/Engine/Source/Engine/Actor/Image/Image.cpp`, `Engine/Engine/Source/Engine/Actor/Image/SwizzledImage.cpp`, and `Engine/Engine/Source/Engine/Actor/Image/LuminanceImage.cpp`
 - Procedural noise and scalar remapping: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/noise.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/arithmetic.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/clamp.py`, `Engine/Engine/Source/Engine/Actor/Image/NoiseImage.cpp`, and `Engine/Engine/Source/Engine/Core/Texture/TFbmNoiseTexture.cpp`
 - Mask and emission behavior: `Engine/Engine/Source/Engine/Actor/Image/Image.cpp` and `BlenderAddon/PhotonBlend/bmodule/mesh/export.py`
 - Emitter sidedness and normal flipping: `Engine/Engine/Source/Engine/Core/Emitter/SurfaceEmitter.cpp`, `Engine/Engine/Source/Engine/Core/Emitter/DiffuseSurfaceEmitterBase.cpp`, and `Engine/Engine/Source/Engine/Actor/ABlenderPlyModel.h`

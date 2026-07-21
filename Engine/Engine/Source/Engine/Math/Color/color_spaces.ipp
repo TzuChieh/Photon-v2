@@ -11,7 +11,9 @@
 
 #include <Common/assertion.h>
 
+#include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace ph::math
 {
@@ -107,6 +109,95 @@ class TColorSpaceDefinition<EColorSpace::Linear_sRGB, T> final :
 	public TTristimulusColorSpaceDefinitionHelper<EColorSpace::Linear_sRGB, EReferenceWhite::D65>
 {
 public:
+	/*! @brief Converts linear sRGB color to HSV.
+
+	@return HSV values in H, S, V order. H is in normalized turns in [0, 1], where 0 is 0 degrees
+	(red) and a full turn is 360 degrees, while achromatic colors use 0. S is a unit ratio in [0, 1] for
+	non-negative RGB inputs, not a percentage. V is the maximum RGB component and therefore uses
+	the same numeric scale as the input, including values greater than 1 for HDR. No values are
+	clamped; inputs outside the conventional non-negative RGB domain can produce S outside [0, 1].
+
+	Reference: https://en.wikipedia.org/wiki/HSL_and_HSV
+	*/
+	inline static TTristimulusValues<T> toHSV(const TTristimulusValues<T>& thisColor)
+	{
+		const T maxComponent = std::max(thisColor[0], std::max(thisColor[1], thisColor[2]));
+		const T minComponent = std::min(thisColor[0], std::min(thisColor[1], thisColor[2]));
+		const T chroma = maxComponent - minComponent;
+
+		T hue = 0;
+		T saturation = 0;
+		if(maxComponent != 0)
+		{
+			saturation = chroma / maxComponent;
+		}
+
+		if(saturation != 0)
+		{
+			if(thisColor[0] == maxComponent)
+			{
+				hue = (thisColor[1] - thisColor[2]) / chroma;
+				if(hue < 0)
+				{
+					hue += 6;
+				}
+			}
+			else if(thisColor[1] == maxComponent)
+			{
+				hue = 2 + (thisColor[2] - thisColor[0]) / chroma;
+			}
+			else
+			{
+				hue = 4 + (thisColor[0] - thisColor[1]) / chroma;
+			}
+
+			hue /= 6;
+		}
+
+		return {hue, saturation, maxComponent};
+	}
+
+	/*! @brief Converts HSV to linear sRGB color.
+
+	@param HSVColor HSV values in H, S, V order. H is in normalized turns in [0, 1], with both
+	endpoints representing red (0 and 360 degrees). S is a unit ratio, conventionally in [0, 1], not
+	a percentage. V uses the desired linear-sRGB numeric scale and can be greater than 1 for HDR.
+	No values are clamped.
+
+	Reference: https://en.wikipedia.org/wiki/HSL_and_HSV
+	*/
+	inline static TTristimulusValues<T> fromHSV(const TTristimulusValues<T>& HSVColor)
+	{
+		T hue = HSVColor[0];
+		const T saturation = HSVColor[1];
+		const T value = HSVColor[2];
+		PH_ASSERT_IN_RANGE_INCLUSIVE(hue, T(0), T(1));
+
+		if(hue == 1)
+		{
+			hue = 0;
+		}
+
+		const T scaledHue = hue * 6;
+		const int sector = static_cast<int>(std::floor(scaledHue));
+		const T fraction = scaledHue - sector;
+		const T p = value * (1 - saturation);
+		const T q = value * (1 - saturation * fraction);
+		const T t = value * (1 - saturation * (1 - fraction));
+
+		switch(sector)
+		{
+		case 0: return {value, t, p};
+		case 1: return {q, value, p};
+		case 2: return {p, value, t};
+		case 3: return {p, q, value};
+		case 4: return {t, p, value};
+		case 5: return {value, p, q};
+		}
+
+		std::unreachable();
+	}
+
 	/*! @brief Converts linear sRGB color to CIE XYZ color.
 
 	Note that we did NOT use the matrices listed in Bruce's site [2] (http://www.brucelindbloom.com/index.html?ReferenceImages.html).

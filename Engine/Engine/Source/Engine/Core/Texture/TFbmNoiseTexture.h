@@ -53,8 +53,6 @@ struct FbmNoiseTextureConfig final
 namespace fbm
 {
 
-real evaluate_texture(const FbmNoiseTextureConfig& config, const SampleLocation& sampleLocation);
-
 struct ScalarOutput final
 {
 	real operator () (real noise) const
@@ -62,6 +60,8 @@ struct ScalarOutput final
 		return noise;
 	}
 };
+
+real evaluate_texture(const FbmNoiseTextureConfig& config, const SampleLocation& sampleLocation);
 
 }// end namespace fbm
 

@@ -553,7 +553,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::lerp(const Derived& rhs, const 
 	Derived result(static_cast<const Derived&>(*this));
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		result.m[i] = m[i] * (static_cast<U>(1) - factor) + rhs.m[i] * factor;
+		static_cast<Self&>(result).m[i] = m[i] * (static_cast<U>(1) - factor) + static_cast<const Self&>(rhs).m[i] * factor;
 	}
 	return result;
 }
