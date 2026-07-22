@@ -1,3 +1,4 @@
 from bmodule.material.conversion_nodes.hsv import PhHsvNode
 from bmodule.material.conversion_nodes.luminance import PhLuminanceNode
 from bmodule.material.conversion_nodes.split_image import PhSplitImageNode
+from bmodule.material.conversion_nodes.transformed_image import PhTransformedImageNode

@@ -76,6 +76,7 @@ class MaterialNodes(blender.BlenderModule):
         conversion_nodes.PhHsvNode,
         conversion_nodes.PhSplitImageNode,
         conversion_nodes.PhLuminanceNode,
+        conversion_nodes.PhTransformedImageNode,
         group_nodes.PhGroupNode,
         ]
         

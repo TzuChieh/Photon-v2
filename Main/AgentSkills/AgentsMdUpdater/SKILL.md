@@ -1,15 +1,21 @@
 ---
 name: agents-md-updater
-description: "Maintain AGENTS.md files with concise, durable project guidance. Use when Codex needs to capture general session learnings, update scoped agent notes, remove stale guidance, or audit AGENTS.md for usefulness. Do not use for changelogs, implementation summaries, or one-off facts that will not guide future work."
+description: "Maintain AGENTS.md as compact execution context for coding agents. Use when Codex needs to capture durable learnings, update scoped notes, remove stale guidance, or audit AGENTS.md for usefulness. Do not use for changelogs, implementation summaries, or one-off facts."
 ---
 
 # AGENTS.md Updater
 
-Act as a fast, professional editor. Preserve only durable project guidance that makes future implementation, review, or investigation smoother and more accurate without carrying session history forward.
+Optimize AGENTS.md as execution context injected into coding agents. Preserve only durable
+instructions that change how a future agent should implement, review, investigate, or verify work.
 
-## Overview
+## Consumption Model
 
-AGENTS.md files are operational context for coding agents, not human project documentation. Keep them thin, scoped, verified, and action-oriented.
+- AGENTS.md is agent input, not human project documentation, onboarding, or a session record. Every
+  sentence spends context; keep only text that improves a future agent's decisions.
+- Make the trigger or scope and the required action, invariant, ownership boundary, or evidence gate
+  directly recoverable from each note.
+- Keep orientation only when it routes an agent to the correct owner, source, command, or deeper
+  guide; omit marketing, prose tours, and explanations that do not change action.
 
 ## Workflow
 
@@ -25,13 +31,15 @@ AGENTS.md files are operational context for coding agents, not human project doc
 Before writing, each candidate note must pass all checks:
 
 - It removes likely future ambiguity or prevents a realistic implementation mistake.
-- It guides a future action, design choice, review, or investigation.
+- A future agent can identify when it applies and what action, constraint, or verification follows.
 - It is likely to remain useful after local code moves, refactors, or the immediate issue is fixed.
 - It states a reusable boundary, invariant, workflow preference, or evidence standard rather than a fact snapshot.
-- It is agent-facing operational guidance, not a human-oriented overview, release note, or onboarding summary.
+- It can be applied directly without interpreting motivation-heavy or human-oriented narrative.
 - It is not better kept in source comments, tests, commit messages, issue trackers, profiling ledgers, or final response summaries.
 
-Reject notes that merely say what changed, which symbol currently does something, which patch worked, which file was touched, or what the latest code looks like unless that fact is the stable rule future agents must follow. Prefer a pointer to existing docs, tests, scripts, or source over duplicating their content.
+Reject notes that merely say what changed, describe what a symbol currently does, tour the project,
+or preserve a patch outcome unless that fact is the stable rule future agents must follow. Prefer a
+retrieval pointer to authoritative docs, tests, scripts, or source over duplicating their content.
 
 ### 3. Choose Scope
 
@@ -42,14 +50,29 @@ Reject notes that merely say what changed, which symbol currently does something
 
 ### 4. Write Compact Notes
 
-- Write concise bullets with durable boundaries, invariants, ownership rules, preferred patterns, or evidence standards.
+- Lead with the trigger, owner, action, or constraint. Use imperative wording; include rationale only
+  when it prevents a wrong choice.
+- Write concise bullets with durable boundaries, invariants, ownership rules, preferred patterns, or
+  evidence standards.
 - Merge closely related facts into one note; avoid separate bullets that share the same owner, path, workflow, or invariant.
 - Remove or consolidate duplicated guidance across parent/child guides and within the same guide before adding new material.
 - Prefer one dense, readable sentence over multiple bullets when the facts are inseparable.
-- Omit implementation narration, code mechanics, concrete examples, pending fixes, local workarounds, transient status, speculation, measurement logs, investigation results, and details better kept in source comments, tests, plans, or issues.
-- Preserve existing notes unless evidence shows they are stale; update corrected boundaries such as deprecated areas.
+- Use symbols, paths, and commands as retrieval anchors, not as a source tour. Avoid `currently`,
+  `today`, and version snapshots unless the version itself is an active compatibility boundary.
+- Omit project introductions, implementation narration, concrete examples, pending fixes, local
+  workarounds, transient status, speculation, logs, and details better kept in source comments,
+  tests, plans, or issues.
+- Preserve existing notes only while they remain true, scoped, and actionable; update corrected
+  boundaries such as deprecated areas.
 
 ### 5. Audit Existing Notes
+
+For an explicitly requested full audit:
+
+- Enumerate every guide with `rg --files -g AGENTS.md` and inspect every note; do not treat an
+  unchanged file as implicitly audited.
+- Classify each note as keep, rewrite, move, merge, or remove based on truth, usefulness, scope, and
+  agent actionability.
 
 For each `AGENTS.md` file modified:
 
@@ -77,6 +100,8 @@ For broad, root-scope, or otherwise nontrivial AGENTS.md updates:
 ## Rejection Checks
 
 - The diff reads like a changelog, investigation log, source tour, or list of recent commits.
+- A section explains the product or subsystem to a person without changing an agent's next action.
+- A bullet provides background but no trigger, constraint, owner, action, or evidence gate.
 - A new scoped AGENTS.md contains only one narrow observation.
 - The same rule appears in parent and child scopes without a strong independent-trigger reason.
 - Notes mention specific attempt outcomes, timings, TODO fixes, or symbol mechanics that source comments/tests should own.

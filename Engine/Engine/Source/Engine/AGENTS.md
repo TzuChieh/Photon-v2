@@ -13,10 +13,8 @@
   path/function permalinks beside the corresponding implementation; do not cite unused helpers.
 
 ## Film and Observable Metadata
-- `EFilm` defines each film output's meaning; do not add a parallel semantic enum when film type
-  already determines the contract.
-- `FilmSetting` owns numeric/color semantics and renderer output color space; do not duplicate that
-  metadata in film implementations.
+- Let `EFilm` define output meaning and `FilmSetting` own numeric/color semantics and renderer
+  output color space; do not add parallel enums or duplicate this metadata in film implementations.
 - `RenderObservableInfo` contains client-visible layer, progress, and statistic descriptions.
   `Engine` adds configured `FilmSetting` layer names to renderer-provided progress and statistic
   descriptions.

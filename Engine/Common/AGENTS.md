@@ -5,8 +5,9 @@
 - Keep low-cost stats enabled by default, high-cost stats opt-in, debug logging tied to `PH_DEBUG`, and hardware capability detection (`PH_HARDWARE_HAS_*`) separate from derived feature-use checks (`PH_USE_*`).
 
 ## String Utilities
-- `string_utils::next_token()` trims returned tokens. Whitespace tokenization skips leading separators; explicit non-whitespace separators preserve empty middle fields and ignore trailing empty fields.
-- `CommandLineArguments::retrieveCommaSeparatedStrings()` follows `next_token()` field semantics: empty input yields no entries, `a,,c` keeps the empty middle slot, and trailing comma/whitespace-only fields are ignored.
+- Preserve `string_utils::next_token()` field semantics in
+  `CommandLineArguments::retrieveCommaSeparatedStrings()`: trim tokens, skip leading whitespace
+  separators, preserve empty middle fields for explicit separators, and ignore trailing empty fields.
 
 ## Timer Stats
 - Timer stat declarations use a short display name plus a dotted path; the report derives hierarchy from the full dotted path, so choose paths that match the intended timing tree rather than relying on runtime parent tracking.

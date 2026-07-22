@@ -1,5 +1,5 @@
 # Filesystem Guide
 
 ## Project Paths
-- Use the matching `TProjectPath` helper alias when available.
-- Keep fixed identifiers as slash-separated strings; use `/` to join separate segments.
+- Use the matching `TProjectPath` helper alias; keep fixed identifiers slash-separated and use
+  `/` only to join separate path segments.
