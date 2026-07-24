@@ -73,6 +73,7 @@ class MaterialNodes(blender.BlenderModule):
         volume_nodes.PhIdealMediumNode,
         math_nodes.PhArithmeticNode,
         math_nodes.PhClampNode,
+        conversion_nodes.PhColorRemapNode,
         conversion_nodes.PhHsvNode,
         conversion_nodes.PhSplitImageNode,
         conversion_nodes.PhLuminanceNode,
