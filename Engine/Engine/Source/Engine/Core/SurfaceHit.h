@@ -60,15 +60,15 @@ public:
 	SurfaceHit();
 
 	/*! @brief Construct from the ray and probe involved in a hit event.
-	A full hit detail will be computed. If this is undesirable (e.g., full hit detail is not required),
-	use the overload which let you set the hit detail directly.
+	A full hit detail will be computed. If this is undesirable (e.g., full hit detail is not
+	required), use the overload that lets you set the hit detail directly.
 	*/
 	SurfaceHit(
 		const Ray&               ray,
 		const HitProbe&          probe,
 		SurfaceHitReasons        reason);
 
-	/*! @brief Contruct with all internal data specified explicitly.
+	/*! @brief Construct with all internal data specified explicitly.
 	No extra calculation is performed.
 	*/
 	SurfaceHit(
@@ -77,19 +77,6 @@ public:
 		const HitDetail&         detail,
 		const PrimitiveMetadata* metadata,
 		SurfaceHitReasons        reason,
-		bool                     hasFullHitDetail);
-
-	SurfaceHit(
-		const Ray&               ray,
-		const HitProbe&          probe,
-		ESurfaceHitReason        reason);
-
-	SurfaceHit(
-		const Ray&               ray,
-		const HitProbe&          probe,
-		const HitDetail&         detail,
-		const PrimitiveMetadata* metadata,
-		ESurfaceHitReason        reason,
 		bool                     hasFullHitDetail);
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
@@ -160,7 +147,7 @@ inline SurfaceHit::SurfaceHit()
 inline SurfaceHit::SurfaceHit(
 	const Ray&               ray,
 	const HitProbe&          probe,
-	SurfaceHitReasons        reason)
+	const SurfaceHitReasons  reason)
 
 	: m_ray             {ray}
 	, m_recordedProbe   {probe}
@@ -179,8 +166,8 @@ inline SurfaceHit::SurfaceHit(
 }
 
 inline SurfaceHit::SurfaceHit(
-	const Ray&               ray, 
-	const HitProbe&          probe, 
+	const Ray&               ray,
+	const HitProbe&          probe,
 	const HitDetail&         detail,
 	const PrimitiveMetadata* metadata,
 	const SurfaceHitReasons  reason,
@@ -192,25 +179,6 @@ inline SurfaceHit::SurfaceHit(
 	, m_metadata        {metadata}
 	, m_reason          {reason}
 	, m_hasFullHitDetail{hasFullHitDetail}
-{}
-
-inline SurfaceHit::SurfaceHit(
-	const Ray&              ray,
-	const HitProbe&         probe,
-	const ESurfaceHitReason reason)
-
-	: SurfaceHit(ray, probe, SurfaceHitReasons(reason))
-{}
-
-inline SurfaceHit::SurfaceHit(
-	const Ray&               ray,
-	const HitProbe&          probe,
-	const HitDetail&         detail,
-	const PrimitiveMetadata* metadata,
-	const ESurfaceHitReason  reason,
-	const bool               hasFullHitDetail)
-
-	: SurfaceHit(ray, probe, detail, metadata, SurfaceHitReasons(reason), hasFullHitDetail)
 {}
 
 inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
@@ -242,7 +210,7 @@ inline const Ray& SurfaceHit::getRay() const
 inline const Ray& SurfaceHit::getIncidentRay() const
 {
 	PH_ASSERT(m_reason.has(ESurfaceHitReason::IncidentRay));
-	return getRay();
+	return m_ray;
 }
 
 inline const Time& SurfaceHit::getTime() const

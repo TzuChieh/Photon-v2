@@ -10,10 +10,10 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitProbe.h"
 #include "Engine/Core/HitDetail.h"
+#include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
 #include "Engine/Math/constant.h"
 #include "Engine/Math/Color/Spectrum.h"
-#include "Engine/Core/Texture/SampleLocation.h"
 #include "Engine/Math/Geometry/THemisphere.h"
 #include "Engine/Math/TOrthonormalBasis3.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
@@ -68,23 +68,21 @@ void DiffuseSurfaceEmitterBase::genDirectSampleFromSurface(
 		return;
 	}
 
-	HitDetail detail;
-	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
-
+	const SurfaceHit Xe(posSample.outputs.getObservationRay(), probe, ESurfaceHitReason::SampledPos);
 	const auto emitterToTargetPos = query.inputs.getTargetPos() - posSample.outputs.getPos();
-	if(!canEmit(emitterToTargetPos, detail.getShadingNormal()))
+	if(!canEmit(emitterToTargetPos, Xe.getShadingNormal()))
 	{
 		return;
 	}
 
-	math::Spectrum emittedEnergy;
-	energy.sample(SampleLocation(detail, math::EColorUsage::EMR), &emittedEnergy);
+	const TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
+	const math::Spectrum emittedEnergy = sampler.sample(energy, Xe);
 
 	query.outputs.setEmitPos(posSample.outputs.getPos());
 	query.outputs.setEmittedEnergy(emittedEnergy);
 	query.outputs.setSrcPrimitive(&surface);
 	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
-		posSample.outputs.getPdfA(), emitterToTargetPos, detail.getShadingNormal())));
+		posSample.outputs.getPdfA(), emitterToTargetPos, Xe.getShadingNormal())));
 	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
@@ -136,8 +134,9 @@ void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 	// The emitted ray will be representing the hit event
 	probe.replaceBaseHitRayT(emittedRay.getMinT());
 
-	math::Spectrum emittedEnergy;
-	energy.sample(SampleLocation(detail, math::EColorUsage::EMR), &emittedEnergy);
+	const SurfaceHit Xe(emittedRay, probe, ESurfaceHitReason::SampledPosDir);
+	const TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
+	const math::Spectrum emittedEnergy = sampler.sample(energy, Xe);
 
 	query.outputs.setEmittedRay(emittedRay);
 	query.outputs.setPdf(posSample.outputs.getPdfPos(), lta::PDF::W(pdfW));

@@ -1,5 +1,6 @@
 #include "engine_test_constants.h"
 
+#include <Engine/Core/SurfaceHit.h>
 #include <Engine/Core/Texture/Function/sample_location_operators.h>
 #include <Engine/Core/Texture/SampleLocation.h>
 #include <Engine/Math/Color/color_enums.h>
@@ -25,14 +26,21 @@ TEST(SampleLocationOperatorTest, AffineTransformRotatesUvw)
 	EXPECT_NEAR(0.0_r, mappedLocation.uvw().z(), TEST_REAL_EPSILON);
 }
 
-TEST(SampleLocationOperatorTest, AffineTransformTranslatesUvw)
+TEST(SampleLocationOperatorTest, AffineTransformTranslatesUvwAndPreservesSurfaceContext)
 {
+	const SurfaceHit X;
+	const Vector3R originalHitUvw = X.getDetail().getUVW();
+	SampleLocation sampleLocation(&X, EColorUsage::ECF);
+	sampleLocation.setUvw({0.25_r, 0.5_r, 0.75_r});
+
 	Matrix4R matrix;
 	matrix.initTranslation(1.0_r, -2.0_r, 3.0_r);
 
 	const texfunc::AffineUvwTransform transform(matrix);
-	const SampleLocation mappedLocation = transform(
-		SampleLocation({0.25_r, 0.5_r, 0.75_r}, EColorUsage::Raw));
+	const SampleLocation mappedLocation = transform(sampleLocation);
 
 	EXPECT_EQ(mappedLocation.uvw(), Vector3R(1.25_r, -1.5_r, 3.75_r));
+	EXPECT_EQ(mappedLocation.expectedUsage(), EColorUsage::ECF);
+	EXPECT_EQ(&mappedLocation.getSurfaceHit(), &X);
+	EXPECT_EQ(X.getDetail().getUVW(), originalHitUvw);
 }

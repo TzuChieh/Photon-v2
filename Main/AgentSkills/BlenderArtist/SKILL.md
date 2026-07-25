@@ -16,11 +16,12 @@ description: Author and repair Photon scenes in the currently open Blender insta
 
 1. Define the requested scope and authoritative source data.
 2. Inspect relevant live state. Preserve all out-of-scope objects, bindings, world/IBL, cameras, exposure, and settings.
-3. For material creation, conversion, repair, or audit, read [the material-authoring reference](references/materials.md) completely before editing. Do not load it for non-material work.
-4. Audit material conversions one material at a time. Establish the active source-output path, assigned-object context, and effective linked/default socket values before authoring Photon nodes. Derive expected Photon data types, node modes, and active sockets from that source intent; never use an existing node's selected mode as evidence that the mode is correct.
-5. Save or create an undo checkpoint before broad changes or arbitrary code execution.
-6. Preflight target identities, schemas, and links before mutation. Author the change through the connected Blender process, then inspect the resulting live state instead of assuming execution succeeded.
-7. Save the live scene after validation. In a fresh MCP query, confirm the filepath is unchanged and `bpy.data.is_dirty` is false; save handlers may settle after the save call returns.
+3. For camera matching or export audits, derive the evaluated frame with `camera.data.view_frame(scene=scene)` under the current resolution, pixel aspect, sensor fit, and shift. Compare both evaluated frame angles with Photon; raw lens, sensor width, or `Camera.angle` alone is not authoritative in portrait or `AUTO`-fit cases.
+4. For material creation, conversion, repair, or audit, read [the material-authoring reference](references/materials.md) completely before editing. Do not load it for non-material work.
+5. Audit material conversions one material at a time. Establish the active source-output path, assigned-object context, and effective linked/default socket values before authoring Photon nodes. Derive expected Photon data types, node modes, and active sockets from that source intent; never use an existing node's selected mode as evidence that the mode is correct.
+6. Save or create an undo checkpoint before broad changes or arbitrary code execution.
+7. Preflight target identities, schemas, and links before mutation. Author the change through the connected Blender process, then inspect the resulting live state instead of assuming execution succeeded.
+8. Save the live scene after validation. In a fresh MCP query, confirm the filepath is unchanged and `bpy.data.is_dirty` is false; save handlers may settle after the save call returns.
 
 ## Guardrails
 
@@ -28,4 +29,5 @@ description: Author and repair Photon scenes in the currently open Blender insta
 - Discover scene, add-on, and resource paths at runtime. Never hardcode machine-specific paths, and do not assume a remote MCP host shares the local filesystem.
 - Do not create helper scripts, notes, or unrelated files unless requested.
 - Preserve existing object-material assignments and other bindings unless they are explicitly in scope.
+- Treat object-transform parity, local face winding, shading-normal orientation, and zero-area triangles as separate geometry conditions. Never use determinant correction or normal recalculation as a substitute for validating the others.
 - For sensitive work, review Blender MCP telemetry settings before submitting code or screenshots; disable telemetry when required by the project.

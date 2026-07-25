@@ -1,4 +1,5 @@
 #include <Engine/Core/Texture/Function/unary_texture_operators.h>
+#include <Engine/Core/Texture/SampleLocation.h>
 #include <Engine/Core/Texture/TTexture.h>
 
 #include <gtest/gtest.h>
@@ -24,6 +25,6 @@ TEST(TConstantMultiplyTextureTest, CorrectlyMultiply)
 		Multiplier(static_cast<int8>(2)));
 
 	real sampleValue;
-	texture.sample(SampleLocation(HitDetail()), &sampleValue);
+	texture.sample(SampleLocation(math::Vector3R(0)), &sampleValue);
 	EXPECT_DOUBLE_EQ(sampleValue, 2.0_r);
 }

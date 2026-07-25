@@ -31,7 +31,7 @@ inline SurfaceHit report_hit(const Ray& ray, const HitProbe& probe)
 		probe,
 		detail,
 		&SurfaceHit::getPrimitiveMetadataRef(detail),
-		SurfaceHitReasons(ESurfaceHitReason::IncidentRay),
+		ESurfaceHitReason::IncidentRay,
 		false);
 }
 

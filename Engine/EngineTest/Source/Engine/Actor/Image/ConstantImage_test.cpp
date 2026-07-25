@@ -19,7 +19,7 @@ TEST(ConstantImageTest, StoresRawArray)
 	const auto texture = image.genColorTexture(ctx);
 
 	Spectrum sampled;
-	texture->sample(SampleLocation(HitDetail()), &sampled);
+	texture->sample(SampleLocation(Vector3R(0)), &sampled);
 	EXPECT_EQ(sampled[0], 0.2_r);
 	EXPECT_EQ(sampled[1], 0.4_r);
 	EXPECT_EQ(sampled[2], 0.6_r);
@@ -39,7 +39,7 @@ TEST(ConstantImageTest, BroadcastsRawScalar)
 	const auto texture = image.genColorTexture(ctx);
 
 	Spectrum sampled;
-	texture->sample(SampleLocation(HitDetail()), &sampled);
+	texture->sample(SampleLocation(Vector3R(0)), &sampled);
 	for(const ColorValue value : sampled.getColorValues())
 	{
 		EXPECT_EQ(value, 0.25_r);

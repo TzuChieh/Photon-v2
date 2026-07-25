@@ -9,7 +9,9 @@ Read this reference completely only for material creation, conversion, repair, o
 - [Use Binary Mixed Surface correctly](#use-binary-mixed-surface-correctly)
 - [Convert image values](#convert-image-values)
 - [Lower scalar conversion chains](#lower-scalar-conversion-chains)
+- [Lower color conversion chains](#lower-color-conversion-chains)
 - [Map supported surface behavior](#map-supported-surface-behavior)
+- [Map image coordinates](#map-image-coordinates)
 - [Map procedural inputs](#map-procedural-inputs)
 - [Preserve secondary behavior](#preserve-secondary-behavior)
 - [Audit and report](#audit-and-report)
@@ -62,6 +64,13 @@ Photon evaluates:
 - A linear Map Range is `to_min + (to_max - to_min) * ((x - from_min) / (from_max - from_min))`; apply Clamp only when enabled. Preserve other interpolation modes as qualitative or unsupported unless Photon can express them.
 - A two-stop linear scalar ramp is `y0 + (y1 - y0) * clamp((x - p0) / (p1 - p0), 0, 1)`. A multi-stop linear ramp can be lowered as a sum of clamped segment deltas when every color, constant, and operation is representable. Treat non-linear interpolation and unrepresentable vector math as unsupported.
 
+## Lower color conversion chains
+
+- Preserve operation order and fan-out across every reachable HSV, RGB Curves, tint, and color-mix stage. Implementing one supported stage does not make a path complete when a later Overlay or other blend remains unsupported.
+- Map a source HSV node to Photon HSV with `Hue = source Hue - 0.5` normalized turns, Saturation and Value unchanged, and source Factor mapped to Amount. Preserve linked controls; Photon mapped controls override their paired constants.
+- Map an active RGB Curves node to Color Remap at the same graph stage. Transfer the complete CurveMapping state, including Combined and R/G/B curves in the source order of Combined first and per-channel curves second, then preserve Factor and every downstream consumer. Color Remap owns a hidden native curve tree and exports a 257-sample linear-interpolation LUT plus lower/upper extrapolation slopes; it does not create a texture file.
+- Give every Color Remap node its own curve-tree sidecar. After transfer, compare the baked LUT, both extrapolation slopes, factor, stage, and output fan-out with the source before removing any older approximation.
+
 ## Map supported surface behavior
 
 - Matte opaque: use Diffuse Surface, which exports Matte Opaque. Its Albedo input is mapped, and its Roughness input exports an Oren-Nayar sigma map when Oren Nayar is selected.
@@ -70,30 +79,40 @@ Photon evaluates:
 - Glossy dielectric over diffuse: if no closer installed Photon node exists, use the qualitative fallback A = white microfacet specular proxy and B = diffuse. For constant source inputs, set the factor to the normal-incidence value `((IOR - 1) / (IOR + 1))^2 * (2 * Specular IOR Level)`; 0.04 is correct only for IOR 1.5 at the default 0.5 level. This still does not reproduce angle-dependent Fresnel or directional energy compensation.
 - Perceptual GGX roughness: select `SQUARED` only when the source value is perceptual roughness. Photon implements this option as roughness multiplied by itself; do not apply it to an already converted microfacet alpha.
 - Ideal smooth dielectric: set Ideal Substance to `dielectric`, exact Fresnel, and the source IOR. The Blender node defaults to `metallic-reflector` and also exposes mapped reflection and transmission scales.
-- Volume-only source: preserve the absence of an opaque surface; never replace an unsupported volume with an opaque proxy. If Photon requires a surface connection, use an Ideal Substance dielectric with equal inside/outside IOR 1 and unit transmission only as a boundary passthrough after verifying geometry and boundary intent. Record every effective volume input as unsupported; the passthrough does not approximate the medium.
+- Volume-only source: preserve the absence of an opaque surface; never replace an unsupported volume with an opaque proxy. Map authored homogeneous absorption through Ideal Medium only when its semantics match; the current model is absorption-only and cannot reproduce scattering or anisotropy. If Photon requires a surface connection, use an Ideal Substance dielectric with equal inside/outside IOR 1 and unit transmission only as a boundary passthrough after verifying geometry and boundary intent. Record each remaining effective volume input as unsupported; the passthrough does not approximate the medium.
 - Thin dielectric sheet: use Thin Dielectric Surface when the source calls for a thin sheet. The node exposes thickness, extinction (`Sigma T`), reflection scale, transmission scale, and IOR.
 - Rough dielectric interface: use Abraded Translucent for exact or Schlick Fresnel, IOR, and mapped isotropic or anisotropic roughness. It has no thickness, absorption, scattering, or tint inputs; use another supported model or report those source properties.
 - Layered coating: use Layered Surface only for behavior its layer inputs encode. Surface Layer exposes roughness, complex IOR, thickness, phase asymmetry, absorption, and scattering, but no diffuse albedo.
 - Ambient occlusion: OpenPBR has no AO parameter. Map AO only to a documented Photon input; otherwise preserve and report it rather than silently multiplying base color.
+
+## Map image coordinates
+
+- Establish the source coordinate domain and complete mapping chain for every assigned object before changing texture scale. An unconnected source Image Texture uses the active UV map, while an unconnected source Noise Vector uses Generated coordinates; Photon uses hit UVW when Picture or Noise has no explicit coordinate resource.
+- Use Image Transform only when the desired sampling coordinates are one affine function of hit UVW. Photon applies scale, XYZ rotation, then translation. Derive that transform from the effective source expression instead of copying fields whose operation order may differ.
+- Image Transform can wrap color or numeric image resources, including procedural outputs and opacity-mask graphs. It cannot select Generated or Object coordinates, reconstruct a missing coordinate component, invert a non-affine UV unwrap, or choose different transforms per object for a shared material.
+- Photon Noise already has a link-only `Coordinates` socket. If the source uses Object or another unavailable domain, report the missing coordinate-source node rather than incorrectly reporting that Noise lacks coordinate input.
+- Image Transform changes sampling coordinates only; it does not add mipmapping, ray differentials, or a different Picture filter. Validate minified or grazing-angle textures separately.
+- Validate an asserted exact transform by comparing sampled source and Photon coordinates across every assigned object. Keep the mapping qualitative when phase, orientation, translation, seams, or per-object differences remain.
 
 ## Map procedural inputs
 
 - Trace only source nodes reachable from the active material output. Do not add a supported procedural node when its only downstream consumer, such as Bump, remains unsupported.
 - For Cycles Perlin fBM Noise, map Dimensions directly, Normalize directly, Scale to Frequency, Detail to `Num Layers = Detail + 1`, Roughness to Amplitude Ratio, Lacunarity to Frequency Ratio, and Distortion to Warp. Linked controls require compatible Photon image resources.
 - Map Cycles Fac to Photon Value. Photon Noise Color broadcasts the scalar result across color channels; it does not reproduce Cycles' colored Noise output.
-- When Photon Coordinates is unlinked, the engine uses hit UVW. An unlinked Cycles Noise Vector uses Generated coordinates. Inspect the complete coordinate chain and every assigned object before calling the result exact; shared materials can require incompatible domains. Document frequency compensation as qualitative if translation, orientation, or phase cannot be preserved.
+- Apply the image-coordinate rules above before adjusting Frequency. Treat frequency compensation for a domain mismatch as qualitative unless the complete coordinate relation is derived and verified.
 
 ## Preserve secondary behavior
 
 - Wrap the completed base-surface mixture with Normal Mapped Surface so the wrapper applies to the complete Photon surface.
 - Set the normal format from source metadata: `opengl`, `directx`, or `directx-rg`. The node defaults to OpenGL.
 - Map constant or linked Normal Map Strength when the source chain is representable. Recreate saved Normal Mapped Surface nodes that lack the current Strength socket, restoring links by meaning plus the original layout and format.
+- Treat scalar Bump height as a separate stage from a tangent normal map. Normal Mapped Surface does not evaluate height; preserve Bump strength, distance, invert state, and composition order as unsupported rather than routing height into Strength or Normal Map.
 - Connect an alpha-extracted opacity image to Surface Mask. A Picture color output consumed as a scalar reads channel 0, not alpha.
 - Treat emission color and strength independently. A linked strength ignores its displayed default; lower the complete strength chain, then multiply the emission color by that result. The current mesh exporter warns that masking emission is unsupported; report that limitation.
 - Classify emission per polygon and material slot. An emitter-bearing mesh can contain nonemissive faces; record only faces whose assigned material has a reverse-reachable Surface Emission.
-- Audit emitter transform parity, mesh winding, and shading normals separately. A negative-determinant correction does not repair independently backward winding, and a one-sided Photon emitter may differ from a two-sided source material.
+- Audit emitter transform parity, local winding, and shading normals separately. Current actor-level reflection handling corrects geometric-normal parity for a negative-determinant transform when local winding and shading normals already agree; do not recalculate normals solely because an object is mirrored. It changes `Ng`, not `Ns`, and cannot repair independently reversed winding or corner normals.
 - Determine the visible emissive face with a camera/target ray test or near-side geometry, not by choosing whichever normal happens to face the camera; on an inside-out closed mesh, that normal commonly belongs to the occluded far face.
-- Photon surface emission tests the shading normal `Ns`. A transform-parity or `should-flip-ng` correction that changes only `Ng` cannot repair inward winding or corner normals. Recalculate connected faces outside only for closed-manifold components proven uniformly inverted; audit open or mixed components face-by-face.
+- Photon one-sided surface emission tests the transformed shading normal `Ns`. Audit every reverse-reachable emissive face when feasible; a valid `Ng` alone is insufficient, and a two-sided source needs an explicit fidelity warning. Recalculate connected faces outside only for closed-manifold components proven uniformly inverted; audit open or mixed components face-by-face.
 - Before bulk normal repair, create an undo checkpoint and snapshot vertex positions, face material indices, per-loop UV-to-vertex mappings, transforms, and selection/mode. Afterward verify them unchanged, confirm repaired components are outward, and confirm the ray-visible emissive face's transformed `Ns` faces the emission direction with its emission path still reachable.
 
 ## Audit and report
@@ -107,12 +126,15 @@ For every changed Photon material, verify:
 - For every Picture-to-scalar path, record one justified form: direct channel 0 for authored scalar data, Split with the verified packed channel, or Luminance with the source color-space conversion. Remove Split or Luminance nodes that have no such semantic justification.
 - For every Binary Mix, independently derive expected Factor Type from source semantics, then verify actual mode, active linked factor socket, inactive unlinked factor socket, A/B order, extracted channel, and map.
 - Roughness semantics and conversion are correct exactly once.
+- Every reachable HSV, Color Remap, and downstream color-blend stage passes the color-chain checks above.
 - Normal format, opacity, emission, color spaces, assignments, and bindings survive conversion.
-- Every one-sided emitter has an audited emissive face set; ray-visible faces have transformed `Ns` in the allowed emission hemisphere, and any normal repair preserves per-loop UV-to-vertex mappings and face material indices.
+- Every one-sided emitter passes the secondary-behavior checks above for its complete emissive face set.
 - No stale node schema or link to an inactive duplicate-name socket remains.
 - Live Picture paths exist. Deduplicate Picture nodes only when all sampling semantics match and their consumers have been rewired; scoped external material data must contain no newly unreferenced resource.
 
 Keep a per-material ledger with the assigned objects/role, source socket state, effective source expression, Photon mapping, and fidelity. Report exact mappings separately from qualitative approximations and unsupported source behavior; aggregate node counts are not evidence that the material audit is complete.
+
+When revising an existing report, treat it as a current-state inventory: revalidate every retained claim against the live scene and current source, delete resolved findings, replace obsolete prescriptions in place, and merge entries with the same root cause. Present unresolved per-material findings in one table and do not repeat those rows in prose; retain historical status only when the user requests it.
 
 ## Evidence anchors
 
@@ -122,8 +144,8 @@ Keep a per-material ledger with the assigned objects/role, source socket state, 
 - Photon tree and socket behavior: `BlenderAddon/PhotonBlend/bmodule/material/node_base.py`
 - Binary Mix: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/binary_mixed.py`, `Engine/Engine/Source/Engine/Actor/Material/BinaryMixedSurfaceMaterial.h`, and `Engine/Engine/Source/Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.ipp`
 - Matte and microfacet materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/diffuse.py`, `abraded_opaque.py`, `abraded_translucent.py`, and `Engine/Engine/Source/Engine/Actor/Material/Component/RoughnessToAlphaMapping.h`
-- Ideal, thin, layered, and normal-mapped materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/ideal_substance.py`, `thin_dielectric_surface.py`, `surface_layer.py`, and `normal_mapped.py`
-- Picture and conversion nodes: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/split_image.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/luminance.py`, `Engine/Engine/Source/Engine/Actor/Image/Image.cpp`, `Engine/Engine/Source/Engine/Actor/Image/SwizzledImage.cpp`, and `Engine/Engine/Source/Engine/Actor/Image/LuminanceImage.cpp`
+- Ideal, thin, layered, normal-mapped, and volume materials: `BlenderAddon/PhotonBlend/bmodule/material/surface_nodes/ideal_substance.py`, `thin_dielectric_surface.py`, `surface_layer.py`, `normal_mapped.py`, `BlenderAddon/PhotonBlend/bmodule/material/volume_nodes/ideal_medium.py`, and `Engine/Engine/Source/Engine/Actor/Material/Volume/IdealMedium.h`
+- Picture and conversion nodes: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/picture.py`, `BlenderAddon/PhotonBlend/bmodule/material/conversion_nodes/split_image.py`, `luminance.py`, `hsv.py`, `color_remap.py`, `transformed_image.py`, and the corresponding `Engine/Engine/Source/Engine/Actor/Image` implementations
 - Procedural noise and scalar remapping: `BlenderAddon/PhotonBlend/bmodule/material/input_nodes/noise.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/arithmetic.py`, `BlenderAddon/PhotonBlend/bmodule/material/math_nodes/clamp.py`, `Engine/Engine/Source/Engine/Actor/Image/NoiseImage.cpp`, and `Engine/Engine/Source/Engine/Core/Texture/TFbmNoiseTexture.cpp`
 - Mask and emission behavior: `Engine/Engine/Source/Engine/Actor/Image/Image.cpp` and `BlenderAddon/PhotonBlend/bmodule/mesh/export.py`
-- Emitter sidedness and normal flipping: `Engine/Engine/Source/Engine/Core/Emitter/SurfaceEmitter.cpp`, `Engine/Engine/Source/Engine/Core/Emitter/DiffuseSurfaceEmitterBase.cpp`, and `Engine/Engine/Source/Engine/Actor/ABlenderPlyModel.h`
+- Emitter sidedness and normal flipping: `Engine/Engine/Source/Engine/Core/Emitter/SurfaceEmitter.cpp`, `Engine/Engine/Source/Engine/Core/Emitter/DiffuseSurfaceEmitterBase.cpp`, `Engine/Engine/Source/Engine/Actor/ABlenderPlyModel.h`, and `Engine/Engine/Source/Engine/Actor/Light/AGeometricLight.h`
