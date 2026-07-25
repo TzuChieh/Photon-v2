@@ -80,6 +80,20 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 }
 
 template<typename Index>
+inline bool TPIndexedKdTreeTriangleMesh<Index>::isOccluding(const Ray& ray) const
+{
+	return m_kdTree.occlusionTraversal(
+		ray.getSegment(),
+		[](const Triangle& triangle, const math::TLineSegment<real>& segment)
+		-> std::optional<real>
+		{
+			return triangle.isIntersecting(segment)
+				? std::make_optional(segment.getMinT())
+				: std::nullopt;
+		});
+}
+
+template<typename Index>
 inline bool TPIndexedKdTreeTriangleMesh<Index>::reintersect(
 	const Ray& ray,
 	HitProbe& probe,
