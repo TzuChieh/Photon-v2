@@ -20,7 +20,6 @@ from utility import blender
 import bpy
 import mathutils
 
-import math
 import time
 from pathlib import Path
 
@@ -76,7 +75,7 @@ class Exporter:
     # 	command.append_string(rawText)
     # 	self.__sdlconsole.queue_command(command)
 
-    def export_camera(self, b_camera_object):
+    def export_camera(self, b_camera_object, b_scene):
         b_camera = b_camera_object.data
 
         observer = None
@@ -96,18 +95,18 @@ class Exporter:
             observer.set_dir(sdl.Vector3(cam_dir))
             observer.set_up_axis(sdl.Vector3(cam_up_dir))
 
-            lens_unit = b_camera.lens_unit
-            if lens_unit == 'FOV':
-                fov_degrees = math.degrees(b_camera.angle)
-                observer.set_fov_degrees(sdl.Real(fov_degrees))
-            elif lens_unit == 'MILLIMETERS':
-                sensor_width = b_camera.sensor_width
-                focal_length = b_camera.lens
-                observer.set_sensor_width_mm(sdl.Real(sensor_width))
-                observer.set_sensor_offset_mm(sdl.Real(focal_length))
-            else:
-                print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (
-                    b_camera.name, b_camera.lens_unit))
+            render_width_px, render_height_px = blender.get_render_size_px(b_scene)
+            render_aspect = render_width_px / render_height_px
+
+            # Photon always treats sensor width as horizontal; Blender can sometimes fit vertically.
+            sensor_width = b_camera.sensor_width
+            if b_camera.sensor_fit == 'VERTICAL':
+                sensor_width = b_camera.sensor_height * render_aspect
+            elif b_camera.sensor_fit == 'AUTO' and render_aspect < 1.0:
+                sensor_width *= render_aspect
+
+            observer.set_sensor_width_mm(sdl.Real(sensor_width))
+            observer.set_sensor_offset_mm(sdl.Real(b_camera.lens))
 
             if b_camera.ph_has_dof:
                 observer.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
@@ -218,7 +217,7 @@ class Exporter:
         # Exporting Blender data as SDL
 
         # TODO: export all cameras, not just the active one
-        self.export_camera(b_camera_obj)
+        self.export_camera(b_camera_obj, b_depsgraph.scene_eval)
 
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
