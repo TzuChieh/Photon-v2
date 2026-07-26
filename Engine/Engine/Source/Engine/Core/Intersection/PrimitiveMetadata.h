@@ -15,6 +15,8 @@
 namespace ph
 {
 
+struct GeometryInfo;
+
 /*! @brief Collection of attached data and properties to a primitive.
 This type effectively "glues" various data components that helps to describe additional properties
 related to a primitive.
@@ -33,10 +35,21 @@ public:
 	uint8 addChannel(const PrimitiveChannel& channel);
 
 	void setChannel(uint8 channelId, PrimitiveChannel channel);
+
+	/*!
+	@brief Associates geometry-wide (local-space) information with this primitive.
+	*/
+	void setGeometryInfo(const GeometryInfo* geometryInfo);
+
 	void setInteriorPriority(uint16 priority);
 	const PrimitiveChannel& getChannel(uint8 channelId) const;
 	const PrimitiveChannel& getDefaultChannel() const;
 	bool isChannelIdValid(uint8 channelId) const;
+
+	/*!
+	@return Associated geometry information, or null if none is available.
+	*/
+	const GeometryInfo* getGeometryInfo() const;
 
 	SurfaceBehavior& surface();
 	VolumeBehavior& interior();
@@ -55,6 +68,7 @@ private:
 	VolumeBehavior                m_interior;
 	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
+	const GeometryInfo*           m_geometryInfo;
 	uint16                        m_interiorPriority;
 };
 
@@ -78,6 +92,16 @@ inline const PrimitiveChannel& PrimitiveMetadata::getDefaultChannel() const
 inline bool PrimitiveMetadata::isChannelIdValid(const uint8 channelId) const
 {
 	return channelId < m_channels.size();
+}
+
+inline void PrimitiveMetadata::setGeometryInfo(const GeometryInfo* const geometryInfo)
+{
+	m_geometryInfo = geometryInfo;
+}
+
+inline const GeometryInfo* PrimitiveMetadata::getGeometryInfo() const
+{
+	return m_geometryInfo;
 }
 
 inline SurfaceBehavior& PrimitiveMetadata::surface()

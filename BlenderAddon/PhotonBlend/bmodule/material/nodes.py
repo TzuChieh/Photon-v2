@@ -59,6 +59,7 @@ class MaterialNodes(blender.BlenderModule):
         input_nodes.PhConstantColorInputNode,
         input_nodes.PhPictureNode,
         input_nodes.PhBlackBodyInputNode,
+        input_nodes.PhAttributeInputNode,
         input_nodes.PhNoiseInputNode,
         surface_nodes.PhDiffuseSurfaceNode,
         surface_nodes.PhBinaryMixedSurfaceNode,

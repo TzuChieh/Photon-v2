@@ -63,6 +63,11 @@ public:
 	*/
 	math::EColorUsage expectedUsage() const;
 
+	/*! @brief Whether this sample location has an associated surface hit.
+	Calling `getSurfaceHit()` is only valid if this method returns `true`.
+	*/
+	bool hasSurfaceHit() const;
+
 	/*! @brief Gets the surface hit associated with the current sampling operation.
 	@warning Calling this method without an associated surface hit is undefined behavior. Debug
 	builds assert.
@@ -123,6 +128,11 @@ inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) 
 inline math::EColorUsage SampleLocation::expectedUsage() const
 {
 	return m_usage;
+}
+
+inline bool SampleLocation::hasSurfaceHit() const
+{
+	return m_X != nullptr;
 }
 
 inline const SurfaceHit& SampleLocation::getSurfaceHit() const

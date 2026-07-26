@@ -17,6 +17,7 @@ PrimitiveMetadata::PrimitiveMetadata()
 	, m_interior()
 	, m_exterior()
 	, m_channels()
+	, m_geometryInfo(nullptr)
 	, m_interiorPriority(0)
 {
 	// Adds a default channel.

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Core/Intersection/GeometryInfo.h"
 #include "Engine/Core/Intersection/data_structure_fwd.h"
 #include "Engine/Core/Intersection/DataStructure/TIndexRangeMap.h"
 
@@ -15,6 +16,9 @@ class CookedGeometry final
 public:
 	/*! Primitives that form the geometry. */
 	std::vector<const Primitive*> primitives;
+
+	/*! Geometry-wide information in the primitives' local coordinate system. */
+	GeometryInfo geometryInfo;
 
 	/*! An alternative representation of the geometry. May not always be available and may not cover 
 	all the shapes defined by `primitives`.

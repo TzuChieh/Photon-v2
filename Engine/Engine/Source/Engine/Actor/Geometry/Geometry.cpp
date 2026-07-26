@@ -50,11 +50,20 @@ void Geometry::cook(const CookingContext& ctx, CookedGeometry& out_geometry) con
 	if(!config.forceBakedTransform || config.bakedTransform.isIdentity())
 	{
 		geometry.storeCooked(ctx, out_geometry);
-		return;
+	}
+	else
+	{
+		const auto& transform = StaticAffineTransform::makeForward(config.bakedTransform);
+		geometry.storeCookedWithBakedTransform(ctx, transform, out_geometry);
 	}
 
-	const auto& transform = StaticAffineTransform::makeForward(config.bakedTransform);
-	geometry.storeCookedWithBakedTransform(ctx, transform, out_geometry);
+	// Prepare geometry-wide info
+	math::AABB3D& localAABB = out_geometry.geometryInfo.localAABB;
+	localAABB = math::AABB3D::makeEmpty();
+	for(const Primitive* const primitive : out_geometry.primitives)
+	{
+		localAABB.unionWith(primitive->calcAABB());
+	}
 }
 
 }// end namespace ph

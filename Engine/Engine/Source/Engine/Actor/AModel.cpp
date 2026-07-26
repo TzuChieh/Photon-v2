@@ -65,6 +65,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 	const CookedMaterial* cookedMaterial = ctx.getCooked(m_material);
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
+	metadata->setGeometryInfo(&cookedGeometry->geometryInfo);
 
 	const auto* const localToWorld = report.getBaseLocalToWorld();
 	const auto* const worldToLocal = report.getBaseWorldToLocal();

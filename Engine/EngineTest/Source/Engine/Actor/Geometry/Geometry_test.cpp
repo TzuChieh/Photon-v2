@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 using namespace ph;
+using namespace ph::math;
 
 TEST(GeometryTest, GetCookedDoesNotCreateGeometry)
 {
@@ -35,6 +36,29 @@ TEST(GeometryTest, CookFillsProvidedStorage)
 
 	EXPECT_EQ(ctx.getCooked(cuboid), cookedGeometry);
 	EXPECT_FALSE(cookedGeometry->primitives.empty());
+}
+
+TEST(GeometryTest, CookStoresWholeGeometryLocalAABB)
+{
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+
+	auto cuboid = TSdl<GCuboid>::makeResource();
+	const Vector3R minVertex(-2.0_r, -1.0_r, 3.0_r);
+	const Vector3R maxVertex(4.0_r, 5.0_r, 8.0_r);
+	cuboid->setSize(minVertex, maxVertex);
+
+	CookedGeometry* const cookedGeometry = resources.makeGeometry(ctx.getKey(cuboid));
+	ASSERT_NE(cookedGeometry, nullptr);
+	cuboid->cook(ctx, *cookedGeometry);
+
+	const AABB3D& localAABB = cookedGeometry->geometryInfo.localAABB;
+	EXPECT_LE(localAABB.getMinVertex().x(), minVertex.x());
+	EXPECT_LE(localAABB.getMinVertex().y(), minVertex.y());
+	EXPECT_LE(localAABB.getMinVertex().z(), minVertex.z());
+	EXPECT_GE(localAABB.getMaxVertex().x(), maxVertex.x());
+	EXPECT_GE(localAABB.getMaxVertex().y(), maxVertex.y());
+	EXPECT_GE(localAABB.getMaxVertex().z(), maxVertex.z());
 }
 
 TEST(GeometryTest, CookKeepsDistinctConfigVariants)

@@ -8,7 +8,7 @@ description: Author and repair Photon scenes in the currently open Blender insta
 ## Operating contract
 
 - Use [blender-mcp](https://github.com/ahujasid/blender-mcp) as the scene-authoring interface.
-- Verify the intended live scene through MCP before editing: inspect the scene, then confirm `bpy.data.filepath`, scene name, active camera, and render engine in the connected Blender process.
+- Verify the intended live scene through MCP before inspecting or editing: confirm `bpy.data.filepath`, scene name, active camera, render engine, mode, selection, and dirty state. Recheck after user turns that may have changed the live scene instead of carrying prior state forward.
 - Perform all scene inspection and mutation through Blender MCP, including short, reviewable in-process Python snippets when needed. Do not write external authoring scripts, rewrite a blend file offline, or launch another Blender instance.
 - Stop and report the blocker if Blender MCP cannot reach the intended scene.
 
@@ -29,5 +29,7 @@ description: Author and repair Photon scenes in the currently open Blender insta
 - Discover scene, add-on, and resource paths at runtime. Never hardcode machine-specific paths, and do not assume a remote MCP host shares the local filesystem.
 - Do not create helper scripts, notes, or unrelated files unless requested.
 - Preserve existing object-material assignments and other bindings unless they are explicitly in scope.
+- Treat light power, emitted-surface visibility, and per-ray proxy visibility as separate behavior. Photon `directly-visible=false` suppresses zero-bounce emission but does not make an absorber proxy pass through camera rays; do not use it as a camera-hiding substitute.
+- Do not silently replace an unsupported light class. Preserve its type-specific parameters before any approximation, label the approximation qualitative, and retain enough authoritative state to restore it after support is added.
 - Treat object-transform parity, local face winding, shading-normal orientation, and zero-area triangles as separate geometry conditions. Never use determinant correction or normal recalculation as a substitute for validating the others.
 - For sensitive work, review Blender MCP telemetry settings before submitting code or screenshots; disable telemetry when required by the project.

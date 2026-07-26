@@ -93,6 +93,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	const bool shouldFlipNg = m_shouldFlipNg != cookedGeometry->isWindingFlipped;
 
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
+	metadata->setGeometryInfo(&cookedGeometry->geometryInfo);
 
 	const CookedMaterial* cookedMaterial = ctx.getCooked(material);
 	if(!cookedMaterial)

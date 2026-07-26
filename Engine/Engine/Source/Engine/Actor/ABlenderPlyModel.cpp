@@ -91,6 +91,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
 		const CookedMaterial* cookedMaterial = ctx.getCooked(material);
 		PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
+		metadata->setGeometryInfo(&cookedGeometry->geometryInfo);
 		metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 		if(material->getOverlapPriority() > 0)
