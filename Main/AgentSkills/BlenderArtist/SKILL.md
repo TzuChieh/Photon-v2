@@ -17,11 +17,11 @@ description: Author and repair Photon scenes in the currently open Blender insta
 1. Define the requested scope and authoritative source data.
 2. Inspect relevant live state. Preserve all out-of-scope objects, bindings, world/IBL, cameras, exposure, and settings.
 3. For camera matching or export audits, derive the evaluated frame with `camera.data.view_frame(scene=scene)` under the current resolution, pixel aspect, sensor fit, and shift. Compare both evaluated frame angles with Photon; raw lens, sensor width, or `Camera.angle` alone is not authoritative in portrait or `AUTO`-fit cases.
-4. For material creation, conversion, repair, or audit, read [the material-authoring reference](references/materials.md) completely before editing. Do not load it for non-material work.
-5. Audit material conversions one material at a time. Establish the active source-output path, assigned-object context, and effective linked/default socket values before authoring Photon nodes. Derive expected Photon data types, node modes, and active sockets from that source intent; never use an existing node's selected mode as evidence that the mode is correct.
-6. Save or create an undo checkpoint before broad changes or arbitrary code execution.
+4. For Blender-to-Photon material conversion, repair, or audit, read [the conversion reference](references/materials.md) completely before editing. Do not load it for unrelated scene work or materials authored directly from a Photon specification.
+5. Convert one material at a time. Propagate a pattern only after one representative of each distinct source graph, texture encoding, coordinate domain, and assignment context passes the reference's verification.
+6. Before broad mutation, create an undo checkpoint and retain the initial dirty state. Do not save merely to create a checkpoint or capture unrelated pre-existing edits.
 7. Preflight target identities, schemas, and links before mutation. Author the change through the connected Blender process, then inspect the resulting live state instead of assuming execution succeeded.
-8. Save the live scene after validation. In a fresh MCP query, confirm the filepath is unchanged and `bpy.data.is_dirty` is false; save handlers may settle after the save call returns.
+8. Save only when persistence is authorized and doing so will not capture unrelated pre-existing dirty state. After saving, use a fresh MCP query to confirm the filepath is unchanged and `bpy.data.is_dirty` is false. Otherwise leave the scene unsaved and report why.
 
 ## Guardrails
 
@@ -29,7 +29,7 @@ description: Author and repair Photon scenes in the currently open Blender insta
 - Discover scene, add-on, and resource paths at runtime. Never hardcode machine-specific paths, and do not assume a remote MCP host shares the local filesystem.
 - Do not create helper scripts, notes, or unrelated files unless requested.
 - Preserve existing object-material assignments and other bindings unless they are explicitly in scope.
-- Treat light power, emitted-surface visibility, and per-ray proxy visibility as separate behavior. Photon `directly-visible=false` suppresses zero-bounce emission but does not make an absorber proxy pass through camera rays; do not use it as a camera-hiding substitute.
+- Treat light power, emitted-surface visibility, and per-ray proxy visibility as separate behavior. Photon `directly-visible=false` only removes the emitter's `ZeroBounceSample` feature; it does not alter absorber optics, make camera rays pass through, or guarantee that every estimator hides camera-hit emission. Verify the selected estimator rather than using it as a camera-hiding substitute.
 - Do not silently replace an unsupported light class. Preserve its type-specific parameters before any approximation, label the approximation qualitative, and retain enough authoritative state to restore it after support is added.
-- Treat object-transform parity, local face winding, shading-normal orientation, and zero-area triangles as separate geometry conditions. Never use determinant correction or normal recalculation as a substitute for validating the others.
-- For sensitive work, review Blender MCP telemetry settings before submitting code or screenshots; disable telemetry when required by the project.
+- Treat actor-transform parity, cooked winding changes, local face winding, geometric-normal orientation, shading-normal orientation, and zero-area triangles as separate geometry conditions. Never enable `should-flip-ng` from determinant alone or use normal recalculation as a substitute for validating the others.
+- Blender MCP's add-on consent toggle can still leave minimal tool telemetry enabled. For sensitive work, verify the installed version's documented server-side full-disable setting before submitting code or screenshots.

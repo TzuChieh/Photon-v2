@@ -200,7 +200,7 @@ A material model for surfaces with matte look, such as chalk and moon. Input pre
 * Type: `Abraded Opaque`
 * Note: **concrete**, based on **Surface Material**
 
-Able to model surfaces ranging from nearly specular to extremely rough appearances.
+Able to model surfaces ranging from nearly specular to extremely rough appearances. For paired value/map inputs, map inputs have higher precedence.
 
 > Creation: `material(abraded-opaque)`
 
@@ -208,12 +208,17 @@ Able to model surfaces ranging from nearly specular to extremely rough appearanc
 | --- | --- | --- |
 | fresnel | `enum` | Type of the Fresnel for the conductive interface. |
 | f0 | `spectrum` | Surface reflectance on normal incidence. This value is expected to be given in linear-sRGB space. When this parameter is used, the underlying Fresnel model will be an approximated one (schlick) which is pretty popular in real-time graphics. Also note that F0 already includes the information of ior-outer. |
+| f0-map | `image` | Texture-mapped surface reflectance on normal incidence. This input uses the Schlick Fresnel model. |
+| reflection-scale | `spectrum` | A constant scaling factor for reflected energy. Note that this property is only for artistic control and is not physically correct. |
+| reflection-scale-map | `image` | See `reflection-scale`. |
 | ior-outer | `real` | The index of refraction outside of this interface. |
 | ior-inner-n | `spectrum` | The complex index of refraction (real part) inside of this interface. |
 | ior-inner-k | `spectrum` | The complex index of refraction (imaginary part) inside of this interface. |
 | microsurface | `enum` | Type of the microsurface of the material. |
 | roughness | `real` | Isotropic surface roughness in [0, 1], the material will appear to be smoother with smaller roughness value. |
+| roughness-map | `image` | Texture-mapped isotropic surface roughness in [0, 1]. |
 | roughness-v | `real` | Similar to the `roughness` parameter, but is used for anisotropic surface appearances. This value controls the V component of surface roughness. If this value is provided, the `roughness` parameter is interpreted as the U component of surface roughness. |
+| roughness-v-map | `image` | Texture-mapped V component of anisotropic surface roughness in [0, 1]. If this value is provided, `roughness` or `roughness-map` is interpreted as the U component of surface roughness. |
 | roughness-to-alpha | `enum` | Type of the mapping to transform roughness into alpha value. |
 | masking-shadowing | `enum` | Type of the masking and shadowing for a microsurface. |
 
@@ -233,6 +238,10 @@ Able to model translucent surfaces with variable roughnesses. Such as frosted gl
 | fresnel | `enum` | Type of the Fresnel for the dielectric interface. |
 | ior-outer | `real` | The index of refraction outside of this interface. |
 | ior-inner | `real` | The index of refraction inside of this interface. |
+| reflection-scale | `spectrum` | A constant scaling factor for reflected energy. Note that this property is only for artistic control and is not physically correct. |
+| reflection-scale-map | `image` | See `reflection-scale`. |
+| transmission-scale | `spectrum` | A constant scaling factor for transmitted energy. Note that this property is only for artistic control and is not physically correct. |
+| transmission-scale-map | `image` | See `transmission-scale`. |
 | microsurface | `enum` | Type of the microsurface of the material. |
 | roughness | `real` | Isotropic surface roughness in [0, 1], the material will appear to be smoother with smaller roughness value. |
 | roughness-map | `image` | Texture-mapped isotropic surface roughness in [0, 1]. |

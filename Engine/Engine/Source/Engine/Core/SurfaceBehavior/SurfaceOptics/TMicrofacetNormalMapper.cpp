@@ -18,9 +18,6 @@
 namespace ph
 {
 
-template class TMicrofacetNormalMapper<TConstantSurfaceProperty<real>>;
-template class TMicrofacetNormalMapper<TTexturedSurfaceProperty<real>>;
-
 namespace
 {
 
@@ -459,5 +456,8 @@ math::Vector3R TMicrofacetNormalMapper<Strength>::samplePerturbedNormal(
 
 	return Np;
 }
+
+template class TMicrofacetNormalMapper<TConstantSurfaceProperty<real>>;
+template class TMicrofacetNormalMapper<TTexturedSurfaceProperty<real>>;
 
 }// end namespace ph

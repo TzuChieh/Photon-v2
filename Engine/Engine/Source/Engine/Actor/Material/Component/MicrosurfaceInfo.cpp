@@ -174,6 +174,11 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet(
 	}
 }
 
+void MicrosurfaceInfo::setRoughness(const real roughness)
+{
+	m_roughness = roughness;
+}
+
 void MicrosurfaceInfo::setRoughnessMap(std::shared_ptr<Image> roughnessMap)
 {
 	m_roughnessMap = std::move(roughnessMap);

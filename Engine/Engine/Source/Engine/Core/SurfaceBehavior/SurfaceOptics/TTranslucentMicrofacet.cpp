@@ -1,4 +1,4 @@
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TTranslucentMicrofacet.h"
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -36,14 +36,33 @@ jacobian involved (from H's probability space to L's). More sophisticated sampli
 strategy typically follow this pattern, with a better distributed H.
 */
 
-TranslucentMicrofacet::TranslucentMicrofacet(
+template<typename ReflectionScale, typename TransmissionScale>
+TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::TTranslucentMicrofacet(
 	std::shared_ptr<DielectricFresnel> fresnel,
-	std::shared_ptr<Microfacet>        microfacet) :
+	std::shared_ptr<Microfacet>        microfacet)
+	requires std::constructible_from<ReflectionScale, math::Spectrum> &&
+	         std::constructible_from<TransmissionScale, math::Spectrum>
+
+	: TTranslucentMicrofacet(
+		std::move(fresnel),
+		std::move(microfacet),
+		ReflectionScale(math::Spectrum(1)),
+		TransmissionScale(math::Spectrum(1)))
+{}
+
+template<typename ReflectionScale, typename TransmissionScale>
+TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::TTranslucentMicrofacet(
+	std::shared_ptr<DielectricFresnel> fresnel,
+	std::shared_ptr<Microfacet>        microfacet,
+	ReflectionScale                    reflectionScale,
+	TransmissionScale                  transmissionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel   (std::move(fresnel)),
-	m_microfacet(std::move(microfacet))
+	m_fresnel          (std::move(fresnel)),
+	m_microfacet       (std::move(microfacet)),
+	m_reflectionScale  (std::move(reflectionScale)),
+	m_transmissionScale(std::move(transmissionScale))
 {
 	PH_ASSERT(m_fresnel);
 	PH_ASSERT(m_microfacet);
@@ -52,15 +71,18 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 	m_numElementals = 2;
 }
 
-ESurfacePhenomenon TranslucentMicrofacet::getPhenomenonOf(const SurfaceElemental elemental) const
+template<typename ReflectionScale, typename TransmissionScale>
+ESurfacePhenomenon TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::getPhenomenonOf(
+	const SurfaceElemental elemental) const
 {
 	PH_ASSERT_IN_RANGE(elemental, 0, 2);
 
-	return elemental == REFLECTION ? ESurfacePhenomenon::GlossyReflection : 
+	return elemental == REFLECTION ? ESurfacePhenomenon::GlossyReflection :
 	                                 ESurfacePhenomenon::GlossyTransmission;
 }
 
-void TranslucentMicrofacet::calcElementalBsdf(
+template<typename ReflectionScale, typename TransmissionScale>
+void TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -95,7 +117,8 @@ void TranslucentMicrofacet::calcElementalBsdf(
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
-		const math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
+		math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
+		bsdf.mulLocal(m_reflectionScale(in.getX()));
 		out.setBsdf(bsdf);
 	}
 	// Refraction
@@ -136,7 +159,8 @@ void TranslucentMicrofacet::calcElementalBsdf(
 
 		const real dotTerm = std::abs(HoL * HoV / NoLmulNoV);
 
-		const math::Spectrum bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
+		math::Spectrum bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
+		bsdf.mulLocal(m_transmissionScale(in.getX()));
 		out.setBsdf(bsdf);
 	}
 	else
@@ -145,7 +169,8 @@ void TranslucentMicrofacet::calcElementalBsdf(
 	}
 }
 
-void TranslucentMicrofacet::genElementalBsdfSample(
+template<typename ReflectionScale, typename TransmissionScale>
+void TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -262,11 +287,15 @@ void TranslucentMicrofacet::genElementalBsdfSample(
 	const real G = m_microfacet->geometry(in.getX(), N, H, L, in.getV());
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 
-	out.setPdfAppliedBsdfCos(F.mul(G * D * dotTerms / pdf.value), N.absDot(L));
+	math::Spectrum pdfAppliedBsdfCos = F.mul(G * D * dotTerms / pdf.value);
+	pdfAppliedBsdfCos.mulLocal(sampleReflect
+		? m_reflectionScale(in.getX()) : m_transmissionScale(in.getX()));
+	out.setPdfAppliedBsdfCos(pdfAppliedBsdfCos, N.absDot(L));
 	out.setL(L);
 }
 
-void TranslucentMicrofacet::calcElementalBsdfPdf(
+template<typename ReflectionScale, typename TransmissionScale>
+void TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
@@ -351,11 +380,26 @@ void TranslucentMicrofacet::calcElementalBsdfPdf(
 	out.setSampleDirPdf(lta::PDF::W(sampleDirPdfW));
 }
 
-real TranslucentMicrofacet::getReflectionProbability(const math::Spectrum& F)
+template<typename ReflectionScale, typename TransmissionScale>
+real TTranslucentMicrofacet<ReflectionScale, TransmissionScale>::getReflectionProbability(
+	const math::Spectrum& F)
 {
 	constexpr real minProbability = 0.0001_r;
 
 	return math::clamp(F.avg(), minProbability, 1.0_r - minProbability);
 }
+
+template class TTranslucentMicrofacet<
+	TConstantSurfaceProperty<math::Spectrum>,
+	TConstantSurfaceProperty<math::Spectrum>>;
+template class TTranslucentMicrofacet<
+	TConstantSurfaceProperty<math::Spectrum>,
+	TTexturedSurfaceProperty<math::Spectrum>>;
+template class TTranslucentMicrofacet<
+	TTexturedSurfaceProperty<math::Spectrum>,
+	TConstantSurfaceProperty<math::Spectrum>>;
+template class TTranslucentMicrofacet<
+	TTexturedSurfaceProperty<math::Spectrum>,
+	TTexturedSurfaceProperty<math::Spectrum>>;
 
 }// end namespace ph

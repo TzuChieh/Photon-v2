@@ -4,6 +4,7 @@
 #include <Engine/Actor/Material/IdealSubstance.h>
 #include <Engine/Actor/Material/LayeredSurface.h>
 #include <Engine/Actor/Material/MatteOpaque.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics.h>
 #include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedMaterial.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
@@ -53,6 +54,27 @@ TEST(MaterialTest, CookMappedAbradedTranslucent)
 	material->cook(ctx, *cookedMaterial);
 
 	EXPECT_NE(cookedMaterial->surfaceOptics, nullptr);
+}
+
+TEST(MaterialTest, CookRoughness0AbradedTranslucentIsDeltaOptics)
+{
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+
+	auto map = TSdl<ConstantImage>::makeResource();
+	map->setRaw(0.5_r);
+
+	auto material = TSdl<AbradedTranslucent>::makeResource();
+	material->setRoughness(0.0_r);
+	material->setReflectionScaleMap(map);
+	material->setTransmissionScaleMap(map);
+
+	CookedMaterial* const cookedMaterial = resources.makeMaterial(ctx.getKey(material));
+	ASSERT_NE(cookedMaterial, nullptr);
+	material->cook(ctx, *cookedMaterial);
+
+	ASSERT_NE(cookedMaterial->surfaceOptics, nullptr);
+	EXPECT_TRUE(cookedMaterial->surfaceOptics->getAllPhenomena().has(ESurfacePhenomenon::DeltaTransmission));
 }
 
 TEST(MaterialTest, CookLayeredSurfaceWithConstantAndMappedLayers)

@@ -45,8 +45,8 @@ the expected frequencies.
 #include <Engine/Core/SurfaceBehavior/Property/TAnisoTrowbridgeReitz.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TOrenNayar.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h>
-#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TranslucentMicrofacet.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TOpaqueMicrofacet.h>
+#include <Engine/Core/SurfaceBehavior/SurfaceOptics/TTranslucentMicrofacet.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/TLerpedSurfaceOptics.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h>
 #include <Engine/Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TLbLayerProperty.h>

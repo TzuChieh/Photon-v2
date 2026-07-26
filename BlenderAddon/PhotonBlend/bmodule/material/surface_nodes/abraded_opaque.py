@@ -2,7 +2,8 @@ from ..node_base import (
     PhSurfaceMaterialNode,
     PhSurfaceMaterialSocket,
     PhFloatFactorSocket,
-    PhF0Socket)
+    PhF0Socket,
+    PhReflectionScaleSocket)
 from psdl import sdl
 import bpy
 
@@ -65,6 +66,12 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         elif self.mapping_type == 'EQUALED':
             creator.set_roughness_to_alpha(sdl.Enum("equaled"))
 
+        reflection_scale_img_name = self.get_linked_input_resource_name(b_material, 4)
+        if reflection_scale_img_name is not None:
+            creator.set_reflection_scale_map(sdl.Image(reflection_scale_img_name))
+        else:
+            creator.set_reflection_scale(sdl.Spectrum(self.get_default_input_value(4)))
+
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
@@ -72,6 +79,7 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness U")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness V")
+        self.inputs.new(PhReflectionScaleSocket.bl_idname, "Reflection Scale")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):

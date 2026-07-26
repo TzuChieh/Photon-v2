@@ -1,4 +1,4 @@
-#include "Engine/Core/SurfaceBehavior/SurfaceOptics/OpaqueMicrofacet.h"
+#include "Engine/Core/SurfaceBehavior/SurfaceOptics/TOpaqueMicrofacet.h"
 #include "Engine/Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -36,14 +36,29 @@ probability space to L's).
 The implementation is double-sided.
 */
 
-OpaqueMicrofacet::OpaqueMicrofacet(
+template<typename ReflectionScale>
+TOpaqueMicrofacet<ReflectionScale>::TOpaqueMicrofacet(
 	std::shared_ptr<ConductorFresnel> fresnel,
-	std::shared_ptr<Microfacet>       microfacet) :
+	std::shared_ptr<Microfacet>       microfacet)
+	requires std::constructible_from<ReflectionScale, math::Spectrum>
+
+	: TOpaqueMicrofacet(
+		std::move(fresnel),
+		std::move(microfacet),
+		ReflectionScale(math::Spectrum(1)))
+{}
+
+template<typename ReflectionScale>
+TOpaqueMicrofacet<ReflectionScale>::TOpaqueMicrofacet(
+	std::shared_ptr<ConductorFresnel> fresnel,
+	std::shared_ptr<Microfacet>       microfacet,
+	ReflectionScale                   reflectionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel   (std::move(fresnel)),
-	m_microfacet(std::move(microfacet))
+	m_microfacet      (std::move(microfacet)),
+	m_fresnel         (std::move(fresnel)),
+	m_reflectionScale (std::move(reflectionScale))
 {
 	PH_ASSERT(m_fresnel);
 	PH_ASSERT(m_microfacet);
@@ -51,14 +66,17 @@ OpaqueMicrofacet::OpaqueMicrofacet(
 	m_phenomena.set(ESurfacePhenomenon::GlossyReflection);
 }
 
-ESurfacePhenomenon OpaqueMicrofacet::getPhenomenonOf(const SurfaceElemental elemental) const
+template<typename ReflectionScale>
+ESurfacePhenomenon TOpaqueMicrofacet<ReflectionScale>::getPhenomenonOf(
+	const SurfaceElemental elemental) const
 {
 	PH_ASSERT_EQ(elemental, 0);
 
 	return ESurfacePhenomenon::GlossyReflection;
 }
 
-void OpaqueMicrofacet::calcElementalBsdf(
+template<typename ReflectionScale>
+void TOpaqueMicrofacet<ReflectionScale>::calcElementalBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -88,11 +106,13 @@ void OpaqueMicrofacet::calcElementalBsdf(
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 	const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
-	const math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
+	math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
+	bsdf.mulLocal(m_reflectionScale(in.getX()));
 	out.setBsdf(bsdf);
 }
 
-void OpaqueMicrofacet::genElementalBsdfSample(
+template<typename ReflectionScale>
+void TOpaqueMicrofacet<ReflectionScale>::genElementalBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -128,11 +148,14 @@ void OpaqueMicrofacet::genElementalBsdfSample(
 	const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
-	out.setPdfAppliedBsdfCos(F.mul(G * D * dotTerms / pdf.value), N.absDot(L));
+	math::Spectrum pdfAppliedBsdfCos = F.mul(G * D * dotTerms / pdf.value);
+	pdfAppliedBsdfCos.mulLocal(m_reflectionScale(in.getX()));
+	out.setPdfAppliedBsdfCos(pdfAppliedBsdfCos, N.absDot(L));
 	out.setL(L);
 }
 
-void OpaqueMicrofacet::calcElementalBsdfPdf(
+template<typename ReflectionScale>
+void TOpaqueMicrofacet<ReflectionScale>::calcElementalBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
@@ -163,5 +186,8 @@ void OpaqueMicrofacet::calcElementalBsdfPdf(
 	const real pdfW = pdf.value / (4.0_r * H.absDot(in.getL()));
 	out.setSampleDirPdf(lta::PDF::W(pdfW));
 }
+
+template class TOpaqueMicrofacet<TConstantSurfaceProperty<math::Spectrum>>;
+template class TOpaqueMicrofacet<TTexturedSurfaceProperty<math::Spectrum>>;
 
 }// end namespace ph

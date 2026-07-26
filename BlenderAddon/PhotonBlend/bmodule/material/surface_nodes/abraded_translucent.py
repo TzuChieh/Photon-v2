@@ -1,7 +1,9 @@
 from ..node_base import (
         PhSurfaceMaterialNode,
         PhSurfaceMaterialSocket,
-        PhFloatFactorSocket)
+        PhFloatFactorSocket,
+        PhReflectionScaleSocket,
+        PhTransmissionScaleSocket)
 from psdl import sdl
 
 import bpy
@@ -87,12 +89,26 @@ class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
         elif self.mapping_type == 'EQUALED':
             creator.set_roughness_to_alpha(sdl.Enum("equaled"))
 
+        reflection_scale_img_name = self.get_linked_input_resource_name(b_material, 3)
+        if reflection_scale_img_name is not None:
+            creator.set_reflection_scale_map(sdl.Image(reflection_scale_img_name))
+        else:
+            creator.set_reflection_scale(sdl.Spectrum(self.get_default_input_value(3)))
+
+        transmission_scale_img_name = self.get_linked_input_resource_name(b_material, 4)
+        if transmission_scale_img_name is not None:
+            creator.set_transmission_scale_map(sdl.Image(transmission_scale_img_name))
+        else:
+            creator.set_transmission_scale(sdl.Spectrum(self.get_default_input_value(4)))
+
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness U")
         self.inputs.new(PhFloatFactorSocket.bl_idname, "Roughness V")
+        self.inputs.new(PhReflectionScaleSocket.bl_idname, "Reflection Scale")
+        self.inputs.new(PhTransmissionScaleSocket.bl_idname, "Transmission Scale")
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
         self.width *= 1.2

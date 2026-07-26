@@ -28,10 +28,15 @@ public:
 		const CookingContext& ctx,
 		EInterfaceMicrosurface defaultType = EInterfaceMicrosurface::TrowbridgeReitz) const;
 
+	/*! @brief Whether the microsurface has constant zero roughness in every direction.
+	@return False if any roughness map is present.
+	*/
+	bool isPerfectlySmooth() const;
 	bool isIsotropic() const;
 	real getIsotropicRoughness() const;
 	std::pair<real, real> getAnisotropicUVRoughnesses() const;
 
+	void setRoughness(real roughness);
 	void setRoughnessMap(std::shared_ptr<Image> roughnessMap);
 	void setRoughnessVMap(std::shared_ptr<Image> roughnessVMap);
 
@@ -107,6 +112,14 @@ public:
 };
 
 // In-header Implementations:
+
+inline bool MicrosurfaceInfo::isPerfectlySmooth() const
+{
+	return !m_roughnessMap &&
+	       !m_roughnessVMap &&
+	       m_roughness == 0.0_r &&
+	       (!m_roughnessV || *m_roughnessV == 0.0_r);
+}
 
 inline bool MicrosurfaceInfo::isIsotropic() const
 {
