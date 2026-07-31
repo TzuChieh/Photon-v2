@@ -298,18 +298,6 @@ inline auto cook_two_inputs_operation(
 
 }// end anonymous namespace
 
-MathImage::MathImage()
-
-	: Image()
-
-	, m_mathOp      (EMathImageOp::Add)
-	, m_operandImage(nullptr)
-	, m_scalarInput0(0.0)
-	, m_scalarInput1(0.0)
-	, m_imageInput0 (nullptr)
-	, m_imageInput1 (nullptr)
-{}
-
 std::shared_ptr<TTexture<Image::NumericType>> MathImage::genNumericTexture(
 	const CookingContext& ctx)
 {

@@ -66,7 +66,7 @@ protected:
 	bool m_useEmissionSample;
 
 private:
-	bool m_shouldFlipNg = false;
+	bool m_shouldFlipNg;
 
 public:
 	PH_DEFINE_SDL_CLASS(AGeometricLight, clazz)

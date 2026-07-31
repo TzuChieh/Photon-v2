@@ -6,6 +6,8 @@
 
 ## SDL Fields
 - For legacy aliases that reuse a field name with a different SDL type, keep lookup typed and keep default/fallback behavior deterministic; prefer separate alias storage plus owner-level precedence over sharing one member that an untouched optional alias can reset.
+- Parse explicit null references as `""` without `@`. In reference arrays, preserve null positions
+  when loading and saving, and exclude them from owned-resource dependencies.
 
 ## Template Boundaries
 - Keep low-level SDL headers dependency-light and place introspection-dependent template definitions behind `.ipp` boundaries; when constrained partial specializations expose identical member signatures, use a structure that does not require MSVC to distinguish their out-of-class definitions.

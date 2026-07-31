@@ -513,9 +513,6 @@ class PhMaterialNode(bpy.types.Node):
         """
         Get this node's SDL resource name, optionally for a node-owned helper resource.
         """
-        if suffix is None:
-            return naming.get_mangled_node_name(self, b_material)
-
         return naming.get_mangled_node_name(self, b_material, suffix=suffix)
 
     def get_material_resource_name(self, b_material):

@@ -17,7 +17,7 @@ individual triangle attributes).
 class GTriangleMesh : public Geometry
 {
 public:
-	GTriangleMesh();
+	GTriangleMesh() = default;
 
 	GTriangleMesh(
 		std::vector<math::Vector3R> positions,

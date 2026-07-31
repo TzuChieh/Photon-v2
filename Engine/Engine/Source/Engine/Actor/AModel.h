@@ -30,7 +30,7 @@ private:
 	std::shared_ptr<Geometry>     m_geometry;
 	std::shared_ptr<Material>     m_material;
 	std::shared_ptr<MotionSource> m_motionSource;
-	bool m_shouldFlipNg = false;
+	bool                          m_shouldFlipNg;
 
 public:
 	PH_DEFINE_SDL_CLASS(AModel, clazz)

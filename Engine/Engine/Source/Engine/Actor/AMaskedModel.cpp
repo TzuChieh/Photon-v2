@@ -1,9 +1,10 @@
 #include "Engine/Actor/AMaskedModel.h"
+#include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-#include "Engine/World/Foundation/TransientResourceCache.h"
+#include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Engine/Core/Intersection/MaskedIntersectable.h"
 
 #include <Common/logging.h>
@@ -38,18 +39,13 @@ PreCookReport AMaskedModel::preCook(const CookingContext& ctx) const
 
 TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
-	TransientVisualElement result;
-
 	const TransientVisualElement* baseResult = ctx.getCached(m_base);
-	if(baseResult)
+	if(!baseResult)
 	{
-		result = *baseResult;
+		throw ActorCookException(
+			"masked model base dependency was not cooked and cached");
 	}
-	else
-	{
-		// Cook new visual element if not cached
-		result = m_base->stagelessCook(ctx);
-	}
+	TransientVisualElement result = *baseResult;
 
 	// Cannot have primitive view as the intersectables will be further masked
 	result.primitivesView.clear();
@@ -60,6 +56,13 @@ TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCo
 		auto* maskedIsable = ctx.getResources().makeIntersectable<MaskedIntersectable>(
 			isable, maskTexture);
 		isable = maskedIsable;
+	}
+
+	if(isInstantiableHint() && result.intersectables.size() > 1)
+	{
+		auto* aggregate = ctx.getResources().makeIntersectable<TBinaryBvhIntersector<uint32>>();
+		aggregate->update(result.intersectables);
+		result.intersectables = {aggregate};
 	}
 
 	return result;

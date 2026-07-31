@@ -10,15 +10,6 @@
 namespace ph
 {
 
-GMengerSponge::GMengerSponge() : 
-	GMengerSponge(3)
-{}
-
-GMengerSponge::GMengerSponge(const uint32 numIteration) :
-	Geometry(), 
-	m_numIteration(numIteration)
-{}
-
 void GMengerSponge::storeCooked(
 	const CookingContext& ctx,
 	CookedGeometry& out_geometry) const

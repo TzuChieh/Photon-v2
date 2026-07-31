@@ -90,7 +90,10 @@ void cook_materials(
 {
 	for(const auto& material : materials)
 	{
-		material->cook(ctx, *resources.makeMaterial(ctx.getKey(material)));
+		if(material)
+		{
+			material->cook(ctx, *resources.makeMaterial(ctx.getKey(material)));
+		}
 	}
 }
 
@@ -109,18 +112,18 @@ TEST(ABlenderPlyModelTest, FaceHitResolvesMaterialSlotMetadata)
 	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
-	ABlenderPlyModel actor;
-	actor.setBaseTransform(TDecomposedTransform<real>());
-	actor.setGeometry(geometry);
+	auto actor = TSdl<ABlenderPlyModel>::makeResource();
+	actor->setBaseTransform(TDecomposedTransform<real>());
+	actor->setGeometry(geometry);
 	auto materials = make_material_slots(16);
-	actor.setMaterials(materials);
+	actor->setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 	cook_materials(materials, ctx, resources);
 
-	const TransientVisualElement result = actor.stagelessCook(ctx);
+	const TransientVisualElement result = actor->stagelessCook(ctx);
 
 	ASSERT_EQ(result.primitivesView.size(), 1);
 	const Primitive* const primitive = result.primitivesView[0];
@@ -159,18 +162,18 @@ TEST(ABlenderPlyModelTest, FaceMaterialSlotMapCanHaveDistinctCounts)
 	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
-	ABlenderPlyModel actor;
-	actor.setBaseTransform(TDecomposedTransform<real>());
-	actor.setGeometry(geometry);
+	auto actor = TSdl<ABlenderPlyModel>::makeResource();
+	actor->setBaseTransform(TDecomposedTransform<real>());
+	actor->setGeometry(geometry);
 	auto materials = make_material_slots(8);
-	actor.setMaterials(materials);
+	actor->setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 	cook_materials(materials, ctx, resources);
 
-	const TransientVisualElement result = actor.stagelessCook(ctx);
+	const TransientVisualElement result = actor->stagelessCook(ctx);
 
 	ASSERT_EQ(result.primitivesView.size(), 1);
 	const Primitive* const primitive = result.primitivesView[0];
@@ -197,16 +200,16 @@ TEST(ABlenderPlyModelTest, ThrowsOnOutOfRangeMaterialSlot)
 	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
 	geometry->setPlyFile(tempPlyFile);
 
-	ABlenderPlyModel actor;
-	actor.setBaseTransform(TDecomposedTransform<real>());
-	actor.setGeometry(geometry);
+	auto actor = TSdl<ABlenderPlyModel>::makeResource();
+	actor->setBaseTransform(TDecomposedTransform<real>());
+	actor->setGeometry(geometry);
 	auto materials = make_material_slots(8);
-	actor.setMaterials(materials);
+	actor->setMaterials(materials);
 
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 	cook_materials(materials, ctx, resources);
 
-	EXPECT_THROW(actor.stagelessCook(ctx), ActorCookException);
+	EXPECT_THROW(actor->stagelessCook(ctx), ActorCookException);
 }

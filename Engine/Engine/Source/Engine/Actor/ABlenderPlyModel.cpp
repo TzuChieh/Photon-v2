@@ -1,5 +1,6 @@
 #include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -12,8 +13,9 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
+#include "Engine/World/SceneGlobals.h"
 
-#include <memory>
+#include <cstddef>
 #include <utility>
 
 namespace ph
@@ -29,15 +31,6 @@ PreCookReport ABlenderPlyModel::preCook(const CookingContext& ctx) const
 	{
 		throw ActorCookException(
 			"Blender PLY model requires geometry and at least one material slot.");
-	}
-
-	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
-	{
-		if(!m_materials[slotIndex])
-		{
-			throw ActorCookException(
-				"Blender PLY model requires every material slot to reference a material.");
-		}
 	}
 
 	if(!m_localToWorld.getDecomposed().isIdentity())
@@ -89,20 +82,27 @@ TransientVisualElement ABlenderPlyModel::cook(
 	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
 	{
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
-		const CookedMaterial* cookedMaterial = ctx.getCooked(material);
 		PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 		metadata->setGeometryInfo(&cookedGeometry->geometryInfo);
-		metadata->surface().setOptics(cookedMaterial->surfaceOptics);
-
-		if(material->getOverlapPriority() > 0)
+		if(material)
 		{
-			const VolumeOptics* interiorOptics = nullptr;
-			const VolumeOptics* exteriorOptics = nullptr;
-			cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
+			const CookedMaterial* cookedMaterial = ctx.getCooked(material);
+			metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
-			metadata->interior().setOptics(interiorOptics);
-			metadata->exterior().setOptics(exteriorOptics);
-			metadata->setInteriorPriority(material->getOverlapPriority());
+			if(material->getOverlapPriority() > 0)
+			{
+				const VolumeOptics* interiorOptics = nullptr;
+				const VolumeOptics* exteriorOptics = nullptr;
+				cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
+
+				metadata->interior().setOptics(interiorOptics);
+				metadata->exterior().setOptics(exteriorOptics);
+				metadata->setInteriorPriority(material->getOverlapPriority());
+			}
+		}
+		else
+		{
+			metadata->surface().setOptics(SceneGlobals::getFullyTransmissiveSurfaceOptics());
 		}
 
 		metadatas[slotIndex] = metadata;
@@ -158,6 +158,13 @@ TransientVisualElement ABlenderPlyModel::cook(
 						primitiveBuilder.build()));
 			}
 		}
+	}
+
+	if(isInstantiableHint() && result.intersectables.size() > 1)
+	{
+		auto* aggregate = ctx.getResources().makeIntersectable<TBinaryBvhIntersector<uint32>>();
+		aggregate->update(result.intersectables);
+		result.intersectables = {aggregate};
 	}
 
 	return result;

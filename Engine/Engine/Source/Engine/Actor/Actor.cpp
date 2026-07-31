@@ -22,6 +22,16 @@ CookOrder Actor::getCookOrder() const
 	return CookOrder();
 }
 
+void Actor::setIsInstantiableHint(const bool isInstantiable)
+{
+	m_isInstantiableHint = isInstantiable;
+}
+
+bool Actor::isInstantiableHint() const
+{
+	return m_isInstantiableHint;
+}
+
 TransientVisualElement Actor::stagelessCook(const CookingContext& ctx) const
 {
 	PreCookReport report = preCook(ctx);

@@ -3,6 +3,7 @@
 #include "Engine/SDL/Introspect/SdlClass.h"
 
 #include <Common/assertion.h>
+#include <Common/exceptions.h>
 #include <Common/logging.h>
 
 #include <algorithm>
@@ -12,28 +13,27 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlDependencyResolver, SDL);
 
-SdlDependencyResolver::SdlDependencyResolver() :
-	m_resourceInfos      (),
-	m_queuedResources    (),
-	m_resourceToInfoIndex()
-{}
-
 void SdlDependencyResolver::analyze(
 	TSpanView<const ISdlResource*> resources,
-	TSpanView<std::string> resourceNames)
+	const AnalysisOptions options)
 {
-	if(!resourceNames.empty())
-	{
-		if(resourceNames.size() != resources.size())
-		{
-			PH_LOG(SdlDependencyResolver, Warning,
-				"incomplete resource name info detected: {} resource names provided (expecting {})", 
-				resourceNames.size(),
-				resources.size());
+	const auto resourceNames = options.resourceNames;
+	const auto resourcePriorities = options.resourcePriorities;
 
-			// Proceed as if no resource names were provided
-			resourceNames = {};
-		}
+	if(!resourceNames.empty() && resourceNames.size() != resources.size())
+	{
+		throw_formatted<InvalidArgumentException>(
+			"AnalysisOptions::resourceNames must be empty or match resource count "
+			"(got {}, expected {})",
+			resourceNames.size(), resources.size());
+	}
+
+	if(!resourcePriorities.empty() && resourcePriorities.size() != resources.size())
+	{
+		throw_formatted<InvalidArgumentException>(
+			"AnalysisOptions::resourcePriorities must be empty or match resource count "
+			"(got {}, expected {})",
+			resourcePriorities.size(), resources.size());
 	}
 
 	// Gather all resources for analyzing dependencies
@@ -48,7 +48,7 @@ void SdlDependencyResolver::analyze(
 			ResourceInfo& resInfo = m_resourceInfos[i];
 			resInfo.resource = resources[i];
 			resInfo.name = resourceNames.empty() ? "" : resourceNames[i];
-
+			resInfo.priority = resourcePriorities.empty() ? 0 : resourcePriorities[i];
 			m_resourceToInfoIndex[resources[i]] = i;
 		}
 	}
@@ -157,25 +157,35 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 			"DAG building done, max references/degree = {}", maxRefCount);
 	}// end DAG building
 
+	const auto isLowerPriority =
+		[this](const std::size_t lhsIdx, const std::size_t rhsIdx)
+		{
+			const ResourceInfo& lhsInfo = m_resourceInfos[lhsIdx];
+			const ResourceInfo& rhsInfo = m_resourceInfos[rhsIdx];
+			return lhsInfo.priority != rhsInfo.priority
+			? lhsInfo.priority > rhsInfo.priority
+			: lhsIdx > rhsIdx;
+		};
+	
 	// Start topological sorting by finding resources without any dependency
-	std::queue<std::size_t> independentResIndices;
+	std::priority_queue<std::size_t, std::vector<std::size_t>, decltype(isLowerPriority)> readyResourceIndices(isLowerPriority);
 	for(std::size_t resIdx = 0; resIdx < dependentCounts.size(); ++resIdx)
 	{
 		if(dependentCounts[resIdx] == 0)
 		{
-			independentResIndices.push(resIdx);
+			readyResourceIndices.push(resIdx);
 		}
 	}
 
 	PH_DEBUG_LOG(SdlDependencyResolver,
-		"{} resources are already independent", independentResIndices.size());
+		"{} resources are already independent", readyResourceIndices.size());
 
 	// Main topological sorting that produces a valid resource dispatch order
 	m_queuedResources = std::queue<const ISdlResource*>();
-	while(!independentResIndices.empty())
+	while(!readyResourceIndices.empty())
 	{
-		const std::size_t independentResIdx = independentResIndices.front();
-		independentResIndices.pop();
+		const std::size_t independentResIdx = readyResourceIndices.top();
+		readyResourceIndices.pop();
 
 		m_queuedResources.push(m_resourceInfos[independentResIdx].resource);
 
@@ -196,7 +206,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 			// If the depending resource is now independent, queue it for dispatchment
 			if(dependentCounts[dependingResIdx] == 0)
 			{
-				independentResIndices.push(dependingResIdx);
+				readyResourceIndices.push(dependingResIdx);
 			}
 		}
 	}

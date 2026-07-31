@@ -11,18 +11,20 @@ import bpy
 # TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them (ID.name_full?)
 
 
+def _join_name_parts(*parts):
+	return "_".join(str(part) for part in parts if part is not None)
+
+
 def _get_decorated_name(name, **decorations):
 	"""
 	Decorates a name given predefined decoration elements.
 	@param **decorations `prefix`: string to append in the front of `name`; `suffix`: string to append in the back of `name`
 	"""
-	decorated_name = name
-	if 'prefix' in decorations:
-		decorated_name = decorations.get('prefix') + "_" + decorated_name
-	if 'suffix' in decorations:
-		decorated_name = decorated_name + "_" + decorations.get('suffix')
+	return _join_name_parts(decorations.get('prefix'), name, decorations.get('suffix'))
 
-	return decorated_name
+
+def join_name_parts(*parts):
+	return _join_name_parts(*parts)
 
 
 def get_mangled_mesh_name(b_mesh: bpy.types.Mesh, **decorations):

@@ -25,7 +25,8 @@ enum class ECookLevel : CookLevel
 	Last
 };
 
-/*! @brief Controls the order actors are cooked.
+/*! @brief Determines actor cook order by level and priority.
+Actors are cooked level by level, with priority ordering actors within each level.
 */
 class CookOrder final
 {

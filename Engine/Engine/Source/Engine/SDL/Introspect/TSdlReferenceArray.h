@@ -17,6 +17,7 @@ class ISdlResource;
 /*! @brief A value that points to an array of SDL resources.
 @tparam T Type of the referenced SDL resource.
 @tparam Owner Owner type of @p T. Note that Owner can be any type (not necessarily a SDL resource).
+Null entries use "" instead of "@name".
 */
 template<typename T, typename Owner>
 class TSdlReferenceArray : public TSdlOwnedField<Owner>

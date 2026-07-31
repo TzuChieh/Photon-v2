@@ -7,11 +7,6 @@
 namespace ph
 {
 
-ConstantVelocityMotion::ConstantVelocityMotion()
-	: MotionSource()
-	, m_velocity(0)
-{}
-
 void ConstantVelocityMotion::storeCooked(
 	const CookingContext& ctx,
 	CookedMotion& out_motion) const

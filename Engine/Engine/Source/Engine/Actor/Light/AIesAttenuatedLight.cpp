@@ -1,9 +1,9 @@
 #include "Engine/Actor/Light/AIesAttenuatedLight.h"
+#include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/DataIO/Data/IesData.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
-#include "Engine/World/Foundation/TransientResourceCache.h"
 #include "Engine/Math/constant.h"
 #include "Engine/Frame/TFrame.h"
 #include "Engine/Core/Emitter/TOmniModulatedEmitter.h"
@@ -48,7 +48,14 @@ PreCookReport AIesAttenuatedLight::preCook(const CookingContext& ctx) const
 TransientVisualElement AIesAttenuatedLight::cook(
 	const CookingContext& ctx, const PreCookReport& report) const
 {
-	TransientVisualElement sourceElement = getSourceVisualElement(ctx);
+	const TransientVisualElement* sourceResult = ctx.getCached(m_source);
+	if(!sourceResult)
+	{
+		throw ActorCookException(
+			"IES light source dependency was not cooked and cached");
+	}
+	const TransientVisualElement& sourceElement = *sourceResult;
+
 	if(sourceElement.surfaceEmitters.empty())
 	{
 		PH_LOG(ActorCooking, Warning,
@@ -145,18 +152,6 @@ void AIesAttenuatedLight::setSource(const std::shared_ptr<ALight>& source)
 void AIesAttenuatedLight::setIesFile(const Path& iesFile)
 {
 	m_iesFile.setPath(iesFile);
-}
-
-TransientVisualElement AIesAttenuatedLight::getSourceVisualElement(const CookingContext& ctx) const
-{
-	const TransientVisualElement* sourceElement = ctx.getCached(m_source);
-	if(sourceElement)
-	{
-		return *sourceElement;
-	}
-
-	// Cook new visual element if not cached
-	return m_source->stagelessCook(ctx);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> AIesAttenuatedLight::loadAttenuationTexture() const

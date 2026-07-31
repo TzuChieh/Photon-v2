@@ -6,21 +6,21 @@ import utility
 from utility import blender
 
 from bmodule import (
+    material,
     mesh,
+    naming,
     scene,
     light,
     world,
     )
 
-from bmodule.material import nodes
-from bmodule.mesh import triangle_mesh
 from psdl import sdl, sdlmapping, SdlConsole
-from utility import blender
 
 import bpy
 import mathutils
 
 import time
+from collections import Counter
 from pathlib import Path
 
 
@@ -56,32 +56,18 @@ class Exporter:
         print("exporting complete (%f s)" % elapsed_time)
         print("-------------------------------------------------------------")
 
-    def export_material(self, b_material):
-        # TODO: adhere to the material.export convention
-        # FIXME: hack
-        if b_material.photon.use_nodes:
-            return nodes.to_sdl(b_material, self.get_sdlconsole())
-        else:
-            print("not using node tree")
-            # BROKEN CODE
-            # command = sdl.RawCommand()
-            # command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
-            # self.__sdlconsole.queue_command(command)
-            # return node.MaterialNodeTranslateResult()
-            return None
-
     # def exportRaw(self, rawText):
     # 	command = sdl.RawCommand()
     # 	command.append_string(rawText)
     # 	self.__sdlconsole.queue_command(command)
 
-    def export_camera(self, b_camera_object, b_scene):
-        b_camera = b_camera_object.data
+    def export_camera(self, b_camera_obj, b_scene):
+        b_camera = b_camera_obj.data
 
         observer = None
         if b_camera.type == "PERSP":
 
-            position, rot, scale = blender.to_photon_pos_rot_scale(b_camera_object.matrix_world)
+            position, rot, scale = blender.to_photon_pos_rot_scale(b_camera_obj.matrix_world)
             if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
                 print("warning: camera (%s) contains scale factor, ignoring" % b_camera.name)
 
@@ -204,31 +190,67 @@ class Exporter:
     def export(self, b_depsgraph: bpy.types.Depsgraph):
         print("Input dependency graph mode (Exporter): %s" % str(b_depsgraph.mode))
         
-        b_camera_obj = scene.find_active_camera_object(b_depsgraph)
-        b_mesh_objs = scene.find_mesh_objects(b_depsgraph)
-        b_materials = scene.find_materials_from_mesh_objects(b_mesh_objs, b_depsgraph)
-        b_light_objs = scene.find_light_objects(b_depsgraph)
+        # Count mesh instances before exporting
+        source_key_to_instance_counts = Counter()
+        num_mesh_obj_instances = 0
+        for _, b_obj_instance in scene.iter_mesh_obj_instances(b_depsgraph):
+            b_mesh_obj = b_obj_instance.object
+            num_mesh_obj_instances += 1
+            source_key = mesh.export.get_mesh_obj_source_key(b_mesh_obj)
+            if source_key is not None:
+                source_key_to_instance_counts[source_key] += 1
 
-        print("Exporter found %d mesh objects, %d materials, and %d light objects" % (
-            len(b_mesh_objs),
-            len(b_materials),
-            len(b_light_objs)))
+        b_materials = scene.find_materials_from_mesh_obj_instances(b_depsgraph)
+        b_light_objs = scene.find_light_objs(b_depsgraph)
+
+        print(
+            f"Exporter found {num_mesh_obj_instances} mesh object instances, "
+            f"{len(b_materials)} materials, "
+            f"and {len(b_light_objs)} light objects")
 
         # Exporting Blender data as SDL
 
         # TODO: export all cameras, not just the active one
+        b_camera_obj = scene.find_active_camera_obj(b_depsgraph)
         self.export_camera(b_camera_obj, b_depsgraph.scene_eval)
 
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
-            self.export_material(b_material)
+            material.to_sdl(b_material, self.get_sdlconsole())
 
-        # TODO: Instancing; also see the comment in `mesh_object_to_sdl_actor()`, mesh data in mesh object may
-        # have name collision even if they are actually different. How do we properly export mesh data should
-        # be revisited
-        for b_mesh_obj in b_mesh_objs:
-            print(f"exporting mesh object: {b_mesh_obj.name}")
-            mesh.export.mesh_object_to_sdl_actor(b_mesh_obj, self.get_sdlconsole())
+        # Export each reusable PLY mesh once in local space, then create its transformed instances
+        source_key_to_actor_name = {}
+        for depsgraph_index, b_obj_instance in scene.iter_mesh_obj_instances(b_depsgraph):
+            b_mesh_obj = b_obj_instance.object
+            source_key = mesh.export.get_mesh_obj_source_key(b_mesh_obj)
+            num_instances = source_key_to_instance_counts.get(source_key, 0)
+            if num_instances > 1 and mesh.export.can_mesh_obj_be_instance_source(b_mesh_obj):
+                source_actor_name = source_key_to_actor_name.get(source_key)
+
+                # Export source if not already exported
+                if source_actor_name is None:
+                    print(f"exporting source for {num_instances} instances of mesh object: {b_mesh_obj.name}")
+                    source_actor_name = mesh.export.mesh_obj_to_sdl_instance_source(
+                        b_mesh_obj,
+                        self.get_sdlconsole(),
+                        name_suffix=naming.join_name_parts("Source", depsgraph_index))
+                    source_key_to_actor_name[source_key] = source_actor_name
+
+                # Export the instance itself
+                instance_actor_name = naming.get_mangled_object_name(
+                    b_mesh_obj, suffix=naming.join_name_parts("Instance", depsgraph_index))
+                mesh.export.transformed_instance_to_sdl_actor(
+                    source_actor_name,
+                    self.get_sdlconsole(),
+                    instance_actor_name=instance_actor_name,
+                    b_world_matrix=b_obj_instance.matrix_world)
+            else:
+                print(f"exporting mesh object: {b_mesh_obj.name}")
+                mesh.export.mesh_obj_to_sdl_actor(
+                    b_mesh_obj,
+                    self.get_sdlconsole(),
+                    b_world_matrix=b_obj_instance.matrix_world,
+                    name_suffix=naming.join_name_parts("Mesh", depsgraph_index))
 
         for b_light_obj in b_light_objs:
             print(f"exporting light object: {b_light_obj.name}")

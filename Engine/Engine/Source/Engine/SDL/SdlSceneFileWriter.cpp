@@ -127,7 +127,7 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene)
 
 	std::vector<std::string> names;
 	std::vector<const ISdlResource*> resources = scene.getResources().listAll(&names);
-	m_resolver.analyze(resources, names);
+	m_resolver.analyze(resources, {.resourceNames = names});
 
 	for(const ISdlResource* resource = m_resolver.next();
 	    resource != nullptr; 

@@ -25,7 +25,7 @@ public:
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::vector<std::shared_ptr<Material>> m_materials;
-	bool m_shouldFlipNg = false;
+	bool m_shouldFlipNg;
 
 public:
 	PH_DEFINE_SDL_CLASS(ABlenderPlyModel, clazz)
@@ -41,7 +41,8 @@ public:
 		clazz.addField(geometry);
 
 		TSdlReferenceArray<Material, OwnerType> materials("materials", &OwnerType::m_materials);
-		materials.description("Materials indexed by Blender material slot.");
+		materials.description(
+			"Materials indexed by Blender material slot. Model segments with no material assigned are invisible.");
 		materials.required();
 		clazz.addField(materials);
 

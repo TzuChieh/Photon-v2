@@ -143,9 +143,9 @@ math::AABB3D CookingContext::getRootActorsBound() const
 	return getWorld().getRootActorsBound();
 }
 
-math::AABB3D CookingContext::getLeafActorsBound() const
+math::AABB3D CookingContext::getAllActorsBound() const
 {
-	return getWorld().getLeafActorsBound();
+	return getWorld().getAllActorsBound();
 }
 
 const CookedGeometry* CookingContext::getCooked(const Geometry& geometry) const

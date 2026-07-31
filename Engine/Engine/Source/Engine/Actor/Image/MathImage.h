@@ -39,8 +39,6 @@ PH_DEFINE_SDL_ENUM(EMathImageOp, e)
 class MathImage : public Image
 {
 public:
-	MathImage();
-
 	std::shared_ptr<TTexture<Image::NumericType>> genNumericTexture(
 		const CookingContext& ctx) override;
 

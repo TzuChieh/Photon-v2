@@ -110,16 +110,15 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         """
         b_depsgraph = b_context.evaluated_depsgraph_get()
 
-        b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+        b_mesh_objs = scene.find_mesh_objs(b_depsgraph)
 
         # Force subdivision level if required
         should_force_subdiv = b_depsgraph.mode != self.subdivision_quality
         subdiv_original_settings = {}
         if should_force_subdiv:
-            for b_evaluated_mesh_object in b_mesh_objects:
-                b_mesh_object = b_evaluated_mesh_object.original
-                mesh.mesh_object_force_subdiv_level(
-                    b_mesh_object,
+            for b_evaluated_mesh_obj in b_mesh_objs:
+                mesh.mesh_obj_force_subdiv_level(
+                    b_evaluated_mesh_obj.original,
                     self.subdivision_quality,
                     subdiv_original_settings)
         
@@ -127,10 +126,9 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
         # Emulate autosmooth settings with edge split modifier
         autosmooth_original_settings = {}
-        for b_evaluated_mesh_object in b_mesh_objects:
-            b_mesh_object = b_evaluated_mesh_object.original
-            mesh.mesh_object_autosmooth_to_edgesplit(
-                b_mesh_object,
+        for b_evaluated_mesh_obj in b_mesh_objs:
+            mesh.mesh_obj_autosmooth_to_edgesplit(
+                b_evaluated_mesh_obj.original,
                 autosmooth_original_settings)
 
         cache.autosmooth_original_settings = autosmooth_original_settings
@@ -149,17 +147,19 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
         # Restore mesh objects to original settings
 
-        b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+        b_mesh_objs = scene.find_mesh_objs(b_depsgraph)
 
         if cache.subdiv_original_settings is not None:
-            for b_evaluated_mesh_object in b_mesh_objects:
-                b_mesh_object = b_evaluated_mesh_object.original
-                mesh.restore_mesh_object_subdiv_level(b_mesh_object, cache.subdiv_original_settings)
+            for b_evaluated_mesh_obj in b_mesh_objs:
+                mesh.restore_mesh_obj_subdiv_level(
+                    b_evaluated_mesh_obj.original,
+                    cache.subdiv_original_settings)
 
         if cache.autosmooth_original_settings is not None:
-            for b_evaluated_mesh_object in b_mesh_objects:
-                b_mesh_object = b_evaluated_mesh_object.original
-                mesh.restore_mesh_object_autosmooth(b_mesh_object, cache.autosmooth_original_settings)
+            for b_evaluated_mesh_obj in b_mesh_objs:
+                mesh.restore_mesh_obj_autosmooth(
+                    b_evaluated_mesh_obj.original,
+                    cache.autosmooth_original_settings)
 
 
 def menu_func_export(self, b_context):

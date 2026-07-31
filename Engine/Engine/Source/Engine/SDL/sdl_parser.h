@@ -60,14 +60,14 @@ std::string_view trim_specifier(
 /*! @brief Trim one name token from the head of @p valueStr.
 Whitespaces are always trimmed. If no name token is found at head, this is a no-op.
 If @p out_name is not null, parsed name will be stored there (quotes removed).
-@return Remaining string after trim.
+@return Remaining string after trim, with leading whitespace removed.
 */
 std::string_view trim_name(std::string_view valueStr, std::string_view* out_name = nullptr);
 
 /*! @brief Trim one SDL `specifier + name` syntax unit from the head of @p valueStr.
 Whitespaces are always trimmed. If no matching specifier is found at head, this is a no-op.
 This overload follows SDL syntax rules by requiring @p expectedSpecifier before extracting name.
-@return Remaining string after trim.
+@return Remaining string after trim, with leading whitespace removed.
 */
 std::string_view trim_name(
 	std::string_view  valueStr,

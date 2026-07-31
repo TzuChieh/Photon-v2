@@ -133,7 +133,7 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	}
 
 	std::vector<ISdlResource*> resources(objs.begin(), objs.end());
-	m_resolver.analyze(resources, names);
+	m_resolver.analyze(resources, {.resourceNames = names});
 
 	// Start saving scene
 	FormattedTextOutputStream fileStream(filePath);

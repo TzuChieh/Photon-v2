@@ -156,16 +156,15 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadReference(
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	if(!ctx.getSrcResources())
+	if(clause.valueType == ESdlClauseValue::General && clause.value.empty())
 	{
-		throw SdlLoadError(
-			"no target reference group specified");
+		return nullptr;
 	}
 
 	if(clause.valueType != ESdlClauseValue::PersistentTargetName)
 	{
 		throw SdlLoadError(
-			"bad reference type (only persistent target is supported)");
+			"bad reference expression (expected a persistent target or empty reference)");
 	}
 
 	return loadReference(clause.value, ctx);
@@ -181,6 +180,12 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadReference(
 	{
 		throw SdlLoadError(
 			"reference name cannot be empty");
+	}
+
+	if(!ctx.getSrcResources())
+	{
+		throw SdlLoadError(
+			"a reference group is required to identify target");
 	}
 
 	// TODO: allow type mismatch?

@@ -38,11 +38,15 @@ public:
 
 	virtual CookOrder getCookOrder() const;
 
+	void setIsInstantiableHint(bool isInstantiable);
+	bool isInstantiableHint() const;
+
 	/*! @brief Helper to execute the full cooking procedure in one go.
 	*/
 	TransientVisualElement stagelessCook(const CookingContext& ctx) const;
 
-	// TODO: may need a new method for cache generation (request this stage from precook?)
+private:
+	bool m_isInstantiableHint;
 
 public:
 	PH_DEFINE_SDL_CLASS(Actor, clazz)
@@ -52,6 +56,13 @@ public:
 		clazz.description(
 			"Represents an entity in the scene. "
 			"Every entity that participates in a scene is an actor.");
+
+		TSdlBool<OwnerType> isInstantiableHint("is-instantiable-hint", &OwnerType::m_isInstantiableHint);
+		isInstantiableHint.description(
+			"Hints that the actor should produce output suitable for use as an instance source.");
+		isInstantiableHint.defaultTo(false);
+		isInstantiableHint.optional();
+		clazz.addField(isInstantiableHint);
 	}
 };
 

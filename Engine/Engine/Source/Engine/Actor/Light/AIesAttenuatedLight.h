@@ -22,7 +22,6 @@ public:
 	void setIesFile(const Path& iesFile);
 
 private:
-	TransientVisualElement getSourceVisualElement(const CookingContext& ctx) const;
 	std::shared_ptr<TTexture<math::Spectrum>> loadAttenuationTexture() const;
 
 	std::shared_ptr<ALight> m_source;
@@ -38,7 +37,9 @@ public:
 		clazz.baseOn<ALight>();
 
 		TSdlReference<ALight, OwnerType> source("source", &OwnerType::m_source);
-		source.description("The light source that will be attenuated.");
+		source.description(
+			"The light source to attenuate. Declare the source as phantom to emit only the "
+			"attenuated result.");
 		source.optional();
 		clazz.addField(source);
 

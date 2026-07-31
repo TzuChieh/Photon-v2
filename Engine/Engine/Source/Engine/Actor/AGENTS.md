@@ -26,5 +26,5 @@
 - Actor/model cooking combines `CookedGeometry::faceIdToMetadataSlot` with slot-indexed materials
   and injects metadata; keep geometry and acceleration/intersection primitives material-agnostic.
 - Treat face material IDs, actor material inputs, and metadata arrays as Blender-slot-indexed,
-  including sparse slots; do not compact/remap them, and reject empty slots unless an earlier step
-  explicitly remaps or rejects their faces.
+  including sparse and empty slots; do not compact/remap them, and use fully transmissive surface
+  optics for empty slots.

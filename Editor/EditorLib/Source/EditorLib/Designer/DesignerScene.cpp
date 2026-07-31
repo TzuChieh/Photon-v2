@@ -58,8 +58,6 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_renderDescription()
 	, m_mainCamera()
 	, m_isPaused(false)
-
-	, m_name()
 {
 	PH_ASSERT(m_editor != nullptr);
 }

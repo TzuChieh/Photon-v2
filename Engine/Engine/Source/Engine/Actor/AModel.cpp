@@ -1,5 +1,6 @@
 #include "Engine/Actor/AModel.h"
 #include "Engine/Math/math.h"
+#include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Engine/Core/Intersection/IntersectableBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -143,6 +144,13 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		metadata->interior().setOptics(interiorOptics);
 		metadata->exterior().setOptics(exteriorOptics);
 		metadata->setInteriorPriority(m_material->getOverlapPriority());
+	}
+
+	if(isInstantiableHint() && result.intersectables.size() > 1)
+	{
+		auto* aggregate = ctx.getResources().makeIntersectable<TBinaryBvhIntersector<uint32>>();
+		aggregate->update(result.intersectables);
+		result.intersectables = {aggregate};
 	}
 
 	return result;

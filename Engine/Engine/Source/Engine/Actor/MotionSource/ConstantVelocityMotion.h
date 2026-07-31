@@ -10,8 +10,6 @@ namespace ph
 class ConstantVelocityMotion : public MotionSource
 {
 public:
-	ConstantVelocityMotion();
-
 	void storeCooked(
 		const CookingContext& ctx,
 		CookedMotion& out_motion) const override;

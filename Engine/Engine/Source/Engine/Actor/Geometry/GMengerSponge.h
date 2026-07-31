@@ -13,9 +13,6 @@ class GCuboid;
 class GMengerSponge final : public Geometry
 {
 public:
-	GMengerSponge();
-	explicit GMengerSponge(uint32 numIteration);
-
 	void storeCooked(
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;

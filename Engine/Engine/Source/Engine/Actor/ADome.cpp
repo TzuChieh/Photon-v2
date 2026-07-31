@@ -57,7 +57,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	auto localToWorld = static_cast<const StaticRigidTransform*>(report.getBaseLocalToWorld());
 	auto worldToLocal = static_cast<const StaticRigidTransform*>(report.getBaseWorldToLocal());
 
-	const math::AABB3D worldBound = ctx.getLeafActorsBound();
+	const math::AABB3D worldBound = ctx.getAllActorsBound();
 	
 	math::Vector3R domeCenter;
 	localToWorld->transformP({0, 0, 0}, &domeCenter);

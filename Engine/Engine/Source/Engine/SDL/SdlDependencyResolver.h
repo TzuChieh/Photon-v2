@@ -14,26 +14,40 @@
 namespace ph
 {
 
-/*! @brief Resolves dependency between SDL resources and provides a valid initialization order.
-Optionally provide resource name lookup (if user provides resource name during analyzation).
+/*! @brief Resolve SDL resource dependencies and produce a valid initialization order.
+Dependencies always precede resources that reference them. When multiple resources could be
+returned next without violating dependency order, the one with the lowest numeric priority is always
+selected. Input order breaks equal-priority ties.
 */
 class SdlDependencyResolver final
 {
 public:
-	SdlDependencyResolver();
+	/*! @brief Optional additional information for dependency analysis.
+	Each non-empty span must contain one entry per resource passed to `analyze()`. Resource names are
+	used for diagnostics and lookup. Among resources that could be returned next, lower numeric
+	priorities are selected first and input order breaks equal values.
+	*/
+	struct AnalysisOptions final
+	{
+		TSpanView<std::string> resourceNames = {};
+		TSpanView<std::size_t> resourcePriorities = {};
+	};
+
+	SdlDependencyResolver() = default;
 
 	/*! @brief Submit resources and start to resolve their dependencies.
 	The containers for input do not need to be kept alive after this call.
 	@param resources Resources to be analyzed.
-	@param resourceNames Names for the resources. Must have exactly the same size as @p resources if provided.
+	@param options Optional additional information for the analysis.
+	@throw InvalidArgumentException If a non-empty option span does not match the resource count.
 	*/
 	void analyze(
 		TSpanView<const ISdlResource*> resources,
-		TSpanView<std::string> resourceNames = {});
+		AnalysisOptions options = {});
 
 	/*! @brief Get a resource from the analyzed scene with a valid dependency ordering.
-	@return A resource. Can be called repeatedly until `nullptr` is returned (which indicates all
-	analyzed resources are returned).
+	@return The next resource in the resolved dispatch order. Can be called repeatedly until `nullptr`
+	is returned. Resources in dependency cycles are not returned.
 	*/
 	const ISdlResource* next();
 
@@ -45,12 +59,9 @@ public:
 private:
 	struct ResourceInfo
 	{
-		const ISdlResource* resource;
+		const ISdlResource* resource = nullptr;
 		std::string         name;
-
-		inline ResourceInfo() :
-			resource(nullptr), name()
-		{}
+		std::size_t         priority = 0;
 	};
 
 	std::vector<ResourceInfo>                            m_resourceInfos;

@@ -67,16 +67,17 @@ public:
 	CookedResourceCollection& getResources() const;
 	TransientResourceCache& getCache() const;
 
-	/*! @brief Bounds actors cooked in the first level.
-	The bound is only available after the first level has done cooking.
+	/*! @brief Get the bound of successfully cooked, scene-visible first-level actors.
+	The bound includes the receiver position and is published after `ECookLevel::First` finishes. It
+	remains unchanged during later levels.
 	*/
 	math::AABB3D getRootActorsBound() const;
 
-	/*! @brief Bounds actors from levels finished cooking.
-	The bound is updated every time a level has done cooking. Generally this bound only grows as it
-	encapsulates all previous levels including the root level.
+	/*! @brief Get the cumulative bound through the last completed actor cook level.
+	The bound includes the receiver position and successfully cooked, scene-visible actors from
+	completed levels only. All actors within the same level observe the same bound.
 	*/
-	math::AABB3D getLeafActorsBound() const;
+	math::AABB3D getAllActorsBound() const;
 
 	/*!
 	@return Pointer to the cooked geometry. `nullptr` if not found.
@@ -102,8 +103,10 @@ public:
 	const CookedMotion* getCooked(const std::shared_ptr<MotionSource>& motion) const;
 	///@}
 
-	/*!
-	@return Pointer to the cooked actor. `nullptr` if not found.
+	/*! @brief Get the successfully cooked output of an actor dependency.
+	Normal and phantom actors are both available. Phantom actors will not be shown in scene.
+	@return Pointer to the cooked actor output. `nullptr` if @p actor is null or has no successfully
+	cooked output.
 	*/
 	const TransientVisualElement* getCached(const std::shared_ptr<Actor>& actor) const;
 

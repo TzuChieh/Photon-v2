@@ -61,7 +61,10 @@ inline void TSdlReferenceArray<T, Owner>::ownedResources(
 	const std::vector<std::shared_ptr<T>>& storedVector = getValueVec(owner);
 	for(const std::shared_ptr<T>& storedResource : storedVector)
 	{
-		out_resources.push_back(storedResource.get());
+		if(storedResource)
+		{
+			out_resources.push_back(storedResource.get());
+		}
 	}
 }
 
@@ -146,6 +149,12 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		out_clause.value = '{';
 		for(const std::shared_ptr<T>& resource : referenceVector)
 		{
+			if(!resource)
+			{
+				out_clause.value += "\"\" ";
+				continue;
+			}
+
 			const auto resourceName = ctx.getResourceName(resource.get());
 			if(resourceName.empty())
 			{
@@ -175,12 +184,6 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	if(!ctx.getSrcResources())
-	{
-		throw SdlLoadError(
-			"no target reference group specified");
-	}
-
 	if(clause.valueType == ESdlClauseValue::PersistentTargetName)
 	{
 		auto resource = TSdlReference<T, Owner>::loadReference(clause, ctx);
@@ -189,28 +192,31 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	else if(clause.valueType == ESdlClauseValue::General)
 	{
 		std::vector<std::shared_ptr<T>> referenceVector;
-		std::string_view remainingStr = clause.value;
-
-		while(true)
+		std::string_view remainingStr = string_utils::trim_head(clause.value);
+		while(!remainingStr.empty())
 		{
-			std::string_view reference;
-			remainingStr = sdl_parser::trim_name(
-				remainingStr,
-				sdl_parser::ESpecifier::Persistent,
-				&reference);
-
-			if(reference.empty())
+			if(remainingStr.starts_with("\"\""))
 			{
-				if(remainingStr.empty())
+				referenceVector.push_back(nullptr);
+				remainingStr.remove_prefix(2);
+				remainingStr = string_utils::trim_head(remainingStr);
+			}
+			else
+			{
+				std::string_view reference;
+				remainingStr = sdl_parser::trim_name(
+					remainingStr,
+					sdl_parser::ESpecifier::Persistent,
+					&reference);
+
+				if(reference.empty())
 				{
-					break;
+					throw_formatted<SdlLoadError>(
+						"syntax error: invalid reference-array target list near <{}>", remainingStr);
 				}
 
-				throw_formatted<SdlLoadError>(
-					"syntax error: invalid reference-array target list near <{}>", remainingStr);
+				referenceVector.push_back(TSdlReference<T, Owner>::loadReference(reference, ctx));
 			}
-
-			referenceVector.push_back(TSdlReference<T, Owner>::loadReference(reference, ctx));
 		}
 
 		return referenceVector;
@@ -218,7 +224,7 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	else
 	{
 		throw SdlLoadError(
-			"bad reference type (only persistent target is supported)");
+			"bad reference (expected single reference or an array whose entries are references or \"\")");
 	}
 }
 

@@ -1,62 +1,85 @@
 #include "Engine/Actor/ATransformedInstance.h"
-#include "Engine/Math/math.h"
-#include "Engine/Core/Intersection/PrimitiveMetadata.h"
-#include "Engine/Actor/Geometry/Geometry.h"
-#include "Engine/Actor/Material/Material.h"
-#include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Engine/World/Foundation/TransientVisualElement.h"
-#include "Engine/Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Engine/Actor/MotionSource/MotionSource.h"
-#include "Engine/Actor/ModelBuilder.h"
+#include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/Core/Intersection/IntersectableBuilder.h"
+#include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/CookedResourceCollection.h"
+#include "Engine/World/Foundation/PreCookReport.h"
+#include "Engine/World/Foundation/TransientVisualElement.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-
-#include <algorithm>
-#include <memory>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(TransformedInstanceActor, Actor);
 
-TransientVisualElement ATransformedInstance::cook(const CookingContext& ctx, const PreCookReport& report) const
+PreCookReport ATransformedInstance::preCook(const CookingContext& ctx) const
 {
-	TransientVisualElement cooked;
-
-	/*const CookedUnit* phantom = ctx.getPhantom(m_phantomName);
-	if(!phantom)
+	PreCookReport report = PhysicalActor::preCook(ctx);
+	if(!m_source)
 	{
-		PH_LOG_WARNING(TransformedInstanceActor, 
-			"phantom <{}> not found", m_phantomName);
-
-		return cooked;
+		PH_LOG(TransformedInstanceActor, Warning,
+			"ignoring this transformed instance: source actor is not specified");
+		return report.markAsUncookable();
 	}
 
-	if(phantom->intersectables().size() != 1)
-	{
-		PH_LOG_WARNING(TransformedInstanceActor, 
-			"phantom <{}> contains unsupported data", m_phantomName);
+	auto* localToWorld = ctx.getResources().makeTransform<StaticAffineTransform>(
+		m_localToWorld.getForwardStaticAffine());
+	auto* worldToLocal = ctx.getResources().makeTransform<StaticAffineTransform>(
+		m_localToWorld.getInverseStaticAffine());
+	report.setBaseTransforms(localToWorld, worldToLocal);
 
-		return cooked;
+	return report;
+}
+
+TransientVisualElement ATransformedInstance::cook(
+	const CookingContext& ctx, const PreCookReport& report) const
+{
+	const TransientVisualElement* sourceElement = ctx.getCached(m_source);
+	if(!sourceElement)
+	{
+		throw ActorCookException(
+			"transformed instance source dependency was not cooked and cached");
 	}
 
-	auto baseLW = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_localToWorld));
-	auto baseWL = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeInverse(m_localToWorld));
+	if(!sourceElement->surfaceEmitters.empty())
+	{
+		throw ActorCookException(
+			"transformed instance does not support emitting source actors");
+	}
 
-	auto transformedTarget = std::make_unique<
-		TTransformedIntersectable<TReferencedIntersectableGetter<Intersectable>>>(
-			TReferencedIntersectableGetter<Intersectable>(phantom->intersectables().front().get()),
-			baseLW.get(),
-			baseWL.get());
+	if(sourceElement->intersectables.size() > 1)
+	{
+		throw ActorCookException(
+			"transformed instance source produced multiple intersectables; use "
+			"is-instantiable-hint on a source actor that supports instancing");
+	}
 
-	cooked.addIntersectable(std::move(transformedTarget));
-	cooked.addTransform(std::move(baseLW));
-	cooked.addTransform(std::move(baseWL));*/
-	PH_ASSERT_UNREACHABLE_SECTION();
+	if(sourceElement->intersectables.empty())
+	{
+		return {};
+	}
 
-	return cooked;
+	const auto* localToWorld = report.getBaseLocalToWorld();
+	const auto* worldToLocal = report.getBaseWorldToLocal();
+	PH_ASSERT(localToWorld);
+	PH_ASSERT(worldToLocal);
+
+	auto* transformed = ctx.getResources().copyIntersectable(
+		IntersectableBuilder::referencing(sourceElement->intersectables.front())
+			.transform(localToWorld, worldToLocal)
+			.build());
+
+	TransientVisualElement result;
+	result.intersectables.push_back(transformed);
+	return result;
+}
+
+void ATransformedInstance::setSource(const std::shared_ptr<Actor>& source)
+{
+	m_source = source;
 }
 
 }// end namespace ph

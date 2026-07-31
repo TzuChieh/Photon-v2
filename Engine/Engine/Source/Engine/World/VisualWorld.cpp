@@ -1,60 +1,57 @@
 #include "Engine/World/VisualWorld.h"
-#include "Engine/SDL/SceneDescription.h"
-#include "Engine/World/Foundation/TransientVisualElement.h"
-#include "Engine/World/Foundation/CookingContext.h"
-#include "Engine/EngineEnv/CoreCookingContext.h"
-#include "Engine/EngineEnv/CoreCookedUnit.h"
-#include "Engine/EngineEnv/sdl_accelerator_type.h"
 #include "Engine/Actor/Actor.h"
+#include "Engine/Actor/Basic/exceptions.h"
+#include "Engine/SDL/SceneDescription.h"
+#include "Engine/World/Foundation/CookingContext.h"
+#include "Engine/World/Foundation/TransientVisualElement.h"
+#include "Engine/EngineEnv/CoreCookingContext.h"
+#include "Engine/EngineEnv/sdl_accelerator_type.h"
 #include "Engine/Core/Intersection/BruteForceIntersector.h"
 #include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Engine/Core/Intersection/BVH/TWideBvhIntersector.h"
 #include "Engine/Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Engine/Core/Intersection/Kdtree/KdtreeIntersector.h"
 #include "Engine/Core/Emitter/SurfaceEmitter.h"
-#include "Engine/Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Engine/Core/Emitter/Sampler/ESPowerFavoring.h"
-#include "Engine/Actor/APhantomModel.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Material/Material.h"
 #include "Engine/Actor/MotionSource/MotionSource.h"
-#include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/PreCookReport.h"
-#include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/CommonCookingConfig.h"
 #include "Engine/SDL/ISdlResource.h"
 #include "Engine/SDL/SdlDependencyResolver.h"
 #include "Engine/SDL/sdl_helpers.h"
 
-#include <Common/primitive_type.h>
-#include <Common/stats.h>
+#include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/primitive_type.h>
 #include <Common/profiling.h>
+#include <Common/stats.h>
 
 #include <limits>
-#include <iostream>
-#include <algorithm>
-#include <iterator>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(VisualWorld, World);
-PH_DEFINE_INTERNAL_TIMER_STAT(CookActorLevels, VisualWorld);
+PH_DEFINE_INTERNAL_TIMER_STAT(CookActors, VisualWorld);
 PH_DEFINE_INTERNAL_TIMER_STAT(UpdateAccelerators, VisualWorld);
 PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld);
 
 VisualWorld::VisualWorld()
 	: m_cookedResources(nullptr)
 	, m_cache(nullptr)
+	, m_receiverPos(0)
+	, m_rootActorsBound(math::Vector3R(0))
+	, m_allActorsBound(math::Vector3R(0))
 	, m_tlas(nullptr)
 	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
 	, m_emitterSampler(std::make_unique<ESPowerFavoring>())
 	, m_scene()
-	, m_receiverPos(0)
 	, m_backgroundPrimitive(nullptr)
-	, m_rootActorsBound(math::Vector3R(0))
-	, m_leafActorsBound(math::Vector3R(0))
 {}
 
 //void VisualWorld::addActor(std::shared_ptr<Actor> actor)
@@ -76,22 +73,81 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	PH_PROFILE_SCOPE();
 	PH_LOG(VisualWorld, Note, "started cooking...");
 
+	std::vector<ResourceCookUnit> cookUnitStorage;
+	{
+		std::vector<std::string> resourceNames;
+		std::vector<const ISdlResource*> resources = rawScene.getResources().listAll(&resourceNames);
+		
+		// Gather phantom resources
+		std::unordered_set<const ISdlResource*> phantomResourceSet;
+		{
+			std::vector<std::string> phantomResourceNames;
+			std::vector<const ISdlResource*> phantomResources = rawScene.getPhantoms().listAll(&phantomResourceNames);
+			phantomResourceSet.insert(phantomResources.begin(), phantomResources.end());
+			resources.insert(resources.end(), phantomResources.begin(), phantomResources.end());
+			resourceNames.insert(resourceNames.end(), phantomResourceNames.begin(), phantomResourceNames.end());
+		}
+
+		// Record cook priorities
+		constexpr std::size_t prioritiesPerLevel = std::numeric_limits<CookPriority>::max() + 1;
+		std::vector<std::size_t> resourcePriorities(resources.size(), 0);
+		for(std::size_t i = 0; i < resources.size(); ++i)
+		{
+			sdl::visit(resources[i],
+				[&resourcePriorities, i](const Actor& actor)
+				{
+					const CookOrder order = actor.getCookOrder();
+					// Level first, then in-level priorities
+					resourcePriorities[i] = 1 + order.level * prioritiesPerLevel + order.priority;
+				});
+		}
+
+		// Validate and reecord the complete dispatch order before producing any cooked data
+
+		SdlDependencyResolver dependencyResolver;
+		dependencyResolver.analyze(
+			resources,
+			{
+				.resourceNames = resourceNames,
+				.resourcePriorities = resourcePriorities
+			});
+
+		cookUnitStorage.reserve(resources.size());
+		std::optional<CookLevel> previousActorCookLevel;
+		while(const ISdlResource* resource = dependencyResolver.next())
+		{
+			ResourceCookUnit cookUnit;
+			cookUnit.resource = resource;
+			sdl::visit(resource,
+				[&dependencyResolver, &previousActorCookLevel, &cookUnit, resource]
+				(const Actor& actor)
+				{
+					const CookLevel actorCookLevel = actor.getCookOrder().level;
+					if(previousActorCookLevel && actorCookLevel < *previousActorCookLevel)
+					{
+						// At this point should be engine implementation error
+						throw_formatted<CookException>(
+							"actor <{}> at cook level {} was dispatched after cook level {}; "
+							"resource dependencies must not reverse actor cook levels",
+							dependencyResolver.getResourceName(resource),
+							static_cast<uint32>(actorCookLevel),
+							static_cast<uint32>(*previousActorCookLevel));
+					}
+
+					previousActorCookLevel = actorCookLevel;
+					cookUnit.actorCookLevel = actorCookLevel;
+				});
+			cookUnit.isPhantom = phantomResourceSet.contains(resource);
+			cookUnitStorage.push_back(cookUnit);
+		}
+	}
+
 	// Create the storage for cooked resources, and potentially free all previous resources
 	m_cookedResources = std::make_unique<CookedResourceCollection>();
 
 	// Cache should be freed already as it is not needed for rendering
 	PH_ASSERT(m_cache == nullptr);
 	m_cache = std::make_unique<TransientResourceCache>();
-
-	std::vector<SceneActor> sceneActors;
-	for(auto actor : rawScene.getResources().getAllOfType<Actor>())
-	{
-		sceneActors.push_back({.actor = actor, .isPhantom = false});
-	}
-	for(auto phantomActor : rawScene.getPhantoms().getAllOfType<Actor>())
-	{
-		sceneActors.push_back({.actor = phantomActor, .isPhantom = true});
-	}
 
 	// TODO: clear cooked data
 
@@ -100,22 +156,32 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	config.timeStep = coreCtx.getTimeStep();
 	ctx.setCommonConfig(config);
 
-	std::vector<std::string> resourceNames;
-	std::vector<const ISdlResource*> resources = rawScene.getResources().listAll(&resourceNames);
+	// Actor bounds always include the receiver position.
+	// Actor bounds are published at the end of each actor cook level.
+	m_rootActorsBound = math::AABB3D(m_receiverPos);
+	m_allActorsBound = math::AABB3D(m_receiverPos);
 
-	// Append phantom resources
+	const TSpanView<ResourceCookUnit> cookUnitView = cookUnitStorage;
+	std::optional<CookLevel> currentActorLevel;
+	std::size_t currentActorLevelBegin = 0;
+	for(std::size_t ri = 0; ri < cookUnitStorage.size(); ++ri)
 	{
-		std::vector<std::string> phantomResourceNames;
-		std::vector<const ISdlResource*> phantomResources = rawScene.getPhantoms().listAll(&phantomResourceNames);
-		resources.insert(resources.end(), phantomResources.begin(), phantomResources.end());
-		resourceNames.insert(resourceNames.end(), phantomResourceNames.begin(), phantomResourceNames.end());
-	}
+		const ResourceCookUnit& cookUnit = cookUnitView[ri];
+		const std::optional<CookLevel>& actorCookLevel = cookUnit.actorCookLevel;
+		if(actorCookLevel && (!currentActorLevel || *actorCookLevel > *currentActorLevel))
+		{
+			if(currentActorLevel)
+			{
+				onFinishedActorCookLevel(
+					*currentActorLevel,
+					cookUnitView.subspan(currentActorLevelBegin, ri - currentActorLevelBegin));
+			}
 
-	SdlDependencyResolver dependencyResolver;
-	dependencyResolver.analyze(resources, resourceNames);
-	while(const ISdlResource* resource = dependencyResolver.next())
-	{
-		sdl::visit(resource,
+			currentActorLevel = *actorCookLevel;
+			currentActorLevelBegin = ri;
+		}
+
+		sdl::visit(cookUnit.resource,
 			[&ctx](const Geometry& geometry)
 			{
 				const auto key = ctx.getKey(geometry);
@@ -133,84 +199,48 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 				const auto key = ctx.getKey(motion);
 				PH_ASSERT(!ctx.getResources().getMotion(key));
 				motion.cook(ctx, *ctx.getResources().makeMotion(key));
+			},
+			[this, &ctx, &cookUnitStorage, ri](const Actor& actor)
+			{
+				const TransientVisualElement* element = cookActor(actor, ctx);
+				if(element && !cookUnitStorage[ri].isPhantom)
+				{
+					cookUnitStorage[ri].visibleElement = element;
+				}
 			});
 	}
-
-	// TODO: should set to be receiver's bounds instead
-	m_rootActorsBound = math::AABB3D(m_receiverPos);
-	m_leafActorsBound = math::AABB3D(m_receiverPos);
-
-	// Cook actors level by level (from lowest to highest)
-
-	std::size_t numCookedActors = 0;
-	std::vector<TransientVisualElement> visibleElements;
-	while(numCookedActors < sceneActors.size())
+	if(currentActorLevel)
 	{
-		PH_PROFILE_NAMED_SCOPE("Cook actors (single level)");
-		PH_SCOPED_TIMER(CookActorLevels);
+		onFinishedActorCookLevel(
+			*currentActorLevel,
+			cookUnitView.subspan(currentActorLevelBegin));
+	}
 
-		auto actorCookBegin = sceneActors.begin() + numCookedActors;
-
-		// Sort raw actors based on cook order
-		std::sort(actorCookBegin, sceneActors.end(),
-			[](const SceneActor& a, const SceneActor& b)
-			{
-				return a.actor->getCookOrder() < b.actor->getCookOrder();
-			});
-
-		const CookLevel currentActorLevel = actorCookBegin->actor->getCookOrder().level;
-		PH_LOG(VisualWorld, Note, "cooking actor level: {}", currentActorLevel);
-
-		// Find the transition point from current level to next level
-		auto actorCookEnd = std::upper_bound(actorCookBegin, sceneActors.end(), currentActorLevel,
-			[](const CookLevel a, SceneActor& b)
-			{
-				return a < b.actor->getCookOrder().level;
-			});
-
-		cookActors({actorCookBegin, actorCookEnd}, ctx, visibleElements);
-
-		// Prepare for next cooking iteration
-
-		// FIXME: calc bounds from newly cooked actors and union
-		math::AABB3D bound = calcElementBound(visibleElements);
-		// FIXME: should union with receiver's bound instead
-		bound.unionWith(m_receiverPos);
-
-		PH_LOG(VisualWorld, Note, "current iteration actor bound: {}", bound.toString());
-
-		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::First))
+	// Gather cooked data for the top-level accelerator and emitter sampler
+	std::vector<const Intersectable*> visibleIntersectables;
+	std::vector<const Emitter*> visibleEmitters;
+	for(const ResourceCookUnit& cookUnit : cookUnitView)
+	{
+		const TransientVisualElement* element = cookUnit.visibleElement;
+		if(!element)
 		{
-			PH_LOG(VisualWorld, Note, "root actors bound calculated to be: {}", bound.toString());
-
-			m_rootActorsBound = bound;
+			continue;
 		}
 
-		m_leafActorsBound = bound;
-		numCookedActors += actorCookEnd - actorCookBegin;
-
-		PH_LOG(VisualWorld, Note, "# cooked actors: {}", numCookedActors);
-	}// end while more raw actors
+		visibleIntersectables.insert(
+			visibleIntersectables.end(),
+			element->intersectables.begin(),
+			element->intersectables.end());
+		visibleEmitters.insert(
+			visibleEmitters.end(),
+			element->surfaceEmitters.begin(),
+			element->surfaceEmitters.end());
+	}
 
 	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
 
-	std::vector<const Intersectable*> visibleIntersectables;
-	std::vector<const Emitter*> emitters;
-	for(const TransientVisualElement& element : visibleElements)
-	{
-		for(const Intersectable* intersectable : element.intersectables)
-		{
-			visibleIntersectables.push_back(intersectable);
-		}
-
-		for(const Emitter* emitter : element.surfaceEmitters)
-		{
-			emitters.push_back(emitter);
-		}
-	}
-
 	PH_LOG(VisualWorld, Note, "discretized into {} visible intersectables, number of emitters: {}", 
-		visibleIntersectables.size(), emitters.size());
+		visibleIntersectables.size(), visibleEmitters.size());
 
 	PH_LOG(VisualWorld, Note, "updating accelerator...");
 	{
@@ -229,7 +259,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_PROFILE_NAMED_SCOPE("Update light sampler");
 		PH_SCOPED_TIMER(UpdateLightSamplers);
 
-		m_emitterSampler->update(emitters);
+		m_emitterSampler->update(visibleEmitters);
 	}
 
 	// Finished cooking
@@ -245,50 +275,69 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }
 
-void VisualWorld::cookActors(
-	TSpan<SceneActor> sceneActors,
-	CookingContext& ctx,
-	std::vector<TransientVisualElement>& out_elements)
+const TransientVisualElement* VisualWorld::cookActor(const Actor& actor, CookingContext& ctx)
 {
 	PH_PROFILE_SCOPE();
+	PH_SCOPED_TIMER(CookActors);
 
 	// TODO: parallel preCook() and postCook()
 
-	for(const SceneActor& sceneActor : sceneActors)
+	try
 	{
-		try
+		PreCookReport report = actor.preCook(ctx);
+		if(!report.isCookable())
 		{
-			PreCookReport report = sceneActor.actor->preCook(ctx);
-			if(!report.isCookable())
-			{
-				continue;
-			}
-
-			TransientVisualElement element = sceneActor.actor->cook(ctx, report);
-			sceneActor.actor->postCook(ctx, element);
-
-			// Phantom actor is always cached
-			if(sceneActor.isPhantom)
-			{
-				m_cache->makeVisualElement(sceneActor.actor->getId(), std::move(element));
-			}
-			// Normal actor is not cached
-			else
-			{
-				out_elements.push_back(std::move(element));
-			}
+			return nullptr;
 		}
-		catch(const RuntimeException& e)
+
+		TransientVisualElement element = actor.cook(ctx, report);
+		actor.postCook(ctx, element);
+
+		return m_cache->makeVisualElement(actor.getId(), std::move(element));
+	}
+	catch(const RuntimeException& e)
+	{
+		PH_LOG(VisualWorld, Error,
+			"on cooking actor: {}", e.whatStr());
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG(VisualWorld, Error,
+			"on cooking actor: {}", e.what());
+	}
+
+	return nullptr;
+}
+
+void VisualWorld::onFinishedActorCookLevel(CookLevel level, TSpanView<ResourceCookUnit> levelCookUnits)
+{
+	PH_PROFILE_SCOPE();
+
+	// Accumulate visible actor bounds at the completed-level synchronization point
+	math::AABB3D currentLevelActorsBound(m_receiverPos);
+	for(const ResourceCookUnit& unit : levelCookUnits)
+	{
+		const TransientVisualElement* element = unit.visibleElement;
+		if(!element)
 		{
-			PH_LOG(VisualWorld, Error,
-				"on cooking actor: {}", e.whatStr());
+			continue;
 		}
-		catch(const Exception& e)
+
+		for(const Intersectable* intersectable : element->intersectables)
 		{
-			PH_LOG(VisualWorld, Error,
-				"on cooking actor: {}", e.what());
+			currentLevelActorsBound.unionWith(intersectable->calcAABB());
 		}
 	}
+
+	m_allActorsBound.unionWith(currentLevelActorsBound);
+	if(level == static_cast<CookLevel>(ECookLevel::First))
+	{
+		m_rootActorsBound = m_allActorsBound;
+	}
+
+	PH_LOG(VisualWorld, Note,
+		"finished actor cook level {}, cumulative bound: {}",
+		static_cast<uint32>(level), m_allActorsBound.toString());
 }
 
 std::unique_ptr<Intersector> VisualWorld::createTopLevelAccelerator(
@@ -392,33 +441,6 @@ std::unique_ptr<Intersector> VisualWorld::createTopLevelAccelerator(
 		return nullptr;
 	}
 }
-
-math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)
-{
-	PH_PROFILE_SCOPE();
-
-	std::vector<const Intersectable*> intersectables;
-	for(const TransientVisualElement& element : elements)
-	{
-		for(const Intersectable* intersectable : element.intersectables)
-		{
-			intersectables.push_back(intersectable);
-		}
-	}
-
-	if(intersectables.size() == 0)
-	{
-		return math::AABB3D();
-	}
-
-	math::AABB3D fullBound = intersectables.front()->calcAABB();
-	for(const Intersectable* intersectable : intersectables)
-	{
-		fullBound.unionWith(intersectable->calcAABB());
-	}
-	return fullBound;
-}
-
 CookedResourceCollection* VisualWorld::getCookedResources() const
 {
 	return m_cookedResources.get();
@@ -434,9 +456,9 @@ math::AABB3D VisualWorld::getRootActorsBound() const
 	return m_rootActorsBound;
 }
 
-math::AABB3D VisualWorld::getLeafActorsBound() const
+math::AABB3D VisualWorld::getAllActorsBound() const
 {
-	return m_leafActorsBound;
+	return m_allActorsBound;
 }
 
 }// end namespace ph

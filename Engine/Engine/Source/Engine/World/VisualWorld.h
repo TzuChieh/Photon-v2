@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine/World/Foundation/TransientVisualElement.h"
-#include "Engine/Actor/Actor.h"
 #include "Engine/World/Scene.h"
 #include "Engine/Core/Intersection/Intersector.h"
 #include "Engine/Core/Emitter/Sampler/EmitterSampler.h"
@@ -9,20 +7,21 @@
 #include "Engine/Math/TVector3.h"
 #include "Engine/Utility/IMoveOnly.h"
 #include "Engine/EngineEnv/EAccelerator.h"
+#include "Engine/World/Foundation/CookOrder.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/World/Foundation/TransientResourceCache.h"
 #include "Engine/Utility/TSpan.h"
 
-#include <Common/assertion.h>
-#include <Common/primitive_type.h>
-
-#include <vector>
 #include <memory>
+#include <optional>
 
+namespace ph { class Actor; }
 namespace ph { class SceneDescription; }
 namespace ph { class CoreCookingContext; }
 namespace ph { class CookingContext; }
+namespace ph { class ISdlResource; }
 namespace ph { class Primitive; }
+namespace ph { class TransientVisualElement; }
 
 namespace ph
 {
@@ -49,46 +48,44 @@ public:
 	CookedResourceCollection* getCookedResources() const;
 	TransientResourceCache* getCache() const;
 
-	/*! @brief Bounds actors cooked in the first level.
-	The bound is only available after the first level has done cooking.
+	/*! @brief Get the bound of successfully cooked, scene-visible first-level actors.
+	The bound includes the receiver position and is published after `ECookLevel::First` finishes. It
+	remains unchanged during later levels.
 	*/
 	math::AABB3D getRootActorsBound() const;
 
-	/*! @brief Bounds actors from levels finished cooking.
-	The bound is updated every time a level has done cooking. Generally this bound only grows as it
-	encapsulates all previous levels including the root level.
+	/*! @brief Get the cumulative bound through the last completed actor cook level.
+	The bound includes the receiver position and successfully cooked, scene-visible actors from
+	completed levels only. All actors within the same level observe the same bound.
 	*/
-	math::AABB3D getLeafActorsBound() const;
+	math::AABB3D getAllActorsBound() const;
 
 private:
-	struct SceneActor
+	struct ResourceCookUnit
 	{
-		std::shared_ptr<Actor> actor;
+		const ISdlResource* resource = nullptr;
+		const TransientVisualElement* visibleElement = nullptr;
+		std::optional<CookLevel> actorCookLevel;
 		bool isPhantom = false;
 	};
 
 	std::unique_ptr<CookedResourceCollection> m_cookedResources;
 	std::unique_ptr<TransientResourceCache> m_cache;
-	std::vector<TransientVisualElement> m_cookedUnits;
 	math::Vector3R m_receiverPos;
 	math::AABB3D m_rootActorsBound;
-	math::AABB3D m_leafActorsBound;
+	math::AABB3D m_allActorsBound;
 
-	std::unique_ptr<Intersector>    m_tlas;
+	std::unique_ptr<Intersector> m_tlas;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
-	std::unique_ptr<Scene>          m_scene;
+	std::unique_ptr<Scene> m_scene;
 	const Primitive* m_backgroundPrimitive;
 
-	void cookActors(
-		TSpan<SceneActor> sceneActors,
-		CookingContext& ctx,
-		std::vector<TransientVisualElement>& out_elements);
+	const TransientVisualElement* cookActor(const Actor& actor, CookingContext& ctx);
+	void onFinishedActorCookLevel(CookLevel level, TSpanView<ResourceCookUnit> levelCookUnits);
 
 	static std::unique_ptr<Intersector> createTopLevelAccelerator(
 		EAccelerator acceleratorType,
 		TSpanView<const Intersectable*> intersectables);
-
-	static math::AABB3D calcElementBound(TSpanView<TransientVisualElement> elements);
 };
 
 // In-header Implementations:

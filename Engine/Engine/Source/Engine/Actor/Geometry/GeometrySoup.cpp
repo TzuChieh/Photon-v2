@@ -3,11 +3,6 @@
 namespace ph
 {
 
-GeometrySoup::GeometrySoup() : 
-	Geometry(),
-	m_geometries()
-{}
-
 void GeometrySoup::storeCooked(
 	const CookingContext& ctx,
 	CookedGeometry& out_geometry) const

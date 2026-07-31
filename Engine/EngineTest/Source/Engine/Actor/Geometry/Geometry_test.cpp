@@ -1,4 +1,5 @@
 #include <Engine/Actor/Geometry/GCuboid.h>
+#include <Engine/Actor/Geometry/GTriangleMesh.h>
 #include <Engine/World/Foundation/CookedGeometry.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
 #include <Engine/World/Foundation/GeometryCookingConfig.h>
@@ -11,6 +12,23 @@
 
 using namespace ph;
 using namespace ph::math;
+
+TEST(GeometryTest, TriangleMeshSkipsDegenerateTriangles)
+{
+	const Vector3R origin(0);
+	const Vector3R xAxis(1, 0, 0);
+	const Vector3R yAxis(0, 1, 0);
+	const Vector3R uvw(0);
+	const Vector3R normal(0, 0, 1);
+	GTriangleMesh mesh(
+		{origin, origin, origin, origin, xAxis, yAxis},
+		{uvw, uvw, uvw, uvw, uvw, uvw},
+		{normal, normal, normal, normal, normal, normal});
+
+	const auto triangles = mesh.genTriangles();
+	ASSERT_EQ(triangles.size(), 1);
+	EXPECT_FALSE(triangles[0].isDegenerate());
+}
 
 TEST(GeometryTest, GetCookedDoesNotCreateGeometry)
 {

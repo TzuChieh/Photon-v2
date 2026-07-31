@@ -12,8 +12,6 @@ namespace ph
 class GeometrySoup : public Geometry
 {
 public:
-	GeometrySoup();
-
 	void storeCooked(
 		const CookingContext& ctx,
 		CookedGeometry& out_geometry) const override;

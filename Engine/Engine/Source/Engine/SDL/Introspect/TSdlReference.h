@@ -16,6 +16,7 @@ class ISdlResource;
 @tparam T Type of the referenced SDL resource. Definition is required when using this template
 (i.e., include its header).
 @tparam Owner Owner type of @p T. Note that Owner can be any type (not necessarily a SDL resource).
+Empty reference is represented by "", without any specifier.
 */
 template<typename T, typename Owner>
 class TSdlReference : public TSdlOwnedField<Owner>

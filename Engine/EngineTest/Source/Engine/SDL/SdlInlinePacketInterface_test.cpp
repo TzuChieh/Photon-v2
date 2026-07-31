@@ -32,16 +32,29 @@ TEST(SdlInlinePacketInterfaceTest, ParsesSinglePersistentTargetNameClause)
 TEST(SdlInlinePacketInterfaceTest, ParsesBracketedReferenceListAsGeneralValue)
 {
 	SdlInlinePacketInterface packetInterface;
-	SdlInputClauses clauses;
-
 	Path workingDirectory(".");
 	SdlInputContext ctx(nullptr, nullptr, &workingDirectory);
 
-	// Braced value should stay as one general-value clause payload.
-	packetInterface.parse("[object-array values {@left @right}]", ctx, "", nullptr, clauses);
-	ASSERT_EQ(clauses.size(), 1);
-	EXPECT_EQ(clauses[0].valueType, ESdlClauseValue::General);
-	EXPECT_EQ(clauses[0].value, "@left @right");
+	// Braced values should stay as one general-value clause payload.
+	{
+		SCOPED_TRACE("non-empty reference list");
+
+		SdlInputClauses clauses;
+		packetInterface.parse("[object-array values {@left @right}]", ctx, "", nullptr, clauses);
+		ASSERT_EQ(clauses.size(), 1);
+		EXPECT_EQ(clauses[0].valueType, ESdlClauseValue::General);
+		EXPECT_EQ(clauses[0].value, "@left @right");
+	}
+
+	{
+		SCOPED_TRACE("reference list with empty slot");
+
+		SdlInputClauses clauses;
+		packetInterface.parse("[object-array values {@left \"\" @right}]", ctx, "", nullptr, clauses);
+		ASSERT_EQ(clauses.size(), 1);
+		EXPECT_EQ(clauses[0].valueType, ESdlClauseValue::General);
+		EXPECT_EQ(clauses[0].value, "@left \"\" @right");
+	}
 }
 
 TEST(SdlInlinePacketInterfaceTest, ParsesEmptyBracedValueAsEmptyGeneralValue)

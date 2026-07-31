@@ -6,7 +6,6 @@
 #include "Engine/SDL/sdl_interface.h"
 
 #include <memory>
-#include <vector>
 
 namespace ph
 {
@@ -33,7 +32,8 @@ public:
 
 		TSdlReference<AModel, OwnerType> base("base", &OwnerType::m_base);
 		base.description(
-			"The base model that the mask will apply on.");
+			"The base model that the mask will apply on. Declare it as phantom to hide the "
+			"unmasked base.");
 		base.required();
 		clazz.addField(base);
 

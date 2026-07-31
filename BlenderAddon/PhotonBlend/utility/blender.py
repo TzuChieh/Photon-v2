@@ -82,6 +82,7 @@ def to_photon_pos_rot_scale(b_matrix: Matrix):
 	"""
 	blender_to_photon = blender_to_photon_mat().to_4x4()
 
+	# TODO: Preserve or reject shear; a position/rotation/scale tuple cannot represent it.
 	pos, rot, scale = (blender_to_photon @ b_matrix).decompose()
 
 	return pos, rot, scale

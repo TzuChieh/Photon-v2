@@ -240,7 +240,7 @@ class Reference(AbstractData):
         return self.__ref_type
 
     def generate_data(self):
-        return f"@\"{self.__ref_name}\""
+        return f"@\"{self.__ref_name}\"" if self.__ref_name else "\"\""
 
 
 class ReferenceArray(AbstractData):

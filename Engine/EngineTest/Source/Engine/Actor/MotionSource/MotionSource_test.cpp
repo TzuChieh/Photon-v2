@@ -1,5 +1,6 @@
 #include <Engine/Actor/MotionSource/ConstantVelocityMotion.h>
 #include <Engine/Core/Quantity/TimeStep.h>
+#include <Engine/SDL/TSdl.h>
 #include <Engine/World/Foundation/CookedMotion.h>
 #include <Engine/World/Foundation/CookedResourceCollection.h>
 #include <Engine/World/Foundation/CommonCookingConfig.h>
@@ -14,7 +15,7 @@ TEST(MotionSourceTest, GetCookedDoesNotCreateMotion)
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 
-	ConstantVelocityMotion motion;
+	auto motion = TSdl<ConstantVelocityMotion>::make();
 	EXPECT_EQ(ctx.getCooked(motion), nullptr);
 }
 
@@ -23,7 +24,7 @@ TEST(MotionSourceTest, CookFillsProvidedStorage)
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 
-	ConstantVelocityMotion motion;
+	auto motion = TSdl<ConstantVelocityMotion>::make();
 	CookedMotion* const cookedMotion = resources.makeMotion(ctx.getKey(motion));
 	ASSERT_NE(cookedMotion, nullptr);
 	motion.cook(ctx, *cookedMotion);
@@ -38,7 +39,7 @@ TEST(MotionSourceTest, CookKeepsDistinctConfigVariants)
 	CookedResourceCollection resources;
 	CookingContext ctx(&resources, nullptr);
 
-	ConstantVelocityMotion motion;
+	auto motion = TSdl<ConstantVelocityMotion>::make();
 	CookedMotion* const defaultCooked = resources.makeMotion(ctx.getKey(motion));
 	ASSERT_NE(defaultCooked, nullptr);
 	motion.cook(ctx, *defaultCooked);
