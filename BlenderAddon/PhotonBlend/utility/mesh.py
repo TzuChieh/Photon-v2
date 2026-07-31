@@ -45,6 +45,10 @@ def restore_mesh_obj_subdiv_level(b_mesh_obj: bpy.types.Object, original_setting
 def mesh_obj_autosmooth_to_edgesplit(b_mesh_obj: bpy.types.Object, out_original_settings):
     b_mesh = b_mesh_obj.data
 
+    # Blender 4.1+ exposes the final corner normals and no longer has auto smooth option on mesh
+    if bpy.app.version >= (4, 1, 0):
+        return
+
     # Custom normals will override auto smooth
     if not b_mesh.use_auto_smooth or b_mesh.has_custom_normals:
         return

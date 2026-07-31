@@ -82,9 +82,11 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
         if not self.is_animation:
             cache = ExporterCache()
-            b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
-            save_scene(self.filepath, "scene", b_depsgraph)
-            self.restore_modified_settings(b_context, cache)
+            try:
+                b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
+                save_scene(self.filepath, "scene", b_depsgraph)
+            finally:
+                self.restore_modified_settings(b_context, cache)
         else:
             b_scene = b_context.scene
             for frame_number in range(b_scene.frame_start, b_scene.frame_end + 1):
@@ -92,9 +94,11 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 b_scene.frame_set(frame_number)
 
                 cache = ExporterCache()
-                b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
-                save_scene(self.filepath, "scene_" + str(frame_number).zfill(6), b_depsgraph)
-                self.restore_modified_settings(b_context, cache)
+                try:
+                    b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
+                    save_scene(self.filepath, "scene_" + str(frame_number).zfill(6), b_depsgraph)
+                finally:
+                    self.restore_modified_settings(b_context, cache)
 
         return {'FINISHED'}
 
