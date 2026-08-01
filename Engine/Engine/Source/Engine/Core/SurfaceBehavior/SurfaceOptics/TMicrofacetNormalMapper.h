@@ -22,6 +22,7 @@ namespace ph
 
 /*! @brief Microfacet-based normal mapping.
 Implements the "normalmap_microfacet_default" model in the original paper.
+See Schüssler et al. @cite Schussler:2017:Microfacet.
 */
 template<typename Strength>
 class TMicrofacetNormalMapper : public SurfaceOptics
