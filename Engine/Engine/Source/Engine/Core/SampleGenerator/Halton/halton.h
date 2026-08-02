@@ -26,7 +26,7 @@ static_assert(math::table::PRIME[MAX_DIMENSIONS] <= std::numeric_limits<TableDig
 
 inline PermutationTable make_table(const std::size_t size)
 {
-	return std::make_unique<TableDigit[]>(size);
+	return std::make_unique_for_overwrite<TableDigit[]>(size);
 }
 
 class FixedPermuter final

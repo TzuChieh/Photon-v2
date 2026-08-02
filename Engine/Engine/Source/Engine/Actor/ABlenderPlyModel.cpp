@@ -78,7 +78,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 		});
 
 	const auto numMetadataSlots = static_cast<uint32>(m_materials.size());
-	auto metadatas = std::make_unique<const PrimitiveMetadata*[]>(numMetadataSlots);
+	auto metadatas = std::make_unique_for_overwrite<const PrimitiveMetadata*[]>(numMetadataSlots);
 	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
 	{
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
@@ -114,7 +114,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		auto copiedMetadatas = std::make_unique<const PrimitiveMetadata*[]>(numMetadataSlots);
+		auto copiedMetadatas = std::make_unique_for_overwrite<const PrimitiveMetadata*[]>(numMetadataSlots);
 		for(uint32 slotIndex = 0; slotIndex < numMetadataSlots; ++slotIndex)
 		{
 			copiedMetadatas[slotIndex] = metadatas[slotIndex];

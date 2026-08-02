@@ -43,7 +43,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 
 	// Allocate memory for nodes and items
 	m_nodes = std::make_unique<TWideBvhNode<N, Index>[]>(totalInfoNodes);
-	m_items = std::make_unique<Item[]>(totalItems);
+	m_items = std::make_unique_for_overwrite<Item[]>(totalItems);
 
 	// Can directly convert if the branch factor matches
 	if constexpr(SrcN == N)
@@ -807,7 +807,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 
 	if(m_numNodes != nodeBufferSize)
 	{
-		auto nodes = std::make_unique<NodeType[]>(m_numNodes);
+		auto nodes = std::make_unique_for_overwrite<NodeType[]>(m_numNodes);
 		std::copy_n(m_nodes.get(), m_numNodes, nodes.get());
 
 		m_nodes = std::move(nodes);
@@ -815,7 +815,7 @@ inline void TLinearDepthFirstWideBvh<N, Item, Index>
 
 	if(m_numItems != itemBufferSize)
 	{
-		auto items = std::make_unique<Item[]>(m_numItems);
+		auto items = std::make_unique_for_overwrite<Item[]>(m_numItems);
 		std::copy_n(m_items.get(), m_numItems, items.get());
 
 		m_items = std::move(items);

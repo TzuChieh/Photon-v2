@@ -1,22 +1,28 @@
-#include <Engine/DataIO/EXR/ExrFileReader.h>
-#include <Engine/DataIO/EXR/ExrFileWriter.h>
-#include <Engine/Frame/TFrame.h>
+#include <Engine/DataIO/EXR/ExrFile.h>
+#include <Engine/DataIO/FileSystem/Filesystem.h>
 #include <Engine/DataIO/FileSystem/TProjectPath.h>
+#include <Engine/DataIO/io_utils.h>
+#include <Engine/Frame/PictureData.h>
+#include <Engine/Frame/RegularPicture.h>
+#include <Engine/Frame/TFrame.h>
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
+#include <string_view>
 
 using namespace ph;
 
 TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 {
-	// trial 1:
-	{
-		ExrFileReader reader(EngineTestResourcePath("EXR/2x1_black_white.exr"));
+	constexpr std::array<std::string_view, 3> channelNames = {"R", "G", "B"};
 
-		HdrRgbFrame frame;
-		EXPECT_NO_THROW(reader.load(&frame));
+	// Trial 1:
+	{
+		ExrFile file(EngineTestResourcePath("EXR/2x1_black_white.exr"));
+		const PictureData pictureData = file.load(channelNames);
+		const HdrRgbFrame frame = pictureData.toFrame<HdrComponent, 3>();
 
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 1);
@@ -36,12 +42,11 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_FLOAT_EQ(pixel[2], 1);
 	}
 	
-	// trial 2:
+	// Trial 2:
 	{
-		ExrFileReader reader(EngineTestResourcePath("EXR/2x2_B,(50,100,150),R,G.exr"));
-
-		HdrRgbFrame frame;
-		EXPECT_NO_THROW(reader.load(&frame));
+		ExrFile file(EngineTestResourcePath("EXR/2x2_B,(50,100,150),R,G.exr"));
+		const PictureData pictureData = file.load(channelNames);
+		const HdrRgbFrame frame = pictureData.toFrame<HdrComponent, 3>();
 
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 2);
@@ -55,8 +60,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_FLOAT_EQ(pixel[2], 1);
 
 		// (50, 100, 150)
-		// here we check abs. error since pixel value was in half floating 
-		// point format which has less precision
+		// Use an absolute tolerance because the source uses half precision, which has less precision.
 		frame.getPixel(1, 0, &pixel);
 		EXPECT_LT(std::abs(pixel[0] - 50.0f / 255.0f),  0.0002f);
 		EXPECT_LT(std::abs(pixel[1] - 100.0f / 255.0f), 0.0002f);
@@ -74,6 +78,35 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_FLOAT_EQ(pixel[1], 1);
 		EXPECT_FLOAT_EQ(pixel[2], 0);
 	}
+}
+
+TEST(ExrFileIOTest, SimpleStandaloneYFiles)
+{
+	const std::array<float32, 2> yComponents = {0.25f, 0.75f};
+	const PictureData yPictureData(
+		math::Vector2S(2, 1),
+		1,
+		EPicturePixelComponent::Float32,
+		yComponents.data(),
+		yComponents.size());
+	const Path exrDir = EngineTestIntermediatePath(
+		"ExrFileIOTest/SimpleStandaloneYFiles");
+	const Path exrFile = exrDir / "roughness.exr";
+	Filesystem::remove(exrDir, true);
+	Filesystem::createDirectories(exrDir);
+	ExrFile::save(yPictureData, exrFile, {"Y"});
+
+	const RegularPicture picture = io_utils::load_picture(exrFile);
+	EXPECT_EQ(picture.getWidthPx(), 2);
+	EXPECT_EQ(picture.getHeightPx(), 1);
+	ASSERT_EQ(picture.numComponents(), 1);
+	EXPECT_EQ(picture.getComponentType(), EPicturePixelComponent::Float32);
+	EXPECT_TRUE(picture.getFormat().isGrayscale());
+
+	const auto components = picture.getPixels().getComponents<HdrComponent>();
+	ASSERT_EQ(components.size(), 2);
+	EXPECT_FLOAT_EQ(components[0], 0.25f);
+	EXPECT_FLOAT_EQ(components[1], 0.75f);
 }
 
 //TEST(ExrFileIOTest, WriteSimpleRgbFiles)

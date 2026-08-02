@@ -31,7 +31,7 @@ inline PictureData::PictureData(
 	, m_numBytesInData(0)
 {
 	m_numBytesInData = sizePx.product() * numPicComponents * num_bytes_in_component(componentType);
-	m_data = std::make_unique<std::byte[]>(m_numBytesInData);
+	m_data = std::make_unique_for_overwrite<std::byte[]>(m_numBytesInData);
 }
 
 template<typename PixelData>
@@ -48,6 +48,25 @@ inline PictureData::PictureData(
 		componentType)
 {
 	setPixels(pixelData, pixelDataSize);
+}
+
+template<typename FrameComponent, std::size_t N>
+inline PictureData::PictureData(const TFrame<FrameComponent, N>& frame)
+	: PictureData(
+		math::Vector2S(frame.getSizePx()),
+		N,
+		component_type_of<FrameComponent>())
+{
+	frame.forEachPixel(
+		[pictureComponents = components<FrameComponent>(), widthPx = frame.widthPx()]
+		(const uint32 x, const uint32 y, const auto& pixel)
+		{
+			const std::size_t componentBegin = (y * widthPx + x) * N;
+			for(std::size_t ci = 0; ci < N; ++ci)
+			{
+				pictureComponents[componentBegin + ci] = pixel[ci];
+			}
+		});
 }
 
 inline PictureData::PictureData(PictureData&& other)
@@ -91,6 +110,22 @@ inline TSpanView<std::byte> PictureData::getBytes() const
 	return {m_data.get(), m_numBytesInData};
 }
 
+template<typename Component>
+inline TSpan<Component> PictureData::components()
+{
+	static_assert(std::is_same_v<Component, std::remove_cv_t<Component>>);
+	PH_ASSERT(m_componentType == component_type_of<Component>());
+	return {reinterpret_cast<Component*>(m_data.get()), m_numBytesInData / sizeof(Component)};
+}
+
+template<typename Component>
+inline TSpanView<Component> PictureData::getComponents() const
+{
+	static_assert(std::is_same_v<Component, std::remove_cv_t<Component>>);
+	PH_ASSERT(m_componentType == component_type_of<Component>());
+	return {reinterpret_cast<const Component*>(m_data.get()), m_numBytesInData / sizeof(Component)};
+}
+
 template<typename PixelData>
 inline void PictureData::setPixels(
 	const PixelData* const pixelData,
@@ -106,11 +141,10 @@ inline void PictureData::setPixels(
 	// Implies that `PixelData` should not be padded
 	PH_ASSERT_EQ(m_numBytesInData, numPixelDataElements * sizeof(PixelData));
 
-	// Should have been allocated; set pixels on empty picture is not allowed.
-	PH_ASSERT(m_data);
+	// Empty pictures cannot receive pixel data.
+	PH_ASSERT(!isEmpty() && m_data);
 
-	// Generally we would want `PixelData` to be trivially copyable since we are basically handling
-	// raw bytes here
+	// Raw byte copies require trivially copyable elements.
 	static_assert(std::is_trivially_copyable_v<PixelData>);
 
 	std::copy(
@@ -164,16 +198,27 @@ inline TFrame<FrameComponent, N> PictureData::toFrame() const
 
 inline bool PictureData::isEmpty() const
 {
-	return m_data == nullptr;
+	return m_numBytesInData == 0;
 }
 
 inline PictureData& PictureData::operator = (PictureData&& rhs)
 {
+	if(this == &rhs)
+	{
+		return *this;
+	}
+
 	m_sizePx = rhs.m_sizePx;
 	m_numComponents = rhs.m_numComponents;
 	m_componentType = rhs.m_componentType;
 	m_data = std::move(rhs.m_data);
 	m_numBytesInData = rhs.m_numBytesInData;
+
+	rhs.m_sizePx = math::Vector2S(0);
+	rhs.m_numComponents = 0;
+	rhs.m_componentType = EPicturePixelComponent::Empty;
+	rhs.m_data = nullptr;
+	rhs.m_numBytesInData = 0;
 
 	return *this;
 }
@@ -181,8 +226,7 @@ inline PictureData& PictureData::operator = (PictureData&& rhs)
 template<typename PictureComponent, typename FrameComponent, std::size_t N>
 inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const
 {
-	// Generally we would want `PictureComponent` and `FrameComponent` to be trivially copyable since 
-	// we are basically handling raw bytes here
+	// The conversion supports only trivially copyable component types
 	static_assert(std::is_trivially_copyable_v<PictureComponent>);
 	static_assert(std::is_trivially_copyable_v<FrameComponent>);
 
@@ -191,8 +235,7 @@ inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const
 	using FrameType = TFrame<FrameComponent, N>;
 	using FramePixelType = typename FrameType::PixelType;
 
-	// Pixel component casting is based on the smaller number of components of the two--other
-	// components are either discarded or defaulted to 0.
+	// Assign only component present in both src and dst. Ignore extra picture components.
 	const std::size_t minComponents = std::min(m_numComponents, N);
 
 	FrameType frame(

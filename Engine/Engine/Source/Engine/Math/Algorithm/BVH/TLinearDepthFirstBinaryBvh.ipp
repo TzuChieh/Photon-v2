@@ -32,8 +32,8 @@ inline void TLinearDepthFirstBinaryBvh<Item, Index>
 	m_numItems = 0;
 
 	// Allocate memory for nodes and items
-	m_nodes = std::make_unique<TBinaryBvhNode<Item, Index>[]>(totalInfoNodes);
-	m_items = std::make_unique<Item[]>(totalItems);
+	m_nodes = std::make_unique_for_overwrite<TBinaryBvhNode<Item, Index>[]>(totalInfoNodes);
+	m_items = std::make_unique_for_overwrite<Item[]>(totalItems);
 
 	// Flatten the info tree into a more compact representation
 	buildNodesRecursive(rootNode);

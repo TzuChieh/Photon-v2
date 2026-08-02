@@ -12,7 +12,7 @@
 namespace ph
 {
 
-/*! @brief Format of common pictures.
+/*! @brief Stores metadata for a picture's color and component layout.
 Typically closely related to how the picture is stored natively (e.g., on disk).
 */
 class RegularPictureFormat final
@@ -31,10 +31,10 @@ public:
 	void setIsGrayscale(bool isGrayscale);
 
 private:
-	/*! @brief Color space of the loaded picture. */
+	/*! @brief Color space used by the picture components. */
 	math::EColorSpace m_colorSpace;
 
-	/*! @brief Whether the pixel components of the frame is stored reversely, e.g, in ABGR order. */
+	/*! @brief Whether component order is reversed, such as ABGR instead of RGBA. */
 	bool m_isReversedComponents;
 
 	/*! @brief Whether there is an alpha channel. */
@@ -44,17 +44,15 @@ private:
 	bool m_isGrayscale;
 };
 
-/*! @brief Raw representation of common picture types.
-*/
+/*! @brief Stores a common picture and its format metadata in memory. */
 class RegularPicture final
 {
 public:
-	/*! @brief Creates an empty picture.
-	*/
+	/*! @brief Create an empty picture. */
 	RegularPicture();
 
-	/*! @brief Creates a picture with allocated picture data.
-	Pixel data can to be set later by calling `pictureData.setPixels()`.
+	/*! @brief Create a picture with uninitialized pixel storage.
+	Use `pixels()` to fill the storage.
 	*/
 	RegularPicture(
 		math::Vector2S sizePx,
@@ -73,7 +71,12 @@ public:
 	std::size_t getWidthPx() const;
 	std::size_t getHeightPx() const;
 	
-	PictureData& getPixels();
+	/*! @brief Access mutable pixel storage.
+	*/
+	PictureData& pixels();
+
+	/*! @brief Access pixel storage.
+	*/
 	const PictureData& getPixels() const;
 
 	RegularPicture& operator = (RegularPicture&& rhs);
@@ -82,10 +85,12 @@ private:
 	static bool isLDR(EPicturePixelComponent componentType);
 	static bool isHDR(EPicturePixelComponent componentType);
 
-	/*! @brief Format of the picture. Typically closely related to how it is stored natively (e.g., on disk). */
+	/*! @brief Color and component format.
+	*/
 	RegularPictureFormat m_format;
 
-	/*! @brief Storage of actual pixel data. */
+	/*! @brief Storage of actual pixel data.
+	*/
 	PictureData m_pictureData;
 };
 
@@ -139,7 +144,7 @@ inline EPicturePixelComponent RegularPicture::getComponentType() const
 	return m_pictureData.getComponentType();
 }
 
-inline PictureData& RegularPicture::getPixels()
+inline PictureData& RegularPicture::pixels()
 {
 	return m_pictureData;
 }

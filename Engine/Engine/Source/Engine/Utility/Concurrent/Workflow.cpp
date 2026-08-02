@@ -176,7 +176,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 
 	// Builds a DAG by reversing the dependency lists
 	auto workDAG          = std::make_unique<std::vector<std::size_t>[]>(numWorks());
-	auto dependencyCounts = std::make_unique<int64[]>(numWorks());
+	auto dependencyCounts = std::make_unique_for_overwrite<int64[]>(numWorks());
 	{
 		std::size_t maxDependencies = 0;
 		for(std::size_t workId = 0; workId < numWorks(); ++workId)
@@ -227,7 +227,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 	PH_LOG(Workflow, Note, "{} works are already independent", independentWorkIds.size());
 
 	// Main topological sorting that produces a valid work dispatch order
-	auto        workDispatchOrder  = std::make_unique<std::size_t[]>(numWorks());
+	auto        workDispatchOrder  = std::make_unique_for_overwrite<std::size_t[]>(numWorks());
 	std::size_t numDispatchedWorks = 0;
 	while(!independentWorkIds.empty())
 	{

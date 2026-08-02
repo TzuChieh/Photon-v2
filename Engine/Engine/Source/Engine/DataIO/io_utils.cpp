@@ -1,7 +1,7 @@
 #include "Engine/DataIO/io_utils.h"
-#include "Engine/DataIO/EXR/ExrFileReader.h"
-#include "Engine/DataIO/EXR/ExrFileWriter.h"
+#include "Engine/DataIO/EXR/ExrFile.h"
 #include "Engine/Frame/frame_utils.h"
+#include "Engine/Frame/PictureData.h"
 #include "Engine/Frame/RegularPicture.h"
 #include "Engine/Frame/PictureMeta.h"
 #include "Engine/DataIO/FileSystem/Path.h"
@@ -17,9 +17,10 @@
 #include <Common/profiling.h>
 #include <Common/io_exceptions.h>
 
+#include <array>
+#include <climits>
 #include <fstream>
 #include <sstream>
-#include <climits>
 #include <type_traits>
 
 namespace ph::io_utils
@@ -30,12 +31,11 @@ PH_DEFINE_INTERNAL_LOG_GROUP(IOUtils, DataIO);
 namespace detail
 {
 
-bool init_picture_IO()
+inline bool init_picture_IO()
 {
-	// Default loading's origin is on the upper-left corner, these calls made the 
-	// origin on the lower-left corner to meet Photon's expectation
-	// TODO: New release of stb seems to fix this (need check). Maybe we can just set this for every
-	// load call so more control
+	// Photon expects a lower-left origin while stb uses an upper-left origin by default.
+	// These calls made the origin on the lower-left corner to meet Photon's expectation
+	// TODO: check whether a newer stb release supports per-call control for these settings
 	stbi_set_flip_vertically_on_load(true);
 	stbi_flip_vertically_on_write(true);
 
@@ -44,12 +44,12 @@ bool init_picture_IO()
 
 }// end namespace detail
 
-// TODO: make use stb "*_is_16_bit" related funcs
+// TODO: make use of stb "*_is_16_bit" related funcs
 
 namespace
 {
 
-RegularPicture load_LDR_via_stb(const std::string& fullFilename)
+inline RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 {
 	// Variables to retrieve image info from stbi_load()
 	int widthPx;
@@ -105,7 +105,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 		EPicturePixelComponent::UInt8);
 
 	picture.setFormat(format);
-	picture.getPixels().setPixels(stbImageData, numUCharsInStbImageData);
+	picture.pixels().setPixels(stbImageData, numUCharsInStbImageData);
 
 	//for(std::size_t y = 0; y < sizePx.y(); y++)
 	//{
@@ -131,7 +131,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	return picture;
 }
 
-RegularPicture load_HDR_via_stb(const std::string& fullFilename)
+inline RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 {
 	// Variables to retrieve image info from stbi_loadf()
 	int widthPx;
@@ -187,7 +187,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 		EPicturePixelComponent::Float32);
 
 	picture.setFormat(format);
-	picture.getPixels().setPixels(stbImageData, numFloatsInStbImageData);
+	picture.pixels().setPixels(stbImageData, numFloatsInStbImageData);
 
 	//for(uint32 y = 0; y < picture.frame.heightPx(); y++)
 	//{
@@ -213,34 +213,39 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	return picture;
 }
 
-void save_exr_via_exr_file_writer(
+inline void save_exr_frame_via_exr_file(
 	const HdrRgbFrame& frame, 
 	const Path& filePath,
 	const bool saveInHighPrecision,
 	const PictureMeta* meta)
 {
-	ExrFileWriter writer(filePath);
+	const PictureData pictureData(frame);
 
 	PH_LOG(IOUtils, Note,
 		"saving exr <{}>", filePath.toAbsoluteString());
 
-	// Extract valid meta info to save in an exr file
+	// Use channel names from the first metadata layer when available
 	if(meta && meta->numLayers() >= 1)
 	{
 		const auto& channelNames = meta->getChannelNames();
-		writer.saveToFilesystem(
-			frame,
+		const std::array<std::string_view, 3> componentChannelNames = {
+			channelNames.size() > 0 ? std::string_view{channelNames[0]} : std::string_view{},
+			channelNames.size() > 1 ? std::string_view{channelNames[1]} : std::string_view{},
+			channelNames.size() > 2 ? std::string_view{channelNames[2]} : std::string_view{}};
+		ExrFile::save(
+			pictureData,
+			filePath,
+			componentChannelNames,
 			saveInHighPrecision,
-			channelNames.size() > 0 ? channelNames[0] : "",
-			channelNames.size() > 1 ? channelNames[1] : "",
-			channelNames.size() > 2 ? channelNames[2] : "",
-			channelNames.size() > 3 ? channelNames[3] : "");
+			channelNames.size() > 3 ? std::string_view{channelNames[3]} : std::string_view{});
 	}
-	// Save without meta info
+	// Otherwise, use the default EXR channel names
 	else
 	{
-		writer.saveToFilesystem(
-			frame,
+		ExrFile::save(
+			pictureData,
+			filePath,
+			{"R", "G", "B"},
 			saveInHighPrecision);
 	}
 }
@@ -266,9 +271,6 @@ RegularPicture load_picture(const Path& picturePath, std::size_t layerIdx)
 {
 	const std::string& ext = picturePath.getExtension();
 
-	bool hasTriedHDR = false;
-	bool hasTriedLDR = false;
-
 	// Try to load it as HDR first
 	if(has_HDR_support(ext))
 	{
@@ -278,27 +280,22 @@ RegularPicture load_picture(const Path& picturePath, std::size_t layerIdx)
 		}
 		catch(const FileIOError& /* e */)
 		{
-			hasTriedHDR = true;
+			// Will fall back to LDR if the format has an LDR loading path
+			if(!has_LDR_support(ext))
+			{
+				throw;
+			}
 		}
 	}
 
-	// Then, try to load it as LDR
 	if(has_LDR_support(ext))
 	{
-		try
-		{
-			return load_LDR_picture(picturePath, layerIdx);
-		}
-		catch(const FileIOError& /* e */)
-		{
-			hasTriedLDR = true;
-		}
+		return load_LDR_picture(picturePath, layerIdx);
 	}
 
-	// If the flow reaches here, loading has failed and we need to throw
-	throw_formatted<FileIOError>(
-		"failed loading <{}> image; tried loading as HDR: {}, as LDR: {}",
-		ext, hasTriedHDR, hasTriedLDR, picturePath.toString());
+	throw FileIOError(
+		"unsupported image format <" + ext + ">",
+		picturePath.toString());
 }
 
 RegularPicture load_LDR_picture(const Path& picturePath, std::size_t layerIdx)
@@ -329,45 +326,43 @@ RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 	PH_DEBUG_LOG(IOUtils,
 		"loading HDR picture <{}>", picturePath.toString());
 
-	// TODO: make use of layer index
+	// TODO: use layerIdx for formats with multiple layers
 
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".exr" || ext == ".EXR")
 	{
-		ExrFileReader exrFileReader(picturePath);
+		ExrFile exrFile(picturePath);
 
-		HdrRgbFrame frame;
-		exrFileReader.load(&frame);
+		std::array<std::string_view, 3> channelNames{};
+		std::size_t numComponents;
+		if(exrFile.hasChannel("R") && exrFile.hasChannel("G") && exrFile.hasChannel("B"))
+		{
+			channelNames[0] = "R";
+			channelNames[1] = "G";
+			channelNames[2] = "B";
+			numComponents = 3;
+		}
+		else if(exrFile.numChannels() == 1 && exrFile.hasChannel("Y"))
+		{
+			channelNames[0] = "Y";
+			numComponents = 1;
+		}
+		else
+		{
+			throw FileIOError(
+				"unsupported EXR channel layout; available channels: " + exrFile.describeChannels(),
+				picturePath.toString());
+		}
 
-		// TODO: properly handle picture attributes; properly load from via EXR
-
-		RegularPicture picture(
-			math::Vector2S(frame.getSizePx()),
-			3,
-			EPicturePixelComponent::Float32);
+		// TODO: load relevant EXR attributes into the picture format
+		RegularPicture picture;
+		picture.pixels() = exrFile.load(TSpanView<std::string_view>(channelNames.data(), numComponents));
 
 		RegularPictureFormat format;
 		format.setColorSpace(math::EColorSpace::Linear_sRGB);
-		format.setIsGrayscale(false);
 		format.setHasAlpha(false);
+		format.setIsGrayscale(numComponents == 1);
 		picture.setFormat(format);
-
-		picture.getPixels().setPixels(
-			frame.getPixelData().data(),
-			math::Vector2S(frame.getSizePx()).product() * 3);
-		//picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
-		//picture.colorSpace = math::EColorSpace::Linear_sRGB;
-		//picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
-		//{
-		//	const auto framePixel = frame.getPixel({x, y});
-
-		//	RegularPicture::Pixel picturePixel(0);
-		//	picturePixel[0] = framePixel[0];
-		//	picturePixel[1] = framePixel[1];
-		//	picturePixel[2] = framePixel[2];
-
-		//	return picturePixel;
-		//});
 
 		return picture;
 	}
@@ -393,7 +388,7 @@ RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 		format.setHasAlpha(false);
 		picture.setFormat(format);
 
-		picture.getPixels().setPixels(
+		picture.pixels().setPixels(
 			file.getColorFrame().getPixelData().data(),
 			file.getColorFrame().getPixelData().size());
 
@@ -700,7 +695,7 @@ void save_hdr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 
 void save_exr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	save_exr_via_exr_file_writer(
+	save_exr_frame_via_exr_file(
 		frame,
 		filePath,
 		false,
@@ -709,7 +704,7 @@ void save_exr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 
 void save_exr_high_precision(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	save_exr_via_exr_file_writer(
+	save_exr_frame_via_exr_file(
 		frame,
 		filePath,
 		true,
@@ -726,26 +721,29 @@ void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 
 void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer, const PictureMeta* meta)
 {
-	ExrFileWriter writer;
+	const PictureData pictureData(frame);
 
-	// Extract valid meta info to save in an exr file
+	// Use channel names from the first metadata layer when available
 	if(meta && meta->numLayers() >= 1)
 	{
 		const auto& channelNames = meta->getChannelNames();
-		writer.saveToMemory(
-			frame,
+		const std::array<std::string_view, 3> componentChannelNames = {
+			channelNames.size() > 0 ? std::string_view{channelNames[0]} : std::string_view{},
+			channelNames.size() > 1 ? std::string_view{channelNames[1]} : std::string_view{},
+			channelNames.size() > 2 ? std::string_view{channelNames[2]} : std::string_view{}};
+		ExrFile::save(
+			pictureData,
 			buffer,
-			channelNames.size() > 0 ? channelNames[0] : "",
-			channelNames.size() > 1 ? channelNames[1] : "",
-			channelNames.size() > 2 ? channelNames[2] : "",
-			channelNames.size() > 3 ? channelNames[3] : "");
+			componentChannelNames,
+			channelNames.size() > 3 ? std::string_view{channelNames[3]} : std::string_view{});
 	}
-	// Save without meta info
+	// Otherwise, use the default EXR channel names
 	else
 	{
-		writer.saveToMemory(
-			frame,
-			buffer);
+		ExrFile::save(
+			pictureData,
+			buffer,
+			{"R", "G", "B"});
 	}
 }
 

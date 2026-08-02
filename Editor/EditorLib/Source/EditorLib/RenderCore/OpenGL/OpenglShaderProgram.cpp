@@ -147,7 +147,7 @@ void OpenglShaderProgram::collectProgramUniforms()
 		GLint maxUniformNameLength = 0;
 		glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
 
-		auto uniformNameBuffer = std::make_unique<char[]>(maxUniformNameLength);
+		auto uniformNameBuffer = std::make_unique_for_overwrite<char[]>(maxUniformNameLength);
 		for(GLint ui = 0; ui < numUniforms; ++ui)
 		{
 			GLsizei uniformNameLength = 0;

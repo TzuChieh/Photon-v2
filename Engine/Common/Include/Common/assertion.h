@@ -95,4 +95,4 @@ inline constexpr bool DEPENDENT_FALSE = false;
 }// end namespace ph::detail
 
 #define PH_STATIC_ASSERT_DEPENDENT_FALSE(DependentType, message)\
-	static_assert(::ph::detail::DEPENDENT_FALSE<DependentType>, #message)
+	static_assert(::ph::detail::DEPENDENT_FALSE<DependentType>, message)

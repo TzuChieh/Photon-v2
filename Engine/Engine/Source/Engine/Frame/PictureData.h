@@ -13,27 +13,26 @@
 namespace ph
 {
 
-/*!
-Raw data storage of a picture. Has limited ability on pixel data manipulation. It is recommended
-to convert to `TFrame` via `toFrame()` for operations on pixel data.
+/*! @brief Stores a picture.
+
+This layout is intended for file I/O and common image manipulations. Use `TFrame` for runtime frame
+operations.
 */
 class PictureData final
 {
 public:
-	/*! @brief Creates an empty picture.
-	*/
+	/*! @brief Create an empty picture. */
 	PictureData();
 
-	/*! @brief Creates a picture with allocated buffer.
-	Use setPixels(const PixelData*, std::size_t) to supply pixel data.
+	/*! @brief Create a picture with uninitialized storage.
+	Use `setPixels()` or a mutable storage view to fill it.
 	*/
 	PictureData(
 		math::Vector2S sizePx,
 		std::size_t numPicComponents,
 		EPicturePixelComponent componentType);
 
-	/*! @brief Creates a picture filled with pixel data.
-	*/
+	/*! @brief Create a picture by copying @p pixelData. */
 	template<typename PixelData>
 	PictureData(
 		math::Vector2S sizePx,
@@ -41,6 +40,12 @@ public:
 		EPicturePixelComponent componentType,
 		const PixelData* pixelData,
 		std::size_t pixelDataSize);
+
+	/*! @brief Create a picture by copying pixels from @p frame.
+	The two objects cannot share storage because `TFrame` may use a different memory layout.
+	*/
+	template<typename FrameComponent, std::size_t N>
+	explicit PictureData(const TFrame<FrameComponent, N>& frame);
 
 	PictureData(PictureData&& other);
 
@@ -51,21 +56,38 @@ public:
 	EPicturePixelComponent getComponentType() const;
 	TSpan<std::byte> getBytes();
 	TSpanView<std::byte> getBytes() const;
+
+	/*! @brief View the storage as components of its declared component type.
+	`Component` must match `getComponentType()`.
+	*/
+	///@{
+	template<typename Component>
+	TSpan<Component> components();
+
+	template<typename Component>
+	TSpanView<Component> getComponents() const;
+	///@}
+
 	bool isEmpty() const;
 
-	/*! @brief Set pixel data directly.
-	This method also supports packed pixel data. For example, if RGBA is packed into an `int32`,
-	`PixelData` would be `int32` which can contain 4 components. It is up to the user to provide
-	suitably-sized `pixelData`.
+	/*! @brief Copy raw pixel data into the picture storage.
+
+	`PixelData` may pack multiple components into one element. For example, an `int32` can hold four
+	8-bit RGBA components. The input byte count must match the storage size.
 	*/
 	template<typename PixelData>
 	void setPixels(
 		const PixelData* pixelData,
 		std::size_t numPixelDataElements);
 
-	// TODO: option for allow/disallow lossy conversion?
+	/*! @brief Copy pixels into a new frame.
+
+	Components present in both formats are converted. Extra picture components are ignored. If the
+	frame has more components, the additional components are not initialized.
+	*/
 	template<typename FrameComponent, std::size_t N>
 	TFrame<FrameComponent, N> toFrame() const;
+	// TODO: Add an option to allow or reject lossy conversion.
 
 	PictureData& operator = (PictureData&& rhs);
 
