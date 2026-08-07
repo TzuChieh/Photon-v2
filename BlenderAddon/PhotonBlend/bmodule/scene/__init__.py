@@ -1,5 +1,7 @@
 import bpy
 
+from bmodule import naming
+
 
 def find_objs_of_type(b_depsgraph: bpy.types.Depsgraph, b_obj_type):
 	return [b_obj for b_obj in b_depsgraph.objects if b_obj.type == b_obj_type]
@@ -25,7 +27,7 @@ def find_materials_from_mesh_obj_instances(b_depsgraph: bpy.types.Depsgraph):
 	"""
 	Get unique materials used by visible evaluated mesh object instances.
 	"""
-	b_materials_by_name = {}
+	b_materials_by_resource_name = {}
 	for _, b_obj_instance in iter_mesh_obj_instances(b_depsgraph):
 		b_mesh_obj = b_obj_instance.object
 		for b_material_slot in b_mesh_obj.material_slots:
@@ -38,11 +40,11 @@ def find_materials_from_mesh_obj_instances(b_depsgraph: bpy.types.Depsgraph):
 			if b_mesh_obj.data.is_evaluated:
 				b_material = b_material.evaluated_get(b_depsgraph)
 
-			# TODO: Materials from other blend files can have the same name. Find a way to
-			# distinguish them (ID.name_full?).
-			b_materials_by_name[b_material.name] = b_material
+			# Deduplicate by the same identity used for material resource references
+			material_name = naming.get_mangled_material_name(b_material)
+			b_materials_by_resource_name[material_name] = b_material
 
-	return list(b_materials_by_name.values())
+	return list(b_materials_by_resource_name.values())
 
 
 def find_mesh_objs(b_depsgraph: bpy.types.Depsgraph):

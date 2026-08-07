@@ -56,6 +56,7 @@ public:
 		clazz.description(
 			"Represents an entity in the scene. "
 			"Every entity that participates in a scene is an actor.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 
 		TSdlBool<OwnerType> isInstantiableHint("is-instantiable-hint", &OwnerType::m_isInstantiableHint);
 		isInstantiableHint.description(

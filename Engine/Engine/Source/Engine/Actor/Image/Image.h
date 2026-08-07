@@ -59,6 +59,7 @@ public:
 		clazz.typeName("image");
 		clazz.docName("Image");
 		clazz.description("A block of data.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

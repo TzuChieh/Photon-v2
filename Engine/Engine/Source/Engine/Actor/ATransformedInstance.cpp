@@ -10,6 +10,10 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <array>
+#include <cstddef>
+#include <utility>
+
 namespace ph
 {
 
@@ -25,61 +29,66 @@ PreCookReport ATransformedInstance::preCook(const CookingContext& ctx) const
 		return report.markAsUncookable();
 	}
 
-	auto* localToWorld = ctx.getResources().makeTransform<StaticAffineTransform>(
-		m_localToWorld.getForwardStaticAffine());
-	auto* worldToLocal = ctx.getResources().makeTransform<StaticAffineTransform>(
-		m_localToWorld.getInverseStaticAffine());
-	report.setBaseTransforms(localToWorld, worldToLocal);
+	if(m_transforms.empty())
+	{
+		return report.markAsUncookable();
+	}
 
 	return report;
 }
 
 TransientVisualElement ATransformedInstance::cook(
-	const CookingContext& ctx, const PreCookReport& report) const
+	const CookingContext& ctx, const PreCookReport& /* report */) const
 {
+	PH_ASSERT(!m_transforms.empty());
+
 	const TransientVisualElement* sourceElement = ctx.getCached(m_source);
 	if(!sourceElement)
 	{
 		throw ActorCookException(
-			"transformed instance source dependency was not cooked and cached");
+			"transformed instance source was not cooked");
 	}
 
-	if(!sourceElement->surfaceEmitters.empty())
+	if(sourceElement->intersectables.size() != 1 || !sourceElement->surfaceEmitters.empty())
 	{
 		throw ActorCookException(
-			"transformed instance does not support emitting source actors");
+			"transformed instance source must produce exactly one non-emitting intersectable");
 	}
 
-	if(sourceElement->intersectables.size() > 1)
-	{
-		throw ActorCookException(
-			"transformed instance source produced multiple intersectables; use "
-			"is-instantiable-hint on a source actor that supports instancing");
-	}
-
-	if(sourceElement->intersectables.empty())
-	{
-		return {};
-	}
-
-	const auto* localToWorld = report.getBaseLocalToWorld();
-	const auto* worldToLocal = report.getBaseWorldToLocal();
-	PH_ASSERT(localToWorld);
-	PH_ASSERT(worldToLocal);
-
-	auto* transformed = ctx.getResources().copyIntersectable(
-		IntersectableBuilder::referencing(sourceElement->intersectables.front())
-			.transform(localToWorld, worldToLocal)
-			.build());
-
+	const Intersectable* const source = sourceElement->intersectables.front();
+	const math::TDecomposedTransform<real>& baseTransform = m_localToWorld.getDecomposed();
+	
+	auto& cooked = ctx.getResources();
 	TransientVisualElement result;
-	result.intersectables.push_back(transformed);
+	result.intersectables.reserve(m_transforms.size());
+	for(std::size_t instanceIdx = 0; instanceIdx < m_transforms.size(); ++instanceIdx)
+	{
+		const TransformInfo& instanceTransform = m_transforms[instanceIdx];
+		const std::array transformChain = {instanceTransform.getDecomposed(), baseTransform};
+
+		auto* localToWorld = cooked.makeTransform<StaticAffineTransform>(
+			StaticAffineTransform::makeParentedForward<real>(transformChain));
+		auto* worldToLocal = cooked.makeTransform<StaticAffineTransform>(
+			StaticAffineTransform::makeParentedInverse<real>(transformChain));
+
+		auto* transformed = cooked.copyIntersectable(
+			IntersectableBuilder::referencing(source)
+				.transform(localToWorld, worldToLocal)
+				.build());
+		result.intersectables.push_back(transformed);
+	}
+
 	return result;
 }
 
 void ATransformedInstance::setSource(const std::shared_ptr<Actor>& source)
 {
 	m_source = source;
+}
+
+void ATransformedInstance::setTransforms(std::vector<TransformInfo> transforms)
+{
+	m_transforms = std::move(transforms);
 }
 
 }// end namespace ph

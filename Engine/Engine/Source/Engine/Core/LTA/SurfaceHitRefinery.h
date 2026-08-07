@@ -53,8 +53,8 @@ public:
 	Ray escapeEmpirically(const math::Vector3R& dir) const;
 
 	/*! @brief Escape this surface in a specific direction by iteratively re-intersect with the surface.
-	This variant is in general the most accurate one but is 5 % ~ 15 % more expensive than
-	`escapeManually()`.
+	This variant is in general the most accurate one but is 5 % ~ 15 % more expensive (total render time)
+	than `escapeManually()`.
 	@param dir The direction to escape. No need to be normalized.
 	@param numIters The desired number of improvements to have on the offset.
 	@return The longest ray in `dir` that avoids this surface.

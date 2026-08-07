@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Engine/Core/Texture/texture_fwd.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Intersection/UvwMapper/UvwMapper.h"
 #include "Engine/Core/Intersection/PrimitiveChannel.h"
@@ -41,6 +42,7 @@ public:
 	*/
 	void setGeometryInfo(const GeometryInfo* geometryInfo);
 
+	void setInterfaceMask(const TTexture<real>* interfaceMask);
 	void setInteriorPriority(uint16 priority);
 	const PrimitiveChannel& getChannel(uint8 channelId) const;
 	const PrimitiveChannel& getDefaultChannel() const;
@@ -54,10 +56,11 @@ public:
 	SurfaceBehavior& surface();
 	VolumeBehavior& interior();
 	VolumeBehavior& exterior();
-
+	
 	const SurfaceBehavior& getSurface() const;
 	const VolumeBehavior& getInterior() const;
 	const VolumeBehavior& getExterior() const;
+	const TTexture<real>* getInterfaceMask() const;
 
 	/*! @brief Interior precedence. Higher value overrides lower value.
 	*/
@@ -69,6 +72,7 @@ private:
 	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
 	const GeometryInfo*           m_geometryInfo;
+	const TTexture<real>*         m_interfaceMask;
 	uint16                        m_interiorPriority;
 };
 
@@ -102,6 +106,16 @@ inline void PrimitiveMetadata::setGeometryInfo(const GeometryInfo* const geometr
 inline const GeometryInfo* PrimitiveMetadata::getGeometryInfo() const
 {
 	return m_geometryInfo;
+}
+
+inline void PrimitiveMetadata::setInterfaceMask(const TTexture<real>* const interfaceMask)
+{
+	m_interfaceMask = interfaceMask;
+}
+
+inline const TTexture<real>* PrimitiveMetadata::getInterfaceMask() const
+{
+	return m_interfaceMask;
 }
 
 inline SurfaceBehavior& PrimitiveMetadata::surface()

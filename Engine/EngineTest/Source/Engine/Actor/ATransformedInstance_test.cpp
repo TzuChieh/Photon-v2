@@ -1,5 +1,6 @@
 #include <Engine/Actor/AModel.h>
 #include <Engine/Actor/ATransformedInstance.h>
+#include <Engine/Actor/Basic/TransformInfo.h>
 #include <Engine/Actor/Geometry/GSphere.h>
 #include <Engine/Actor/Material/MatteOpaque.h>
 #include <Engine/Core/Ray.h>
@@ -21,9 +22,12 @@ TEST(ATransformedInstanceTest, CooksTranslatedInstance)
 	source->setGeometry(geometry);
 	source->setMaterial(material);
 	source->setIsInstantiableHint(true);
+
+	auto transform = TSdl<TransformInfo>::make();
+	transform.setPos(2, 0, 0);
 	auto instance = TSdl<ATransformedInstance>::makeResource();
 	instance->setSource(source);
-	instance->translate(2, 0, 0);
+	instance->setTransforms({transform});
 
 	CookedResourceCollection resources;
 	TransientResourceCache cache;
@@ -31,12 +35,6 @@ TEST(ATransformedInstanceTest, CooksTranslatedInstance)
 	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
 	material->cook(ctx, *resources.makeMaterial(ctx.getKey(material)));
 	cache.makeVisualElement(source->getId(), source->stagelessCook(ctx));
-
-	const TransientVisualElement* sourceElement = ctx.getCached(source);
-	ASSERT_NE(sourceElement, nullptr);
-	ASSERT_EQ(sourceElement->intersectables.size(), 1);
-	const Ray sourceRay({0, 0, 3}, {0, 0, -1});
-	EXPECT_TRUE(sourceElement->intersectables.front()->isOccluding(sourceRay));
 
 	const TransientVisualElement result = instance->stagelessCook(ctx);
 

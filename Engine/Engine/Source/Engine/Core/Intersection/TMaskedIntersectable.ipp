@@ -1,12 +1,15 @@
-#include "Engine/Core/Intersection/MaskedIntersectable.h"
-#include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#pragma once
+
+#include "Engine/Core/Intersection/TMaskedIntersectable.h"
 #include "Engine/Core/HitDetail.h"
+#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/Intersection/PrimitiveMetadata.h"
+#include "Engine/Core/LTA/SurfaceHitRefinery.h"
+#include "Engine/Core/Ray.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
-#include "Engine/Math/hash.h"
 #include "Engine/Math/Random/sample.h"
-#include "Engine/Core/LTA/SurfaceHitRefinery.h"
+#include "Engine/Math/hash.h"
 
 #include <Common/assertion.h>
 
@@ -14,11 +17,18 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <utility>
 
 namespace ph
 {
 
-namespace
+inline real MaterialInterfaceMask::operator () (const SurfaceHit& X) const
+{
+	const TTexture<real>* const mask = X.getMetadata().getInterfaceMask();
+	return mask ? TSampler<real>{}.sample(*mask, X) : 1.0_r;
+}
+
+namespace detail::masked_intersectable
 {
 
 inline SurfaceHit report_hit(const Ray& ray, const HitProbe& probe)
@@ -37,16 +47,12 @@ inline SurfaceHit report_hit(const Ray& ray, const HitProbe& probe)
 
 inline std::optional<Ray> next_ray_from(const SurfaceHit& X)
 {
-	if(X.getDetail().getFaceTopology().has(EFaceTopology::Planar))
-	{
-		return std::nullopt;
-	}
-
 	const Ray& mainRay = X.getRay();
 
 	// For non-planar local topologies (e.g., a sphere), a further hit is still possible if
-	// current hit is masked off. We need to search for potential next hit iteratively by forming
-	// a new ray from `X`:
+	// current hit is masked off. This is also true for a planar face in an aggregate (e.g., a
+	// mesh), as local face topology does not describe a group of intersectables. We need to
+	// search for potential next hits iteratively by forming a new ray from `X`:
 	Ray nextRay = lta::SurfaceHitRefinery{X}.escape(mainRay.getDir());
 	real nextRayMaxT = nextRay.getSegment().getProjectedT(mainRay.getHead());
 	nextRayMaxT = std::isfinite(nextRayMaxT) ? nextRayMaxT : std::numeric_limits<real>::max();
@@ -61,39 +67,40 @@ inline std::optional<Ray> next_ray_from(const SurfaceHit& X)
 	// Note: It is unfortunate that the use of `getProjectedT()` here and in the implementation
 	// of `MaskedIntersectable` can cause infinite loop for non-planar shapes sometimes.
 	// `m_maxIterations` can guard against it though.
-	
+
 	// TODO: assert rare for high number of loops; and if it is too often we need to investigate
 }
 
-}// end anonymous namespace
+}// end namespace detail::masked_intersectable
 
-MaskedIntersectable::MaskedIntersectable(
-	const Intersectable* intersectable,
-	const std::shared_ptr<TTexture<real>>& mask,
-	const uint8 maxIterations)
+template<typename Mask>
+inline TMaskedIntersectable<Mask>::TMaskedIntersectable(
+	const Intersectable* const intersectable,
+	Mask mask,
+	const uint32 maxIterations)
 
 	: Intersectable()
 
 	, m_intersectable(intersectable)
-	, m_mask(mask)
+	, m_mask(std::move(mask))
 	, m_maxIterations(maxIterations)
 {
 	PH_ASSERT(intersectable);
-	PH_ASSERT(mask);
 }
 
-bool MaskedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
+template<typename Mask>
+inline bool TMaskedIntersectable<Mask>::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	Ray nextRay = ray;
 	HitProbe nextProbe = probe;
-	for(uint8 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
+	for(uint32 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
 	{
 		if(!m_intersectable->isIntersecting(nextRay, nextProbe))
 		{
 			break;
 		}
 
-		const SurfaceHit X(report_hit(nextRay, nextProbe));
+		const SurfaceHit X(detail::masked_intersectable::report_hit(nextRay, nextProbe));
 		if(isOnMask(X))
 		{
 			const auto hitPos = nextRay.getSegment().getPoint(nextProbe.getHitRayT());
@@ -106,7 +113,7 @@ bool MaskedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
 		}
 		else if(numIterations + 1 < m_maxIterations)
 		{
-			const auto optNextRay = next_ray_from(X);
+			const auto optNextRay = detail::masked_intersectable::next_ray_from(X);
 			if(!optNextRay)
 			{
 				break;
@@ -120,7 +127,8 @@ bool MaskedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return false;
 }
 
-bool MaskedIntersectable::reintersect(
+template<typename Mask>
+inline bool TMaskedIntersectable<Mask>::reintersect(
 	const Ray& ray,
 	HitProbe& probe,
 	const Ray& srcRay,
@@ -134,14 +142,14 @@ bool MaskedIntersectable::reintersect(
 
 	Ray nextRay = ray;
 	HitProbe nextProbe = probe;
-	for(uint8 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
+	for(uint32 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
 	{
 		if(!srcProbe.getTopHit()->reintersect(nextRay, nextProbe, srcRay, srcProbe))
 		{
 			return false;
 		}
 
-		const SurfaceHit X(report_hit(nextRay, nextProbe));
+		const SurfaceHit X(detail::masked_intersectable::report_hit(nextRay, nextProbe));
 		if(isOnMask(X))
 		{
 			const auto hitPos = nextRay.getSegment().getPoint(nextProbe.getHitRayT());
@@ -154,7 +162,7 @@ bool MaskedIntersectable::reintersect(
 		}
 		else if(numIterations + 1 < m_maxIterations)
 		{
-			const auto optNextRay = next_ray_from(X);
+			const auto optNextRay = detail::masked_intersectable::next_ray_from(X);
 			if(!optNextRay)
 			{
 				break;
@@ -169,7 +177,8 @@ bool MaskedIntersectable::reintersect(
 	return false;
 }
 
-void MaskedIntersectable::calcHitDetail(
+template<typename Mask>
+inline void TMaskedIntersectable<Mask>::calcHitDetail(
 	const Ray& ray,
 	HitProbe& probe,
 	HitDetail* const out_detail) const
@@ -181,15 +190,21 @@ void MaskedIntersectable::calcHitDetail(
 	probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
 }
 
-math::AABB3D MaskedIntersectable::calcAABB() const
+template<typename Mask>
+inline math::AABB3D TMaskedIntersectable<Mask>::calcAABB() const
 {
 	return m_intersectable->calcAABB();
 }
 
-bool MaskedIntersectable::isOnMask(const SurfaceHit& X) const
+template<typename Mask>
+inline bool TMaskedIntersectable<Mask>::isOnMask(const SurfaceHit& X) const
 {
-	const real maskValue = TSampler<real>{}.sample(*m_mask, X);
+	const real maskValue = m_mask(X);
 	PH_ASSERT_IN_RANGE_INCLUSIVE(maskValue, 0.0_r, 1.0_r);
+	if(maskValue == 1.0_r || maskValue == 0.0_r)
+	{
+		return maskValue == 1.0_r;
+	}
 
 	const std::array<math::Vector3R, 2> deterministicEntropySource = {
 		X.getRay().getOrigin(), X.getRay().getDir()};

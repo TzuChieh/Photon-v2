@@ -21,7 +21,16 @@ import mathutils
 
 import time
 from collections import Counter
+from dataclasses import dataclass, field
 from pathlib import Path
+
+
+@dataclass
+class _MeshInstanceBatch:
+    source_actor_name: str
+    instance_actor_name: str
+    object_name: str
+    b_world_matrices: list[mathutils.Matrix] = field(default_factory=list)
 
 
 class Exporter:
@@ -99,7 +108,8 @@ class Exporter:
                 observer.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
 
         if observer is not None:
-            observer.set_data_name("observer")
+            observer.set_data_name(naming.get_mangled_camera_name(b_camera_obj))
+            observer.set_display_name(sdl.String(b_camera_obj.name))
             self.get_sdlconsole().queue_command(observer)
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
@@ -131,6 +141,7 @@ class Exporter:
 
         if sample_source is not None:
             sample_source.set_data_name("sample-source")
+            sample_source.set_display_name(sdl.String("Sample Source"))
             self.get_sdlconsole().queue_command(sample_source)
 
         if integrator_type in {'BVPT', 'BNEEPT', 'BVPTDL'}:
@@ -165,6 +176,7 @@ class Exporter:
 
         if visualizer is not None:
             visualizer.set_data_name("visualizer")
+            visualizer.set_display_name(sdl.String("Visualizer"))
             if b_scene.ph_use_crop_window:
                 visualizer.set_rect_x(sdl.Integer(b_scene.ph_crop_min_x))
                 visualizer.set_rect_y(sdl.Integer(b_scene.ph_crop_min_y))
@@ -174,10 +186,13 @@ class Exporter:
             self.get_sdlconsole().queue_command(visualizer)
 
     def export_options(self, b_scene):
+        observer_name = naming.get_mangled_camera_name(b_scene.camera)
+
         render_session = sdl.SingleFrameRenderSessionOptionCreator()
         render_session.set_data_name("session")
+        render_session.set_display_name(sdl.String("Render Session"))
         render_session.set_visualizer(sdl.String("@visualizer"))# HACK
-        render_session.set_observer(sdl.String("@observer"))# HACK
+        render_session.set_observer(sdl.String(f"@{observer_name}"))# HACK
         render_session.set_sample_source(sdl.String("@sample-source"))# HACK
         render_session.set_top_level_accelerator(sdl.Enum(b_scene.ph_top_level_accelerator))
 
@@ -218,39 +233,45 @@ class Exporter:
             print("exporting material: " + b_material.name)
             material.to_sdl(b_material, self.get_sdlconsole())
 
-        # Export each reusable PLY mesh once in local space, then create its transformed instances
-        source_key_to_actor_name = {}
+        # Export each reusable mesh once and collect its transforms into one actor batch
+        source_key_to_instance_batch = {}
         for depsgraph_index, b_obj_instance in scene.iter_mesh_obj_instances(b_depsgraph):
             b_mesh_obj = b_obj_instance.object
             source_key = mesh.export.get_mesh_obj_source_key(b_mesh_obj)
             num_instances = source_key_to_instance_counts.get(source_key, 0)
             if num_instances > 1 and mesh.export.can_mesh_obj_be_instance_source(b_mesh_obj):
-                source_actor_name = source_key_to_actor_name.get(source_key)
+                instance_batch = source_key_to_instance_batch.get(source_key)
 
                 # Export source if not already exported
-                if source_actor_name is None:
+                if instance_batch is None:
                     print(f"exporting source for {num_instances} instances of mesh object: {b_mesh_obj.name}")
                     source_actor_name = mesh.export.mesh_obj_to_sdl_instance_source(
                         b_mesh_obj,
                         self.get_sdlconsole(),
-                        name_suffix=naming.join_name_parts("Source", depsgraph_index))
-                    source_key_to_actor_name[source_key] = source_actor_name
+                        name_suffix=naming.join_name_parts("source", depsgraph_index))
+                    instance_actor_name = naming.get_mangled_actor_name(
+                        b_mesh_obj, "instances", depsgraph_index)
+                    instance_batch = _MeshInstanceBatch(
+                        source_actor_name, instance_actor_name, b_mesh_obj.name)
+                    source_key_to_instance_batch[source_key] = instance_batch
 
-                # Export the instance itself
-                instance_actor_name = naming.get_mangled_object_name(
-                    b_mesh_obj, suffix=naming.join_name_parts("Instance", depsgraph_index))
-                mesh.export.transformed_instance_to_sdl_actor(
-                    source_actor_name,
-                    self.get_sdlconsole(),
-                    instance_actor_name=instance_actor_name,
-                    b_world_matrix=b_obj_instance.matrix_world)
+                instance_batch.b_world_matrices.append(b_obj_instance.matrix_world.copy())
             else:
                 print(f"exporting mesh object: {b_mesh_obj.name}")
                 mesh.export.mesh_obj_to_sdl_actor(
                     b_mesh_obj,
                     self.get_sdlconsole(),
                     b_world_matrix=b_obj_instance.matrix_world,
-                    name_suffix=naming.join_name_parts("Mesh", depsgraph_index))
+                    name_suffix=depsgraph_index)
+
+        # Export each collected instance batch
+        for instance_batch in source_key_to_instance_batch.values():
+            mesh.export.queue_transformed_instance_actor(
+                self.get_sdlconsole(),
+                source_actor_name=instance_batch.source_actor_name,
+                actor_name=instance_batch.instance_actor_name,
+                display_name=instance_batch.object_name,
+                b_world_matrices=instance_batch.b_world_matrices)
 
         for b_light_obj in b_light_objs:
             print(f"exporting light object: {b_light_obj.name}")

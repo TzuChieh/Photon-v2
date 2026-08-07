@@ -4,13 +4,14 @@ import bpy
 
 
 def light_to_sdl_area_light_actor(
-    b_light: bpy.types.AreaLight,
+    b_light_obj: bpy.types.Object,
     console: SdlConsole,
     actor_name,
     phantomize=False):
     """
-    Convert a light data block to SDL area light actor.
+    Convert a light object to SDL area light actor.
     """
+    b_light = b_light_obj.data
     assert b_light.type == 'AREA'
 
     if b_light.shape in {'SQUARE', 'RECTANGLE'}:
@@ -21,6 +22,7 @@ def light_to_sdl_area_light_actor(
 
         creator = sdl.RectangleLightActorCreator()
         creator.set_data_name(actor_name)
+        creator.set_display_name(sdl.String(b_light_obj.name))
         creator.set_width(sdl.Real(rec_width))
         creator.set_height(sdl.Real(rec_height))
         creator.set_color(sdl.Spectrum(b_light.photon.color_linear_srgb))

@@ -30,7 +30,7 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
         # TODO: use the default_value defined albedo
         if mat0_res_name is None or mat1_res_name is None:
             self.warn_incomplete_node(b_material, "material A or material B input is not linked")
-            self.queue_fallback_material(sdlconsole, self.get_output_resource_name(b_material))
+            self.queue_fallback_output_material(b_material, sdlconsole)
             return
 
         factor_input_index = 2 if self.factor_type == 'FLOAT' else 3

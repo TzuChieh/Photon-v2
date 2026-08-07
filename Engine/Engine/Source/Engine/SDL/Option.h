@@ -20,6 +20,7 @@ public:
 		clazz.docName("Option");
 		clazz.description(
 			"Options that control engine runtime behavior.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

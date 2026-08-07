@@ -32,6 +32,7 @@ public:
 		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Motion Source");
 		clazz.description("Describes scene element movement over time.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

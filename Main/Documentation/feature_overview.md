@@ -271,7 +271,7 @@ Almost all shapes are built from triangle meshes for a typical scene. Games, mod
 
 ### Masking
 
-While we offer flexible geometry representations such as [triangle mesh](@ref ph::GTriangleMesh) for modeling arbitrarily shaped objects, sometimes it is not worthwhile to explicitly store complex shapes using 3-D coordinates. Alpha masking is a common way to carve out intricate shapes from a simpler base geometry, and is a technique widely used on foliage and hair. We support masked geometries through [AMaskedModel](@ref ph::AMaskedModel), which can be applied to any [AModel](@ref ph::AModel) with proper surface parameterization. This is one of many techniques that enable [image](@ref image)-driven geometry.
+While we offer flexible geometry representations such as [triangle mesh](@ref ph::GTriangleMesh) for modeling arbitrarily shaped objects, sometimes it is not worthwhile to explicitly store complex shapes using 3-D coordinates. Alpha masking is a common way to carve out intricate shapes from a simpler base geometry, and is a technique widely used on foliage and hair. [AMaskedModel](@ref ph::AMaskedModel) attempts to apply an additional actor-wide mask to every intersectable produced by any non-emitting [actor](@ref ph::Actor) with proper surface parameterization. For per-material masking, use the material's interface-mask field. This is one of many techniques that enable [image](@ref image)-driven geometry.
 
 ![Masked Geometry](Example/masked_fern_leaves.jpg "Fern leaves modeled with alpha masking and thin dielectric material.")
 

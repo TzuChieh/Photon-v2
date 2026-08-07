@@ -6,11 +6,13 @@ from mathutils import Vector, Quaternion
 
 def buffers_to_sdl_triangle_mesh(
         resource_name,
+        b_mesh,
         console: SdlConsole,
         **buffers):
     
     creator = sdl.TriangleMeshGeometryCreator()
     creator.set_data_name(resource_name)
+    creator.set_display_name(sdl.String(b_mesh.name))
 
     positions = sdl.Vector3Array()
     for b_position in buffers["positions"]:
@@ -32,6 +34,7 @@ def buffers_to_sdl_triangle_mesh(
 
 def loop_triangles_to_sdl_triangle_mesh(
         resource_name,
+        b_mesh,
         console: SdlConsole,
         loop_triangles,
         b_mesh_vertices,
@@ -68,6 +71,7 @@ def loop_triangles_to_sdl_triangle_mesh(
 
     buffers_to_sdl_triangle_mesh(
         resource_name,
+        b_mesh,
         console,
         positions=positions,
         tex_coords=tex_coords,

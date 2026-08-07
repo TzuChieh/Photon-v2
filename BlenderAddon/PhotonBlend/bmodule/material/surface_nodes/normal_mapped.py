@@ -27,7 +27,7 @@ class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
         strength_map_res_name = self.get_linked_input_resource_name(b_material, 2)
         if material_res_name is None or normal_map_res_name is None:
             self.warn_incomplete_node(b_material, "surface material or normal map input is not linked")
-            self.queue_fallback_material(sdlconsole, self.get_output_resource_name(b_material))
+            self.queue_fallback_output_material(b_material, sdlconsole)
             return
 
         creator = sdl.SurfaceNormalMapMaterialCreator()

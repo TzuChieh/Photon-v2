@@ -3,6 +3,9 @@
 #include "Engine/SDL/ESdlTypeCategory.h"
 #include "Engine/SDL/SdlResourceId.h"
 
+#include <string>
+#include <string_view>
+
 namespace ph { class SdlClass; }
 
 namespace ph
@@ -39,6 +42,13 @@ public:
 	life cycle. See `SdlResourceId.h` for some utilities.
 	*/
 	virtual SdlResourceId getId() const = 0;
+
+	/*! @brief Get or set the human-readable resource name.
+	*/
+	///@{
+	virtual std::string_view getDisplayName() const = 0;
+	virtual void setDisplayName(std::string displayName) = 0;
+	///@}
 
 	/*! @brief Get runtime SDL class of the resource.
 	@return Pointer to the runtime SDL class. nullptr if `PH_DEFINE_SDL_CLASS()` is

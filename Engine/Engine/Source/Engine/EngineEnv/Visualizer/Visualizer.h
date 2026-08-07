@@ -22,6 +22,7 @@ public:
 		clazz.typeName("visualizer");
 		clazz.docName("Visualizer");
 		clazz.description("The main engine component for producing visual content.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

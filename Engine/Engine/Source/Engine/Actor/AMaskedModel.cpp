@@ -5,7 +5,7 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/CookedResourceCollection.h"
 #include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
-#include "Engine/Core/Intersection/MaskedIntersectable.h"
+#include "Engine/Core/Intersection/TMaskedIntersectable.h"
 
 #include <Common/logging.h>
 
@@ -23,7 +23,7 @@ PreCookReport AMaskedModel::preCook(const CookingContext& ctx) const
 	if(!m_base)
 	{
 		PH_LOG(ActorCooking, Warning,
-			"ignoring this masked model: base model is not specified");
+			"ignoring this masked model: base actor is not specified");
 		report.markAsUncookable();
 	}
 
@@ -43,8 +43,14 @@ TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCo
 	if(!baseResult)
 	{
 		throw ActorCookException(
-			"masked model base dependency was not cooked and cached");
+			"masked model base actor dependency was not cooked and cached");
 	}
+	else if(!baseResult->surfaceEmitters.empty())
+	{
+		throw ActorCookException(
+			"masked model base actor must be non-emitting");
+	}
+	
 	TransientVisualElement result = *baseResult;
 
 	// Cannot have primitive view as the intersectables will be further masked
@@ -54,7 +60,7 @@ TransientVisualElement AMaskedModel::cook(const CookingContext& ctx, const PreCo
 	for(auto& isable : result.intersectables)
 	{
 		auto* maskedIsable = ctx.getResources().makeIntersectable<MaskedIntersectable>(
-			isable, maskTexture);
+			isable, TTexturedSurfaceProperty<real>{maskTexture});
 		isable = maskedIsable;
 	}
 

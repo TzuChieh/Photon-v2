@@ -31,7 +31,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(IOUtils, DataIO);
 namespace detail
 {
 
-inline bool init_picture_IO()
+bool init_picture_IO()
 {
 	// Photon expects a lower-left origin while stb uses an upper-left origin by default.
 	// These calls made the origin on the lower-left corner to meet Photon's expectation

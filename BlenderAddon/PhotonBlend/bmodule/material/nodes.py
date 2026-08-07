@@ -9,7 +9,6 @@ from bmodule.material import (
     conversion_nodes,
     group_nodes,
     )
-from psdl import sdl
 
 import bpy
 import nodeitems_utils
@@ -33,9 +32,7 @@ def to_sdl(b_material, sdlconsole):
     output_node = material.find_output_node_from_node_tree(node_tree)
     if output_node is None:
         print(f"material {b_material.name} has no output node, generating fallback material for it")
-        fallback_creator = sdl.MatteOpaqueMaterialCreator()
-        fallback_creator.set_data_name(node_base.get_material_resource_name(b_material))
-        sdlconsole.queue_command(fallback_creator)
+        node_base.queue_fallback_material(b_material, sdlconsole)
         return
 
     processed_nodes = set()

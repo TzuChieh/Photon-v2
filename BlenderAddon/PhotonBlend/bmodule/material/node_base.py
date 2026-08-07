@@ -11,11 +11,20 @@ import nodeitems_utils
 import sys
 
 
-def get_material_resource_name(b_material):
+def queue_fallback_material(
+    b_material,
+    sdlconsole,
+    *,
+    interface_mask_res_name=None):
     """
-    Get the SDL resource name for a Blender material.
+    Queue a fallback material for the Blender material.
     """
-    return naming.get_mangled_material_name(b_material)
+    creator = sdl.MatteOpaqueMaterialCreator()
+    creator.set_data_name(naming.get_mangled_material_name(b_material))
+    creator.set_display_name(sdl.String(b_material.name))
+    if interface_mask_res_name:
+        creator.set_interface_mask(sdl.Image(interface_mask_res_name))
+    sdlconsole.queue_command(creator)
 
 
 class PhMaterialNodeSocket(bpy.types.NodeSocket):
@@ -509,17 +518,11 @@ class PhMaterialNode(bpy.types.Node):
         """
         return naming.get_mangled_output_node_socket_name(self.outputs[output_index], b_material)
 
-    def get_node_resource_name(self, b_material, suffix=None):
+    def get_node_resource_name(self, b_material, *suffixes):
         """
         Get this node's SDL resource name, optionally for a node-owned helper resource.
         """
-        return naming.get_mangled_node_name(self, b_material, suffix=suffix)
-
-    def get_material_resource_name(self, b_material):
-        """
-        Get the SDL resource name for the owning Blender material.
-        """
-        return get_material_resource_name(b_material)
+        return naming.get_mangled_node_name(self, b_material, *suffixes)
 
     def warn_incomplete_node(self, b_material, message=None):
         warning = f"warning: material <{b_material.name}>'s {self.bl_label} node is incomplete"
@@ -527,12 +530,13 @@ class PhMaterialNode(bpy.types.Node):
             warning = f"{warning}: {message}"
         print(warning)
 
-    def queue_fallback_material(self, sdlconsole, resource_name):
+    def queue_fallback_output_material(self, b_material, sdlconsole, output_index=0):
         """
-        Queue a valid fallback material with the specified SDL resource name.
+        Queue a fallback material for one of this node's outputs.
         """
         creator = sdl.MatteOpaqueMaterialCreator()
-        creator.set_data_name(resource_name)
+        creator.set_data_name(self.get_output_resource_name(b_material, output_index))
+        creator.set_display_name(sdl.String(b_material.name))
         sdlconsole.queue_command(creator)
 
     @classmethod

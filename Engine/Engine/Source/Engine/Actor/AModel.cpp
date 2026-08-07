@@ -2,6 +2,7 @@
 #include "Engine/Math/math.h"
 #include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
 #include "Engine/Core/Intersection/IntersectableBuilder.h"
+#include "Engine/Core/Intersection/TMaskedIntersectable.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -134,6 +135,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 	}
 
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
+	metadata->setInterfaceMask(cookedMaterial->interfaceMask.get());
 
 	if(m_material->getOverlapPriority() > 0)
 	{
@@ -144,6 +146,18 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 		metadata->interior().setOptics(interiorOptics);
 		metadata->exterior().setOptics(exteriorOptics);
 		metadata->setInteriorPriority(m_material->getOverlapPriority());
+	}
+
+	if(cookedMaterial->interfaceMask)
+	{
+		// Masking will cause mismatched view and intersectables
+		result.primitivesView.clear();
+
+		for(auto& intersectable : result.intersectables)
+		{
+			intersectable = ctx.getResources().makeIntersectable<MaterialMaskedIntersectable>(
+				intersectable, MaterialInterfaceMask{});
+		}
 	}
 
 	if(isInstantiableHint() && result.intersectables.size() > 1)

@@ -1,6 +1,7 @@
 #include "Engine/Actor/ABlenderPlyModel.h"
 #include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
+#include "Engine/Core/Intersection/TMaskedIntersectable.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -79,6 +80,7 @@ TransientVisualElement ABlenderPlyModel::cook(
 
 	const auto numMetadataSlots = static_cast<uint32>(m_materials.size());
 	auto metadatas = std::make_unique_for_overwrite<const PrimitiveMetadata*[]>(numMetadataSlots);
+	bool hasInterfaceMask = false;
 	for(std::size_t slotIndex = 0; slotIndex < m_materials.size(); ++slotIndex)
 	{
 		const std::shared_ptr<Material>& material = m_materials[slotIndex];
@@ -88,6 +90,8 @@ TransientVisualElement ABlenderPlyModel::cook(
 		{
 			const CookedMaterial* cookedMaterial = ctx.getCooked(material);
 			metadata->surface().setOptics(cookedMaterial->surfaceOptics);
+			metadata->setInterfaceMask(cookedMaterial->interfaceMask.get());
+			hasInterfaceMask |= cookedMaterial->interfaceMask != nullptr;
 
 			if(material->getOverlapPriority() > 0)
 			{
@@ -157,6 +161,18 @@ TransientVisualElement ABlenderPlyModel::cook(
 					ctx.getResources().copyIntersectable(
 						primitiveBuilder.build()));
 			}
+		}
+	}
+
+	if(hasInterfaceMask)
+	{
+		// Masking will cause mismatched view and intersectables
+		result.primitivesView.clear();
+
+		for(auto& intersectable : result.intersectables)
+		{
+			intersectable = ctx.getResources().makeIntersectable<MaterialMaskedIntersectable>(
+				intersectable, MaterialInterfaceMask{});
 		}
 	}
 

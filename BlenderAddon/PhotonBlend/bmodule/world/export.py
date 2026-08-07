@@ -2,6 +2,7 @@
 @brief Convert Blender light data block to Photon's format.
 """
 from psdl import sdl, SdlConsole
+from bmodule import naming
 
 import bpy
 
@@ -10,7 +11,7 @@ def world_to_sdl_actor(b_world: bpy.types.World, console: SdlConsole):
     """
     Convert a world data block to SDL actor.
     """
-    actor_name = "ph_" + b_world.name
+    actor_name = naming.get_mangled_world_name(b_world)
 
     bg_type = b_world.photon.background_type
     if bg_type == 'NONE':
@@ -45,6 +46,7 @@ def world_to_sdl_actor(b_world: bpy.types.World, console: SdlConsole):
         return
 
     creator.set_energy_scale(sdl.Real(b_world.photon.energy_scale))
+    creator.set_display_name(sdl.String(b_world.name))
     console.queue_command(creator)
 
     rotation = sdl.DomeActorRotate()

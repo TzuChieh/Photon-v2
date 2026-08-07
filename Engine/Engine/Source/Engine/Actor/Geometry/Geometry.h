@@ -47,6 +47,7 @@ public:
 		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Geometry");
 		clazz.description("Defining the shape of scene elements.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

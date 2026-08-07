@@ -4,13 +4,14 @@ import bpy
 
 
 def light_to_sdl_point_light_actor(
-    b_light: bpy.types.PointLight,
+    b_light_obj: bpy.types.Object,
     console: SdlConsole,
     actor_name,
     phantomize=False):
     """
-    Convert a light data block to SDL point light actor.
+    Convert a light object to SDL point light actor.
     """
+    b_light = b_light_obj.data
     assert b_light.type == 'POINT'
 
     light_radius = b_light.shadow_soft_size
@@ -21,6 +22,7 @@ def light_to_sdl_point_light_actor(
         creator.set_radius(sdl.Real(light_radius))
 
     creator.set_data_name(actor_name)
+    creator.set_display_name(sdl.String(b_light_obj.name))
     creator.set_color(sdl.Spectrum(b_light.photon.color_linear_srgb))
     creator.set_watts(sdl.Real(b_light.photon.watts))
 

@@ -12,24 +12,24 @@ import mathutils
 import math
 
 
-def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlConsole):
+def light_object_to_sdl_actor(b_light_obj: bpy.types.Object, console: SdlConsole):
     """
     Convert a light object to SDL actor.
     """
-    b_light = b_light_object.data
+    b_light = b_light_obj.data
     attenuation_type = b_light.photon.attenuation_type
     use_attenuation = attenuation_type in {'IES'}
-    light_actor_name = naming.get_mangled_light_name(b_light)
-    src_light_actor_name = light_actor_name + "_src" if use_attenuation else light_actor_name
+    light_actor_name = naming.get_mangled_light_name(b_light_obj)
+    src_light_actor_name = naming.get_mangled_light_name(b_light_obj, "src") if use_attenuation else light_actor_name
     if b_light.type == 'AREA':
-        area.light_to_sdl_area_light_actor(b_light, console, src_light_actor_name, phantomize=use_attenuation)
+        area.light_to_sdl_area_light_actor(b_light_obj, console, src_light_actor_name, phantomize=use_attenuation)
     elif b_light.type == 'POINT':
-        point.light_to_sdl_point_light_actor(b_light, console, src_light_actor_name, phantomize=use_attenuation)
+        point.light_to_sdl_point_light_actor(b_light_obj, console, src_light_actor_name, phantomize=use_attenuation)
     else:
-        print(f"warning: light object {b_light_object.name} has unsupported light type {b_light.type}")
+        print(f"warning: light object {b_light_obj.name} has unsupported light type {b_light.type}")
         return
 
-    pos, rot, scale = blender.to_photon_pos_rot_scale(b_light_object.matrix_world)
+    pos, rot, scale = blender.to_photon_pos_rot_scale(b_light_obj.matrix_world)
 
     # Blender's rectangle area light is facing downwards (Blender's -z) by default, while Photon's rectangle 
     # is facing upwards (Blender's +z); these rotations account for such differences (for symmetric shape 
@@ -63,6 +63,7 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
     if attenuation_type == 'IES':
         creator = sdl.IesAttenuatedLightActorCreator()
         creator.set_data_name(light_actor_name)
+        creator.set_display_name(sdl.String(b_light_obj.name))
 
         ies_path = bpy.path.abspath(b_light.photon.ies_file_path)
         ies_identifier = sdl.ResourceIdentifier()
@@ -71,7 +72,7 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
 
         creator.set_source(sdl.Actor(src_light_actor_name))
     else:
-        print(f"warning: light object {b_light_object.name} has unsupported attenuation type {attenuation_type}")
+        print(f"warning: light object {b_light_obj.name} has unsupported attenuation type {attenuation_type}")
         return
 
     console.queue_command(creator)

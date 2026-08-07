@@ -1,16 +1,21 @@
 #pragma once
 
 #include "Engine/Core/Intersection/Intersectable.h"
-#include "Engine/Core/Texture/TTexture.h"
+#include "Engine/Core/SurfaceBehavior/Property/surface_property.h"
 
+#include <Common/compiler.h>
 #include <Common/primitive_type.h>
-
-#include <memory>
 
 namespace ph
 {
 
 class SurfaceHit;
+
+class MaterialInterfaceMask final
+{
+public:
+	real operator () (const SurfaceHit& X) const;
+};
 
 /*! @brief Carve out some part of an intersectable.
 This is a masking approach based on intersection routine. Another common approach to shape masking is
@@ -20,20 +25,25 @@ routine samples the mask texture (usually a slower operation) in the tight loop 
 structure traversal, while masking in BSDF will need to re-enter the acceleration structure multiple
 times (such as when rendering a forest) which can also be slow.
 */
-class MaskedIntersectable : public Intersectable
+template<typename Mask>
+class TMaskedIntersectable : public Intersectable
 {
+	static_assert(CSurfaceProperty<Mask, real>,
+		"'Mask' must accept 'SurfaceHit' and return a real-convertible value.");
+
 public:
 	/*!
 	@param intersectable The intersectable to apply the mask on.
 	@param mask The mask to apply. Commonly called alpha mask or opacity mask.
-	@param maxIterations For some shape, such as sphere, ray intersection must be performed
-	iteratively if earlier intersections are being rejected by the mask. The default value should be
-	plenty for most shapes (e.g., a sphere has at most 2 intersections for a single ray).
+	@param maxIterations For some shapes, such as a sphere, ray intersection must be performed
+	iteratively if earlier intersections are being rejected by the mask. A sphere has at most 2
+	intersections for a single ray, while a mesh may contain arbitrarily many layers. The default
+	value of 1024 should be plenty even for trees.
 	*/
-	MaskedIntersectable(
+	TMaskedIntersectable(
 		const Intersectable* intersectable,
-		const std::shared_ptr<TTexture<real>>& mask,
-		uint8 maxIterations = 4);
+		Mask mask,
+		uint32 maxIterations = 1024);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
@@ -54,8 +64,16 @@ private:
 	bool isOnMask(const SurfaceHit& X) const;
 
 	const Intersectable* m_intersectable;
-	std::shared_ptr<TTexture<real>> m_mask;
-	uint8 m_maxIterations;
+
+	[[PH_NO_UNIQUE_ADDRESS]]
+	Mask m_mask;
+
+	uint32 m_maxIterations;
 };
 
+using MaskedIntersectable = TMaskedIntersectable<TTexturedSurfaceProperty<real>>;
+using MaterialMaskedIntersectable = TMaskedIntersectable<MaterialInterfaceMask>;
+
 }// end namespace ph
+
+#include "Engine/Core/Intersection/TMaskedIntersectable.ipp"

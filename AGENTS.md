@@ -17,6 +17,7 @@ Follow surrounding style and the scoped rules below.
 
 - In hot C++ polymorphic paths, do not assume MSVC devirtualizes unqualified virtual calls on concrete objects or value members; when exact concrete dispatch is intended, use qualified calls and verify speed claims with generated assembly plus repeated workload timing.
 - Keep C++ function calls with fewer than three arguments on one line unless it would exceed 100 characters or splitting materially improves clarity.
+- Prefix filenames for templated classes with T, including implementation and test files.
 - Do not add `static_cast` for identity or clearly non-narrowing standard conversions. Keep
   explicit casts for narrowing, signedness or precision changes, enums, pointer downcasts or
   cross-casts, user-defined conversions, and overload selection.

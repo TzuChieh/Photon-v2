@@ -1,94 +1,112 @@
 """
-Utilities for providing unique names (e.g., through name mangling or other means) for Photon resources
-in Blender. Uniqueness of a name is guaranteed across all supported resource base categories. For example,
-two object resources will never have the same mangled names, and a mesh resource will never have the same
-mangled name as a material resource.
+Utilities for deriving stable and unique SDL resource names from Blender data.
 
-In situations where name conflict is possible, they are expected to be resolved via the specified decorations.
+Names use the original Blender ID's session UID on Blender 4.5+. Blender 3.6 uses the
+library-qualified ID name. Suffixes decorate resources further for situations where
+the default naming is insufficient.
 """
 import bpy
 
 # TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them (ID.name_full?)
 
 
-def _join_name_parts(*parts):
-	return "_".join(str(part) for part in parts if part is not None)
-
-
-def _get_decorated_name(name, **decorations):
-	"""
-	Decorates a name given predefined decoration elements.
-	@param **decorations `prefix`: string to append in the front of `name`; `suffix`: string to append in the back of `name`
-	"""
-	return _join_name_parts(decorations.get('prefix'), name, decorations.get('suffix'))
-
-
 def join_name_parts(*parts):
-	return _join_name_parts(*parts)
+	return "_".join(str(part) for part in parts if part not in (None, ""))
 
 
-def get_mangled_mesh_name(b_mesh: bpy.types.Mesh, **decorations):
+def _get_mangled_id_name(prefix, b_id: bpy.types.ID, *suffixes):
+	b_original_id = b_id.original
+	if bpy.app.version >= (4, 5, 0):
+		id_name = b_original_id.session_uid
+	else:
+		id_name = b_original_id.name_full
+
+	return join_name_parts(prefix, id_name, *suffixes)
+
+
+def get_mangled_mesh_name(b_mesh_obj: bpy.types.Object, *suffixes):
 	"""
-	Get a unique resource name for the mesh resource.
+	Get a unique mesh resource name for a Blender mesh object.
 	"""
-	return "Mesh_" + _get_decorated_name(b_mesh.name, **decorations)
+	assert isinstance(b_mesh_obj.data, bpy.types.Mesh)
+
+	# Object modifiers can change the geometry, so use object identity.
+	return _get_mangled_id_name("Mesh", b_mesh_obj, *suffixes)
 
 
-def get_mangled_material_name(b_material: bpy.types.Material, **decorations):
+def get_mangled_material_name(b_material: bpy.types.Material, *suffixes):
 	"""
 	Get a unique resource name for the material resource.
 	"""
-	return "Material_" + _get_decorated_name(b_material.name, **decorations)
+	return _get_mangled_id_name("Material", b_material, *suffixes)
 
 
-# Get a unique resource name for the light resource.
-def get_mangled_light_name(b_light: bpy.types.Light, **decorations):
+def get_mangled_light_name(b_light_obj: bpy.types.Object, *suffixes):
 	"""
-	Get a unique resource name for the light resource.
+	Get a unique light resource name for a Blender light object.
 	"""
-	return "Light_" + _get_decorated_name(b_light.name, **decorations)
+	assert isinstance(b_light_obj.data, bpy.types.Light)
+
+	return _get_mangled_id_name("Light", b_light_obj, *suffixes)
 
 
-def get_mangled_object_name(b_object: bpy.types.Object, **decorations):
+def get_mangled_camera_name(b_camera_obj: bpy.types.Object, *suffixes):
 	"""
-	Get a unique resource name for the object resource.
+	Get a unique camera resource name for a Blender camera object.
 	"""
-	return "Object_" + _get_decorated_name(b_object.name, **decorations)
+	assert isinstance(b_camera_obj.data, bpy.types.Camera)
+
+	return _get_mangled_id_name("Camera", b_camera_obj, *suffixes)
 
 
-def get_mangled_node_name(b_node: bpy.types.Node, b_material: bpy.types.Material, **decorations):
+def get_mangled_world_name(b_world: bpy.types.World, *suffixes):
+	"""
+	Get a unique resource name for the world resource.
+	"""
+	return _get_mangled_id_name("World", b_world, *suffixes)
+
+
+def get_mangled_actor_name(b_object: bpy.types.Object, *suffixes):
+	"""
+	Get a unique actor resource name for a Blender object.
+	"""
+	return _get_mangled_id_name("Object", b_object, *suffixes)
+
+
+def get_mangled_node_name(b_node: bpy.types.Node, b_material: bpy.types.Material, *suffixes):
 	"""
 	Get a unique resource name for the node resource.
 	"""
-	# Material name is required since node name is unique within the same node tree only.
-	joint_name = _get_decorated_name(b_node.name, prefix=b_material.name)
-
-	return "Node_" + _get_decorated_name(joint_name, **decorations)
+	# Material identity is required since node names are unique within the same node tree only.
+	return _get_mangled_id_name("Node", b_material, b_node.name, *suffixes)
 
 
 def _get_mangled_node_socket_name(
+	prefix,
 	b_node_socket: bpy.types.NodeSocket,
 	b_material: bpy.types.Material,
-	**decorations):
+	*suffixes):
 	# Note that the identifier attribute of a socket is only unique in either input or output sockets, not both.
 	b_owning_node = b_node_socket.node
-	joint_name = _get_decorated_name(b_node_socket.identifier, prefix=b_owning_node.name)
-	joint_name = _get_decorated_name(joint_name, prefix=b_material.name)
-
-	return _get_decorated_name(joint_name, **decorations)
+	return _get_mangled_id_name(
+		prefix,
+		b_material,
+		b_owning_node.name,
+		b_node_socket.identifier,
+		*suffixes)
 
 
 def get_mangled_input_node_socket_name(
 	b_node_socket: bpy.types.NodeSocket,
 	b_material: bpy.types.Material,
-	**decorations):
+	*suffixes):
 
-	return "InputNode_" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
+	return _get_mangled_node_socket_name("InputNodeSocket", b_node_socket, b_material, *suffixes)
 
 
 def get_mangled_output_node_socket_name(
 	b_node_socket: bpy.types.NodeSocket,
 	b_material: bpy.types.Material,
-	**decorations):
+	*suffixes):
 
-	return "OutputNode_" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
+	return _get_mangled_node_socket_name("OutputNodeSocket", b_node_socket, b_material, *suffixes)

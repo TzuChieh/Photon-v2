@@ -43,7 +43,7 @@ class PhLayeredSurfaceNode(PhSurfaceMaterialNode):
 
         if not packets:
             self.warn_incomplete_node(b_material, "no surface layer input is linked")
-            self.queue_fallback_material(sdlconsole, self.get_output_resource_name(b_material))
+            self.queue_fallback_output_material(b_material, sdlconsole)
             return
 
         # Generate layered surface material

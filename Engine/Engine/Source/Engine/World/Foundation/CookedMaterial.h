@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Engine/Core/Texture/texture_fwd.h"
+
+#include <Common/primitive_type.h>
+
+#include <memory>
 #include <vector>
 
 namespace ph
@@ -25,6 +30,7 @@ class CookedMaterial final
 {
 public:
 	const SurfaceOptics* surfaceOptics = nullptr;
+	std::shared_ptr<TTexture<real>> interfaceMask;
 	std::vector<VolumeComposition> volumeCompositions;
 
 	/*!

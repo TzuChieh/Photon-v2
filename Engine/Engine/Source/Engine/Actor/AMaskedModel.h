@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Actor/Actor.h"
-#include "Engine/Actor/AModel.h"
 #include "Engine/Actor/Image/Image.h"
 #include "Engine/SDL/sdl_interface.h"
 
@@ -19,7 +18,7 @@ public:
 	void setMask(const std::shared_ptr<Image>& mask);
 
 private:
-	std::shared_ptr<AModel> m_base;
+	std::shared_ptr<Actor> m_base;
 	std::shared_ptr<Image> m_mask;
 
 public:
@@ -27,12 +26,14 @@ public:
 	{
 		clazz.typeName("masked-model");
 		clazz.docName("Masked Model Actor");
-		clazz.description("Masks another model actor.");
+		clazz.description(
+			"Attempts to apply an additional actor-wide mask to any non-emitting actor. For "
+			"per-material masking, use the material's interface-mask field.");
 		clazz.baseOn<Actor>();
 
-		TSdlReference<AModel, OwnerType> base("base", &OwnerType::m_base);
+		TSdlReference<Actor, OwnerType> base("base", &OwnerType::m_base);
 		base.description(
-			"The base model that the mask will apply on. Declare it as phantom to hide the "
+			"The base actor that the mask will apply on. Declare it as phantom to hide the "
 			"unmasked base.");
 		base.required();
 		clazz.addField(base);

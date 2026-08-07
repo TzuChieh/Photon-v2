@@ -26,6 +26,7 @@ public:
 		clazz.typeName("observer");
 		clazz.docName("Observer");
 		clazz.description("A tool for observing the incoming energy of the scene.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

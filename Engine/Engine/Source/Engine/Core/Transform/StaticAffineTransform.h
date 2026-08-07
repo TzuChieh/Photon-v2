@@ -160,7 +160,7 @@ inline StaticAffineTransform StaticAffineTransform
 		invParentedMatrix = invParentedMatrix.mul(invMatrix);
 	}
 
-	return StaticAffineTransform(Matrix4R(parentedMatrix), Matrix4R(invParentedMatrix));
+	return StaticAffineTransform(math::Matrix4R(parentedMatrix), math::Matrix4R(invParentedMatrix));
 }
 
 inline const math::Matrix4R& StaticAffineTransform

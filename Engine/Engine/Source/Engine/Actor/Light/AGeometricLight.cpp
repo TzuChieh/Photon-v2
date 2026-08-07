@@ -103,6 +103,13 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		material->cook(ctx, *newCookedMaterial);
 		cookedMaterial = newCookedMaterial;
 	}
+
+	if(cookedMaterial->interfaceMask)
+	{
+		throw ActorCookException(
+			"geometric light does not support masking");
+	}
+	
 	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
 	if(isVolumetricEmissionSupported() && material->getOverlapPriority() > 0)

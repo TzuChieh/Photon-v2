@@ -25,6 +25,7 @@ public:
 		clazz.typeName(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Object");
 		clazz.description("General object that may refer to any type.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

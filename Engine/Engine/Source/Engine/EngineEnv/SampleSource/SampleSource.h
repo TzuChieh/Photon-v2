@@ -22,6 +22,7 @@ public:
 		clazz.typeName("sample-source");
 		clazz.docName("Sample Source");
 		clazz.description("Engine component for generating sample values.");
+		clazz.addField(makeDisplayNameField<OwnerType>());
 	}
 };
 

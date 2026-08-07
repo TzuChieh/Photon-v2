@@ -23,8 +23,9 @@ def _supports_corner_normals():
     return bpy.app.version >= (4, 1, 0)
 
 
-def _export_light_actor(
+def _queue_light_actor(
     console: SdlConsole,
+    b_mesh_obj: bpy.types.Object,
     light_actor_name,
     emission_image_name,
     geometry_name,
@@ -33,10 +34,11 @@ def _export_light_actor(
     rotation,
     scale):
     """
-    Export an SDL light actor to `console`.
+    Queue an SDL light actor to `console`.
     """
     creator = sdl.ModelLightActorCreator()
     creator.set_data_name(light_actor_name)
+    creator.set_display_name(sdl.String(b_mesh_obj.name))
     creator.set_emitted_energy(sdl.Image(emission_image_name))
     creator.set_geometry(sdl.Geometry(geometry_name))
     creator.set_material(sdl.Material(material_name))
@@ -45,48 +47,31 @@ def _export_light_actor(
     _queue_transform_commands(console, light_actor_name, position, rotation, scale)
 
 
-def _export_model_actor(
+def _queue_model_actor(
     console: SdlConsole,
+    b_mesh_obj: bpy.types.Object,
     model_actor_name,
     geometry_name,
     material_name,
     position,
     rotation,
-    scale,
-    mask_name=None):
+    scale):
     """
-    Export an SDL model actor to `console`.
+    Queue an SDL model actor to `console`.
     """
-    use_mask = mask_name is not None
-    base_model_actor_name = model_actor_name + "_base" if use_mask else model_actor_name
-
     creator = sdl.ModelActorCreator()
-    creator.set_data_name(base_model_actor_name)
+    creator.set_data_name(model_actor_name)
+    creator.set_display_name(sdl.String(b_mesh_obj.name))
     creator.set_geometry(sdl.Geometry(geometry_name))
     creator.set_material(sdl.Material(material_name))
-
-    if use_mask:
-        creator.phantomize()
-
     console.queue_command(creator)
 
     _queue_transform_commands(
         console,
-        base_model_actor_name,
+        model_actor_name,
         position,
         rotation,
         scale)
-
-    if not use_mask:
-        return
-
-    assert model_actor_name != base_model_actor_name
-
-    masked_creator = sdl.MaskedModelActorCreator()
-    masked_creator.set_data_name(model_actor_name)
-    masked_creator.set_base(sdl.Actor(base_model_actor_name))
-    masked_creator.set_mask(sdl.Image(mask_name))
-    console.queue_command(masked_creator)
 
 
 def _queue_transform_commands(console: SdlConsole, actor_name, position, rotation, scale):
@@ -124,9 +109,14 @@ def _write_blender_ply_file(
         tri_mat_ids=tri_mat_ids)
 
 
-def _queue_blender_ply_geometry(console: SdlConsole, geometry_name, bundled_ply_path):
+def _queue_blender_ply_geometry(
+    console: SdlConsole,
+    b_mesh: bpy.types.Mesh,
+    geometry_name,
+    bundled_ply_path):
     geometry_creator = sdl.BlenderPlyGeometryCreator()
     geometry_creator.set_data_name(geometry_name)
+    geometry_creator.set_display_name(sdl.String(b_mesh.name))
 
     ply_file = sdl.ResourceIdentifier()
     ply_file.set_bundled_path(bundled_ply_path)
@@ -137,11 +127,13 @@ def _queue_blender_ply_geometry(console: SdlConsole, geometry_name, bundled_ply_
 
 def _queue_blender_ply_model_actor(
     console: SdlConsole,
+    b_mesh_obj: bpy.types.Object,
     actor_name,
     geometry_name,
     b_materials,
     *,
-    is_instance_source=False):
+    is_phantom=False,
+    is_instantiable=False):
     material_refs = sdl.ReferenceArray("material")
     for b_material in b_materials:
         material_name = naming.get_mangled_material_name(b_material) if b_material is not None else ""
@@ -149,29 +141,41 @@ def _queue_blender_ply_model_actor(
 
     actor_creator = sdl.BlenderPlyModelActorCreator()
     actor_creator.set_data_name(actor_name)
+    actor_creator.set_display_name(sdl.String(b_mesh_obj.name))
     actor_creator.set_geometry(sdl.Geometry(geometry_name))
     actor_creator.set_materials(material_refs)
-    if is_instance_source:
+    if is_instantiable:
         actor_creator.set_is_instantiable_hint(sdl.Bool(True))
+    if is_phantom:
         actor_creator.phantomize()
 
     console.queue_command(actor_creator)
 
 
-def _get_mesh_obj_ply_materials(b_mesh_obj: bpy.types.Object):
+def _get_mesh_obj_materials(b_mesh_obj: bpy.types.Object):
+    b_materials = [b_material_slot.material for b_material_slot in b_mesh_obj.material_slots]
+
+    # Blender faces default to material index 0 even when the mesh has no material slots, so we need [None]
+    return b_materials or [None]
+
+
+def _get_mesh_obj_ply_export_materials(b_mesh_obj: bpy.types.Object):
+    """
+    Return materials for PLY mesh export, or `None` when the mesh requires another export path.
+    """
     b_mesh = b_mesh_obj.data
     if b_mesh is None or b_mesh.photon.export_type != 'ORIGINAL':
         return None
 
-    b_materials = [b_material_slot.material for b_material_slot in b_mesh_obj.material_slots]
-
+    b_materials = _get_mesh_obj_materials(b_mesh_obj)
     for b_material in b_materials:
-        if b_material is not None and (
-            material.is_emissive(b_material) or material.is_masked(b_material)):
+        if b_material is None:
+            continue
+
+        if material.is_emissive(b_material):
             return None
 
-    # Blender faces default to material index 0 even when the mesh has no material slots, so we need [None]
-    return b_materials or [None]
+    return b_materials
 
 
 def _export_original_mesh_obj_as_ply(
@@ -185,7 +189,7 @@ def _export_original_mesh_obj_as_ply(
     """
     Export the mesh as one PLY geometry and one model actor.
     Vertex attributes are transferred to C++ in bulk for faster I/O.
-    @return The exported model actor's SDL resource name.
+    @return The exported actor's SDL resource name.
     """
     b_mesh = b_mesh_obj.data
 
@@ -229,8 +233,8 @@ def _export_original_mesh_obj_as_ply(
     tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
-    export_name = naming.join_name_parts(b_mesh_obj.name, name_suffix)
-    ply_path = console.get_working_dir() / "Mesh_data" / f"{export_name}.ply"
+    geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, name_suffix)
+    ply_path = console.get_working_dir() / "Mesh_data" / f"{geometry_name}.ply"
     ply_path.parent.mkdir(parents=True, exist_ok=True)
     bundled_ply_path = console.get_bundled_path(ply_path)
     _write_blender_ply_file(
@@ -242,16 +246,21 @@ def _export_original_mesh_obj_as_ply(
         vert_loop_indices,
         tri_mat_ids)
 
-    geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=export_name)
-    _queue_blender_ply_geometry(console, geometry_name, bundled_ply_path)
+    _queue_blender_ply_geometry(
+        console,
+        b_mesh,
+        geometry_name,
+        bundled_ply_path)
 
-    model_actor_name = naming.get_mangled_object_name(b_mesh_obj, suffix=name_suffix)
+    model_actor_name = naming.get_mangled_actor_name(b_mesh_obj, name_suffix)
     _queue_blender_ply_model_actor(
         console,
+        b_mesh_obj,
         model_actor_name,
         geometry_name,
         b_materials,
-        is_instance_source=is_instance_source)
+        is_phantom=is_instance_source,
+        is_instantiable=is_instance_source)
 
     if not is_instance_source:
         pos, rot, scale = blender.to_photon_pos_rot_scale(b_world_matrix)
@@ -272,7 +281,7 @@ def _export_original_mesh_obj_per_material(
     this is a good reference as it handles everything explicitly.
     """
     b_mesh = b_mesh_obj.data
-    b_materials = [b_material_slot.material for b_material_slot in b_mesh_obj.material_slots] or [None]
+    b_materials = _get_mesh_obj_materials(b_mesh_obj)
     b_mesh.calc_loop_triangles()
 
     if _supports_corner_normals():
@@ -303,12 +312,14 @@ def _export_original_mesh_obj_per_material(
                 "has no assigned material, not exporting its faces")
             continue
 
-        # Evaluated meshes can share `Mesh.name`. The depsgraph index in `name_suffix`
-        # distinguishes each exported occurrence, while `material_idx` distinguishes each occurrence's segment.
-        # See Blender issue "Depsgraph returns wrong evaluated object name in bpy #100314"
+        # Evaluated meshes can share `Mesh.name`. Object identity distinguishes different mesh
+        # objects, while `segment_suffix` distinguishes depsgraph instances and mesh segments.
+        # See also: Blender issue "Depsgraph returns wrong evaluated object name in bpy #100314"
         # (https://projects.blender.org/blender/blender/issues/100314).
-        actor_suffix = naming.join_name_parts(name_suffix, material_idx)
-        geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=b_mesh_obj.name, suffix=actor_suffix)
+        segment_suffix = naming.join_name_parts(
+            name_suffix,
+            naming.join_name_parts("segment", material_idx) if len(material_idx_to_loop_triangles) > 1 else None)
+        geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, segment_suffix)
         material_name = naming.get_mangled_material_name(b_material)
 
         # Use the active one as the UV map for export.
@@ -323,6 +334,7 @@ def _export_original_mesh_obj_per_material(
 
         triangle_mesh.loop_triangles_to_sdl_triangle_mesh(
             geometry_name,
+            b_mesh,
             console,
             b_loop_triangles,
             b_mesh.vertices,
@@ -332,10 +344,11 @@ def _export_original_mesh_obj_per_material(
 
         # Create either a model or light actor, depending on emissivity.
         if material.is_emissive(b_material):
-            light_actor_name = naming.get_mangled_object_name(b_mesh_obj, prefix="Emissive", suffix=actor_suffix)
+            light_actor_name = naming.get_mangled_actor_name(b_mesh_obj, "emissive", segment_suffix)
             emission_image_name = material.get_emission_image_res_name(b_material)
-            _export_light_actor(
+            _queue_light_actor(
                 console,
+                b_mesh_obj,
                 light_actor_name,
                 emission_image_name,
                 geometry_name,
@@ -343,21 +356,17 @@ def _export_original_mesh_obj_per_material(
                 pos,
                 rot,
                 scale)
-
-            if material.is_masked(b_material):
-                print(f"warning: mesh object {b_mesh_obj.name} tries to mask emission, this is not supported")
         else:
-            model_actor_name = naming.get_mangled_object_name(b_mesh_obj, suffix=actor_suffix)
-            mask_image_name = material.get_mask_image_res_name(b_material)
-            _export_model_actor(
+            model_actor_name = naming.get_mangled_actor_name(b_mesh_obj, segment_suffix)
+            _queue_model_actor(
                 console,
+                b_mesh_obj,
                 model_actor_name,
                 geometry_name,
                 material_name,
                 pos,
                 rot,
-                scale,
-                mask_name=mask_image_name)
+                scale)
 
 
 def _export_original_mesh_obj(
@@ -369,7 +378,7 @@ def _export_original_mesh_obj(
     """
     Export the mesh with its original appearance in Blender.
     """
-    b_ply_materials = _get_mesh_obj_ply_materials(b_mesh_obj)
+    b_ply_materials = _get_mesh_obj_ply_export_materials(b_mesh_obj)
     if _supports_ply_export() and b_ply_materials is not None:
         _export_original_mesh_obj_as_ply(
             b_mesh_obj,
@@ -403,14 +412,15 @@ def _export_menger_sponge_mesh_obj(
 
     b_mesh = b_mesh_obj.data
 
-    # Evaluated meshes can share `Mesh.name`, so prefix geometry names with the mesh obj name.
+    # Evaluated meshes can share `Mesh.name`, so use mesh object identity for geometry names.
     # See Blender issue "Depsgraph returns wrong evaluated object name in bpy #100314" (https://projects.blender.org/blender/blender/issues/100314).
-    # Add the instance suffix for repeated direct exports.
-    geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=naming.join_name_parts(b_mesh_obj.name, name_suffix))
+    # Add the name suffix for repeated direct exports.
+    geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, name_suffix)
     material_name = naming.get_mangled_material_name(b_material)
 
     sponge = sdl.MengerSpongeGeometryCreator()
     sponge.set_data_name(geometry_name)
+    sponge.set_display_name(sdl.String(b_mesh.name))
     sponge.set_iterations(sdl.Integer(b_mesh['ph_num_iterations']))
     console.queue_command(sponge)
     
@@ -418,10 +428,11 @@ def _export_menger_sponge_mesh_obj(
     pos, rot, scale = blender.to_photon_pos_rot_scale(b_world_matrix)
 
     if material.is_emissive(b_material):
-        light_actor_name = naming.get_mangled_object_name(b_mesh_obj, prefix="Emissive", suffix=name_suffix)
+        light_actor_name = naming.get_mangled_actor_name(b_mesh_obj, "emissive", name_suffix)
         emission_image_name = material.get_emission_image_res_name(b_material)
-        _export_light_actor(
+        _queue_light_actor(
             console,
+            b_mesh_obj,
             light_actor_name,
             emission_image_name,
             geometry_name,
@@ -430,9 +441,10 @@ def _export_menger_sponge_mesh_obj(
             rot,
             scale)
     else:
-        model_actor_name = naming.get_mangled_object_name(b_mesh_obj, suffix=name_suffix)
-        _export_model_actor(
+        model_actor_name = naming.get_mangled_actor_name(b_mesh_obj, name_suffix)
+        _queue_model_actor(
             console,
+            b_mesh_obj,
             model_actor_name,
             geometry_name,
             material_name,
@@ -443,7 +455,7 @@ def _export_menger_sponge_mesh_obj(
 
 def get_mesh_obj_source_key(b_mesh_obj: bpy.types.Object):
     """
-    Return a key for reusing an exported mesh source.
+    Return an export key identifying equivalent mesh source data.
     """
     b_mesh = b_mesh_obj.data
     if b_mesh is None:
@@ -467,7 +479,15 @@ def can_mesh_obj_be_instance_source(b_mesh_obj: bpy.types.Object):
     """
     Return whether this mesh can be exported as one instance source actor.
     """
-    return _supports_mesh_instancing() and _get_mesh_obj_ply_materials(b_mesh_obj) is not None
+    b_mesh = b_mesh_obj.data
+    if not _supports_mesh_instancing() or b_mesh is None:
+        return False
+
+    match b_mesh.photon.export_type:
+        case 'ORIGINAL':
+            return _get_mesh_obj_ply_export_materials(b_mesh_obj) is not None
+        case _:
+            return False
 
 
 def mesh_obj_to_sdl_actor(
@@ -509,15 +529,16 @@ def mesh_obj_to_sdl_instance_source(
     *,
     name_suffix=None):
     """
-    Export one phantom PLY actor for instances to reference.
+    Export a phantom mesh actor for instances to reference.
     It is an error if `can_mesh_obj_be_instance_source()` returns false on the mesh object.
     @return The exported source actor's SDL resource name.
     """
-    b_ply_materials = _get_mesh_obj_ply_materials(b_mesh_obj)
-    if not _supports_mesh_instancing() or b_ply_materials is None:
+    if not can_mesh_obj_be_instance_source(b_mesh_obj):
         raise ValueError(
             f"mesh object {b_mesh_obj.name} cannot be used as an instance source")
 
+    b_ply_materials = _get_mesh_obj_ply_export_materials(b_mesh_obj)
+    assert b_ply_materials is not None
     return _export_original_mesh_obj_as_ply(
         b_mesh_obj,
         console,
@@ -527,19 +548,32 @@ def mesh_obj_to_sdl_instance_source(
         is_instance_source=True)
 
 
-def transformed_instance_to_sdl_actor(
-    source_actor_name,
+def queue_transformed_instance_actor(
     console: SdlConsole,
     *,
-    instance_actor_name,
-    b_world_matrix):
+    source_actor_name,
+    actor_name,
+    display_name,
+    b_world_matrices):
     """
-    Export one transformed instance actor.
+    Queue one transformed instance actor containing all supplied transforms.
     """
-    actor_creator = sdl.TransformedInstanceActorCreator()
-    actor_creator.set_data_name(instance_actor_name)
-    actor_creator.set_source(sdl.Actor(source_actor_name))
-    console.queue_command(actor_creator)
+    transforms = sdl.StructArray()
+    for transform_index, b_world_matrix in enumerate(b_world_matrices):
+        pos, rot, scale = blender.to_photon_pos_rot_scale(b_world_matrix)
+        transform_packet_name = naming.join_name_parts(actor_name, "transform", transform_index)
 
-    pos, rot, scale = blender.to_photon_pos_rot_scale(b_world_matrix)
-    _queue_transform_commands(console, instance_actor_name, pos, rot, scale)
+        transform_packet = sdl.CachedPacketCommand()
+        transform_packet.set_data_name(transform_packet_name)
+        transform_packet.set_input("pos", sdl.Vector3(pos))
+        transform_packet.set_input("rot", sdl.Quaternion((rot.x, rot.y, rot.z, rot.w)))
+        transform_packet.set_input("scale", sdl.Vector3(scale))
+        console.queue_command(transform_packet)
+        transforms.add(sdl.CachedPacket(transform_packet_name))
+
+    actor_creator = sdl.TransformedInstanceActorCreator()
+    actor_creator.set_data_name(actor_name)
+    actor_creator.set_display_name(sdl.String(display_name))
+    actor_creator.set_source(sdl.Actor(source_actor_name))
+    actor_creator.set_transforms(transforms)
+    console.queue_command(actor_creator)
