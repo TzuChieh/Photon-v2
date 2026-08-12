@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+
 using namespace ph;
 
 TEST(IndexedUIntBufferTest, BasicBufferStates)
@@ -133,5 +135,34 @@ TEST(IndexedUIntBufferTest, GetUIntWithFullWidthTypes)
 	{
 		EXPECT_EQ(buffer.getUIntAs<uint32>(i), values[i]);
 		EXPECT_EQ(buffer.getUInt(i), values[i]);
+	}
+}
+
+TEST(IndexedUIntBufferTest, GetUIntBatch)
+{
+	{
+		IndexedUIntBuffer fullWidthBuffer;
+		fullWidthBuffer.declareUIntFormat<uint32>();
+		fullWidthBuffer.allocate(4);
+
+		const uint32 fullWidthValues[] = {3, 17, 65536, 42};
+		fullWidthBuffer.setUInts(fullWidthValues, 4);
+
+		const std::array<uint64, 3> expectedValues = {17, 65536, 42};
+		const std::array<uint32, 3> expectedTypedValues = {17, 65536, 42};
+		EXPECT_EQ(fullWidthBuffer.getUInt<3>(1), expectedValues);
+		EXPECT_EQ((fullWidthBuffer.getUIntAs<uint32, 3>(1)), expectedTypedValues);
+	}
+
+	{
+		IndexedUIntBuffer packedBuffer;
+		packedBuffer.declareUIntFormat(3);
+		packedBuffer.allocate(4);
+
+		const uint8 packedValues[] = {5, 6, 2, 7};
+		packedBuffer.setUInts(packedValues, 4);
+
+		const std::array<uint64, 3> expectedPackedValues = {6, 2, 7};
+		EXPECT_EQ(packedBuffer.getUInt<3>(1), expectedPackedValues);
 	}
 }

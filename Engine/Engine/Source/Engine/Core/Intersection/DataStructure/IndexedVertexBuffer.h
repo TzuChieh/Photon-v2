@@ -12,6 +12,7 @@
 #include <limits>
 #include <array>
 #include <climits>
+#include <concepts>
 #include <type_traits>
 
 namespace ph
@@ -85,6 +86,15 @@ public:
 	void setVertices(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
 	bool hasAttribute(EVertexAttribute attribute) const;
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
+
+	/*! @brief Gather a fixed number of attribute values.
+	@param indices Indices of the vertices to gather. Values do not need to be contiguous.
+	*/
+	template<std::size_t N, std::unsigned_integral Index>
+	std::array<math::Vector3R, N> getAttribute(
+		EVertexAttribute attribute,
+		const std::array<Index, N>& indices) const;
+
 	std::size_t memoryUsage() const;
 	bool isAllocated() const;
 	std::size_t numVertices() const;
@@ -159,6 +169,28 @@ private:
 
 		bool hasStrideInfo() const;
 	};
+
+	/*! @brief Load and decode attribute values from an allocated entry.
+	@tparam Element Storage format used to interpret each value. Must match `entry.element`.
+	@param entry Non-empty attribute entry containing buffer and layout information.
+	@param indices Valid vertex indices to load.
+	@return Values in the same order as @p indices.
+	*/
+	template<EVertexElement Element, std::size_t N, std::unsigned_integral Index>
+	static std::array<math::Vector3R, N> loadAttributeValues(
+		const Entry& entry,
+		const std::array<Index, N>& indices);
+
+	/*! @brief Directly load `float32` attribute values into real-valued vectors.
+	@tparam NumElements Number of elements per attribute. Must match `entry.numElements`.
+	@param entry Non-empty `float32` attribute entry containing buffer and layout information.
+	@param indices Valid vertex indices to load.
+	@return Values in the same order as @p indices.
+	*/
+	template<std::size_t NumElements, std::size_t N, std::unsigned_integral Index>
+	static std::array<math::Vector3R, N> loadAttributeValuesDirectly(
+		const Entry& entry,
+		const std::array<Index, N>& indices);
 
 	bool hasEntry(EVertexAttribute attribute) const;
 	const Entry& getEntry(EVertexAttribute attribute) const;
@@ -253,3 +285,5 @@ inline bool IndexedVertexBuffer::AttributeDeclaration::isEmpty() const
 }
 
 }// end namespace ph
+
+#include "Engine/Core/Intersection/DataStructure/IndexedVertexBuffer.ipp"

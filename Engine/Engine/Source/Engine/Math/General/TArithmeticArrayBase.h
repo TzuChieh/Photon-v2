@@ -217,6 +217,8 @@ protected:
 	Derived operator - () const
 	requires std::is_signed_v<T>;
 
+	T* data() noexcept;
+	const T* data() const noexcept;
 	auto begin() noexcept -> typename std::array<T, N>::iterator;
 	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;
 	auto end() noexcept -> typename std::array<T, N>::iterator;

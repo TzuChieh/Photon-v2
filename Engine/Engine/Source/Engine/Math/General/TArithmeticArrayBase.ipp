@@ -796,6 +796,18 @@ requires std::is_signed_v<T>
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline T* TArithmeticArrayBase<Derived, T, N>::data() noexcept
+{
+	return m.data();
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline const T* TArithmeticArrayBase<Derived, T, N>::data() const noexcept
+{
+	return m.data();
+}
+
+template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::begin() noexcept
 -> typename std::array<T, N>::iterator
 {
