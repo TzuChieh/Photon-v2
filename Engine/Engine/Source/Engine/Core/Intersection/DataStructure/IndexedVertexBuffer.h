@@ -174,23 +174,25 @@ private:
 	@tparam Element Storage format used to interpret each value. Must match `entry.element`.
 	@param entry Non-empty attribute entry containing buffer and layout information.
 	@param indices Valid vertex indices to load.
-	@return Values in the same order as @p indices.
+	@param out_values Destination for values in the same order as @p indices.
 	*/
 	template<EVertexElement Element, std::size_t N, std::unsigned_integral Index>
-	static std::array<math::Vector3R, N> loadAttributeValues(
+	static void loadAttributeValues(
 		const Entry& entry,
-		const std::array<Index, N>& indices);
+		const std::array<Index, N>& indices,
+		std::array<math::Vector3R, N>& out_values);
 
 	/*! @brief Directly load `float32` attribute values into real-valued vectors.
 	@tparam NumElements Number of elements per attribute. Must match `entry.numElements`.
 	@param entry Non-empty `float32` attribute entry containing buffer and layout information.
 	@param indices Valid vertex indices to load.
-	@return Values in the same order as @p indices.
+	@param out_values Destination for values in the same order as @p indices.
 	*/
 	template<std::size_t NumElements, std::size_t N, std::unsigned_integral Index>
-	static std::array<math::Vector3R, N> loadAttributeValuesDirectly(
+	static void loadAttributeValuesDirectly(
 		const Entry& entry,
-		const std::array<Index, N>& indices);
+		const std::array<Index, N>& indices,
+		std::array<math::Vector3R, N>& out_values);
 
 	bool hasEntry(EVertexAttribute attribute) const;
 	const Entry& getEntry(EVertexAttribute attribute) const;
