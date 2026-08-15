@@ -1,4 +1,5 @@
 #include "BlenderStaticImageRenderer.h"
+#include "BlenderFrameDataView.h"
 #include "util.h"
 
 #include "ThirdParty/lib_Asio.h"
@@ -6,10 +7,13 @@
 #include <Common/logging.h>
 #include <Common/profiling.h>
 
+#include <array>
+#include <chrono>
+#include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <string>
-#include <chrono>
-#include <array>
+#include <vector>
 
 namespace ph::cli
 {
@@ -21,17 +25,33 @@ namespace
 
 PhFrameSaveInfo make_frame_save_info_for_blender()
 {
-	// Blender expects specific channel names when loading the render result from .exr file
-	/*static const std::array<const PhChar*, 4> channelNames{
-		"Combined.R", "Combined.G", "Combined.B", "Combined.A"};*/
+	// PhotonBlend loads EXR into the active Blender render layer
 	static const std::array<const PhChar*, 4> channelNames{
-		"ViewLayer.Combined.R", "ViewLayer.Combined.G", "ViewLayer.Combined.B", "ViewLayer.Combined.A"};
+		"Combined.R", "Combined.G", "Combined.B", "Combined.A"};
 
 	PhFrameSaveInfo frameInfo{};
 	frameInfo.numChannels = channelNames.size();
 	frameInfo.channelNames = channelNames.data();
 
 	return frameInfo;
+}
+
+void send_frame_data(
+	asio::ip::tcp::socket& socket,
+	const BlenderFrameDataView& frameDataView,
+	std::vector<asio::const_buffer>& buffer)
+{
+	buffer.clear();
+
+	const auto headerBytes = frameDataView.getHeaderBytes();
+	buffer.push_back(asio::buffer(headerBytes.data(), headerBytes.size()));
+	for(uint32 rowIndex = 0; rowIndex < frameDataView.numRows(); ++rowIndex)
+	{
+		const auto rowBytes = frameDataView.getRowBytes(rowIndex);
+		buffer.push_back(asio::buffer(rowBytes.data(), rowBytes.size()));
+	}
+
+	asio::write(socket, buffer);
 }
 
 }// end anonymous namespace
@@ -54,7 +74,8 @@ void BlenderStaticImageRenderer::render()
 	setSceneFilePath(getArgs().getSceneFilePath());
 	if(!loadCommandsFromSceneFile())
 	{
-		return;
+		// Something must be wrong and we cannot recover from this
+		std::exit(EXIT_FAILURE);
 	}
 
 	phUpdate(getSession());
@@ -141,7 +162,10 @@ std::jthread BlenderStaticImageRenderer::makeServerThread(const uint16 port, con
 		}
 		catch(const std::exception& e)
 		{
-			PH_LOG(Blender, Error, "Error on establishing connection: {}.", e.what());
+			PH_LOG(Blender, Error, "rendering server failed: {}.", e.what());
+
+			// We do not support canceling an active `phRender()` cooperatively
+			std::exit(EXIT_FAILURE);
 		}
 	});
 }
@@ -170,54 +194,65 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 
 	// Values of `m_imageWidthPx` and `m_imageHeightPx` are synchronized
 
-	PhUInt64 bufferId;
-	phCreateBuffer(&bufferId);
+	PhUInt64 regionBufferId;
+	phCreateBuffer(&regionBufferId);
+
+	constexpr std::size_t maxRegionUpdatesPerPoll = 64;
+	std::array<PhFrameRegionInfo, maxRegionUpdatesPerPoll> updatedRegions{};
 
 	PhUInt64 serverFrameId;
 	phCreateFrame(&serverFrameId, m_imageWidthPx, m_imageHeightPx);
 
-	PhRenderProgress currentProgress{};
-	PhRenderProgress lastProgress{};
+	const PhFloat32* frameRgbData;
+	phGetFrameRgbData(serverFrameId, &frameRgbData);
 
-	const PhFrameSaveInfo frameInfo = make_frame_save_info_for_blender();
+	std::vector<asio::const_buffer> sendBuffer;
+	sendBuffer.reserve(128 * 128 * 4 * 4);
 
+	// We should strive for faster time to first pixel, and not doing peeking
+	// too frequently (computation cost) while keeping the user up-to-date.
 	while(!token.stop_requested())
 	{
 		PH_PROFILE_NAMED_SCOPE("Peek and send");
 
-		// When doing peeking, we should strive for faster time to first pixel, and not doing peeking
-		// too frequently (computation cost) while keeping the user up-to-date.
+		const PhSize numUpdatedRegions = phAsyncPollUpdatedFrameRegions(
+			getSession(), regionBufferId, updatedRegions.data(), updatedRegions.size());
 
-		// If nothing progresses, do not bother to peek as it is likely the same result
-		lastProgress = currentProgress;
-		phAsyncGetRenderProgress(getSession(), &currentProgress);
-		if(currentProgress.totalWork == lastProgress.totalWork &&
-		   currentProgress.workDone == lastProgress.workDone)
+		for(PhSize regionIndex = 0; regionIndex < numUpdatedRegions; ++regionIndex)
 		{
-			// Wait a while before we try to check progress again
+			const PhFrameRegionInfo& region = updatedRegions[regionIndex];
+			phAsyncPeekFrameRaw(
+				getSession(),
+				0,
+				region.xPx,
+				region.yPx,
+				region.widthPx,
+				region.heightPx,
+				serverFrameId);
+
+			constexpr uint32 numFrameChannels = 3;
+			const BlenderFrameDataView frameDataView(
+				frameRgbData,
+				m_imageWidthPx,
+				m_imageHeightPx,
+				numFrameChannels,
+				region);
+			send_frame_data(socket, frameDataView, sendBuffer);
+		}// end for each updated region
+
+		if(numUpdatedRegions < updatedRegions.size())
+		{
 			std::this_thread::sleep_for(peekInverval);
-			continue;
 		}
-
-		phAsyncPeekFrameRaw(getSession(), 0, 0, 0, m_imageWidthPx, m_imageHeightPx, serverFrameId);
-		phSaveFrameToBuffer(serverFrameId, bufferId, PH_BUFFER_FORMAT_EXR_IMAGE, &frameInfo);
-
-		const PhUChar* bytesPtr;
-		PhSize numBytes;
-		phGetBufferBytes(bufferId, &bytesPtr, &numBytes);
-
-		asio::error_code ignoredError;
-		const auto numBytes64 = static_cast<std::uint64_t>(numBytes);
-		asio::write(socket, asio::buffer(reinterpret_cast<const unsigned char*>(&numBytes64), 8), ignoredError);
-		asio::write(socket, asio::buffer(bytesPtr, numBytes), ignoredError);
-
-		std::this_thread::sleep_for(peekInverval);
 	}
+
+	const auto endHeaderBytes = BlenderFrameDataView::getEndHeaderBytes();
+	asio::write(socket, asio::buffer(endHeaderBytes.data(), endHeaderBytes.size()));
 
 	PH_LOG(Blender, Note, "Stopping server...");
 
-	phDeleteBuffer(bufferId);
 	phDeleteFrame(serverFrameId);
+	phDeleteBuffer(regionBufferId);
 }
 
 }// end namespace ph::cli

@@ -32,17 +32,17 @@ class RenderProcess:
 
     def run(self):
         if self.process is not None:
-            print("warning: process is already running")
+            print("warning: rendering server is already running")
             return
 
         if not self.installation_path:
-            print("warning: cannot run render process, no installation path is set")
+            print("warning: cannot run rendering server, no installation path is set")
             return
 
         arg_strs = self._generate_argument_strings()
 
         print(f"Using renderer installation: {self.installation_path}")
-        print(f"Renderer arguments: {arg_strs}")
+        print(f"Rendering server arguments: {arg_strs}")
 
         self.process = subprocess.Popen(arg_strs, cwd=self.installation_path)
 
@@ -58,11 +58,11 @@ class RenderProcess:
             return_code = self.process.wait(timeout=timeout_seconds)
             if return_code != 0:
                 arg_strs = self._generate_argument_strings()
-                print(f"process exited with code {return_code}. Command: {' '.join(arg_strs)}")
+                print(f"rendering server exited with code {return_code}. Command: {' '.join(arg_strs)}")
             else:
-                print(f"process exited with code {return_code}")
+                print(f"rendering server exited with code {return_code}")
         except subprocess.TimeoutExpired as e:
-            print("note: process does not terminate, killing")
+            print("note: rendering server does not terminate, killing")
             self.process.kill()
 
         self.process = None

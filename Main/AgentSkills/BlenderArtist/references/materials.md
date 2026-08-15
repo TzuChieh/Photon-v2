@@ -56,12 +56,21 @@ Read this only for converting or repairing Blender/Cycles materials in Photon. U
 - Account for the absence of mipmapping and ray differentials. Matching coordinates alone does not match minified or grazing-angle appearance.
 - Map Cycles Perlin fBM Noise Dimensions and Normalize directly; map Scale to Frequency, Detail to `Num Layers = Detail + 1`, Roughness to Amplitude Ratio, Lacunarity to Frequency Ratio, and Distortion to Warp. Map Fac to Value. Photon Color broadcasts the scalar and does not reproduce Cycles colored Noise.
 
+## Baking unsupported material signals
+
+- Use Cycles baking only as a static UV-domain fallback for an otherwise unsupported signal. It does not preserve view/ray dependence, volumes, animation, deformation-dependent behavior, or procedural editability. Baking is a render operation; require authorization when rendering is prohibited.
+- Verify render UV coverage, evaluated topology, material slots, mesh sharing, and every assignment context. Object or Generated coordinates freeze one object's evaluation, so use per-object sidecars when transforms or bounds differ.
+- Preserve the source and scene state: record the relevant render/bake settings, mode, selection, assignments, and source signature; bake through a temporary material under `try/finally`. Route the exact signal to unit-strength Emission for an Emit bake, or use a Normal bake with recorded handedness. Never treat height as a normal map.
+- Save the result beside the blend through a relative file path and preserve encoding by role. Photon needs color maps in their intended color space and masks, roughness, and normals as Raw Data. Emit does not populate alpha, so copy a baked mask into alpha and wire `Picture -> Split Image A -> Photon Output Interface Mask`.
+- Restore the image format before format-dependent settings such as color depth, then remove temporary datablocks. This order avoids Blender rejecting an EXR depth while PNG is active.
+- Reload and validate the saved channels, coverage, Photon Picture settings and links, source signature and assignment, and restored scene state. Label the Photon graph/report with the baked meaning, coordinate scope, resolution, and rebake requirement; remove an older approximation only after the bake is reachable from the used output.
+
 ## Normals, masks, and emission
 
 - Wrap the complete Photon surface with Normal Mapped Surface. Select `opengl`, `directx`, or `directx-rg` from source metadata.
 - Treat Normal Map Strength as qualitative for `0 < Strength < 1` unless sampled outputs match: Photon scales tangent components, while Cycles also moves the normal component toward neutral.
 - Preserve scalar Bump as unsupported; Normal Mapped Surface does not evaluate height, so never route height into Normal Map or Strength.
-- Feed Surface Mask an alpha-extracted scalar image. A Picture consumed as scalar reads channel 0, not alpha.
+- Feed Surface Mask an alpha-extracted scalar image. A Picture consumed as scalar reads channel 0, not alpha; Photon mask polarity is 1 for an existing/opaque interface and 0 for a removed interface.
 - Lower emission color and linked strength separately, then multiply them. Classify emission per material slot and polygon. Any masked or emissive slot triggers legacy per-material triangle grouping; a group that is both emissive and masked is exported as an unmasked `ModelLight`, so its mask is ignored.
 - Separate actor-transform parity, cooked winding parity, local winding, `Ng`, and `Ns`. Photon preserves transformed `Ng`; `should-flip-ng` reverses only `Ng`, with cooked winding parity XORed into the effective value, and PhotonBlend does not derive it from `matrix_world`.
 - Audit one-sided emission against transformed `Ns`, not `Ng`. Determine the visible emissive face geometrically and recalculate normals only for components proven uniformly inverted.

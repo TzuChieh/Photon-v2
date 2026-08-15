@@ -3,6 +3,7 @@ from bmodule import render
 from bmodule import export
 
 import bpy
+import numpy as np
 from bl_ui import (
     properties_render,
     properties_output,
@@ -13,10 +14,14 @@ import uuid
 import tempfile
 from pathlib import Path
 import shutil
-import select
 import socket
-import sys
+import struct
 import time
+
+
+_FRAME_HEADER = struct.Struct("<IIIII")
+_FRAME_FLOAT_DTYPE = np.dtype("<f4")
+_NUM_RENDER_PASS_CHANNELS = 4
 
 
 @blender.register_class
@@ -63,7 +68,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     def update(self, b_blend_data, b_depsgraph):
         b_scene = b_depsgraph.scene_eval
 
-        scene_file_name = "__temp_scene"
+        scene_file_name = "scene"
 
         exporter = export.Exporter(str(self.renderer_data_path))
         exporter.begin(scene_file_name)
@@ -82,13 +87,15 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             return
 
         b_scene = b_depsgraph.scene_eval
+        b_view_layer_name = b_depsgraph.view_layer_eval.name
         width_px = blender.get_render_width_px(b_scene)
         height_px = blender.get_render_height_px(b_scene)
         
-        image_file_name = "__temp_rendered"
+        image_file_name = "latest_render"
         image_file_format = "exr"
         image_file_path = self.renderer_data_path / image_file_name
-        poll_seconds = 1.0
+        final_image_file_path = image_file_path.with_suffix("." + image_file_format)
+        client_poll_seconds = 1.0
 
         self.renderer.set_scene_file_path(self.scene_file_path)
         self.renderer.set_image_output_path(image_file_path)
@@ -96,10 +103,6 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         self.renderer.request_raw_output()
 
         # self.renderer.request_intermediate_output(interval=refresh_seconds, unit='s', is_overwriting=True)
-        intermediate_image_file_path = Path(str(image_file_path) + "_intermediate_")
-        intermediate_image_file_path = intermediate_image_file_path.with_suffix("." + image_file_format)
-        intermediate_image_file_path = str(intermediate_image_file_path.resolve())
-
         self.renderer.set_num_render_threads(blender.get_render_threads(b_scene))
 
         host = "127.0.0.1" # the server's hostname or IP address
@@ -112,107 +115,100 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             print("render canceled")
             return
 
+        # Prevent a failed render from reusing an earlier per-run output
+        final_image_file_path.unlink(missing_ok=True)
+
         self.renderer.run()
-        b_render_result = self.begin_result(0, 0, width_px, height_px)
-
-        # Receive and display intermediate render result from the server
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # Connect to the rendering server
-            # max_retries = 100
-            max_retries = 1000
-            num_retries = 0
-            is_connected = False
-            while num_retries < max_retries:
-                try:
-                    s.settimeout(poll_seconds)
-                    s.connect((host, port))
-                    is_connected = True
-                    print("note: connected to the rendering server")
-                    break
-                except OSError:
-                    # If renderer crashed, no need to wait for connection anymore
-                    if not self.renderer.is_running():
-                        print("error: renderer crashed")
-                        break
-
-                    print("note: waiting for server to respond... (attempt %d/%d)" % (num_retries + 1, max_retries))
-                    num_retries += 1
-                    time.sleep(poll_seconds)
-
-                    # User can cancel the render if server failed to respond for too long
-                    if self.test_break():
-                        print("render canceled")
-                        self.renderer.exit()
-                        break
-
-            # Connection established
-            if is_connected:
-                s.setblocking(False)
-
-                num_chunk_bytes = 1 * 1024 * 1024
-                data = bytes()
-                num_image_bytes = -1
-
-                # Keep receiving data until program terminated or connection ended
-                while self.renderer.is_running():
+        try:
+            # Receive and display intermediate render results from the server
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                # Connect to the rendering server
+                # max_retries = 100
+                max_retries = 1000
+                num_retries = 0
+                is_connected = False
+                while num_retries < max_retries:
                     try:
-                        select_timeout = poll_seconds
-                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], select_timeout)
-                    except select.error as e:
-                        # TODO: maybe reconnect is needed on some error type
-                        print("connection to the rendering server ended: %s" % str(e))
+                        s.settimeout(client_poll_seconds)
+                        s.connect((host, port))
+                        is_connected = True
+                        print("note: connected to the rendering server")
+                        break
+                    except OSError:
+                        # If renderer crashed, no need to wait for connection anymore
+                        if not self.renderer.is_running():
+                            raise RuntimeError("rendering server crashed before establishing connection")
+
+                        print(f"note: waiting for rendering server to respond... (attempt {num_retries + 1}/{max_retries})")
+                        num_retries += 1
+
+                        # User can cancel the render if server failed to respond for too long
+                        if self.test_break():
+                            print("render canceled")
+                            return
+
+                        time.sleep(client_poll_seconds)
+
+                if not is_connected:
+                    raise ConnectionError("failed to connect to the rendering server")
+
+                # `PhotonCLI/Source/BlenderFrameDataView.h` defines the update packet
+                frame_header = bytearray(_FRAME_HEADER.size)
+
+                while True:
+                    if not self._recv_exactly(s, frame_header):
+                        print("render canceled")
+                        return
+
+                    frame_region = _FRAME_HEADER.unpack(frame_header)
+
+                    # Stream ends
+                    if frame_region == (0, 0, 0, 0, 0):
                         break
 
-                    # Read incoming data as fast as possible
-                    if ready_for_read:
-                        data += s.recv(num_chunk_bytes)
+                    x_px, y_px, region_width_px, region_height_px, num_channels = frame_region
+                    if (region_width_px == 0 or
+                        region_height_px == 0 or
+                        x_px + region_width_px > width_px or
+                        y_px + region_height_px > height_px or
+                        not (1 <= num_channels <= _NUM_RENDER_PASS_CHANNELS)):
+                        raise ValueError(f"invalid frame update: {frame_region}")
 
-                        # Data for the image size received
-                        if num_image_bytes < 0 and len(data) >= 8:
-                            num_image_bytes = int.from_bytes(data[:8], sys.byteorder)
+                    frame_data = bytearray(region_width_px * region_height_px * num_channels * _FRAME_FLOAT_DTYPE.itemsize)
+                    if not self._recv_exactly(s, frame_data):
+                        print("render canceled")
+                        return
 
-                        # Data for the image received
-                        if num_image_bytes > 0 and len(data) >= 8 + num_image_bytes:
-                            with open(intermediate_image_file_path, 'w+b') as image_file:
-                                image_file.write(data[8:8 + num_image_bytes])
-                                image_file.flush()
-                                image_file.seek(0)
-                                b_render_result.load_from_file(intermediate_image_file_path)
-
-                            # Signal that pixels have been updated and can be redrawn in the user interface
-                            self.update_result(b_render_result)
-
-                            # Chop current image data off
-                            data = data[8 + num_image_bytes:]
-
-                            # Reset image size to an unset state
-                            num_image_bytes = -1
+                    self._update_render_region(frame_data, frame_region, b_view_layer_name)
 
                     if self.test_break():
                         print("render canceled")
-                        self.renderer.exit()
-                        break
+                        return
 
-                # Shutdown sends data and is only allowed when the socket is connected
-                # 0 = done receiving, 1 = done sending, 2 = both
-                s.shutdown(2)
-            else:
-                print("warning: connection failed")
+            while self.renderer.is_running():
+                if self.test_break():
+                    print("render canceled")
+                    return
 
-        while self.renderer.is_running():
-            print("waiting for renderer to finish running...")
-            time.sleep(poll_seconds)
-        
-        self.renderer.exit()
+                print("waiting for rendering server to finish running...")
+                time.sleep(client_poll_seconds)
+        finally:
+            self.renderer.exit()
 
         # Load and display the final image
         is_canceled = self.test_break()
         if not is_canceled:
-            image_file_path = image_file_path.with_suffix("." + image_file_format)
-            b_render_result.load_from_file(str(image_file_path))
-            self.update_result(b_render_result)
+            b_render_result = self.begin_result(
+                0,
+                0,
+                width_px,
+                height_px,
+                layer=b_view_layer_name)
+            b_render_result.layers[0].load_from_file(str(final_image_file_path))
+            self.end_result(b_render_result)
 
-        self.end_result(b_render_result)
+            # Move the most recent successful render outside the per-run temp folder
+            final_image_file_path.replace(self.renderer_data_path.parent / final_image_file_path.name)
 
     # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport 
     # changes. This method is where data should be read from Blender in the same thread. Typically a render
@@ -226,17 +222,54 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     def view_draw(self, b_context, b_depsgraph):
         print("view_draw")
 
+    def _recv_exactly(self, connection, data):
+        remaining_data = memoryview(data)
+        while remaining_data:
+            try:
+                num_received = connection.recv_into(remaining_data)
+            except socket.timeout:
+                if self.test_break():
+                    return False
+                continue
+
+            if num_received == 0:
+                raise ConnectionError("rendering server closed the connection before completion")
+
+            remaining_data = remaining_data[num_received:]
+
+            # Could be a large transfer, test break for each receive
+            if self.test_break():
+                return False
+
+        return True
+
+    def _update_render_region(self, frame_data, frame_region, b_view_layer_name):
+        x_px, y_px, width_px, height_px, num_channels = frame_region
+        num_pixels = width_px * height_px
+        frame_pixels = np.frombuffer(frame_data, dtype=_FRAME_FLOAT_DTYPE).reshape((num_pixels, num_channels))
+        rgba_pixels = np.zeros((num_pixels, _NUM_RENDER_PASS_CHANNELS), dtype=np.float32)
+        rgba_pixels[:, 3] = 1.0
+        rgba_pixels[:, :num_channels] = frame_pixels
+
+        b_render_result = self.begin_result(
+            x_px,
+            y_px,
+            width_px,
+            height_px,
+            layer=b_view_layer_name)
+        b_combined_pass = b_render_result.layers[0].passes["Combined"]
+        b_combined_pass.rect.foreach_set(rgba_pixels.ravel())
+        self.end_result(b_render_result)
+
     @staticmethod
     def _get_temp_folder_path(unique_identifier):
-        folder_name = "__photon_temp_" + unique_identifier
-
         blend_file_folder_path = bpy.path.abspath("//")
         if bpy.data.is_saved and blend_file_folder_path:
             folder_path = Path(blend_file_folder_path)
         else:
             folder_path = Path(tempfile.gettempdir())
 
-        return (folder_path / folder_name).resolve()
+        return (folder_path / "photon_renderer" / unique_identifier).resolve()
 
 
 class PhRenderPanel(bpy.types.Panel):
