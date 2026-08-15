@@ -46,6 +46,37 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 -> bool
 {
+	return generalTraversal<TesterFunc, false>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<
+	typename IndexToItem,
+	typename ItemToAABB,
+	typename Index>
+template<
+	typename TesterFunc>
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+-> bool
+{
+	return generalTraversal<TesterFunc, true>(
+		segment,
+		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<
+	typename IndexToItem,
+	typename ItemToAABB,
+	typename Index>
+template<
+	typename TesterFunc,
+	bool IS_OCCLUSION_ONLY>
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+-> bool
+{
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
 
 	PH_ASSERT_GT(m_numNodes, 0);
@@ -145,15 +176,23 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 				if(hitT)
 				{
-					intersectSegment.setMaxT(*hitT);
-					hasHit = true;
+					if constexpr(IS_OCCLUSION_ONLY)
+					{
+						return true;
+					}
+					else
+					{
+						intersectSegment.setMaxT(*hitT);
+						hasHit = true;
+					}
 				}
 			}
 			else
 			{
+				const auto indexBufferOffset = currentNode->getIndexBufferOffset();
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
-					const Index itemIndex = m_itemIndices[currentNode->getIndexBufferOffset() + i];
+					const auto itemIndex = m_itemIndices[indexBufferOffset + i];
 					const Item& item = getItem(itemIndex);
 
 					std::optional<real> hitT;
@@ -168,8 +207,15 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 					if(hitT)
 					{
-						intersectSegment.setMaxT(*hitT);
-						hasHit = true;
+						if constexpr(IS_OCCLUSION_ONLY)
+						{
+							return true;
+						}
+						else
+						{
+							intersectSegment.setMaxT(*hitT);
+							hasHit = true;
+						}
 					}
 				}
 			}
@@ -312,13 +358,13 @@ inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 	}
 	PH_ASSERT_LT(nodeIndex, m_nodeBuffer.size());
 
-	if(currentNodeDepth == maxNodeDepth || numNodeItems <= params.getMaxNodeItems())
+	if(currentNodeDepth == maxNodeDepth || numNodeItems <= params.maxNodeItems)
 	{
 		m_nodeBuffer[nodeIndex] = Node::makeLeaf({nodeItemIndices, numNodeItems}, m_itemIndices);
 		return;
 	}
 
-	const real     noSplitCost        = params.getInteractCost() * static_cast<real>(numNodeItems);
+	const real     noSplitCost        = params.interactCost * static_cast<real>(numNodeItems);
 	const real     rcpNodeSurfaceArea = 1.0_r / nodeAABB.getSurfaceArea();
 	const Vector3R nodeExtents        = nodeAABB.getExtents();
 
@@ -365,8 +411,8 @@ inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 				const real probNegative     = AABB3D(nodeAABB.getMinVertex(), endpointMaxVertex).getSurfaceArea() * rcpNodeSurfaceArea;
 				const real probPositive     = AABB3D(endpointMinVertex, nodeAABB.getMaxVertex()).getSurfaceArea() * rcpNodeSurfaceArea;
-				const real emptyBonus       = (numNegativeItems == 0 || numPositiveItems == 0) ? params.getEmptyBonus() : 0.0_r;
-				const real currentSplitCost = params.getTraversalCost() + (1.0_r - emptyBonus) * params.getInteractCost() *
+				const real emptyBonus       = (numNegativeItems == 0 || numPositiveItems == 0) ? params.emptyBonus : 0.0_r;
+				const real currentSplitCost = params.traversalCost + (1.0_r - emptyBonus) * params.interactCost *
 					(probNegative * static_cast<real>(numNegativeItems) + probPositive * static_cast<real>(numPositiveItems));
 
 				if(currentSplitCost < bestSplitCost)

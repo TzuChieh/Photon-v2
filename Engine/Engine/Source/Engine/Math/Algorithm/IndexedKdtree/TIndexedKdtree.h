@@ -46,11 +46,17 @@ public:
 	template<typename TesterFunc>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
+	template<typename TesterFunc>
+	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
 	AABB3D getAABB() const;
 	bool isEmpty() const;
 	Item getItem(std::size_t idx) const;
 
 private:
+	template<typename TesterFunc, bool IS_OCCLUSION_ONLY>
+	bool generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
 	void build(ItemToAABB itemToAABB, IndexedKdtreeParams params);
 
 	void buildNodeRecursive(

@@ -105,6 +105,7 @@ public:
 	using Base::isNonNegative;
 	using Base::isFinite;
 	using Base::set;
+	using Base::data;
 	using Base::begin;
 	using Base::end;
 	using Base::isEqual;

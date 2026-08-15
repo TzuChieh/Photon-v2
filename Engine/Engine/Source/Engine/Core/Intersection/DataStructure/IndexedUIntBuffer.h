@@ -12,6 +12,7 @@
 #include <memory>
 #include <concepts>
 #include <limits>
+#include <array>
 #include <stdexcept>
 #include <format>
 #include <cstring>
@@ -58,11 +59,24 @@ public:
 
 	uint64 getUInt(std::size_t index) const;
 
+	/*! @brief Fetch a fixed number of contiguous integers.
+	@param firstIndex Index of the first integer to fetch.
+	*/
+	template<std::size_t N>
+	std::array<uint64, N> getUInt(std::size_t firstIndex) const;
+
 	/*! @brief Directly fetch a full-width unsigned integer.
 	The buffer's integer bit width must exactly match `IntegerType`.
 	*/
 	template<std::unsigned_integral IntegerType>
 	IntegerType getUIntAs(std::size_t index) const;
+
+	/*! @brief Directly fetch a fixed number of contiguous full-width unsigned integers.
+	The buffer's integer bit width must exactly match `IntegerType`.
+	@param firstIndex Index of the first integer to fetch.
+	*/
+	template<std::unsigned_integral IntegerType, std::size_t N>
+	std::array<IntegerType, N> getUIntAs(std::size_t firstIndex) const;
 
 	std::size_t numUInts() const;
 	std::size_t memoryUsage() const;
@@ -81,6 +95,8 @@ public:
 	///@}
 
 private:
+	uint64 getPackedUInt(std::size_t index) const;
+
 	static uint64 maxAllowedValue(uint8 numBitsPerUInt);
 
 	std::unique_ptr<std::byte[]> m_byteBuffer;
@@ -201,17 +217,70 @@ inline void IndexedUIntBuffer::setUInts(
 
 inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 {
+	return getUInt<1>(index)[0];
+}
+
+template<std::size_t N>
+inline std::array<uint64, N> IndexedUIntBuffer::getUInt(const std::size_t firstIndex) const
+{
+	static_assert(N > 0);
+
 	PH_ASSERT(isAllocated());
+	PH_ASSERT_LE(firstIndex, numUInts());
+	PH_ASSERT_LE(N, numUInts() - firstIndex);
 
 	switch(m_numBitsPerUInt)
 	{
-	case sizeof_in_bits<uint8>():  return getUIntAs<uint8>(index);
-	case sizeof_in_bits<uint16>(): return getUIntAs<uint16>(index);
-	case sizeof_in_bits<uint32>(): return getUIntAs<uint32>(index);
-	case sizeof_in_bits<uint64>(): return getUIntAs<uint64>(index);
-	default: break;
+	case sizeof_in_bits<uint8>():
+		{
+			const auto storedValues = getUIntAs<uint8, N>(firstIndex);
+			std::array<uint64, N> values;
+			for(std::size_t i = 0; i < N; ++i)
+			{
+				values[i] = storedValues[i];
+			}
+			return values;
+		}
+
+	case sizeof_in_bits<uint16>():
+		{
+			const auto storedValues = getUIntAs<uint16, N>(firstIndex);
+			std::array<uint64, N> values;
+			for(std::size_t i = 0; i < N; ++i)
+			{
+				values[i] = storedValues[i];
+			}
+			return values;
+		}
+
+	case sizeof_in_bits<uint32>():
+		{
+			const auto storedValues = getUIntAs<uint32, N>(firstIndex);
+			std::array<uint64, N> values;
+			for(std::size_t i = 0; i < N; ++i)
+			{
+				values[i] = storedValues[i];
+			}
+			return values;
+		}
+
+	case sizeof_in_bits<uint64>():
+		return getUIntAs<uint64, N>(firstIndex);
+
+	default:
+		break;
 	}
 
+	std::array<uint64, N> values;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		values[i] = getPackedUInt(firstIndex + i);
+	}
+	return values;
+}
+
+inline uint64 IndexedUIntBuffer::getPackedUInt(const std::size_t index) const
+{
 	const std::size_t firstByteIndex     = index * m_numBitsPerUInt / CHAR_BIT;
 	const std::size_t firstByteBitOffset = index * m_numBitsPerUInt - firstByteIndex * CHAR_BIT;
 	const std::size_t numStraddledBytes  = (firstByteBitOffset + m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
@@ -249,15 +318,28 @@ inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 template<std::unsigned_integral IntegerType>
 inline IntegerType IndexedUIntBuffer::getUIntAs(const std::size_t index) const
 {
+	return getUIntAs<IntegerType, 1>(index)[0];
+}
+
+template<std::unsigned_integral IntegerType, std::size_t N>
+inline std::array<IntegerType, N> IndexedUIntBuffer::getUIntAs(const std::size_t firstIndex) const
+{
+	static_assert(N > 0);
+
 	PH_ASSERT(isAllocated());
 	PH_ASSERT_EQ(m_numBitsPerUInt, sizeof_in_bits<IntegerType>());
+	PH_ASSERT_LE(firstIndex, numUInts());
+	PH_ASSERT_LE(N, numUInts() - firstIndex);
 
-	const std::size_t byteIndex = index * sizeof(IntegerType);
-	PH_ASSERT_LE(byteIndex + sizeof(IntegerType), m_byteBufferSize);
+	const std::size_t firstByteIndex = firstIndex * sizeof(IntegerType);
+	PH_ASSERT_LE(firstByteIndex + N * sizeof(IntegerType), m_byteBufferSize);
 
-	IntegerType value;
-	std::memcpy(&value, &(m_byteBuffer[byteIndex]), sizeof(IntegerType));
-	return value;
+	std::array<IntegerType, N> values;
+	std::memcpy(
+		values.data(),
+		&(m_byteBuffer[firstByteIndex]),
+		N * sizeof(IntegerType));
+	return values;
 }
 
 inline std::byte* IndexedUIntBuffer::getData()

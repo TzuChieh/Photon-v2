@@ -21,6 +21,7 @@ public:
 		math::IndexedKdtreeParams params = math::IndexedKdtreeParams());
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isOccluding(const Ray& ray) const override;
 
 	bool reintersect(
 		const Ray& ray,

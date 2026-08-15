@@ -34,14 +34,8 @@ inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceAttribute(
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
 
-	// Fetch attributes from the buffer. 
-	// (loop should be optimized by the compiler)
-	std::array<math::Vector3R, N> result;
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		result[i] = m_vertexBuffer.getAttribute(attribute, m_indexBuffer.getUInt(N * faceIndex + i));
-	}
-	return result;
+	const auto indices = m_indexBuffer.getUInt<N>(N * faceIndex);
+	return m_vertexBuffer.getAttribute(attribute, indices);
 }
 
 template<std::size_t N>

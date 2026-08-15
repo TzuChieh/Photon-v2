@@ -4,6 +4,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitProbe.h"
 
+#include <optional>
 #include <utility>
 
 namespace ph
@@ -67,6 +68,27 @@ isIntersecting(const Ray& ray, HitProbe& probe) const
 			{
 				return std::nullopt;
 			}
+		});
+}
+
+template<typename Index>
+inline auto TIndexedKdtreeIntersector<Index>::
+isOccluding(const Ray& ray) const
+-> bool
+{
+	return m_tree.occlusionTraversal(
+		ray.getSegment(),
+		[ray](
+			const Intersectable* const      intersectable,
+			const math::TLineSegment<real>& segment)
+		-> std::optional<real>
+		{
+			PH_ASSERT(intersectable);
+
+			const Ray raySegment(segment, ray.getTime());
+			return intersectable->isOccluding(raySegment)
+				? std::make_optional(segment.getMinT())
+				: std::nullopt;
 		});
 }
 

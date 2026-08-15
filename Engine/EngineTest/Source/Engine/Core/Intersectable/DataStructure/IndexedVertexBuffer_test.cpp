@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <limits>
 #include <vector>
 
@@ -273,4 +274,41 @@ TEST(IndexedVertexBufferTest, BufferIOMixedAttributes)
 			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, vi).isNear({value, value, value}, MAX_ALLOWED_ABS_ERROR));
 		}
 	}
+}
+
+TEST(IndexedVertexBufferTest, GetAttributeBatch)
+{
+	IndexedVertexBuffer buffer;
+	buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
+	buffer.declareAttribute(EVertexAttribute::TexCoord_0, EVertexElement::Float16, 2);
+	buffer.allocate(2);
+
+	buffer.setAttribute(EVertexAttribute::Position_0, 0, Vector3R(1, 2, 3));
+	buffer.setAttribute(EVertexAttribute::Position_0, 1, Vector3R(4, 5, 6));
+	buffer.setAttribute(EVertexAttribute::TexCoord_0, 0, Vector3R(0.5_r, -0.5_r, 0));
+	buffer.setAttribute(EVertexAttribute::TexCoord_0, 1, Vector3R(1.5_r, 2.5_r, 0));
+
+	const std::array<uint32, 3> indices = {1, 0, 1};
+	const std::array<Vector3R, 3> expectedPositions = {
+		Vector3R(4, 5, 6),
+		Vector3R(1, 2, 3),
+		Vector3R(4, 5, 6)};
+	const std::array<Vector3R, 3> expectedTexCoords = {
+		Vector3R(1.5_r, 2.5_r, 0),
+		Vector3R(0.5_r, -0.5_r, 0),
+		Vector3R(1.5_r, 2.5_r, 0)};
+	const std::array<Vector3R, 3> expectedMissingAttributes = {
+		Vector3R(0),
+		Vector3R(0),
+		Vector3R(0)};
+
+	EXPECT_EQ(
+		buffer.getAttribute(EVertexAttribute::Position_0, indices),
+		expectedPositions);
+	EXPECT_EQ(
+		buffer.getAttribute(EVertexAttribute::TexCoord_0, indices),
+		expectedTexCoords);
+	EXPECT_EQ(
+		buffer.getAttribute(EVertexAttribute::Color_0, indices),
+		expectedMissingAttributes);
 }
