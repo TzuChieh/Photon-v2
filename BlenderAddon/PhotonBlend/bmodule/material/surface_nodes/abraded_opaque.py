@@ -29,7 +29,7 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
         default=False
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.AbradedOpaqueMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_microsurface(sdl.Enum("ggx"))

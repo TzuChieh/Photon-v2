@@ -11,7 +11,7 @@ class PhClampNode(PhMaterialMathNode):
     bl_idname = 'PH_CLAMP'
     bl_label = "Clamp"
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         value_color_res_name = self.get_linked_input_resource_name(b_material, 0)
         if not value_color_res_name:
             value_color_res_name = self.get_default_input_resource_name(b_material, 0)

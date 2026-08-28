@@ -28,7 +28,7 @@ class PhLayeredSurfaceNode(PhSurfaceMaterialNode):
         update=update_inputs
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         # Generate one packet for each layer
         packets = []
         for i in range(0, len(self.inputs)):

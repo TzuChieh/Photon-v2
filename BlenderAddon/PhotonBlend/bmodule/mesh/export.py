@@ -4,7 +4,7 @@
 from utility import blender, material
 from psdl import sdl, SdlConsole
 from bmodule import naming
-from . import triangle_mesh
+from . import attributes, triangle_mesh
 import psdl
 
 import bpy
@@ -98,7 +98,8 @@ def _write_blender_ply_file(
     raw_vert_loop_uvs,
     vert_position_indices,
     vert_loop_indices,
-    tri_mat_ids):
+    tri_mat_ids,
+    custom_slot_to_tri_values):
     psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply(
         path=ply_path,
         raw_vert_positions=raw_vert_positions,
@@ -106,7 +107,31 @@ def _write_blender_ply_file(
         raw_vert_loop_uvs=raw_vert_loop_uvs,
         vert_position_indices=vert_position_indices,
         vert_loop_indices=vert_loop_indices,
-        tri_mat_ids=tri_mat_ids)
+        tri_mat_ids=tri_mat_ids,
+        tri_custom_0=custom_slot_to_tri_values.get(0),
+        tri_custom_1=custom_slot_to_tri_values.get(1),
+        tri_custom_2=custom_slot_to_tri_values.get(2),
+        tri_custom_3=custom_slot_to_tri_values.get(3))
+
+
+def _calc_custom_slot_to_tri_values(
+    b_mesh: bpy.types.Mesh,
+    export_ctx,
+    b_materials):
+    """
+    @return Triangle values for geometry attributes used by `b_materials`, keyed by their
+    scene-global Photon custom attribute slots.
+    """
+    random_per_island_attribute = attributes.GeometryAttribute.RANDOM_PER_ISLAND
+    custom_slot = export_ctx.geometry_attribute_to_custom_slot.get(random_per_island_attribute)
+    if custom_slot is None:
+        return {}
+
+    # Whether the materials need custom attributes
+    if random_per_island_attribute not in attributes.find_used_geometry_attributes(b_materials):
+        return {}
+
+    return {custom_slot: attributes.calc_random_per_island(b_mesh)}
 
 
 def _queue_blender_ply_geometry(
@@ -182,6 +207,7 @@ def _export_original_mesh_obj_as_ply(
     b_mesh_obj: bpy.types.Object,
     console: SdlConsole,
     *,
+    export_ctx,
     b_materials,
     b_world_matrix,
     name_suffix,
@@ -233,6 +259,11 @@ def _export_original_mesh_obj_as_ply(
     tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
     b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
+    custom_slot_to_tri_values = _calc_custom_slot_to_tri_values(
+        b_mesh,
+        export_ctx,
+        b_materials)
+
     geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, name_suffix)
     ply_path = console.get_working_dir() / "Mesh_data" / f"{geometry_name}.ply"
     ply_path.parent.mkdir(parents=True, exist_ok=True)
@@ -244,7 +275,8 @@ def _export_original_mesh_obj_as_ply(
         raw_vert_loop_uvs,
         vert_position_indices,
         vert_loop_indices,
-        tri_mat_ids)
+        tri_mat_ids,
+        custom_slot_to_tri_values)
 
     _queue_blender_ply_geometry(
         console,
@@ -282,6 +314,13 @@ def _export_original_mesh_obj_per_material(
     """
     b_mesh = b_mesh_obj.data
     b_materials = _get_mesh_obj_materials(b_mesh_obj)
+
+    used_geometry_attributes = attributes.find_used_geometry_attributes(b_materials)
+    if attributes.GeometryAttribute.RANDOM_PER_ISLAND in used_geometry_attributes:
+        print(
+            "warning: this export mode cannot provide Random Per Island values for "
+            f"mesh object {b_mesh_obj.name}")
+
     b_mesh.calc_loop_triangles()
 
     if _supports_corner_normals():
@@ -373,6 +412,7 @@ def _export_original_mesh_obj(
     b_mesh_obj: bpy.types.Object,
     console: SdlConsole,
     *,
+    export_ctx,
     b_world_matrix,
     name_suffix):
     """
@@ -383,6 +423,7 @@ def _export_original_mesh_obj(
         _export_original_mesh_obj_as_ply(
             b_mesh_obj,
             console,
+            export_ctx=export_ctx,
             b_materials=b_ply_materials,
             b_world_matrix=b_world_matrix,
             name_suffix=name_suffix)
@@ -494,6 +535,7 @@ def mesh_obj_to_sdl_actor(
     b_mesh_obj: bpy.types.Object,
     console: SdlConsole,
     *,
+    export_ctx,
     b_world_matrix,
     name_suffix=None):
     """
@@ -509,6 +551,7 @@ def mesh_obj_to_sdl_actor(
             _export_original_mesh_obj(
                 b_mesh_obj,
                 console,
+                export_ctx=export_ctx,
                 b_world_matrix=b_world_matrix,
                 name_suffix=name_suffix)
         case 'MENGER_SPONGE':
@@ -527,6 +570,7 @@ def mesh_obj_to_sdl_instance_source(
     b_mesh_obj: bpy.types.Object,
     console: SdlConsole,
     *,
+    export_ctx,
     name_suffix=None):
     """
     Export a phantom mesh actor for instances to reference.
@@ -542,6 +586,7 @@ def mesh_obj_to_sdl_instance_source(
     return _export_original_mesh_obj_as_ply(
         b_mesh_obj,
         console,
+        export_ctx=export_ctx,
         b_materials=b_ply_materials,
         b_world_matrix=None,
         name_suffix=name_suffix,

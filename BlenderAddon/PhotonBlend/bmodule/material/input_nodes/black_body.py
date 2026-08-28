@@ -26,7 +26,7 @@ class PhBlackBodyInputNode(PhMaterialInputNode):
         max=1e32
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.BlackBodyImageCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_temperature_k(sdl.Real(self.kelvin))

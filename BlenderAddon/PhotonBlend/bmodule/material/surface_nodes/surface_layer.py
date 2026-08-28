@@ -15,7 +15,7 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
     bl_idname = 'PH_SURFACE_LAYER'
     bl_label = "Surface Layer"
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         pass
 
     def init(self, b_context):

@@ -8,11 +8,11 @@ from bmodule.material import (
     )
 
 
-def to_sdl(b_material, sdlconsole):
+def to_sdl(b_material, sdlconsole, export_ctx):
     # TODO: Move this facade implementation to material.export.
     # FIXME: hack
     if b_material.photon.use_nodes:
-        return nodes.to_sdl(b_material, sdlconsole)
+        return nodes.to_sdl(b_material, sdlconsole, export_ctx)
     else:
         print('not using node tree')
         # BROKEN CODE

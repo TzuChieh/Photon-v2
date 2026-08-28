@@ -138,6 +138,16 @@ public:
 		return m_primitiveGetter().calcExtendedArea();
 	}
 
+	[[nodiscard]]
+	std::size_t getAttribute(
+		const EPrimitiveAttribute attribute,
+		const EAttributeDomain domain,
+		const uint64 faceID,
+		const TSpan<math::Vector3R> out_values) const override final
+	{
+		return m_primitiveGetter().getAttribute(attribute, domain, faceID, out_values);
+	}
+
 	uint32 numMetadataSlots() const override final
 	{
 		return m_slotMapper.numMetadataSlots(m_primitiveGetter);

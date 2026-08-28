@@ -143,6 +143,12 @@ inline T* start_implicit_lifetime_as_array(void* ptr, std::size_t numArrayElemen
 #if __cpp_lib_start_lifetime_as
 	return std::start_lifetime_as_array<T>(ptr, numArrayElements);
 #else
+	// `std::launder` requires a memory address where object of type `T` currently exists (`nullptr` is allowed)
+	if(numArrayElements == 0)
+	{
+		return static_cast<T*>(ptr);
+	}
+
 	// `std::memmove()` is one of the "magic" operations that implicitly create objects of
 	// implicit lifetime type, we can hijack this property to do our work
 	// (see https://stackoverflow.com/questions/76445860/implementation-of-stdstart-lifetime-as)

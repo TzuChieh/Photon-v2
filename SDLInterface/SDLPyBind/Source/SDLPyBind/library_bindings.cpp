@@ -92,14 +92,12 @@ inline bool copy_ndarray_to_primitive_vector(nanobind::handle pyValue, SdlNative
 
 	if(!nanobind::ndarray_check(pyValue))
 	{
-		PH_DEFAULT_DEBUG_LOG("fail ndarray_check");
 		return false;
 	}
 
 	auto* cppData = nativeData.directAccess<NativeType>();
 	if(!cppData)
 	{
-		PH_DEFAULT_DEBUG_LOG("fail cppData");
 		return false;
 	}
 
@@ -205,11 +203,8 @@ void UniversalSDLBinder::callSdlStaticFunction(
 				nanobind::object pyValue = kwargs.attr("pop")(pyKey, nanobind::none());
 				if(pyValue.is_none())
 				{
-					PH_DEFAULT_DEBUG_LOG("none for {}", nativeAccessParam->getSnakeCaseFieldName());
 					continue;
 				}
-
-				PH_DEFAULT_DEBUG_LOG("found for {}", nativeAccessParam->getSnakeCaseFieldName());
 
 				SdlNativeData nativeData = nativeAccessParam->nativeData(params.data);
 				if(!tryTransferToSdlNativeData(pyValue, nativeData))

@@ -2,7 +2,7 @@
 #include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/DataIO/PlyFile.h"
 #include "Engine/Core/Intersection/DataStructure/TIndexedPolygonBuffer.h"
-#include "Engine/Core/Intersection/DataStructure/IndexedVertexBuffer.h"
+#include "Engine/Core/Intersection/DataStructure/IndexedAttributeBuffer.h"
 #include "Engine/Core/Intersection/DataStructure/IndexedUIntBuffer.h"
 #include "Engine/Core/Intersection/TPIndexedKdTreeTriangleMesh.h"
 #include "Engine/World/Foundation/CookedGeometry.h"
@@ -42,14 +42,6 @@ void GPlyPolygonMesh::storeCooked(
 	if(out_geometry.triangleView)
 	{
 		PH_LOG(GPlyPolygonMesh, Note,
-			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
-			m_plyFile.getIdentifier(),
-			out_geometry.triangleView->getVertexBuffer().numVertices(),
-			out_geometry.triangleView->numFaces(),
-			math::bytes_to_MiB<double>(out_geometry.triangleView->memoryUsage()),
-			out_geometry.triangleView->averagePerPolygonMemoryUsage());
-
-		PH_LOG(GPlyPolygonMesh, Note,
 			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
 			m_plyFile.getIdentifier(),
 			loadTimer.getDeltaMs<double>(),
@@ -62,33 +54,32 @@ void GPlyPolygonMesh::storeCookedWithBakedTransform(
 	const StaticAffineTransform& transform,
 	CookedGeometry& out_geometry) const
 {
-	IndexedTriangleBuffer triangleBuffer = loadStandardTriangleBuffer();
-	applyBakedTransform(triangleBuffer, transform);
+	IndexedTriangleBuffer triangleBuffer = loadStandardTriangleBuffer(&transform);
 	storeCookedPolygonMesh(ctx, std::move(triangleBuffer), out_geometry);
 	out_geometry.isWindingFlipped = transform.isWindingFlipped();
 }
 
 void GPlyPolygonMesh::applyBakedTransform(
-	IndexedTriangleBuffer& triangleBuffer,
+	const IndexedAttributeBuffer& srcAttributes,
+	IndexedAttributeBufferWriter& dstAttributes,
 	const StaticAffineTransform& transform)
 {
-	IndexedVertexBuffer& vertices = triangleBuffer.getVertexBuffer();
-	PH_ASSERT(vertices.hasAttribute(EVertexAttribute::Position_0));
+	PH_ASSERT(srcAttributes.hasAttribute(EPrimitiveAttribute::Position_0));
 
-	for(std::size_t vi = 0; vi < vertices.numVertices(); ++vi)
+	for(std::size_t vi = 0; vi < dstAttributes.numVertices(); ++vi)
 	{
 		math::Vector3R tPosition;
-		transform.transformP(vertices.getAttribute(EVertexAttribute::Position_0, vi), &tPosition);
-		vertices.setAttribute(EVertexAttribute::Position_0, vi, tPosition);
+		transform.transformP(srcAttributes.getAttribute(EPrimitiveAttribute::Position_0, vi), &tPosition);
+		dstAttributes.setAttribute(EPrimitiveAttribute::Position_0, vi, tPosition);
 	}
 
-	if(vertices.hasAttribute(EVertexAttribute::Normal_0))
+	if(srcAttributes.hasAttribute(EPrimitiveAttribute::Normal_0))
 	{
-		for(std::size_t vi = 0; vi < vertices.numVertices(); ++vi)
+		for(std::size_t vi = 0; vi < dstAttributes.numVertices(); ++vi)
 		{
 			math::Vector3R tNormal;
-			transform.transformO(vertices.getAttribute(EVertexAttribute::Normal_0, vi), &tNormal);
-			vertices.setAttribute(EVertexAttribute::Normal_0, vi, tNormal.normalizeLocal());
+			transform.transformO(srcAttributes.getAttribute(EPrimitiveAttribute::Normal_0, vi), &tNormal);
+			dstAttributes.setAttribute(EPrimitiveAttribute::Normal_0, vi, tNormal.normalizeLocal());
 		}
 	}
 }
@@ -120,7 +111,8 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 	std::string_view normalYPropertyName,
 	std::string_view normalZPropertyName,
 	std::string_view faceElementName,
-	std::string_view vertexIndicesPropertyName) const
+	std::string_view vertexIndicesPropertyName,
+	const StaticAffineTransform* const bakedTransform) const
 {
 	PlyElement* vertexElement = file.findElement(vertexElementName);
 	if(!vertexElement)
@@ -135,7 +127,7 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 	}
 
 	IndexedTriangleBuffer loadedBuffer;
-	IndexedVertexBuffer& vertexBuffer = loadedBuffer.getVertexBuffer();
+	IndexedAttributeBuffer& attributeBuffer = loadedBuffer.getAttributeBuffer();
 	IndexedUIntBuffer& indexBuffer = loadedBuffer.getIndexBuffer();
 
 	// Loading vertices
@@ -156,20 +148,22 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 		throw CookException("requires x, y, z coordinates for a triangle buffer");
 	}
 
-	vertexBuffer.declareAttribute(
-		EVertexAttribute::Position_0,
-		EVertexElement::Float32,
+	attributeBuffer.declareAttribute(
+		EPrimitiveAttribute::Position_0,
+		EAttributeDomain::Vertex,
+		EAttributeElement::Float32,
 		3);
 
 	if(hasNormals)
 	{
-		vertexBuffer.declareAttribute(
-			EVertexAttribute::Normal_0,
-			EVertexElement::Float32,
+		attributeBuffer.declareAttribute(
+			EPrimitiveAttribute::Normal_0,
+			EAttributeDomain::Vertex,
+			EAttributeElement::Float32,
 			3);
 	}
 
-	vertexBuffer.allocate(vertexElement->numElements);
+	auto attributeWriter = attributeBuffer.allocate(vertexElement->numElements);
 	for(std::size_t vertexIdx = 0; vertexIdx < vertexElement->numElements; ++vertexIdx)
 	{
 		const math::Vector3D position(
@@ -177,7 +171,7 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 			yValues.get(vertexIdx), 
 			zValues.get(vertexIdx));
 
-		vertexBuffer.setAttribute(EVertexAttribute::Position_0, vertexIdx, math::Vector3R(position));
+		attributeWriter.setAttribute(EPrimitiveAttribute::Position_0, vertexIdx, math::Vector3R(position));
 	}
 
 	if(hasNormals)
@@ -192,7 +186,7 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 			// Re-normalize as some mesh may not come in with normalized normals
 			normal.normalizeLocal();
 
-			vertexBuffer.setAttribute(EVertexAttribute::Normal_0, vertexIdx, math::Vector3R(normal));
+			attributeWriter.setAttribute(EPrimitiveAttribute::Normal_0, vertexIdx, math::Vector3R(normal));
 		}
 	}
 
@@ -236,10 +230,28 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 		indexBuffer.setUInt(3 * faceIdx + 2, static_cast<IndexType>(vertexIndexLists.get(faceIdx, 2)));
 	}
 
+	if(bakedTransform)
+	{
+		applyBakedTransform(attributeBuffer, attributeWriter, *bakedTransform);
+	}
+
+	// Log some stats for performance analysis
+	const auto bufferMemoryUsage = loadedBuffer.memoryUsage(attributeWriter);
+	const auto numFaces = loadedBuffer.numFaces();
+	const auto averageFaceMemoryUsage = loadedBuffer.averagePerPolygonMemoryUsage(attributeWriter);
+	PH_LOG(GPlyPolygonMesh, Note,
+		"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)",
+		m_plyFile.getIdentifier(),
+		attributeWriter.numVertices(),
+		numFaces,
+		math::bytes_to_MiB<double>(bufferMemoryUsage),
+		averageFaceMemoryUsage);
+
 	return loadedBuffer;
 }
 
-IndexedTriangleBuffer GPlyPolygonMesh::loadStandardTriangleBuffer() const
+IndexedTriangleBuffer GPlyPolygonMesh::loadStandardTriangleBuffer(
+	const StaticAffineTransform* const bakedTransform) const
 {
 	PH_LOG(GPlyPolygonMesh, Note, "loading standard file {}", m_plyFile);
 
@@ -254,7 +266,8 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadStandardTriangleBuffer() const
 		"ny",
 		"nz",
 		"face",
-		"vertex_indices");
+		"vertex_indices",
+		bakedTransform);
 }
 
 }// end namespace ph

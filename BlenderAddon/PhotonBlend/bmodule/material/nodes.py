@@ -16,27 +16,15 @@ import nodeitems_utils
 from collections import defaultdict
 
 
-def to_sdl_recursive(b_material, current_node, processed_nodes, sdlconsole):
-    for socket in current_node.inputs:
-        for link in socket.links:
-            from_node = link.from_node
-            if from_node not in processed_nodes:
-                to_sdl_recursive(b_material, from_node, processed_nodes, sdlconsole)
-                processed_nodes.add(from_node)
-
-    current_node.to_sdl(b_material, sdlconsole)
-
-
-def to_sdl(b_material, sdlconsole):
-    node_tree = material.find_node_tree_from_material(b_material)
-    output_node = material.find_output_node_from_node_tree(node_tree)
-    if output_node is None:
+def to_sdl(b_material, sdlconsole, export_ctx):
+    reachable_nodes = material.find_reachable_nodes_from_material(b_material)
+    if not reachable_nodes:
         print(f"material {b_material.name} has no output node, generating fallback material for it")
         node_base.queue_fallback_material(b_material, sdlconsole)
         return
 
-    processed_nodes = set()
-    to_sdl_recursive(b_material, output_node, processed_nodes, sdlconsole)
+    for b_node in reachable_nodes:
+        b_node.to_sdl(b_material, sdlconsole, export_ctx)
 
 
 class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):

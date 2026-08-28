@@ -72,7 +72,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         size=3
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.IdealSubstanceMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_substance(sdl.Enum(self.substance_type))

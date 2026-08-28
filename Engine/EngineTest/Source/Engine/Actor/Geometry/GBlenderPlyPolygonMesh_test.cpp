@@ -50,6 +50,7 @@ void write_split_index_blender_ply(const Path& plyFile)
 	writePly.vertPositionIndices = {2, 0, 3, 2, 3, 1};
 	writePly.vertLoopIndices = {0, 1, 2, 0, 2, 3};
 	writePly.triMatIds = {4, 7};
+	writePly.triCustom2 = {0.5f, 0.125f};
 	writePly();
 }
 
@@ -68,12 +69,14 @@ TEST(GBlenderPlyPolygonMeshTest, LoadTriangleBuffer)
 
 	PlyFile plyFile(tempPlyFile);
 	const IndexedTriangleBuffer buffer = TestableGBlenderPlyPolygonMesh().loadTriangleBuffer(plyFile);
-	const auto& vertexBuffer = buffer.getVertexBuffer();
+	const auto& attributeBuffer = buffer.getAttributeBuffer();
 	const auto& indexBuffer = buffer.getIndexBuffer();
 
 	EXPECT_EQ(buffer.numFaces(), 2);
-	ASSERT_EQ(vertexBuffer.numVertices(), 4);
 	ASSERT_EQ(indexBuffer.numUInts(), 6);
+	EXPECT_EQ(
+		attributeBuffer.getAttribute(EPrimitiveAttribute::Custom_2, 1),
+		Vector3R(0.125_r, 0, 0));
 
 	// The cooked buffer unifies split Blender indices into one loop-indexed vertex buffer.
 	const std::array<Vector3R, 4> expectedPositions = {{
@@ -92,13 +95,13 @@ TEST(GBlenderPlyPolygonMeshTest, LoadTriangleBuffer)
 		{1, 1, 0},
 		{0, 1, 0}}};
 
-	for(std::size_t vi = 0; vi < vertexBuffer.numVertices(); ++vi)
+	for(std::size_t vi = 0; vi < expectedPositions.size(); ++vi)
 	{
-		EXPECT_TRUE(vertexBuffer.getAttribute(EVertexAttribute::Position_0, vi).isNear(
+		EXPECT_TRUE(attributeBuffer.getAttribute(EPrimitiveAttribute::Position_0, vi).isNear(
 			expectedPositions[vi], MAX_ALLOWED_ABS_ERROR));
-		EXPECT_TRUE(vertexBuffer.getAttribute(EVertexAttribute::Normal_0, vi).isNear(
+		EXPECT_TRUE(attributeBuffer.getAttribute(EPrimitiveAttribute::Normal_0, vi).isNear(
 			expectedNormals[vi], MAX_ALLOWED_ABS_ERROR));
-		EXPECT_TRUE(vertexBuffer.getAttribute(EVertexAttribute::TexCoord_0, vi).isNear(
+		EXPECT_TRUE(attributeBuffer.getAttribute(EPrimitiveAttribute::TexCoord_0, vi).isNear(
 			expectedTexCoords[vi], MAX_ALLOWED_ABS_ERROR));
 	}
 
@@ -132,7 +135,6 @@ TEST(GBlenderPlyPolygonMeshTest, StoreCooked)
 	ASSERT_NE(cooked->triangleView, nullptr);
 	EXPECT_EQ(cooked->primitives.size(), 1);
 	EXPECT_EQ(cooked->triangleView->numFaces(), 2);
-	EXPECT_EQ(cooked->triangleView->getVertexBuffer().numVertices(), 4);
 	EXPECT_EQ(cooked->triangleView->getIndexBuffer().numUInts(), 6);
 	EXPECT_EQ(cooked->faceIdToMetadataSlot.get(0), 4);
 	EXPECT_EQ(cooked->faceIdToMetadataSlot.get(1), 7);

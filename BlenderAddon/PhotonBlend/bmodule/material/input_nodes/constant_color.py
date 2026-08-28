@@ -41,7 +41,7 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         default=False,
         )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.ConstantImageCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_values(sdl.RealArray(mathutils.Color((self.color[0], self.color[1], self.color[2]))))

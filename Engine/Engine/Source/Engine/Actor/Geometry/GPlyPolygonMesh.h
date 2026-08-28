@@ -12,6 +12,8 @@ namespace ph
 {
 
 class PlyFile;
+class IndexedAttributeBuffer;
+class IndexedAttributeBufferWriter;
 
 /*! @brief Mesh stored as a .ply file.
 */
@@ -44,12 +46,15 @@ protected:
 		std::string_view normalYPropertyName,
 		std::string_view normalZPropertyName,
 		std::string_view faceElementName, 
-		std::string_view vertexIndicesPropertyName) const;
+		std::string_view vertexIndicesPropertyName,
+		const StaticAffineTransform* bakedTransform = nullptr) const;
 
-	IndexedTriangleBuffer loadStandardTriangleBuffer() const;
+	IndexedTriangleBuffer loadStandardTriangleBuffer(
+		const StaticAffineTransform* bakedTransform = nullptr) const;
 
 	static void applyBakedTransform(
-		IndexedTriangleBuffer& triangleBuffer,
+		const IndexedAttributeBuffer& srcAttributes,
+		IndexedAttributeBufferWriter& dstAttributes,
 		const StaticAffineTransform& transform);
 
 	static void storeCookedPolygonMesh(

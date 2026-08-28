@@ -41,7 +41,7 @@ class PhThinDielectricSurfaceNode(PhSurfaceMaterialNode):
         max=sys.float_info.max,
         )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         thickness_img_name = self.get_linked_input_resource_name(b_material, 0)
         if not thickness_img_name and self.get_default_input_value(0) > 0:
             thickness_img_name = self.get_default_input_resource_name(b_material, 0)

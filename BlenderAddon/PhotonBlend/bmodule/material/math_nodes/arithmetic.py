@@ -27,7 +27,7 @@ class PhArithmeticNode(PhMaterialMathNode):
         default='mul'
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         operand_color_res_name = self.get_linked_input_resource_name(b_material, 0)
         if not operand_color_res_name:
             operand_color_res_name = self.get_default_input_resource_name(b_material, 0)

@@ -34,6 +34,13 @@ public:
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
+	[[nodiscard]]
+	std::size_t getAttribute(
+		EPrimitiveAttribute attribute,
+		EAttributeDomain domain,
+		uint64 faceID,
+		TSpan<math::Vector3R> out_values) const override;
+
 	math::AABB3D calcAABB() const override;
 
 private:

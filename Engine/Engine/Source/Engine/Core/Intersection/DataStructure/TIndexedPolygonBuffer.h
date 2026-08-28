@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/data_structure_fwd.h"
-#include "Engine/Core/Intersection/DataStructure/IndexedVertexBuffer.h"
+#include "Engine/Core/Intersection/DataStructure/IndexedAttributeBuffer.h"
 #include "Engine/Core/Intersection/DataStructure/IndexedUIntBuffer.h"
 #include "Engine/Math/TVector3.h"
 
@@ -30,24 +30,26 @@ public:
 	std::array<math::Vector3R, N> getPositions(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getTexCoords(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getNormals(std::size_t faceIndex) const;
-	std::array<math::Vector3R, N> getFaceAttribute(EVertexAttribute attribute, std::size_t faceIndex) const;
+	math::Vector3R getFaceAttribute(EPrimitiveAttribute attribute, std::size_t faceIndex) const;
+	std::array<math::Vector3R, N> getFaceVertexAttributes(EPrimitiveAttribute attribute, std::size_t faceIndex) const;
 	std::size_t numFaces() const;
 	bool hasTexCoord() const;
 	bool hasNormal() const;
-	bool hasFaceAttribute(EVertexAttribute attribute) const;
+	bool hasAttribute(EPrimitiveAttribute attribute) const;
+	EAttributeDomain getAttributeDomain(EPrimitiveAttribute attribute) const;
 
-	/*!
-	@return Number of bytes used by the polygons.
+	/*! @brief Get the total memory used by this polygon buffer.
+	@param attributeWriter Writer returned when allocating this buffer's attributes.
 	*/
-	std::size_t memoryUsage() const;
+	std::size_t memoryUsage(const IndexedAttributeBufferWriter& attributeWriter) const;
 
-	/*!
-	@return Number of bytes used by a single polygon.
+	/*! @brief Get the average memory used by a single polygon.
+	@param attributeWriter Writer returned when allocating this buffer's attributes.
 	*/
-	float averagePerPolygonMemoryUsage() const;
+	float averagePerPolygonMemoryUsage(const IndexedAttributeBufferWriter& attributeWriter) const;
 
-	IndexedVertexBuffer& getVertexBuffer();
-	const IndexedVertexBuffer& getVertexBuffer() const;
+	IndexedAttributeBuffer& getAttributeBuffer();
+	const IndexedAttributeBuffer& getAttributeBuffer() const;
 	IndexedUIntBuffer& getIndexBuffer();
 	const IndexedUIntBuffer& getIndexBuffer() const;
 
@@ -55,7 +57,7 @@ public:
 	static constexpr bool isTriangular();
 
 private:
-	IndexedVertexBuffer m_vertexBuffer;
+	IndexedAttributeBuffer m_attributeBuffer;
 	IndexedUIntBuffer m_indexBuffer;
 };
 

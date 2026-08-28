@@ -29,7 +29,7 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
         max=1.0,
         )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.MatteOpaqueMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
 

@@ -79,6 +79,7 @@ public:
 	std::array<IntegerType, N> getUIntAs(std::size_t firstIndex) const;
 
 	std::size_t numUInts() const;
+	std::size_t byteBufferSize() const;
 	std::size_t memoryUsage() const;
 	bool isAllocated() const;
 
@@ -100,7 +101,7 @@ private:
 	static uint64 maxAllowedValue(uint8 numBitsPerUInt);
 
 	std::unique_ptr<std::byte[]> m_byteBuffer;
-	std::size_t                  m_byteBufferSize;
+	std::size_t                  m_numUInts;
 	uint8                        m_numBitsPerUInt;
 };
 
@@ -112,9 +113,19 @@ inline void IndexedUIntBuffer::declareUIntFormat()
 	declareUIntFormat(sizeof_in_bits<IntegerType>());
 }
 
+inline std::size_t IndexedUIntBuffer::numUInts() const
+{
+	return m_numUInts;
+}
+
+inline std::size_t IndexedUIntBuffer::byteBufferSize() const
+{
+	return (m_numUInts * m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
+}
+
 inline std::size_t IndexedUIntBuffer::memoryUsage() const
 {
-	return sizeof(*this) + m_byteBufferSize;
+	return sizeof(*this) + byteBufferSize();
 }
 
 inline bool IndexedUIntBuffer::isAllocated() const
@@ -125,11 +136,6 @@ inline bool IndexedUIntBuffer::isAllocated() const
 inline uint64 IndexedUIntBuffer::getMaxAllowedValue() const
 {
 	return maxAllowedValue(m_numBitsPerUInt);
-}
-
-inline std::size_t IndexedUIntBuffer::numUInts() const
-{
-	return m_numBitsPerUInt > 0 ? m_byteBufferSize * CHAR_BIT / m_numBitsPerUInt : 0;
 }
 
 inline uint64 IndexedUIntBuffer::maxAllowedValue(const uint8 numBitsPerUInt)
@@ -157,7 +163,7 @@ inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerTyp
 
 	PH_ASSERT_LT(firstByteBitOffset, CHAR_BIT);
 	PH_ASSERT_LE(numStraddledBytes, 8 + 1);
-	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, m_byteBufferSize);
+	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, byteBufferSize());
 
 	// Potentially read straddled previous & next values' bits
 	uint64 rawBits = 0;
@@ -287,7 +293,7 @@ inline uint64 IndexedUIntBuffer::getPackedUInt(const std::size_t index) const
 
 	PH_ASSERT_LT(firstByteBitOffset, CHAR_BIT);
 	PH_ASSERT_LE(numStraddledBytes, 8 + 1);
-	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, m_byteBufferSize);
+	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, byteBufferSize());
 
 	// Read current value's bits (first 8 bytes, at most)
 	uint64 rawBits = 0;
@@ -332,7 +338,7 @@ inline std::array<IntegerType, N> IndexedUIntBuffer::getUIntAs(const std::size_t
 	PH_ASSERT_LE(N, numUInts() - firstIndex);
 
 	const std::size_t firstByteIndex = firstIndex * sizeof(IntegerType);
-	PH_ASSERT_LE(firstByteIndex + N * sizeof(IntegerType), m_byteBufferSize);
+	PH_ASSERT_LE(firstByteIndex + N * sizeof(IntegerType), byteBufferSize());
 
 	std::array<IntegerType, N> values;
 	std::memcpy(

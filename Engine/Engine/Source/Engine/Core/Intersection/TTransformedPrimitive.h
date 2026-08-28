@@ -62,6 +62,13 @@ public:
 
 	real calcExtendedArea() const override;
 
+	[[nodiscard]]
+	std::size_t getAttribute(
+		EPrimitiveAttribute attribute,
+		EAttributeDomain domain,
+		uint64 faceID,
+		TSpan<math::Vector3R> out_values) const override;
+
 	uint32 numMetadataSlots() const override;
 
 	uint32 toMetadataSlot(uint64 faceID) const override;
@@ -268,6 +275,16 @@ inline real TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::calcExtended
 {
 	// Does not change under rigid transform
 	return m_inner().calcExtendedArea();
+}
+
+template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>
+inline std::size_t TTransformedPrimitive<PrimitiveGetter, SHOULD_FLIP_NG>::getAttribute(
+	const EPrimitiveAttribute attribute,
+	const EAttributeDomain domain,
+	const uint64 faceID,
+	const TSpan<math::Vector3R> out_values) const
+{
+	return m_inner().getAttribute(attribute, domain, faceID, out_values);
 }
 
 template<typename PrimitiveGetter, bool SHOULD_FLIP_NG>

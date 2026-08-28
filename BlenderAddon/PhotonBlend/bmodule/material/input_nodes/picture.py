@@ -58,7 +58,7 @@ class PhPictureNode(PhMaterialInputNode):
         default=False
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         image_res_name = self.get_output_resource_name(b_material)
 
         # TODO: not bundle/copy the same file if already present

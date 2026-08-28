@@ -56,7 +56,7 @@ class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
         max=sys.float_info.max
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.AbradedTranslucentMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_ior_inner(sdl.Real(self.ior_inner))

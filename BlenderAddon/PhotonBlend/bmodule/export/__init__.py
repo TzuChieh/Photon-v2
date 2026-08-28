@@ -13,6 +13,7 @@ from bmodule import (
     light,
     world,
     )
+from . import context
 
 from psdl import sdl, sdlmapping, SdlConsole
 
@@ -217,6 +218,11 @@ class Exporter:
 
         b_materials = scene.find_materials_from_mesh_obj_instances(b_depsgraph)
         b_light_objs = scene.find_light_objs(b_depsgraph)
+        used_geometry_attributes = mesh.attributes.find_used_geometry_attributes(b_materials)
+        geometry_attribute_to_custom_slot = mesh.attributes.assign_custom_slots(used_geometry_attributes)
+        
+        export_ctx = context.ExportContext(
+            geometry_attribute_to_custom_slot=geometry_attribute_to_custom_slot)
 
         print(
             f"Exporter found {num_mesh_obj_instances} mesh object instances, "
@@ -231,7 +237,7 @@ class Exporter:
 
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
-            material.to_sdl(b_material, self.get_sdlconsole())
+            material.to_sdl(b_material, self.get_sdlconsole(), export_ctx)
 
         # Export each reusable mesh once and collect its transforms into one actor batch
         source_key_to_instance_batch = {}
@@ -248,6 +254,7 @@ class Exporter:
                     source_actor_name = mesh.export.mesh_obj_to_sdl_instance_source(
                         b_mesh_obj,
                         self.get_sdlconsole(),
+                        export_ctx=export_ctx,
                         name_suffix=naming.join_name_parts("source", depsgraph_index))
                     instance_actor_name = naming.get_mangled_actor_name(
                         b_mesh_obj, "instances", depsgraph_index)
@@ -261,6 +268,7 @@ class Exporter:
                 mesh.export.mesh_obj_to_sdl_actor(
                     b_mesh_obj,
                     self.get_sdlconsole(),
+                    export_ctx=export_ctx,
                     b_world_matrix=b_obj_instance.matrix_world,
                     name_suffix=depsgraph_index)
 

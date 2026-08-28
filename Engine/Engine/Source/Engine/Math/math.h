@@ -490,6 +490,14 @@ inline T reverse_bits(const T value)
 	}
 }
 
+/*! @brief Count the number of bits set to 1.
+*/
+template<std::unsigned_integral UIntType>
+inline constexpr UIntType num_bits(const UIntType bits)
+{
+	return static_cast<UIntType>(std::popcount(bits));
+}
+
 /*! @brief Set bits in the range to 1.
 The bits in [beginBitIdx, endBitIdx) will be set to 1, while the rest remain the same.
 LSB has the bit index 0.

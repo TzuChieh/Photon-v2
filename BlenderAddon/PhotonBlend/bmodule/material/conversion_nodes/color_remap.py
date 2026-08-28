@@ -67,7 +67,7 @@ class PhColorRemapNode(PhMaterialConversionNode):
             curve_node.name = _CURVE_NODE_NAME
         return curve_node
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         if not self.outputs[0].is_linked:
             return
 

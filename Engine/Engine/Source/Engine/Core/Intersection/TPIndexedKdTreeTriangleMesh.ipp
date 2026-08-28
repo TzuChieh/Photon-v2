@@ -218,6 +218,51 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 }
 
 template<typename Index>
+inline std::size_t TPIndexedKdTreeTriangleMesh<Index>::getAttribute(
+	const EPrimitiveAttribute attribute,
+	const EAttributeDomain domain,
+	const uint64 faceID,
+	const TSpan<math::Vector3R> out_values) const
+{
+	PH_ASSERT(m_triangleBuffer);
+	if(faceID >= m_triangleBuffer->numFaces() ||
+	   !m_triangleBuffer->hasAttribute(attribute) ||
+	   m_triangleBuffer->getAttributeDomain(attribute) != domain)
+	{
+		return 0;
+	}
+
+	if(domain == EAttributeDomain::Face)
+	{
+		if(out_values.empty())
+		{
+			return 1;
+		}
+
+		out_values[0] = m_triangleBuffer->getFaceAttribute(attribute, faceID);
+		return 1;
+	}
+	else if(domain == EAttributeDomain::Vertex)
+	{
+		constexpr std::size_t numValues = IndexedTriangleBuffer::numPolygonVertices();
+		if(out_values.size() < numValues)
+		{
+			return numValues;
+		}
+
+		const auto& values = m_triangleBuffer->getFaceVertexAttributes(attribute, faceID);
+		for(std::size_t i = 0; i < numValues; ++i)
+		{
+			out_values[i] = values[i];
+		}
+
+		return numValues;
+	}
+
+	return 0;
+}
+
+template<typename Index>
 inline math::AABB3D TPIndexedKdTreeTriangleMesh<Index>::calcAABB() const
 {
 	return m_kdTree.getAABB();

@@ -84,7 +84,16 @@ enum class EAttributeKind
 	UvwFromGeometryBound = 0,
 
 	/*! Geometry-local hit position, or zero when a surface hit is unavailable. */
-	GeometryHitPosition = 1
+	GeometryHitPosition,
+
+	/*! Accesses primitive's `EPrimitiveAttribute::Custom_<X>` face attribute, or zero when
+	unavailable. */
+	///@{
+	CustomFace0,
+	CustomFace1,
+	CustomFace2,
+	CustomFace3
+	///@}
 };
 
 PH_DEFINE_SDL_ENUM(EAttributeKind, e)
@@ -94,6 +103,10 @@ PH_DEFINE_SDL_ENUM(EAttributeKind, e)
 
 	e.addEntry(EnumType::UvwFromGeometryBound, "uvw-from-geometry-bound");
 	e.addEntry(EnumType::GeometryHitPosition, "geometry-hit-position");
+	e.addEntry(EnumType::CustomFace0, "custom-face-0");
+	e.addEntry(EnumType::CustomFace1, "custom-face-1");
+	e.addEntry(EnumType::CustomFace2, "custom-face-2");
+	e.addEntry(EnumType::CustomFace3, "custom-face-3");
 }
 
 }// end namespace ph

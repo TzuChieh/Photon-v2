@@ -3,8 +3,11 @@
 #include "Engine/Core/Intersection/Intersectable.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
+#include "Engine/Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
+
+#include <cstddef>
 
 namespace ph
 {
@@ -58,6 +61,23 @@ public:
 	*/
 	virtual real calcExtendedArea() const;
 
+	/*! @brief Retrieve raw attribute values associated with a face.
+	@param domain Requested indexing domain. The face domain has one value. The vertex domain has
+	one value per face vertex, returned in face order.
+	@param faceID ID of the face whose attribute values are requested.
+	@param out_values Storage for the values. An empty span performs a count-only query.
+	@return Number of available values. Returns 0 if the attribute is unavailable in @p domain. If
+	@p out_values is too small, returns the required size without writing any values.
+	@note Attributes are opaque data, not inherently spatial, so no coordinate-space conversion
+	is applied.
+	*/
+	[[nodiscard]]
+	virtual std::size_t getAttribute(
+		EPrimitiveAttribute attribute,
+		EAttributeDomain domain,
+		uint64 faceID,
+		TSpan<math::Vector3R> out_values) const;
+
 	virtual uint32 numMetadataSlots() const;
 
 	virtual uint32 toMetadataSlot(uint64 faceID) const;
@@ -69,6 +89,15 @@ public:
 };
 
 // In-header Implementation:
+
+inline std::size_t Primitive::getAttribute(
+	const EPrimitiveAttribute /* attribute */,
+	const EAttributeDomain /* domain */,
+	const uint64 /* faceID */,
+	const TSpan<math::Vector3R> /* out_values */) const
+{
+	return 0;
+}
 
 inline uint32 Primitive::numMetadataSlots() const
 {

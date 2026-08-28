@@ -24,7 +24,7 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
         default='FLOAT'
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         mat0_res_name = self.get_linked_input_resource_name(b_material, 0)
         mat1_res_name = self.get_linked_input_resource_name(b_material, 1)
         # TODO: use the default_value defined albedo

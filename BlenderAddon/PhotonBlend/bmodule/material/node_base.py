@@ -491,7 +491,32 @@ class PhMaterialNode(bpy.types.Node):
 
     node_category = None
 
-    def to_sdl(self, b_material, sdlconsole):
+    @classmethod
+    def poll(cls, b_node_tree):
+        """
+        Blender: If non-null output is returned, the node type can be added to the tree.
+        """
+        return super().poll(b_node_tree) and b_node_tree.bl_idname == PhMaterialNodeTree.bl_idname
+
+    def init(self, b_context):
+        """
+        Blender: Initialize a new instance of this node. Called when node created.
+        """
+        super().init(b_context)
+
+    def draw_buttons(self, b_context, b_layout):
+        """
+        Blender: Draw node buttons. Draw properties in node.
+        """
+        pass
+
+    def draw_label(self):
+        """
+        Blender: Returns a dynamic label string.
+        """
+        return self.bl_label
+
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         raise NotImplementedError("to_sdl() must be implemented to support SDL generation")
 
     def get_linked_input_resource_name(self, b_material, input_index, link_index=0):
@@ -524,6 +549,12 @@ class PhMaterialNode(bpy.types.Node):
         """
         return naming.get_mangled_node_name(self, b_material, *suffixes)
 
+    def used_geometry_attributes(self):
+        """
+        Return geometry attributes used by this node.
+        """
+        return ()
+
     def warn_incomplete_node(self, b_material, message=None):
         warning = f"warning: material <{b_material.name}>'s {self.bl_label} node is incomplete"
         if message:
@@ -538,31 +569,6 @@ class PhMaterialNode(bpy.types.Node):
         creator.set_data_name(self.get_output_resource_name(b_material, output_index))
         creator.set_display_name(sdl.String(b_material.name))
         sdlconsole.queue_command(creator)
-
-    @classmethod
-    def poll(cls, b_node_tree):
-        """
-        Blender: If non-null output is returned, the node type can be added to the tree.
-        """
-        return super().poll(b_node_tree) and b_node_tree.bl_idname == PhMaterialNodeTree.bl_idname
-
-    def init(self, b_context):
-        """
-        Blender: Initialize a new instance of this node. Called when node created.
-        """
-        super().init(b_context)
-
-    def draw_buttons(self, b_context, b_layout):
-        """
-        Blender: Draw node buttons. Draw properties in node.
-        """
-        pass
-
-    def draw_label(self):
-        """
-        Blender: Returns a dynamic label string.
-        """
-        return self.bl_label
 
 
 class PhMaterialOutputNode(PhMaterialNode):

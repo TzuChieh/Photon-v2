@@ -9,7 +9,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(IndexedUIntBuffer, Core);
 
 IndexedUIntBuffer::IndexedUIntBuffer() :
 	m_byteBuffer    (nullptr),
-	m_byteBufferSize(0),
+	m_numUInts      (0),
 	m_numBitsPerUInt(0)
 {}
 
@@ -42,10 +42,10 @@ void IndexedUIntBuffer::allocate(const std::size_t numUInts)
 	m_byteBuffer = nullptr;
 
 	m_numBitsPerUInt = m_numBitsPerUInt > 0 ? m_numBitsPerUInt : 32;
-	m_byteBufferSize = (numUInts * m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
-	m_byteBuffer = std::make_unique<std::byte[]>(m_byteBufferSize);
+	m_numUInts = numUInts;
+	m_byteBuffer = std::make_unique<std::byte[]>(byteBufferSize());
 
-	if(m_byteBufferSize == 0)
+	if(byteBufferSize() == 0)
 	{
 		PH_LOG(IndexedUIntBuffer, Warning, "Allocated buffer with 0 size.");
 	}
@@ -56,11 +56,12 @@ void IndexedUIntBuffer::setUInts(const std::byte* const srcBytes, const std::siz
 	PH_ASSERT(srcBytes);
 	PH_ASSERT(isAllocated());
 
-	if(dstOffset + numBytes > m_byteBufferSize)
+	const std::size_t bufferSize = byteBufferSize();
+	if(dstOffset > bufferSize || numBytes > bufferSize - dstOffset)
 	{
 		throw std::invalid_argument(std::format(
 			"Copying {} bytes will overflow the index buffer (buffer-size: {} bytes, buffer-offset: {}).",
-			numBytes, numBytes, dstOffset));
+			numBytes, bufferSize, dstOffset));
 	}
 
 	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);

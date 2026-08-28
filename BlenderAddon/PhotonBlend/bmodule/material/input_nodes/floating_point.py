@@ -17,7 +17,7 @@ class PhFloatValueInputNode(PhMaterialInputNode):
         max=1e32
     )
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.ConstantImageCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_values(sdl.RealArray([self.value]))

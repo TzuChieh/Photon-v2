@@ -48,7 +48,7 @@ class PhNoiseInputNode(PhMaterialInputNode):
         else:
             value_setter(sdl.Real(self.get_default_input_value(input_index)))
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         linked_output_indices = [output_index for output_index, output_socket in enumerate(self.outputs) if output_socket.is_linked]
 
         for output_index in linked_output_indices:

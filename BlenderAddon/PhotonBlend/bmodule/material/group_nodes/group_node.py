@@ -11,7 +11,7 @@ class PhGroupNode(PhMaterialGroupNode):
 
     idname_prefix = 'PH_GROUP_'
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.IdealMediumMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_absorption_coeff(sdl.Spectrum(self.absorption_coeff))

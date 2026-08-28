@@ -78,7 +78,8 @@ enum class EWindowsVersion
 EWindowsVersion get_windows_version();
 
 /*! @brief Get size of L1 cache at runtime.
-@return Size in bytes.
+@return Nonzero power-of-two size in bytes. Falls back to
+`std::hardware_constructive_interference_size` if the OS query fails.
 */
 std::size_t get_L1_cache_line_size_in_bytes();
 

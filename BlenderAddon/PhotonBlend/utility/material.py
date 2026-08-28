@@ -41,6 +41,31 @@ def find_output_node_from_material(b_material: bpy.types.Material):
     return find_output_node_from_node_tree(node_tree)
 
 
+def find_reachable_nodes_from_material(b_material: bpy.types.Material):
+    """
+    Return nodes reachable from the material output in dependency-first topological order.
+    """
+    output_node = find_output_node_from_material(b_material)
+    if output_node is None:
+        return []
+
+    sorted_nodes = []
+    visited_nodes = set()
+
+    def visit_recursive(current_node):
+        if current_node in visited_nodes:
+            return
+        visited_nodes.add(current_node)
+
+        for socket in current_node.inputs:
+            for link in socket.links:
+                visit_recursive(link.from_node)
+        sorted_nodes.append(current_node)
+
+    visit_recursive(output_node)
+    return sorted_nodes
+
+
 def is_emissive(b_material: bpy.types.Material):
     output_node = find_output_node_from_material(b_material)
     if output_node is None:

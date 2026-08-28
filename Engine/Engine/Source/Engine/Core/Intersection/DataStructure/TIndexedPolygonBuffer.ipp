@@ -5,37 +5,47 @@ namespace ph
 
 template<std::size_t N>
 inline TIndexedPolygonBuffer<N>::TIndexedPolygonBuffer()
-	: m_vertexBuffer()
+	: m_attributeBuffer()
 	, m_indexBuffer()
 {}
 
 template<std::size_t N>
 inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getPositions(const std::size_t faceIndex) const
 {
-	return getFaceAttribute(EVertexAttribute::Position_0, faceIndex);
+	return getFaceVertexAttributes(EPrimitiveAttribute::Position_0, faceIndex);
 }
 
 template<std::size_t N>
 inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getTexCoords(const std::size_t faceIndex) const
 {
-	return getFaceAttribute(EVertexAttribute::TexCoord_0, faceIndex);
+	return getFaceVertexAttributes(EPrimitiveAttribute::TexCoord_0, faceIndex);
 }
 
 template<std::size_t N>
 inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getNormals(const std::size_t faceIndex) const
 {
-	return getFaceAttribute(EVertexAttribute::Normal_0, faceIndex);
+	return getFaceVertexAttributes(EPrimitiveAttribute::Normal_0, faceIndex);
 }
 
 template<std::size_t N>
-inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceAttribute(
-	const EVertexAttribute attribute,
-	const std::size_t      faceIndex) const
+inline math::Vector3R TIndexedPolygonBuffer<N>::getFaceAttribute(
+	const EPrimitiveAttribute attribute,
+	const std::size_t faceIndex) const
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
+	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Face);
+	return m_attributeBuffer.getAttribute(attribute, faceIndex);
+}
 
+template<std::size_t N>
+inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceVertexAttributes(
+	const EPrimitiveAttribute attribute,
+	const std::size_t faceIndex) const
+{
+	PH_ASSERT_LT(faceIndex, numFaces());
+	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Vertex);
 	const auto indices = m_indexBuffer.getUInt<N>(N * faceIndex);
-	return m_vertexBuffer.getAttribute(attribute, indices);
+	return m_attributeBuffer.getAttribute(attribute, indices);
 }
 
 template<std::size_t N>
@@ -48,50 +58,57 @@ inline std::size_t TIndexedPolygonBuffer<N>::numFaces() const
 template<std::size_t N>
 inline bool TIndexedPolygonBuffer<N>::hasTexCoord() const
 {
-	return hasFaceAttribute(EVertexAttribute::TexCoord_0);
+	return hasAttribute(EPrimitiveAttribute::TexCoord_0);
 }
 
 template<std::size_t N>
 inline bool TIndexedPolygonBuffer<N>::hasNormal() const
 {
-	return hasFaceAttribute(EVertexAttribute::Normal_0);
+	return hasAttribute(EPrimitiveAttribute::Normal_0);
 }
 
 template<std::size_t N>
-inline bool TIndexedPolygonBuffer<N>::hasFaceAttribute(const EVertexAttribute attribute) const
+inline bool TIndexedPolygonBuffer<N>::hasAttribute(const EPrimitiveAttribute attribute) const
 {
-	return m_vertexBuffer.hasAttribute(attribute);
+	return m_attributeBuffer.hasAttribute(attribute);
 }
 
 template<std::size_t N>
-inline std::size_t TIndexedPolygonBuffer<N>::memoryUsage() const
+inline EAttributeDomain TIndexedPolygonBuffer<N>::getAttributeDomain(const EPrimitiveAttribute attribute) const
 {
-	return sizeof(*this) + m_vertexBuffer.memoryUsage() + m_indexBuffer.memoryUsage();
+	return m_attributeBuffer.getAttributeDomain(attribute);
 }
 
 template<std::size_t N>
-inline float TIndexedPolygonBuffer<N>::averagePerPolygonMemoryUsage() const
+inline std::size_t TIndexedPolygonBuffer<N>::memoryUsage(const IndexedAttributeBufferWriter& attributeWriter) const
 {
-	if(numFaces() == 0)
+	return sizeof(*this) +
+		attributeWriter.byteBufferSize() +
+		m_indexBuffer.byteBufferSize();
+}
+
+template<std::size_t N>
+inline float TIndexedPolygonBuffer<N>::averagePerPolygonMemoryUsage(const IndexedAttributeBufferWriter& attributeWriter) const
+{
+	const std::size_t numPolygons = numFaces();
+	if(numPolygons == 0)
 	{
 		return 0.0f;
 	}
 
-	const auto numTotalBytes = static_cast<double>(memoryUsage());
-	const auto numPolygons = static_cast<double>(numFaces());
-	return static_cast<float>(numTotalBytes / numPolygons);
+	return static_cast<float>(static_cast<double>(memoryUsage(attributeWriter)) / numPolygons);
 }
 
 template<std::size_t N>
-inline IndexedVertexBuffer& TIndexedPolygonBuffer<N>::getVertexBuffer()
+inline IndexedAttributeBuffer& TIndexedPolygonBuffer<N>::getAttributeBuffer()
 {
-	return m_vertexBuffer;
+	return m_attributeBuffer;
 }
 
 template<std::size_t N>
-inline const IndexedVertexBuffer& TIndexedPolygonBuffer<N>::getVertexBuffer() const
+inline const IndexedAttributeBuffer& TIndexedPolygonBuffer<N>::getAttributeBuffer() const
 {
-	return m_vertexBuffer;
+	return m_attributeBuffer;
 }
 
 template<std::size_t N>

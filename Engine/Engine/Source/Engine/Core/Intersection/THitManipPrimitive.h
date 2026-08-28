@@ -114,6 +114,16 @@ public:
 		return m_inner().calcExtendedArea();
 	}
 
+	[[nodiscard]]
+	std::size_t getAttribute(
+		const EPrimitiveAttribute attribute,
+		const EAttributeDomain domain,
+		const uint64 faceID,
+		const TSpan<math::Vector3R> out_values) const override
+	{
+		return m_inner().getAttribute(attribute, domain, faceID, out_values);
+	}
+
 	uint32 numMetadataSlots() const override
 	{
 		return m_inner().numMetadataSlots();

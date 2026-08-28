@@ -17,7 +17,7 @@ class PhHsvNode(PhMaterialConversionNode):
         else:
             value_setter(sdl.Real(self.get_default_input_value(input_index)))
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         if not self.outputs[0].is_linked:
             return
 

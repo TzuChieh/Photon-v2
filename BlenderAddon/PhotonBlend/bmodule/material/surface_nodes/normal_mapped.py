@@ -21,7 +21,7 @@ class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
             ('directx-rg', "DirectX RG", "RG stores +x, -y; +z is reconstructed", 2)],
         default='opengl')
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         material_res_name = self.get_linked_input_resource_name(b_material, 0)
         normal_map_res_name = self.get_linked_input_resource_name(b_material, 1)
         strength_map_res_name = self.get_linked_input_resource_name(b_material, 2)

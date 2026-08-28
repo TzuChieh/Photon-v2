@@ -9,7 +9,7 @@ class PhPureAbsorberNode(PhSurfaceMaterialNode):
     bl_idname = 'PH_PURE_ABSORBER'
     bl_label = "Pure Absorber"
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         creator = sdl.IdealSubstanceMaterialCreator()
         creator.set_data_name(self.get_output_resource_name(b_material))
         creator.set_substance(sdl.Enum("absorber"))

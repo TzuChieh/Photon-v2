@@ -26,10 +26,14 @@ public:
 		CookedGeometry& out_geometry) const override;
 
 protected:
-	IndexedTriangleBuffer loadTriangleBuffer(PlyFile& file) const;
+	IndexedTriangleBuffer loadTriangleBuffer(
+		PlyFile& file,
+		const StaticAffineTransform* bakedTransform = nullptr) const;
 
 private:
-	static IndexedTriangleBuffer loadDirectlyExpandedBlenderTriangleBuffer(PlyFile& file);
+	static IndexedTriangleBuffer loadDirectlyExpandedBlenderTriangleBuffer(
+		PlyFile& file,
+		const StaticAffineTransform* bakedTransform);
 
 public:
 	struct SdlWritePly
@@ -41,6 +45,10 @@ public:
 		std::vector<uint32> vertPositionIndices;
 		std::vector<uint32> vertLoopIndices;
 		std::vector<uint32> triMatIds;
+		std::vector<float32> triCustom0;
+		std::vector<float32> triCustom1;
+		std::vector<float32> triCustom2;
+		std::vector<float32> triCustom3;
 
 		void operator () () const;
 
@@ -77,6 +85,26 @@ public:
 			TSdlUInt32Array<OwnerType> triMatIds("tri-mat-ids", &OwnerType::triMatIds);
 			triMatIds.options(EFieldOption::PreferNativeAccess);
 			func.addParam(triMatIds);
+
+			TSdlFloat32Array<OwnerType> triCustom0("tri-custom-0", &OwnerType::triCustom0);
+			triCustom0.description("Optional custom scalar 0 for each triangle.");
+			triCustom0.options(EFieldOption::PreferNativeAccess);
+			func.addParam(triCustom0);
+
+			TSdlFloat32Array<OwnerType> triCustom1("tri-custom-1", &OwnerType::triCustom1);
+			triCustom1.description("Optional custom scalar 1 for each triangle.");
+			triCustom1.options(EFieldOption::PreferNativeAccess);
+			func.addParam(triCustom1);
+
+			TSdlFloat32Array<OwnerType> triCustom2("tri-custom-2", &OwnerType::triCustom2);
+			triCustom2.description("Optional custom scalar 2 for each triangle.");
+			triCustom2.options(EFieldOption::PreferNativeAccess);
+			func.addParam(triCustom2);
+
+			TSdlFloat32Array<OwnerType> triCustom3("tri-custom-3", &OwnerType::triCustom3);
+			triCustom3.description("Optional custom scalar 3 for each triangle.");
+			triCustom3.options(EFieldOption::PreferNativeAccess);
+			func.addParam(triCustom3);
 		}
 	};
 

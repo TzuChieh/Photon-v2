@@ -1,6 +1,8 @@
 #include "Common/os.h"
 #include "Common/assertion.h"
 #include "Common/io_exceptions.h"
+#include "Common/logging.h"
+#include "Common/math_basics.h"
 
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
 #include <stdlib.h>
@@ -18,8 +20,8 @@
 #include <mach-o/dyld.h>
 #endif
 
-#include <new>
 #include <array>
+#include <new>
 
 namespace ph::os
 {
@@ -177,9 +179,9 @@ std::size_t get_L1_cache_line_size_in_bytes_internal()
 
 #else
 
-	#warning "Using an estimated L1 cache size due to unsupported platform."
+	#warning "L1 cache line size detection is unsupported on this platform."
 
-	return std::hardware_constructive_interference_size;
+	return 0;
 
 #endif
 }
@@ -194,7 +196,23 @@ EWindowsVersion get_windows_version()
 
 std::size_t get_L1_cache_line_size_in_bytes()
 {
-	static const std::size_t numBytes = get_L1_cache_line_size_in_bytes_internal();
+	static const std::size_t numBytes =
+		[]()
+		{
+			const std::size_t detectedNumBytes = get_L1_cache_line_size_in_bytes_internal();
+			if(detectedNumBytes == 0)
+			{
+				PH_DEFAULT_LOG_STRING(Warning,
+					"Using an estimated L1 cache size due to unsupported platform.");
+			}
+
+			const std::size_t result = detectedNumBytes > 0
+				? detectedNumBytes
+				: std::hardware_constructive_interference_size;
+			PH_ASSERT(math::is_power_of_2(result));
+			return result;
+		}();
+
 	return numBytes;
 }
 

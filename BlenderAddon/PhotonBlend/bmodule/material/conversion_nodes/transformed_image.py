@@ -34,7 +34,7 @@ class PhTransformedImageNode(PhMaterialConversionNode):
         subtype='XYZ',
         size=3)
 
-    def to_sdl(self, b_material, sdlconsole):
+    def to_sdl(self, b_material, sdlconsole, export_ctx):
         if not self.outputs[0].is_linked:
             return
 
