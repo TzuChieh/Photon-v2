@@ -93,6 +93,7 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 	const auto numPosVerts = rawVertPositions.size() / 3;
 	const auto numLoopVerts = rawVertLoopNormals.size() / 3;
 	const auto numTris = vertLoopIndices.size() / 3;
+	const bool hasTangents = !rawVertLoopTangents.empty();
 
 	if(rawVertPositions.size() % 3 != 0 ||
 	   rawVertLoopNormals.size() % 3 != 0 ||
@@ -100,18 +101,20 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 	   vertLoopIndices.size() % 3 != 0 ||
 	   numLoopVerts != rawVertLoopUVs.size() / 2 ||
 	   vertPositionIndices.size() != vertLoopIndices.size() ||
-	   triMatIds.size() != numTris)
+	   triMatIds.size() != numTris ||
+	   (hasTangents && rawVertLoopTangents.size() != numLoopVerts * 4))
 	{
 		throw_formatted<InvalidArgumentException>(
 			"Inconsistent Blender PLY polygon data sizes: "
 			"raw-vert-positions={}, raw-vert-normals={}, raw-vert-uvs={}, "
-			"vert-position-indices={}, vert-loop-indices={}, tri-mat-ids={}",
+			"vert-position-indices={}, vert-loop-indices={}, tri-mat-ids={}, raw-vert-loop-tangents={}",
 			rawVertPositions.size(),
 			rawVertLoopNormals.size(),
 			rawVertLoopUVs.size(),
 			vertPositionIndices.size(),
 			vertLoopIndices.size(),
-			triMatIds.size());
+			triMatIds.size(),
+			rawVertLoopTangents.size());
 	}
 
 	// Gather only the custom slots that contain valid data
@@ -181,6 +184,17 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 		"\n"
 		"property uint mi\n");
 
+	if(hasTangents)
+	{
+		writeStream.writeString("element raw_vert_loop_tangents "); writeSize(numLoopVerts);
+		writeStream.writeString(
+			"\n"
+			"property float tx\n"
+			"property float ty\n"
+			"property float tz\n"
+			"property float tw\n");
+	}
+
 	// Potentially declare custom attributes
 	if(numSpecifiedCustomSlots > 0)
 	{
@@ -204,6 +218,11 @@ void GBlenderPlyPolygonMesh::SdlWritePly::operator () () const
 	writeStream.writeData<uint32>(vertPositionIndices);
 	writeStream.writeData<uint32>(vertLoopIndices);
 	writeStream.writeData<uint32>(triMatIds);
+
+	if(hasTangents)
+	{
+		writeStream.writeData<float32>(rawVertLoopTangents);
+	}
 
 	// Write optional custom attributes
 	if(numSpecifiedCustomSlots > 0)
@@ -235,6 +254,7 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 {
 	constexpr std::size_t positionSize = 3 * sizeof(float32);
 	constexpr std::size_t normalSize = 3 * sizeof(float32);
+	constexpr std::size_t tangentSize = sizeof(uint32);
 	constexpr std::size_t uvSize = 2 * sizeof(float32);
 
 	const PlyElement& rawPositionElement = *file.findElement("raw_vert_positions");
@@ -242,7 +262,8 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 	const PlyElement& rawLoopUvElement = *file.findElement("raw_vert_loop_uvs");
 	const PlyElement& positionIndexElement = *file.findElement("position_indices");
 	const PlyElement& loopIndexElement = *file.findElement("loop_indices");
-	PlyElement* const triCustomElement = file.findElement("tri_customs");
+	const PlyElement* const rawLoopTangentElement = file.findElement("raw_vert_loop_tangents");
+	const PlyElement* const triCustomElement = file.findElement("tri_customs");
 
 	const std::size_t numIndices = positionIndexElement.numElements;
 	const std::size_t numTris = numIndices / 3;
@@ -255,8 +276,6 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 	IndexedAttributeBuffer& attributeBuffer = loadedBuffer.getAttributeBuffer();
 	IndexedUIntBuffer& indexBuffer = loadedBuffer.getIndexBuffer();
 
-	const std::size_t normalOffset = numLoops * positionSize;
-	const std::size_t uvOffset = normalOffset + loopNormalBytes;
 	attributeBuffer.declareAttribute(
 		EPrimitiveAttribute::Position_0,
 		EAttributeDomain::Vertex,
@@ -264,6 +283,8 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 		3,
 		0,
 		positionSize);
+
+	const std::size_t normalOffset = numLoops * positionSize;
 	attributeBuffer.declareAttribute(
 		EPrimitiveAttribute::Normal_0,
 		EAttributeDomain::Vertex,
@@ -271,6 +292,8 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 		3,
 		normalOffset,
 		normalSize);
+
+	const std::size_t uvOffset = normalOffset + loopNormalBytes;
 	attributeBuffer.declareAttribute(
 		EPrimitiveAttribute::TexCoord_0,
 		EAttributeDomain::Vertex,
@@ -279,8 +302,21 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 		uvOffset,
 		uvSize);
 
+	const std::size_t tangentOffset = uvOffset + loopUvBytes;
+	if(rawLoopTangentElement)
+	{
+		PH_ASSERT_EQ(rawLoopTangentElement->numElements, numLoops);
+		attributeBuffer.declareAttribute(
+			EPrimitiveAttribute::MikkTSpaceTangent_0,
+			EAttributeDomain::Vertex,
+			EAttributeElement::OctahedralUnitVec3_31_CustomBits_1,
+			3,
+			tangentOffset,
+			tangentSize);
+	}
+
 	// Potentially declare custom attributes
-	const std::size_t customAttributeStorageOffset = uvOffset + loopUvBytes;
+	const std::size_t customAttributeStorageOffset = tangentOffset + (rawLoopTangentElement ? numLoops * tangentSize : 0);
 	if(triCustomElement)
 	{
 		constexpr std::array<EPrimitiveAttribute, 4> slotToCustomAttribute = {
@@ -293,7 +329,7 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 
 		for(std::size_t slot = 0; slot < slotToCustomAttribute.size(); ++slot)
 		{
-			PlyProperty* const customProperty = triCustomElement->findProperty(SLOT_TO_CUSTOM_ATTRIBUTE_PROPERTY_NAME[slot]);
+			const PlyProperty* const customProperty = triCustomElement->findProperty(SLOT_TO_CUSTOM_ATTRIBUTE_PROPERTY_NAME[slot]);
 			if(customProperty)
 			{
 				attributeBuffer.declareAttribute(
@@ -319,6 +355,26 @@ IndexedTriangleBuffer GBlenderPlyPolygonMesh::loadDirectlyExpandedBlenderTriangl
 		rawLoopUvElement.rawBuffer.data(),
 		loopUvBytes,
 		uvOffset);
+
+	if(rawLoopTangentElement)
+	{
+		constexpr std::size_t rawTangentSize = 4 * sizeof(float32);
+		for(std::size_t loopIndex = 0; loopIndex < numLoops; ++loopIndex)
+		{
+			std::array<float32, 4> tangent;
+			std::memcpy(
+				tangent.data(),
+				rawLoopTangentElement->rawBuffer.data() + loopIndex * rawTangentSize,
+				rawTangentSize);
+				
+			const uint32 tangentSignBit = tangent[3] < 0 ? 1u : 0u;
+			attributeWriter.setAttribute(
+				EPrimitiveAttribute::MikkTSpaceTangent_0,
+				loopIndex,
+				math::Vector3R(tangent[0], tangent[1], tangent[2]),
+				&tangentSignBit);
+		}
+	}
 
 	// Write optional custom attributes
 	if(triCustomElement)

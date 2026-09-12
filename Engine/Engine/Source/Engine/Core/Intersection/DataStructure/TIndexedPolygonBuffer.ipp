@@ -30,22 +30,24 @@ inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getNormals(const 
 template<std::size_t N>
 inline math::Vector3R TIndexedPolygonBuffer<N>::getFaceAttribute(
 	const EPrimitiveAttribute attribute,
-	const std::size_t faceIndex) const
+	const std::size_t faceIndex,
+	uint32* const out_customBits) const
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
 	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Face);
-	return m_attributeBuffer.getAttribute(attribute, faceIndex);
+	return m_attributeBuffer.getAttribute(attribute, faceIndex, out_customBits);
 }
 
 template<std::size_t N>
 inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceVertexAttributes(
 	const EPrimitiveAttribute attribute,
-	const std::size_t faceIndex) const
+	const std::size_t faceIndex,
+	std::array<uint32, N>* const out_customBits) const
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
 	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Vertex);
 	const auto indices = m_indexBuffer.getUInt<N>(N * faceIndex);
-	return m_attributeBuffer.getAttribute(attribute, indices);
+	return m_attributeBuffer.getAttribute(attribute, indices, out_customBits);
 }
 
 template<std::size_t N>

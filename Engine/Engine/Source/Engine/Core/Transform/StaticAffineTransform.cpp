@@ -82,12 +82,15 @@ void StaticAffineTransform::doTransformHitInfo(
 		else
 		{
 			math::Vector3R tShadingTangent;
+			math::Vector3R tShadingBitangent;
 			StaticAffineTransform::doTransformVector(info.getShadingTangent(), time, &tShadingTangent);
+			StaticAffineTransform::doTransformVector(info.getShadingBitangent(), time, &tShadingBitangent);
 
 			out_info->setAttributes(tPosition,
 			                        tGeometryNormal.normalizeLocal(),
 			                        tShadingNormal.normalizeLocal(),
-			                        tShadingTangent.normalizeLocal());
+			                        tShadingTangent.normalizeLocal(),
+			                        tShadingBitangent.normalizeLocal());
 		}
 	}
 

@@ -105,7 +105,8 @@ def test_blender_ply_write_ply_call(engine, tmp_path):
     read_mat_ids = np.frombuffer(binary_data, dtype=np.uint32, count=1, offset=offset)
     assert np.array_equal(read_mat_ids, mat_ids)
 
-def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path):
+@pytest.mark.parametrize("has_tangents", [False, True])
+def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path, has_tangents):
     try:
         import numpy as np
     except ImportError:
@@ -120,6 +121,12 @@ def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path):
     pos_indices = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
     loop_indices = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
     mat_ids = np.array([0, 0], dtype=np.uint32)
+    tangents = np.array([
+        1, 0, 0, -1,
+        0, 1, 0, -1,
+        -1, 0, 0, -1,
+        0, -1, 0, -1,
+        ], dtype=np.float32) if has_tangents else None
 
     mesh_class.write_ply(
         path=ply_path,
@@ -128,7 +135,8 @@ def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path):
         raw_vert_loop_uvs=uvs,
         vert_position_indices=pos_indices,
         vert_loop_indices=loop_indices,
-        tri_mat_ids=mat_ids
+        tri_mat_ids=mat_ids,
+        raw_vert_loop_tangents=tangents
         )
 
     content = ply_path.read_bytes()
@@ -143,14 +151,24 @@ def test_blender_ply_write_ply_triangulated_quad(engine, tmp_path):
     assert "element position_indices 6" in header
     assert "element loop_indices 6" in header
     assert "element mat_ids 2" in header
-    assert binary_data == b''.join(array.tobytes() for array in (
+    
+    arrays = [
         positions,
         normals,
         uvs,
         pos_indices,
         loop_indices,
         mat_ids
-        ))
+        ]
+    if has_tangents:
+        assert (
+            "element raw_vert_loop_tangents 4\n"
+            "property float tx\nproperty float ty\nproperty float tz\nproperty float tw\n"
+            ) in header
+        arrays.append(tangents)
+    else:
+        assert "raw_vert_loop_tangents" not in header
+    assert binary_data == b''.join(array.tobytes() for array in arrays)
 
 @pytest.mark.parametrize(
     "malformed_values",

@@ -38,6 +38,17 @@ public:
 		const math::Vector3R& shadingNormal,
 		const math::Vector3R& shadingTangent);
 
+	/*!
+	@param shadingTangent Primary tangent direction.
+	@param shadingBitangent Paired bitangent used for handedness and as a fallback frame reference.
+	*/
+	void setAttributes(
+		const math::Vector3R& pos,
+		const math::Vector3R& geometryNormal,
+		const math::Vector3R& shadingNormal,
+		const math::Vector3R& shadingTangent,
+		const math::Vector3R& shadingBitangent);
+
 	void setDerivatives(
 		const math::Vector3R& dPdU,
 		const math::Vector3R& dPdV,
@@ -65,6 +76,11 @@ public:
 	*/
 	math::Vector3R getShadingTangent() const;
 
+	/*!
+	@return Shading bitangent if `hasShadingTangent() == true`; otherwise, the value is undefined.
+	*/
+	math::Vector3R getShadingBitangent() const;
+
 	math::Vector3R getdPdU() const;
 	math::Vector3R getdPdV() const;
 	math::Vector3R getdNdU() const;
@@ -76,7 +92,10 @@ public:
 	@return Whether an explicit shading normal was supplied. False means `getShadingNormal()` uses geometry normal.
 	*/
 	bool hasShadingNormal() const;
-	
+
+	/*!
+	@return Whether an explicit shading tangent is available. A paired bitangent is available with it.
+	*/
 	bool hasShadingTangent() const;
 
 private:
@@ -90,12 +109,11 @@ private:
 	math::Basis3R m_geometryBasis;
 	math::Basis3R m_shadingBasis;
 
-	math::Vector3R m_shadingTangent;
 	uint32 m_hasShadingNormal : 1;
 	uint32 m_hasShadingTangent : 1;
 
 #if PH_DEBUG
-	bool m_isBasesComputed{false};
+	bool m_areBasesComputed{false};
 #endif
 };
 
@@ -119,7 +137,13 @@ inline math::Vector3R HitInfo::getShadingNormal() const
 inline math::Vector3R HitInfo::getShadingTangent() const
 {
 	PH_ASSERT(hasShadingTangent());
-	return m_shadingTangent;
+	return m_shadingBasis.getZAxis();
+}
+
+inline math::Vector3R HitInfo::getShadingBitangent() const
+{
+	PH_ASSERT(hasShadingTangent());
+	return m_shadingBasis.getXAxis();
 }
 
 inline math::Vector3R HitInfo::getdPdU() const
@@ -144,13 +168,13 @@ inline math::Vector3R HitInfo::getdNdV() const
 
 inline const math::Basis3R& HitInfo::getGeometryBasis() const
 {
-	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` first.");
+	PH_ASSERT_MSG(m_areBasesComputed, "Please call `computeBases()` first.");
 	return m_geometryBasis;
 }
 
 inline const math::Basis3R& HitInfo::getShadingBasis() const
 {
-	PH_ASSERT_MSG(m_isBasesComputed, "Please call `computeBases()` first.");
+	PH_ASSERT_MSG(m_areBasesComputed, "Please call `computeBases()` first.");
 	return m_shadingBasis;
 }
 
@@ -176,7 +200,7 @@ inline void HitInfo::setFlippedGeometryNormal()
 	}
 
 #if PH_DEBUG
-	m_isBasesComputed = false;
+	m_areBasesComputed = false;
 #endif
 }
 
@@ -191,7 +215,7 @@ inline void HitInfo::setAttributes(
 	m_hasShadingTangent = false;
 
 #if PH_DEBUG
-	m_isBasesComputed = false;
+	m_areBasesComputed = false;
 #endif
 }
 
@@ -207,7 +231,7 @@ inline void HitInfo::setAttributes(
 	m_hasShadingTangent = false;
 
 #if PH_DEBUG
-	m_isBasesComputed = false;
+	m_areBasesComputed = false;
 #endif
 }
 
@@ -217,15 +241,31 @@ inline void HitInfo::setAttributes(
 	const math::Vector3R& shadingNormal,
 	const math::Vector3R& shadingTangent)
 {
+	setAttributes(
+		pos,
+		geometryNormal,
+		shadingNormal,
+		shadingTangent,
+		shadingNormal.cross(shadingTangent));
+}
+
+inline void HitInfo::setAttributes(
+	const math::Vector3R& pos,
+	const math::Vector3R& geometryNormal,
+	const math::Vector3R& shadingNormal,
+	const math::Vector3R& shadingTangent,
+	const math::Vector3R& shadingBitangent)
+{
 	m_pos = pos;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
-	m_shadingTangent = shadingTangent;
+	m_shadingBasis.setZAxis(shadingTangent);
+	m_shadingBasis.setXAxis(shadingBitangent);
 	m_hasShadingNormal = true;
 	m_hasShadingTangent = true;
 
 #if PH_DEBUG
-	m_isBasesComputed = false;
+	m_areBasesComputed = false;
 #endif
 }
 
@@ -241,7 +281,7 @@ inline void HitInfo::setDerivatives(
 	m_dNdV = dNdV;
 
 #if PH_DEBUG
-	m_isBasesComputed = false;
+	m_areBasesComputed = false;
 #endif
 }
 

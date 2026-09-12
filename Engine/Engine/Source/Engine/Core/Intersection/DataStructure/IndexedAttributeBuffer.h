@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Intersection/Intersectable.h"
+#include "Engine/Core/Intersection/data_structure_fwd.h"
 #include "Engine/Math/math.h"
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/TVector3.h"
@@ -28,6 +28,11 @@ enum class EAttributeElement : uint8
 	Int16,
 	OctahedralUnitVec3_32,
 	OctahedralUnitVec3_24,
+
+	/*! First octahedral component in bits [0, 15], second in bits [16, 30], and the
+	custom unsigned value in bit 31.
+	*/
+	OctahedralUnitVec3_31_CustomBits_1,
 
 	// Special values
 	SIZE
@@ -85,17 +90,28 @@ public:
 	bool hasAttribute(EPrimitiveAttribute attribute) const;
 	EAttributeDomain getAttributeDomain(EPrimitiveAttribute attribute) const;
 
+	/*! @brief Get one attribute value.
+	@param attribute Attribute to get.
+	@param index Index in the attribute's declared domain.
+	@param out_customBits Optional right-aligned custom bits; zero when unavailable.
+	@return Decoded value, or zero if @p attribute is unavailable.
+	*/
 	math::Vector3R getAttribute(
 		EPrimitiveAttribute attribute,
-		std::size_t index) const;
+		std::size_t index,
+		uint32* out_customBits = nullptr) const;
 
 	/*! @brief Gather a fixed number of attribute values.
+	@param attribute Attribute to get.
 	@param indices Indices in the attribute's declared domain. Values do not need to be contiguous.
+	@param out_customBits Optional right-aligned custom bits corresponding to @p indices. Zero when unavailable.
+	@return Decoded values corresponding to @p indices.
 	*/
 	template<std::size_t N, std::unsigned_integral Index>
 	std::array<math::Vector3R, N> getAttribute(
 		EPrimitiveAttribute attribute,
-		const std::array<Index, N>& indices) const;
+		const std::array<Index, N>& indices,
+		std::array<uint32, N>* out_customBits = nullptr) const;
 
 	/*! @brief Info for a declared attribute.
 	*/
@@ -173,12 +189,14 @@ private:
 	@param entry Non-empty attribute entry containing buffer and layout information.
 	@param indices Valid indices in the entry's domain to load.
 	@param out_values Destination for values in the same order as @p indices.
+	@param out_customBits Optional right-aligned custom bits; zero when unavailable.
 	*/
 	template<EAttributeElement Element, std::size_t N, std::unsigned_integral Index>
 	static void loadAttributeValues(
 		const Entry& entry,
 		const std::array<Index, N>& indices,
-		std::array<math::Vector3R, N>& out_values);
+		std::array<math::Vector3R, N>& out_values,
+		std::array<uint32, N>* out_customBits);
 
 	/*! @brief Directly load `float32` attribute values into real-valued vectors.
 	@tparam NumElements Number of elements per attribute. Must match `entry.numElements`.
@@ -237,9 +255,28 @@ The referenced buffer must outlive the writer.
 class IndexedAttributeBufferWriter final
 {
 public:
-	void setAttribute(EPrimitiveAttribute attribute, std::size_t index, const math::Vector3R& value);
-	void setAttribute(EPrimitiveAttribute attribute, std::size_t index, const math::Vector2R& value);
-	void setAttribute(EPrimitiveAttribute attribute, std::size_t index, real value);
+	/*! @name Set one attribute value
+	Custom bits are right-aligned and must fit the format; null supplies zero.
+	*/
+	///@{
+	void setAttribute(
+		EPrimitiveAttribute attribute,
+		std::size_t index,
+		const math::Vector3R& value,
+		const uint32* customBits = nullptr);
+
+	void setAttribute(
+		EPrimitiveAttribute attribute,
+		std::size_t index,
+		const math::Vector2R& value,
+		const uint32* customBits = nullptr);
+
+	void setAttribute(
+		EPrimitiveAttribute attribute,
+		std::size_t index,
+		real value,
+		const uint32* customBits = nullptr);
+	///@}
 
 	/*! @brief Copies raw bytes into attribute storage.
 	@param dstOffset Offset from the beginning of attribute storage.
@@ -285,17 +322,19 @@ inline bool IndexedAttributeBuffer::Entry::hasStrideInfo() const
 inline void IndexedAttributeBufferWriter::setAttribute(
 	const EPrimitiveAttribute attribute,
 	const std::size_t index,
-	const math::Vector2R& value)
+	const math::Vector2R& value,
+	const uint32* const customBits)
 {
-	setAttribute(attribute, index, math::Vector3R(value[0], value[1], 0.0_r));
+	setAttribute(attribute, index, math::Vector3R(value[0], value[1], 0.0_r), customBits);
 }
 
 inline void IndexedAttributeBufferWriter::setAttribute(
 	const EPrimitiveAttribute attribute,
 	const std::size_t index,
-	const real value)
+	const real value,
+	const uint32* const customBits)
 {
-	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
+	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r), customBits);
 }
 
 inline std::size_t IndexedAttributeBufferWriter::byteBufferSize() const

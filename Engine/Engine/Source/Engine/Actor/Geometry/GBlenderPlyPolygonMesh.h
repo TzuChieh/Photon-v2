@@ -41,6 +41,7 @@ public:
 		Path path;
 		std::vector<float32> rawVertPositions;
 		std::vector<float32> rawVertLoopNormals;
+		std::vector<float32> rawVertLoopTangents;
 		std::vector<float32> rawVertLoopUVs;
 		std::vector<uint32> vertPositionIndices;
 		std::vector<uint32> vertLoopIndices;
@@ -69,6 +70,12 @@ public:
 			TSdlFloat32Array<OwnerType> rawVertLoopNormals("raw-vert-loop-normals", &OwnerType::rawVertLoopNormals);
 			rawVertLoopNormals.options(EFieldOption::PreferNativeAccess);
 			func.addParam(rawVertLoopNormals);
+
+			TSdlFloat32Array<OwnerType> rawVertLoopTangents("raw-vert-loop-tangents", &OwnerType::rawVertLoopTangents);
+			rawVertLoopTangents.description(
+				"Unit tangent xyz and bitangent sign per loop (tx, ty, tz, tw). Empty omits tangents.");
+			rawVertLoopTangents.options(EFieldOption::PreferNativeAccess);
+			func.addParam(rawVertLoopTangents);
 
 			TSdlFloat32Array<OwnerType> rawVertLoopUVs("raw-vert-loop-uvs", &OwnerType::rawVertLoopUVs);
 			rawVertLoopUVs.options(EFieldOption::PreferNativeAccess);

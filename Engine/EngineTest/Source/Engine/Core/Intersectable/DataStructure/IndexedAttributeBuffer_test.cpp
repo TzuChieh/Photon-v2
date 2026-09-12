@@ -231,6 +231,50 @@ TEST(IndexedAttributeBufferTest, BufferIOOctahedronNormalEncoding)
 	}
 }
 
+TEST(IndexedAttributeBufferTest, BufferIOOctahedronWithCustomBits)
+{
+	constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-4_r;
+	const uint32 customBit = 1;
+
+	IndexedAttributeBuffer buffer;
+	buffer.declareAttribute(
+		EPrimitiveAttribute::Custom_0,
+		EAttributeDomain::Vertex,
+		EAttributeElement::OctahedralUnitVec3_31_CustomBits_1,
+		3);
+
+	auto writer = buffer.allocate(3);
+	writer.setAttribute(EPrimitiveAttribute::Custom_0, 0, Vector3R(1, 0, 0), &customBit);
+	writer.setAttribute(EPrimitiveAttribute::Custom_0, 1, Vector3R(0, 1, 0));
+	writer.setAttribute(EPrimitiveAttribute::Custom_0, 2, Vector3R(0, 0, 1), &customBit);
+
+	// Scalar access
+	{
+		uint32 loadedCustomBit = 0;
+		EXPECT_TRUE(buffer.getAttribute(
+			EPrimitiveAttribute::Custom_0,
+			0,
+			&loadedCustomBit).isNear(Vector3R(1, 0, 0), MAX_ALLOWED_ABS_ERROR));
+		EXPECT_EQ(loadedCustomBit, 1u);
+	}
+
+	// Batch access
+	{
+		const std::array<uint32, 3> indices = {2, 1, 0};
+		const std::array<uint32, 3> expectedCustomBits = {1, 0, 1};
+		std::array<uint32, 3> loadedCustomBits;
+		const auto loadedVectors = buffer.getAttribute(
+			EPrimitiveAttribute::Custom_0,
+			indices,
+			&loadedCustomBits);
+
+		EXPECT_TRUE(loadedVectors[0].isNear(Vector3R(0, 0, 1), MAX_ALLOWED_ABS_ERROR));
+		EXPECT_TRUE(loadedVectors[1].isNear(Vector3R(0, 1, 0), MAX_ALLOWED_ABS_ERROR));
+		EXPECT_TRUE(loadedVectors[2].isNear(Vector3R(1, 0, 0), MAX_ALLOWED_ABS_ERROR));
+		EXPECT_EQ(loadedCustomBits, expectedCustomBits);
+	}
+}
+
 TEST(IndexedAttributeBufferTest, BufferIOMixedAttributes)
 {
 	// Mixed attributes with default AoS layout
@@ -328,10 +372,13 @@ TEST(IndexedAttributeBufferTest, GetAttributeBatch)
 		Vector3R(0),
 		Vector3R(0),
 		Vector3R(0)};
+	const std::array<uint32, 3> expectedCustomBits = {0, 0, 0};
 
+	std::array<uint32, 3> loadedCustomBits = {1, 1, 1};
 	EXPECT_EQ(
-		buffer.getAttribute(EPrimitiveAttribute::Position_0, indices),
+		buffer.getAttribute(EPrimitiveAttribute::Position_0, indices, &loadedCustomBits),
 		expectedPositions);
+	EXPECT_EQ(loadedCustomBits, expectedCustomBits);
 	EXPECT_EQ(
 		buffer.getAttribute(EPrimitiveAttribute::TexCoord_0, indices),
 		expectedTexCoords);

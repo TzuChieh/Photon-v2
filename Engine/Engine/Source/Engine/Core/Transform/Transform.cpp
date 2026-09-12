@@ -160,12 +160,15 @@ void Transform::doTransformHitInfo(
 		else
 		{
 			math::Vector3R tShadingTangent;
+			math::Vector3R tShadingBitangent;
 			doTransformVector(info.getShadingTangent(), time, &tShadingTangent);
+			doTransformVector(info.getShadingBitangent(), time, &tShadingBitangent);
 
 			out_info->setAttributes(tPosition,
 			                        tGeometryNormal.normalizeLocal(),
 			                        tShadingNormal.normalizeLocal(),
-			                        tShadingTangent.normalizeLocal());
+			                        tShadingTangent.normalizeLocal(),
+			                        tShadingBitangent.normalizeLocal());
 		}
 	}
 

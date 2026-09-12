@@ -480,7 +480,12 @@ bool PlyElement::containsList() const
 
 PlyProperty* PlyElement::findProperty(const std::string_view name)
 {
-	for(PlyProperty& prop : properties)
+	return mutable_cast(std::as_const(*this).findProperty(name));
+}
+
+const PlyProperty* PlyElement::findProperty(const std::string_view name) const
+{
+	for(const PlyProperty& prop : properties)
 	{
 		if(prop.name == name)
 		{

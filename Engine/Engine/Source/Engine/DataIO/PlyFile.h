@@ -133,6 +133,7 @@ struct PlyElement final
 	bool isLoaded() const;
 	bool containsList() const;
 	PlyProperty* findProperty(std::string_view name);
+	const PlyProperty* findProperty(std::string_view name) const;
 	PlyPropertyValues propertyValues(PlyProperty* prop);
 	PlyPropertyListValues listPropertyValues(PlyProperty* prop);
 };

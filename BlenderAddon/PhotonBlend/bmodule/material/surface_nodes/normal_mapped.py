@@ -6,6 +6,7 @@ from ..node_base import (
     PhColorSocket,
     PhFloatValueSocket)
 from psdl import sdl
+from bmodule.mesh import attributes
 
 
 class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
@@ -40,6 +41,9 @@ class PhNormalMappedSurfaceNode(PhSurfaceMaterialNode):
         else:
             creator.set_strength(sdl.Real(self.get_default_input_value(2)))
         sdlconsole.queue_command(creator)
+
+    def used_geometry_attributes(self):
+        return (attributes.GeometryAttribute.MIKK_T_SPACE_TANGENT,)
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, 'normal_map_format', text="")

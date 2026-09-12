@@ -33,8 +33,12 @@ public:
 	void setPlyFile(Path plyFile);
 
 protected:
-	/*!
-	@param plyFile The .ply file to load from.
+	/*! @brief Load a triangle buffer from named PLY properties.
+	Pass an empty string view (`{}`) for an unused property.
+	@param file The .ply file to load from.
+	@param tangentSignPropertyName Name of the optional property whose sign
+	controls the MikkTSpace bitangent. Values must be finite and nonzero.
+	A missing property implies default handedness in the source mesh.
 	*/
 	IndexedTriangleBuffer loadTriangleBuffer(
 		PlyFile& file,
@@ -45,6 +49,10 @@ protected:
 		std::string_view normalXPropertyName,
 		std::string_view normalYPropertyName,
 		std::string_view normalZPropertyName,
+		std::string_view tangentXPropertyName,
+		std::string_view tangentYPropertyName,
+		std::string_view tangentZPropertyName,
+		std::string_view tangentSignPropertyName,
 		std::string_view faceElementName, 
 		std::string_view vertexIndicesPropertyName,
 		const StaticAffineTransform* bakedTransform = nullptr) const;
@@ -72,10 +80,11 @@ public:
 		clazz.docName("PLY Polygon Mesh");
 		clazz.description(
 			"Polygon mesh stored as a .ply file. This geometry assumes standard data "
-			"layout, with \"vertex\" element storing position propreties (x, y, z) and "
-			"normal properties (nx, ny, nz); \"face\" element storing a "
-			"\"vertex_indices\" property that points into the vertex element to "
-			"form polygon faces.");
+			"layout, with \"vertex\" element storing position properties (x, y, z) and "
+			"optional normal properties (nx, ny, nz) and tangent properties (tx, ty, tz), with "
+			"an optional tw providing bitangent handedness; "
+			"\"face\" element stores a \"vertex_indices\" property that points into "
+			"the vertex element to form polygon faces.");
 		clazz.baseOn<Geometry>();
 
 		TSdlResourceIdentifier<OwnerType> plyFile("ply-file", &OwnerType::m_plyFile);

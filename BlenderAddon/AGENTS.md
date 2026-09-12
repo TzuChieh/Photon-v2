@@ -6,11 +6,13 @@
   actors for emissive materials. Interface masks belong to material output and must not force
   per-material splitting or disable instancing.
 - Blender 4.1+ mesh normals should come from `Mesh.corner_normals`; only legacy Blender paths should prepare/read `calc_normals()`, `calc_normals_split()`, `MeshLoopTriangle.split_normals`, vertex normals, or triangle normals.
-- The fast Blender PLY writer uses `psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply()` from `bin.photon_renderer`; for Blender 4.5, build `SDLPyBind` with Python 3.11 and keep the add-on installation path pointed at the build root.
+- Keep material-driven geometry-attribute planning in `bmodule/mesh/attributes.py` as a scene analysis pass before serialization: nodes report `used_geometry_attributes()`, used geometry-attribute enum values receive dense deterministic scene-global slots, and each mesh computes only slots used by its materials. Do not derive the plan from material export order; omit unused slots and warn when an export path cannot supply a requested attribute.
+- Random Per Island assigns one deterministic value to every triangle in a connected mesh island; use Blender-provided connectivity and target qualitative Cycles parity, not identical random numbers.
+- The fast Blender PLY writer calls `psdl.direct().engine.GBlenderPlyPolygonMesh.write_ply()` through `bin.photon_renderer`. Load `build/PhotonBlend`, keep the add-on installation path at the build root, and leave the native module in `build/bin`; Blender 4.5 requires a Python 3.11 `SDLPyBind` build.
 - `PhotonBlend/generated/pysdl.py` is ignored generated output containing helpers from
   `SDLInterface/SDLGen/Resource/PythonGenerator/pysdl_base.py`; edit the generator base and
   regenerate the output before Blender validation.
-- When C++ SDL declarations affect Blender export or UI, rebuild `SDLGenCLI` with the Blender-matching Python version and run `scripts/dev_update_blender_addon.py`; if Blender runtime code consumes the changed definitions through `bin/photon_renderer`, also rebuild `SDLPyBind` for that Python version and restart Blender.
+- When C++ SDL declarations affect Blender export or UI, clean-build `SDLGenCLI` with the Blender-matching Python version. If Blender consumes the change through `bin/photon_renderer`, also clean-build `SDLPyBind` for that version and restart Blender; run `scripts/dev_update_blender_addon.py` after the required builds to regenerate/reinstall.
 
 ## Material Nodes
 - Material node exporters should use `PhMaterialNode` resource/default helpers; incomplete output-owning nodes warn with a reason and queue fallback for their output resource, while output nodes fallback to the owning material resource.

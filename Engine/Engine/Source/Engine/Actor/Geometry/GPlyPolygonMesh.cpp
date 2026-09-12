@@ -13,6 +13,7 @@
 
 #include <Common/logging.h>
 
+#include <cmath>
 #include <utility>
 
 namespace ph
@@ -82,6 +83,44 @@ void GPlyPolygonMesh::applyBakedTransform(
 			dstAttributes.setAttribute(EPrimitiveAttribute::Normal_0, vi, tNormal.normalizeLocal());
 		}
 	}
+
+	if(srcAttributes.hasAttribute(EPrimitiveAttribute::Tangent_0))
+	{
+		for(std::size_t vi = 0; vi < dstAttributes.numVertices(); ++vi)
+		{
+			math::Vector3R tTangent;
+			transform.transformV(srcAttributes.getAttribute(EPrimitiveAttribute::Tangent_0, vi), &tTangent);
+			dstAttributes.setAttribute(EPrimitiveAttribute::Tangent_0, vi, tTangent.normalizeLocal());
+		}
+	}
+
+	if(srcAttributes.hasAttribute(EPrimitiveAttribute::MikkTSpaceTangent_0))
+	{
+		for(std::size_t vi = 0; vi < dstAttributes.numVertices(); ++vi)
+		{
+			uint32 tangentSignBit;
+			const math::Vector3R tangent = srcAttributes.getAttribute(
+				EPrimitiveAttribute::MikkTSpaceTangent_0,
+				vi,
+				&tangentSignBit);
+			PH_ASSERT_LE(tangentSignBit, 1);
+
+			// Tangent sign bit is effectively changing handedness.
+			// If winding is already flipped, it can cancel/produce one sign bit, too.
+			if(transform.isWindingFlipped())
+			{
+				tangentSignBit ^= 1;
+			}
+
+			math::Vector3R tTangent;
+			transform.transformV(tangent, &tTangent);
+			dstAttributes.setAttribute(
+				EPrimitiveAttribute::MikkTSpaceTangent_0,
+				vi,
+				tTangent.normalizeLocal(),
+				&tangentSignBit);
+		}
+	}
 }
 
 void GPlyPolygonMesh::storeCookedPolygonMesh(
@@ -110,6 +149,10 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 	std::string_view normalXPropertyName,
 	std::string_view normalYPropertyName,
 	std::string_view normalZPropertyName,
+	std::string_view tangentXPropertyName,
+	std::string_view tangentYPropertyName,
+	std::string_view tangentZPropertyName,
+	std::string_view tangentSignPropertyName,
 	std::string_view faceElementName,
 	std::string_view vertexIndicesPropertyName,
 	const StaticAffineTransform* const bakedTransform) const
@@ -138,14 +181,31 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 	auto nxValues = vertexElement->propertyValues(vertexElement->findProperty(normalXPropertyName));
 	auto nyValues = vertexElement->propertyValues(vertexElement->findProperty(normalYPropertyName));
 	auto nzValues = vertexElement->propertyValues(vertexElement->findProperty(normalZPropertyName));
+	auto txValues = vertexElement->propertyValues(vertexElement->findProperty(tangentXPropertyName));
+	auto tyValues = vertexElement->propertyValues(vertexElement->findProperty(tangentYPropertyName));
+	auto tzValues = vertexElement->propertyValues(vertexElement->findProperty(tangentZPropertyName));
+	auto twValues = vertexElement->propertyValues(vertexElement->findProperty(tangentSignPropertyName));
 
 	const bool hasVertexCoords = xValues && yValues && zValues;
 	const bool hasNormals = nxValues && nyValues && nzValues;
+	const bool hasAnyTangent = txValues || tyValues || tzValues || twValues;
+	const bool hasTangents = txValues && tyValues && tzValues;
+	const bool hasTangentSign = twValues;
 
 	// Not having full x, y, z coordinates is an error
 	if(!hasVertexCoords)
 	{
 		throw CookException("requires x, y, z coordinates for a triangle buffer");
+	}
+
+	if(hasAnyTangent && !hasTangents)
+	{
+		throw CookException("requires a complete tx, ty, tz property set");
+	}
+
+	if(hasTangents && !hasNormals)
+	{
+		throw CookException("requires vertex normals when tangents are specified");
 	}
 
 	attributeBuffer.declareAttribute(
@@ -160,6 +220,24 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 			EPrimitiveAttribute::Normal_0,
 			EAttributeDomain::Vertex,
 			EAttributeElement::Float32,
+			3);
+	}
+
+	// Baked reflections require a sign even when the source tangent has none.
+	const bool shouldStoreTangentSign =
+		hasTangentSign || (bakedTransform && bakedTransform->isWindingFlipped());
+	const EPrimitiveAttribute tangentAttribute = shouldStoreTangentSign
+		? EPrimitiveAttribute::MikkTSpaceTangent_0
+		: EPrimitiveAttribute::Tangent_0;
+	if(hasTangents)
+	{
+		const EAttributeElement tangentElement = shouldStoreTangentSign
+			? EAttributeElement::OctahedralUnitVec3_31_CustomBits_1
+			: EAttributeElement::OctahedralUnitVec3_32;
+		attributeBuffer.declareAttribute(
+			tangentAttribute,
+			EAttributeDomain::Vertex,
+			tangentElement,
 			3);
 	}
 
@@ -187,6 +265,37 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer(
 			normal.normalizeLocal();
 
 			attributeWriter.setAttribute(EPrimitiveAttribute::Normal_0, vertexIdx, math::Vector3R(normal));
+		}
+	}
+
+	if(hasTangents)
+	{
+		for(std::size_t vertexIdx = 0; vertexIdx < vertexElement->numElements; ++vertexIdx)
+		{
+			math::Vector3D tangent(
+				txValues.get(vertexIdx),
+				tyValues.get(vertexIdx),
+				tzValues.get(vertexIdx));
+
+			tangent.normalizeLocal();
+
+			uint32 tangentSignBit = 0;
+			if(hasTangentSign)
+			{
+				const double tangentSign = twValues.get(vertexIdx);
+				if(!std::isfinite(tangentSign) || tangentSign == 0.0)
+				{
+					PH_LOG(GPlyPolygonMesh, Debug,
+						"tangent sign (tw) {} at vertex {} is zero or non-finite", tangentSign, vertexIdx);
+				}
+				tangentSignBit = tangentSign < 0 ? 1u : 0u;
+			}
+
+			attributeWriter.setAttribute(
+				tangentAttribute,
+				vertexIdx,
+				math::Vector3R(tangent),
+				shouldStoreTangentSign ? &tangentSignBit : nullptr);
 		}
 	}
 
@@ -265,6 +374,10 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadStandardTriangleBuffer(
 		"nx",
 		"ny",
 		"nz",
+		"tx",
+		"ty",
+		"tz",
+		"tw",
 		"face",
 		"vertex_indices",
 		bakedTransform);

@@ -30,8 +30,33 @@ public:
 	std::array<math::Vector3R, N> getPositions(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getTexCoords(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getNormals(std::size_t faceIndex) const;
-	math::Vector3R getFaceAttribute(EPrimitiveAttribute attribute, std::size_t faceIndex) const;
-	std::array<math::Vector3R, N> getFaceVertexAttributes(EPrimitiveAttribute attribute, std::size_t faceIndex) const;
+
+	/*! @name Face attribute access
+	Optional custom-bit outputs are right-aligned and zero when unavailable.
+	*/
+	///@{
+	/*!
+	@param attribute Face-domain attribute to get.
+	@param faceIndex Valid face index.
+	@param out_customBits Optional right-aligned custom bits; zero when unavailable.
+	*/
+	math::Vector3R getFaceAttribute(
+		EPrimitiveAttribute attribute,
+		std::size_t faceIndex,
+		uint32* out_customBits = nullptr) const;
+
+	/*!
+	@param attribute Vertex-domain attribute to get.
+	@param faceIndex Valid face index.
+	@param out_customBits Optional right-aligned custom bits in face-vertex order; zero when
+	unavailable.
+	*/
+	std::array<math::Vector3R, N> getFaceVertexAttributes(
+		EPrimitiveAttribute attribute,
+		std::size_t faceIndex,
+		std::array<uint32, N>* out_customBits = nullptr) const;
+	///@}
+
 	std::size_t numFaces() const;
 	bool hasTexCoord() const;
 	bool hasNormal() const;

@@ -7,36 +7,6 @@
 namespace ph
 {
 
-/*! @brief Attribute identifiers for intersectables.
-*/
-enum class EPrimitiveAttribute : uint8
-{
-	Position_0 = 0,
-	Normal_0,
-	Tangent_0,
-	TexCoord_0,
-	TexCoord_1,
-	Color_0,
-	Custom_0,
-	Custom_1,
-	Custom_2,
-	Custom_3,
-
-	// Special values
-	SIZE
-};
-
-/*! @brief Indexing domains for intersectable attributes.
-*/
-enum class EAttributeDomain : uint8
-{
-	Vertex = 0,
-	Face,
-
-	// Special values
-	SIZE
-};
-
 class Ray;
 class HitProbe;
 class HitDetail;

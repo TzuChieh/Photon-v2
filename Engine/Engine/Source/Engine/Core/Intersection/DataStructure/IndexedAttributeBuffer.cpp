@@ -8,6 +8,7 @@
 #include <Common/os.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -104,7 +105,9 @@ void IndexedAttributeBuffer::declareAttribute(
 
 	if(numElements <= 3)
 	{
-		if(element == EAttributeElement::OctahedralUnitVec3_32 || element == EAttributeElement::OctahedralUnitVec3_24)
+		if(element == EAttributeElement::OctahedralUnitVec3_32 ||
+		   element == EAttributeElement::OctahedralUnitVec3_24 ||
+		   element == EAttributeElement::OctahedralUnitVec3_31_CustomBits_1)
 		{
 			if(numElements != 3)
 			{
@@ -252,9 +255,21 @@ auto IndexedAttributeBuffer::allocate(const std::size_t numVertices, const std::
 
 math::Vector3R IndexedAttributeBuffer::getAttribute(
 	const EPrimitiveAttribute attribute,
-	const std::size_t index) const
+	const std::size_t index,
+	uint32* const out_customBits) const
 {
-	return getAttribute(attribute, std::array<std::size_t, 1>{index})[0];
+	std::array<uint32, 1> customBits;
+	const auto values = getAttribute(
+		attribute,
+		std::array<std::size_t, 1>{index},
+		out_customBits ? &customBits : nullptr);
+
+	if(out_customBits)
+	{
+		*out_customBits = customBits[0];
+	}
+
+	return values[0];
 }
 
 IndexedAttributeBufferWriter::IndexedAttributeBufferWriter(
@@ -271,7 +286,8 @@ IndexedAttributeBufferWriter::IndexedAttributeBufferWriter(
 void IndexedAttributeBufferWriter::setAttribute(
 	const EPrimitiveAttribute attribute,
 	const std::size_t index,
-	const math::Vector3R& value)
+	const math::Vector3R& value,
+	const uint32* const customBits)
 {
 	if(!m_buffer.hasEntry(attribute))
 	{
@@ -285,6 +301,18 @@ void IndexedAttributeBufferWriter::setAttribute(
 	const std::size_t numAttributeValues = entry.domain == EAttributeDomain::Vertex
 		? numVertices() : numFaces();
 	PH_ASSERT_LT(index, numAttributeValues);
+
+	const uint32 customBitsValue = customBits ? *customBits : 0;
+#if PH_DEBUG
+	if(entry.element == EAttributeElement::OctahedralUnitVec3_31_CustomBits_1)
+	{
+		PH_ASSERT_LE(customBitsValue, 1);
+	}
+	else
+	{
+		PH_ASSERT_EQ(customBitsValue, 0);
+	}
+#endif
 
 	std::byte* const bufferPtr = entry.u_attributeBuffer + index * entry.strideSize;
 	switch(entry.element)
@@ -365,6 +393,22 @@ void IndexedAttributeBufferWriter::setAttribute(
 		}
 		break;
 
+	case EAttributeElement::OctahedralUnitVec3_31_CustomBits_1:
+		{
+			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
+
+			const math::TVector2<uint32> encodedBits(
+				static_cast<uint32>(std::round(encodedVal.x() * 65535.0_r)),
+				static_cast<uint32>(std::round(encodedVal.y() * 32767.0_r)));
+
+			PH_ASSERT_LE(encodedBits.x(), 65535);
+			PH_ASSERT_LE(encodedBits.y(), 32767);
+
+			const uint32 packedBits = encodedBits.x() | (encodedBits.y() << 16) | (customBitsValue << 31);
+			std::memcpy(bufferPtr, &packedBits, sizeof(packedBits));
+		}
+		break;
+
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		break;
@@ -424,6 +468,7 @@ std::size_t IndexedAttributeBuffer::attributeSize(const Entry& entry)
 		return 2 * entry.numElements;
 
 	case EAttributeElement::OctahedralUnitVec3_32:
+	case EAttributeElement::OctahedralUnitVec3_31_CustomBits_1:
 		return 4;
 
 	case EAttributeElement::OctahedralUnitVec3_24:

@@ -7,8 +7,11 @@ from bmodule import naming
 from . import attributes, triangle_mesh
 import psdl
 
+import bmesh
 import bpy
 import numpy as np
+
+from contextlib import contextmanager
 
 
 def _supports_ply_export():
@@ -95,6 +98,7 @@ def _write_blender_ply_file(
     ply_path,
     raw_vert_positions,
     raw_vert_loop_normals,
+    raw_vert_loop_tangents,
     raw_vert_loop_uvs,
     vert_position_indices,
     vert_loop_indices,
@@ -104,6 +108,7 @@ def _write_blender_ply_file(
         path=ply_path,
         raw_vert_positions=raw_vert_positions,
         raw_vert_loop_normals=raw_vert_loop_normals,
+        raw_vert_loop_tangents=raw_vert_loop_tangents,
         raw_vert_loop_uvs=raw_vert_loop_uvs,
         vert_position_indices=vert_position_indices,
         vert_loop_indices=vert_loop_indices,
@@ -117,9 +122,9 @@ def _write_blender_ply_file(
 def _calc_custom_slot_to_tri_values(
     b_mesh: bpy.types.Mesh,
     export_ctx,
-    b_materials):
+    used_geometry_attributes):
     """
-    @return Triangle values for geometry attributes used by `b_materials`, keyed by their
+    @return Triangle values for `used_geometry_attributes`, keyed by their
     scene-global Photon custom attribute slots.
     """
     random_per_island_attribute = attributes.GeometryAttribute.RANDOM_PER_ISLAND
@@ -128,7 +133,7 @@ def _calc_custom_slot_to_tri_values(
         return {}
 
     # Whether the materials need custom attributes
-    if random_per_island_attribute not in attributes.find_used_geometry_attributes(b_materials):
+    if random_per_island_attribute not in used_geometry_attributes:
         return {}
 
     return {custom_slot: attributes.calc_random_per_island(b_mesh)}
@@ -203,6 +208,50 @@ def _get_mesh_obj_ply_export_materials(b_mesh_obj: bpy.types.Object):
     return b_materials
 
 
+@contextmanager
+def _prepare_ply_mesh(b_mesh: bpy.types.Mesh, needs_tangents):
+    """
+    Yield the source mesh, or a temporary mesh with only n-gons triangulated for tangent calculation.
+    Quads and evaluated corner normals are preserved. The temporary mesh is removed on exit.
+    """
+    if (not needs_tangents or
+        b_mesh.uv_layers.active is None or
+        all(polygon.loop_total <= 4 for polygon in b_mesh.polygons)):
+        yield b_mesh
+        return
+
+    b_temp_export_mesh = b_mesh.copy()
+    try:
+        # Keep evaluated corner normals to preserve appearance after the topology change
+        normals = np.empty(len(b_mesh.loops) * 3, dtype=np.float32)
+        b_mesh.corner_normals.foreach_get('vector', normals)
+        normal_attribute = b_temp_export_mesh.attributes.new(name="photon_corner_normal", type='FLOAT_VECTOR', domain='CORNER')
+        normal_attribute_name = normal_attribute.name
+        normal_attribute.data.foreach_set('vector', normals)
+
+        bm = bmesh.new()
+        try:
+            bm.from_mesh(b_temp_export_mesh)
+            bmesh.ops.triangulate(
+                bm,
+                faces=[face for face in bm.faces if len(face.verts) > 4],
+                ngon_method='EAR_CLIP')
+            bm.to_mesh(b_temp_export_mesh)
+        finally:
+            bm.free()
+
+        # Restore the kept corner normals
+        normal_attribute = b_temp_export_mesh.attributes[normal_attribute_name]
+        normals = np.empty(len(b_temp_export_mesh.loops) * 3, dtype=np.float32)
+        normal_attribute.data.foreach_get('vector', normals)
+        b_temp_export_mesh.attributes.remove(normal_attribute)
+        b_temp_export_mesh.normals_split_custom_set(normals.reshape(-1, 3))
+
+        yield b_temp_export_mesh
+    finally:
+        bpy.data.meshes.remove(b_temp_export_mesh)
+
+
 def _export_original_mesh_obj_as_ply(
     b_mesh_obj: bpy.types.Object,
     console: SdlConsole,
@@ -213,74 +262,80 @@ def _export_original_mesh_obj_as_ply(
     name_suffix,
     is_instance_source=False):
     """
-    Export the mesh as one PLY geometry and one model actor.
+    Export the mesh as one triangle-only PLY geometry and one model actor.
     Vertex attributes are transferred to C++ in bulk for faster I/O.
     @return The exported actor's SDL resource name.
     """
-    b_mesh = b_mesh_obj.data
+    used_geometry_attributes = attributes.find_used_geometry_attributes(b_materials)
+    needs_tangents = attributes.GeometryAttribute.MIKK_T_SPACE_TANGENT in used_geometry_attributes
+    with _prepare_ply_mesh(b_mesh_obj.data, needs_tangents) as b_mesh:
+        # TODO: maybe we can avoid this by exporting ngon
+        b_mesh.calc_loop_triangles()
 
-    # TODO: maybe we can avoid this by exporting ngon
-    b_mesh.calc_loop_triangles()
+        # Get raw data
 
-    # Get raw data
+        num_raw_loops = len(b_mesh.loops)
+        num_raw_vert_positions = len(b_mesh.vertices)
 
-    num_raw_loops = len(b_mesh.loops)
-    num_raw_vert_positions = len(b_mesh.vertices)
+        # Bulk get all vertex positions
+        raw_vert_positions = np.empty(num_raw_vert_positions * 3, dtype=np.float32)
+        b_mesh.vertices.foreach_get('co', raw_vert_positions)
 
-    # Bulk get all vertex positions
-    raw_vert_positions = np.empty(num_raw_vert_positions * 3, dtype=np.float32)
-    b_mesh.vertices.foreach_get('co', raw_vert_positions)
+        # Bulk get all vertex normals
+        raw_vert_loop_normals = np.empty(num_raw_loops * 3, dtype=np.float32)
+        b_mesh.corner_normals.foreach_get('vector', raw_vert_loop_normals)
 
-    # Bulk get all vertex normals
-    raw_vert_loop_normals = np.empty(num_raw_loops * 3, dtype=np.float32)
-    b_mesh.corner_normals.foreach_get('vector', raw_vert_loop_normals)
+        # Bulk get all UVs (use the active one as the UV map for export)
+        # TODO: support exporting multiple or zero UV maps/layers
+        raw_vert_loop_uvs = np.zeros(num_raw_loops * 2, dtype=np.float32)
+        b_uv_layers = b_mesh.uv_layers
+        b_active_uv_layer = b_uv_layers.active
+        if b_active_uv_layer and b_active_uv_layer.data:
+            b_active_uv_layer.data.foreach_get('uv', raw_vert_loop_uvs)
 
-    # Bulk get all UVs (use the active one as the UV map for export)
-    # TODO: support exporting multiple or zero UV maps/layers
-    raw_vert_loop_uvs = np.zeros(num_raw_loops * 2, dtype=np.float32)
-    b_uv_layers = b_mesh.uv_layers
-    b_active_uv_layer = b_uv_layers.active
-    if b_active_uv_layer and b_active_uv_layer.data:
-        b_active_uv_layer.data.foreach_get('uv', raw_vert_loop_uvs)
+        raw_vert_loop_tangents = None
+        if needs_tangents:
+            raw_vert_loop_tangents = attributes.calc_mikk_t_space_tangents(b_mesh, b_active_uv_layer)
 
-    # Get indices into raw data
+        # Get indices into raw data
 
-    num_tris = len(b_mesh.loop_triangles)
+        num_tris = len(b_mesh.loop_triangles)
 
-    # Bulk get all triangle vertex position indices
-    vert_position_indices = np.empty(num_tris * 3, dtype=np.uint32)
-    b_mesh.loop_triangles.foreach_get('vertices', vert_position_indices)
+        # Bulk get all triangle vertex position indices
+        vert_position_indices = np.empty(num_tris * 3, dtype=np.uint32)
+        b_mesh.loop_triangles.foreach_get('vertices', vert_position_indices)
 
-    # Bulk get per-vertex loop indices for attributes like UV, color...
-    vert_loop_indices = np.empty(num_tris * 3, dtype=np.uint32)
-    b_mesh.loop_triangles.foreach_get('loops', vert_loop_indices)
+        # Bulk get per-vertex loop indices for attributes like UV, color...
+        vert_loop_indices = np.empty(num_tris * 3, dtype=np.uint32)
+        b_mesh.loop_triangles.foreach_get('loops', vert_loop_indices)
 
-    # Bulk get all material IDs (1 for each face)
-    tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
-    b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
+        # Bulk get all material IDs (1 for each face)
+        tri_mat_ids = np.empty(num_tris, dtype=np.uint32)
+        b_mesh.loop_triangles.foreach_get('material_index', tri_mat_ids)
 
-    custom_slot_to_tri_values = _calc_custom_slot_to_tri_values(
-        b_mesh,
-        export_ctx,
-        b_materials)
+        custom_slot_to_tri_values = _calc_custom_slot_to_tri_values(
+            b_mesh,
+            export_ctx,
+            used_geometry_attributes)
 
-    geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, name_suffix)
-    ply_path = console.get_working_dir() / "Mesh_data" / f"{geometry_name}.ply"
-    ply_path.parent.mkdir(parents=True, exist_ok=True)
-    bundled_ply_path = console.get_bundled_path(ply_path)
-    _write_blender_ply_file(
-        ply_path,
-        raw_vert_positions,
-        raw_vert_loop_normals,
-        raw_vert_loop_uvs,
-        vert_position_indices,
-        vert_loop_indices,
-        tri_mat_ids,
-        custom_slot_to_tri_values)
+        geometry_name = naming.get_mangled_mesh_name(b_mesh_obj, name_suffix)
+        ply_path = console.get_working_dir() / "Mesh_data" / f"{geometry_name}.ply"
+        ply_path.parent.mkdir(parents=True, exist_ok=True)
+        bundled_ply_path = console.get_bundled_path(ply_path)
+        _write_blender_ply_file(
+            ply_path,
+            raw_vert_positions,
+            raw_vert_loop_normals,
+            raw_vert_loop_tangents,
+            raw_vert_loop_uvs,
+            vert_position_indices,
+            vert_loop_indices,
+            tri_mat_ids,
+            custom_slot_to_tri_values)
 
     _queue_blender_ply_geometry(
         console,
-        b_mesh,
+        b_mesh_obj.data,
         geometry_name,
         bundled_ply_path)
 
@@ -320,6 +375,10 @@ def _export_original_mesh_obj_per_material(
         print(
             "warning: this export mode cannot provide Random Per Island values for "
             f"mesh object {b_mesh_obj.name}")
+    if attributes.GeometryAttribute.MIKK_T_SPACE_TANGENT in used_geometry_attributes:
+        print(
+            f"warning: this export mode cannot provide tangents for mesh object {b_mesh_obj.name}; "
+            "will use Photon's fallback frame")
 
     b_mesh.calc_loop_triangles()
 

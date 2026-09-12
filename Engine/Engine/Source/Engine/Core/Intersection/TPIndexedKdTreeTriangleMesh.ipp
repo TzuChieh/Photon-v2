@@ -140,12 +140,16 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	const auto& texCoords = m_triangleBuffer->getTexCoords(closestHit.faceIdx);
 	const auto& normals = m_triangleBuffer->getNormals(closestHit.faceIdx);
 
+	const bool hasTexCoords = m_triangleBuffer->hasTexCoord();
+	const bool hasShadingNormal = m_triangleBuffer->hasNormal();
+	const bool hasTangent = m_triangleBuffer->hasAttribute(EPrimitiveAttribute::Tangent_0);
+	const bool hasMikkTSpaceTangent = m_triangleBuffer->hasAttribute(EPrimitiveAttribute::MikkTSpaceTangent_0);
+	const bool hasShadingTangent = hasTangent || hasMikkTSpaceTangent;
+	PH_ASSERT(!hasShadingTangent || hasShadingNormal);
+
 	const Triangle triangle(positions);
 	const math::Vector3R position = triangle.barycentricToSurface(closestHit.bary);
 	const math::Vector3R faceNormal = triangle.getFaceNormal();
-
-	const bool hasTexCoords = m_triangleBuffer->hasTexCoord();
-	const bool hasShadingNormal = m_triangleBuffer->hasNormal();
 
 	const auto shadingNormal = hasShadingNormal
 		? Triangle::interpolate(normals, closestHit.bary).normalize()
@@ -155,10 +159,44 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 		? Triangle::interpolate(texCoords, closestHit.bary)
 		: math::Vector3R(0);
 
-	PH_ASSERT_MSG(position.isFinite() && shadingNormal.isFinite() && uvw.isFinite(), "\n"
+	const EPrimitiveAttribute tangentAttribute = hasMikkTSpaceTangent
+		? EPrimitiveAttribute::MikkTSpaceTangent_0
+		: EPrimitiveAttribute::Tangent_0;
+	std::array<uint32, 3> tangentSignBits{};
+	const auto tangents = hasShadingTangent
+		? m_triangleBuffer->getFaceVertexAttributes(
+			tangentAttribute,
+			closestHit.faceIdx,
+			hasMikkTSpaceTangent ? &tangentSignBits : nullptr)
+		: std::array<math::Vector3R, 3>{};
+
+	const auto shadingTangent = hasShadingTangent
+		? Triangle::interpolate(tangents, closestHit.bary)
+		: math::Vector3R(0);
+
+	math::Vector3R shadingBitangent(0);
+	if(hasMikkTSpaceTangent)
+	{
+		shadingBitangent = shadingNormal.cross(shadingTangent);
+
+		PH_ASSERT_LE(tangentSignBits[0], 1);
+		if(tangentSignBits[0] != 0)
+		{
+			shadingBitangent.negateLocal();
+		}
+	}
+
+	PH_ASSERT_MSG(
+		position.isFinite() &&
+		shadingNormal.isFinite() &&
+		uvw.isFinite() &&
+		shadingTangent.isFinite() &&
+		shadingBitangent.isFinite(), "\n"
 		"position       = " + position.toString() + "\n"
 		"shading-normal = " + shadingNormal.toString() + "\n"
-		"uvw            = " + uvw.toString() + "\n");
+		"uvw            = " + uvw.toString() + "\n"
+		"tangent        = " + shadingTangent.toString() + "\n"
+		"bitangent      = " + shadingBitangent.toString() + "\n");
 
 	// TODO: respect primitive channel
 	// (if it's default channel, use vertex uvw; otherwise, use mapper)
@@ -196,7 +234,24 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 		probe.getHitRayT(),
 		lossless_cast<uint64>(closestHit.faceIdx),
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
-	if(hasShadingNormal)
+	if(hasMikkTSpaceTangent)
+	{
+		out_detail->hitInfo(ECoordSys::Local).setAttributes(
+			position,
+			faceNormal,
+			shadingNormal,
+			shadingTangent,
+			shadingBitangent);
+	}
+	else if(hasTangent)
+	{
+		out_detail->hitInfo(ECoordSys::Local).setAttributes(
+			position,
+			faceNormal,
+			shadingNormal,
+			shadingTangent);
+	}
+	else if(hasShadingNormal)
 	{
 		out_detail->hitInfo(ECoordSys::Local).setAttributes(
 			position,

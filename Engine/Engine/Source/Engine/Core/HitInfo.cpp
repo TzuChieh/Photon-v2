@@ -50,11 +50,9 @@ HitInfo::HitInfo()
 	, m_dNdU(0, 0, 0)
 	, m_dNdV(0, 0, 0)
 
+	// Basis axes also hold input normals and tangent/bitangent before computation
 	, m_geometryBasis()
 	, m_shadingBasis()
-
-	// No need to init (guarded by `m_hasShadingTangent`)
-	// , m_shadingTangent(0, 0, 0)
 
 	, m_hasShadingNormal(false)
 	, m_hasShadingTangent(false)
@@ -69,7 +67,7 @@ void HitInfo::computeBases()
 	if(!compute_basis_from_Y_and_refZ(m_geometryBasis, getdPdU()) &&
 	   !compute_basis_from_Y_and_refX(m_geometryBasis, getdPdV()))
 	{
-		m_geometryBasis = math::Basis3R::makeFromUnitY(m_geometryBasis.getYAxis());
+		m_geometryBasis = math::Basis3R::makeFromUnitY(getGeometryNormal());
 	}
 
 	// Shading basis
@@ -78,10 +76,20 @@ void HitInfo::computeBases()
 	{
 		m_shadingBasis = m_geometryBasis;
 	}
-	// X axis of shading basis: try to align with tangent if available
+	// Align with the specified tangent frame when available
 	else if(hasShadingTangent())
 	{
-		if(!compute_basis_from_Y_and_refZ(m_shadingBasis, getShadingTangent()))
+		const math::Vector3R shadingTangent = getShadingTangent();
+		const math::Vector3R shadingBitangent = getShadingBitangent();
+
+		if(compute_basis_from_Y_and_refZ(m_shadingBasis, shadingTangent))
+		{
+			if(m_shadingBasis.getXAxis().dot(shadingBitangent) < 0)
+			{
+				m_shadingBasis.setXAxis(-m_shadingBasis.getXAxis());
+			}
+		}
+		else if(!compute_basis_from_Y_and_refX(m_shadingBasis, shadingBitangent))
 		{
 			m_shadingBasis = math::Basis3R::makeFromUnitY(getShadingNormal());
 		}
@@ -103,7 +111,7 @@ void HitInfo::computeBases()
 		"m_shadingBasis.getYAxis()  = " + m_shadingBasis.getYAxis().toString() + "\n");
 
 #if PH_DEBUG
-	m_isBasesComputed = true;
+	m_areBasesComputed = true;
 #endif
 }
 

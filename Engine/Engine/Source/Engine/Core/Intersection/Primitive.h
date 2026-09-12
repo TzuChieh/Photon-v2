@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/Intersectable.h"
+#include "Engine/Core/Intersection/data_structure_fwd.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 #include "Engine/Utility/TSpan.h"
