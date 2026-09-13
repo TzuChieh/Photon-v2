@@ -105,7 +105,7 @@ inline TSpan<T> make_array_from_buffer(
 	// Prepare the array to return
 
 	// IOC of array of size `numArrayElements`
-	NonConstT* const storage = start_implicit_lifetime_as_array<NonConstT>(alignedPtr, arraySizeInBytes);
+	NonConstT* const storage = start_implicit_lifetime_as_array<NonConstT>(alignedPtr, numArrayElements);
 
 	// Part of the contract of this function--default construct array elements
 	std::uninitialized_default_construct_n(storage, numArrayElements);
