@@ -58,6 +58,12 @@ public:
 		const math::Vector2S&          sampleIndex,
 		const math::Spectrum&          pathThroughput);
 
+	void impl_onPathTraced(
+		std::size_t           pathLength,
+		const Ray&            ray,
+		const math::Spectrum& pathThroughput,
+		SampleFlow&           sampleFlow);
+
 	auto impl_onPathHitSurface(
 		std::size_t                    pathLength,
 		const SurfaceHit&              surfaceHit,
@@ -140,6 +146,26 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleBegi
 	m_foundTargetHitPoint = false;
 
 	return true;
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathTraced(
+	const std::size_t     pathLength,
+	const Ray&            ray,
+	const math::Spectrum& pathThroughput,
+	SampleFlow&           sampleFlow)
+{
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+	{
+		const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMap->getInfo()};
+		const auto unaccountedEnergy = residualEnergy.certainlyLostEnergy(
+			pathLength,
+			ray,
+			lta::SidednessAgreement{lta::ESidednessPolicy::Strict},
+			pathThroughput,
+			sampleFlow);
+		addViewRadiance(*m_viewpoint, unaccountedEnergy);
+	}
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>

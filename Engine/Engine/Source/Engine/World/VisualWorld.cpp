@@ -12,6 +12,7 @@
 #include "Engine/Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Engine/Core/Intersection/Kdtree/KdtreeIntersector.h"
 #include "Engine/Core/Emitter/SurfaceEmitter.h"
+#include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Engine/Actor/Geometry/Geometry.h"
 #include "Engine/Actor/Material/Material.h"
@@ -218,7 +219,9 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	// Gather cooked data for the top-level accelerator and emitter sampler
 	std::vector<const Intersectable*> visibleIntersectables;
-	std::vector<const Emitter*> visibleEmitters;
+	std::vector<const Intersectable*> nonBlockingLightIntersectables;
+	std::vector<const Emitter*> physicalEmitters;
+	std::vector<const Emitter*> nonPhysicalEmitters;
 	for(const ResourceCookUnit& cookUnit : cookUnitView)
 	{
 		const TransientVisualElement* element = cookUnit.visibleElement;
@@ -231,16 +234,29 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 			visibleIntersectables.end(),
 			element->intersectables.begin(),
 			element->intersectables.end());
-		visibleEmitters.insert(
-			visibleEmitters.end(),
-			element->surfaceEmitters.begin(),
-			element->surfaceEmitters.end());
+
+		for(const auto& emitterUnit : element->surfaceEmitters)
+		{
+			if(emitterUnit.isNonPhysical)
+			{
+				nonPhysicalEmitters.push_back(emitterUnit.emitter);
+			}
+			else
+			{
+				physicalEmitters.push_back(emitterUnit.emitter);
+			}
+		}
+		
+		nonBlockingLightIntersectables.insert(
+			nonBlockingLightIntersectables.end(),
+			element->nonBlockingEmitterPrimitives.begin(),
+			element->nonBlockingEmitterPrimitives.end());
 	}
 
 	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
 
 	PH_LOG(VisualWorld, Note, "discretized into {} visible intersectables, number of emitters: {}", 
-		visibleIntersectables.size(), visibleEmitters.size());
+		visibleIntersectables.size(), physicalEmitters.size() + nonPhysicalEmitters.size());
 
 	PH_LOG(VisualWorld, Note, "updating accelerator...");
 	{
@@ -252,6 +268,28 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		{
 			m_tlas->update(visibleIntersectables);
 		}
+
+		m_nonBlockingLightTlas = nullptr;
+		if(!nonBlockingLightIntersectables.empty())
+		{
+			m_nonBlockingLightTlas = createTopLevelAccelerator(
+				coreCtx.getTopLevelAcceleratorType(), nonBlockingLightIntersectables);
+			if(m_nonBlockingLightTlas && !m_nonBlockingLightTlas->supportsForEachIntersection())
+			{
+				PH_LOG(VisualWorld, Note,
+					"configured accelerator cannot enumerate intersections; "
+					"using BVH for non-blocking emitters");
+				m_nonBlockingLightTlas = createTopLevelAccelerator(
+					EAccelerator::BVH, nonBlockingLightIntersectables);
+			}
+
+			if(!m_nonBlockingLightTlas || !m_nonBlockingLightTlas->supportsForEachIntersection())
+			{
+				throw CookException("nonblocking emitters require intersection enumeration support");
+			}
+			
+			m_nonBlockingLightTlas->update(nonBlockingLightIntersectables);
+		}
 	}
 
 	PH_LOG(VisualWorld, Note, "updating light sampler...");
@@ -259,7 +297,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_PROFILE_NAMED_SCOPE("Update light sampler");
 		PH_SCOPED_TIMER(UpdateLightSamplers);
 
-		m_emitterSampler->update(visibleEmitters);
+		m_emitterSampler->update(physicalEmitters, nonPhysicalEmitters);
 	}
 
 	// Finished cooking
@@ -271,8 +309,12 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Clean up cache as it is not needed afterwards
 	m_cache = nullptr;
 
-	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get(), ctx.getCommonConfig().timeStep);
-	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
+	m_scene = std::make_unique<Scene>(
+		m_tlas.get(),
+		m_emitterSampler.get(),
+		ctx.getCommonConfig().timeStep,
+		m_backgroundPrimitive,
+		m_nonBlockingLightTlas.get());
 }
 
 const TransientVisualElement* VisualWorld::cookActor(const Actor& actor, CookingContext& ctx)
@@ -326,6 +368,11 @@ void VisualWorld::onFinishedActorCookLevel(CookLevel level, TSpanView<ResourceCo
 		for(const Intersectable* intersectable : element->intersectables)
 		{
 			currentLevelActorsBound.unionWith(intersectable->calcAABB());
+		}
+		
+		for(const Primitive* primitive : element->nonBlockingEmitterPrimitives)
+		{
+			currentLevelActorsBound.unionWith(primitive->calcAABB());
 		}
 	}
 

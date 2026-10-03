@@ -178,7 +178,8 @@ void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment)
 	// Note: a `processedCommandSegment` may contain zero to multiple commands, and the command 
 	// may be incomplete
 
-	std::string_view remainingSegment = string_utils::trim(processedCommandSegment);
+	// Do not trim. Whitespace separates tokens across incremental command segments.
+	std::string_view remainingSegment = processedCommandSegment;
 	while(!remainingSegment.empty())
 	{
 		// Input string is already pre-processed, here we just need to find the command delimiter
@@ -224,7 +225,7 @@ void SdlCommandParser::parseCommand(const std::string& command)
 {
 	PH_SCOPED_TIMER(ParseCommandTotal);
 
-	if(command.empty())
+	if(string_utils::trim_head(command).empty())
 	{
 		return;
 	}

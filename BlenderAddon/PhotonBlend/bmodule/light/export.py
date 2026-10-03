@@ -21,6 +21,15 @@ def light_object_to_sdl_actor(b_light_obj: bpy.types.Object, console: SdlConsole
     use_attenuation = attenuation_type in {'IES'}
     light_actor_name = naming.get_mangled_light_name(b_light_obj)
     src_light_actor_name = naming.get_mangled_light_name(b_light_obj, "src") if use_attenuation else light_actor_name
+
+    pos, rot, scale = blender.to_photon_pos_rot_scale(b_light_obj.matrix_world)
+    if b_light.type == 'POINT' and b_light.shadow_soft_size > 0:
+        world_scale = b_light_obj.matrix_world.to_scale()
+        # Absorb some scale roundoff error so it will not cause side effect
+        # on renderer (e.g., causing mandatory transform baking).
+        if all(math.isclose(s, 1.0, rel_tol=0.0, abs_tol=1e-6) for s in world_scale):
+            scale = mathutils.Vector((1.0, 1.0, 1.0))
+
     if b_light.type == 'AREA':
         area.light_to_sdl_area_light_actor(b_light_obj, console, src_light_actor_name, phantomize=use_attenuation)
     elif b_light.type == 'POINT':
@@ -28,8 +37,6 @@ def light_object_to_sdl_actor(b_light_obj: bpy.types.Object, console: SdlConsole
     else:
         print(f"warning: light object {b_light_obj.name} has unsupported light type {b_light.type}")
         return
-
-    pos, rot, scale = blender.to_photon_pos_rot_scale(b_light_obj.matrix_world)
 
     # Blender's rectangle area light is facing downwards (Blender's -z) by default, while Photon's rectangle 
     # is facing upwards (Blender's +z); these rotations account for such differences (for symmetric shape 

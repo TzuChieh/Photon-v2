@@ -10,6 +10,7 @@
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Estimator/Integrand.h"
 
@@ -42,6 +43,7 @@ void BVPTDLEstimator::estimate(
 	// Transport tools
 	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
+	const lta::DirectLightEstimator directLight{&integrand.getScene(), sidedness};
 
 	math::Spectrum& accuRadiance = out_estimation[getPathEnergyIndex()].setColorValues(0);
 	math::Spectrum accuPathWeight(1);
@@ -54,23 +56,21 @@ void BVPTDLEstimator::estimate(
 		firstRay = Ray(ray).reverse();
 		firstRay.setRange(0, std::numeric_limits<real>::max());
 
-		if(!surfaceTracer.traceNextSurface(firstRay, sidedness, &firstHit))
+		math::Spectrum emittedRadiance;
+		const bool foundSurface = directLight.sampleSurfaceEmission<EEmitterFeatureSet::ZeroBounceSample>(
+			firstRay,
+			sampleFlow,
+			&firstHit,
+			&emittedRadiance);
+
+		// Avoid excessive, negative weight and possible NaNs
+		emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
+
+		accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
+
+		if(!foundSurface)
 		{
 			return;
-		}
-
-		const PrimitiveMetadata& metadata = firstHit.getMetadata();
-		const SurfaceBehavior& surfaceBehavior = metadata.getSurface();
-
-		if(surfaceBehavior.isEmissive())
-		{
-			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter().evalEmittedEnergy(firstHit, &emittedRadiance);
-
-			// Avoid excessive, negative weight and possible NaNs
-			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
-
-			accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
 		}
 	}
 
@@ -90,27 +90,19 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		if(!surfaceTracer.traceNextSurfaceFrom(
-			firstHit, secondRay, BsdfQueryContext{}.sidedness, &secondHit))
-		{
-			return;
-		}
-
 		accuPathWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
-		const PrimitiveMetadata& metadata = secondHit.getMetadata();
-		const SurfaceBehavior& surfaceBehavior = metadata.getSurface();
+		math::Spectrum emittedRadiance;
+		directLight.sampleSurfaceEmission<EEmitterFeatureSet::BsdfSample>(
+			surfaceTracer.getRefinedRayOriginatedFrom(firstHit, secondRay),
+			sampleFlow,
+			&secondHit,
+			&emittedRadiance);
 
-		if(surfaceBehavior.isEmissive())
-		{
-			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter().evalEmittedEnergy(secondHit, &emittedRadiance);
+		// avoid excessive, negative weight and possible NaNs
+		emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
 
-			// avoid excessive, negative weight and possible NaNs
-			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
-
-			accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
-		}
+		accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
 	}
 }
 

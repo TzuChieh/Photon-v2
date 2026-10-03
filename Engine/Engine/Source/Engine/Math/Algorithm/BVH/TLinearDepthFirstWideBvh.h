@@ -57,11 +57,27 @@ public:
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
+	/*! @brief Find the nearest hit among candidates.
+	@tparam TesterFunc Must satisfy `CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>`.
+	@param intersectionTester Returns a hit t or `std::nullopt` for each candidate.
+	*/
 	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
+	/*! @brief Stop at the first hit reported by an intersection tester.
+	@tparam TesterFunc Must satisfy `CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>`.
+	@param intersectionTester Returns a hit t or `std::nullopt` for each candidate.
+	*/
 	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	/*! @brief Visit candidates in all leaf nodes overlapping the segment.
+	Visitation order is unspecified.
+	@param visitor Called as `visitor(const Item& item, const TLineSegment<real>& segment)`;
+	its return value is ignored.
+	*/
+	template<typename VisitorFunc, bool IS_ROBUST = true>
+	void exhaustiveTraversal(const TLineSegment<real>& segment, VisitorFunc&& visitor) const;
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
@@ -94,7 +110,7 @@ private:
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;
 
-	template<typename TesterFunc, bool IS_ROBUST>
+	template<bool IS_ROBUST, typename TesterFunc>
 	bool anyHitTraversal(
 		const TLineSegment<real>& segment,
 		TesterFunc&& intersectionTester) const;

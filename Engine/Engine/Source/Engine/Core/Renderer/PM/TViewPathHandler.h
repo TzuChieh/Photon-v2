@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceHit.h"
+#include "Engine/Core/Ray.h"
 #include "Engine/Math/TVector2.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Renderer/PM/ViewPathTracingPolicy.h"
@@ -11,6 +12,8 @@
 
 namespace ph
 {
+
+class SampleFlow;
 
 template<typename T>
 concept CViewPathHandler = requires
@@ -34,6 +37,19 @@ public:
 		const math::Vector2D& rasterCoord,
 		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
+
+	/*! @brief Called after tracing a segment, before any surface-hit callback.
+	Also called when no usable surface is reached.
+	@param pathLength Current path length. The receiver's first segment has length 1.
+	@param ray The traced segment, bounded by the nearest physical hit or the original ray limit.
+	@param pathThroughput Throughput at the start of the segment.
+	@param sampleFlow Sample stream for the traced path.
+	*/
+	void onPathTraced(
+		std::size_t           pathLength,
+		const Ray&            ray,
+		const math::Spectrum& pathThroughput,
+		SampleFlow&           sampleFlow);
 
 	/*! @brief Called after the view path hits a surface, with corresponding hit information given.
 	@return A policy for controlling how to trace the next path.
@@ -87,6 +103,29 @@ bool TViewPathHandler<Derived>::onReceiverSampleBegin(
 		rasterCoord,
 		sampleIndex,
 		pathThroughput);
+}
+
+template<typename Derived>
+void TViewPathHandler<Derived>::onPathTraced(
+	const std::size_t     pathLength,
+	const Ray&            ray,
+	const math::Spectrum& pathThroughput,
+	SampleFlow&           sampleFlow)
+{
+	static_assert(requires (
+		Derived               derived,
+		std::size_t           pathLength,
+		const Ray&            ray,
+		const math::Spectrum& pathThroughput,
+		SampleFlow&           sampleFlow)
+		{
+			{ derived.impl_onPathTraced(pathLength, ray, pathThroughput, sampleFlow) } -> CSame<void>;
+		},
+		"A view path handler type must implement a method callable as "
+		"`impl_onPathTraced(std::size_t pathLength, const Ray& ray, "
+		"const math::Spectrum& pathThroughput, SampleFlow& sampleFlow) -> void`.");
+
+	static_cast<Derived&>(*this).impl_onPathTraced(pathLength, ray, pathThroughput, sampleFlow);
 }
 
 template<typename Derived>

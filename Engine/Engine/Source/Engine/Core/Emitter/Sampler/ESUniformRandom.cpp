@@ -16,12 +16,18 @@
 namespace ph
 {
 
-void ESUniformRandom::update(TSpanView<const Emitter*> emitters)
+void ESUniformRandom::update(
+	TSpanView<const Emitter*> emitters,
+	TSpanView<const Emitter*> nonPhysicalEmitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
 
 	for(const auto& emitter : emitters)
+	{
+		m_emitters.push_back(emitter);
+	}
+	for(const auto& emitter : nonPhysicalEmitters)
 	{
 		m_emitters.push_back(emitter);
 	}

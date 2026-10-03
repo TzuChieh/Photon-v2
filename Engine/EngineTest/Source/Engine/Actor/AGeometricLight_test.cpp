@@ -1,5 +1,6 @@
 #include <Engine/Actor/Geometry/GTriangle.h>
 #include <Engine/Actor/Light/AModelLight.h>
+#include <Engine/Actor/Light/ASphereLight.h>
 #include <Engine/Core/HitDetail.h>
 #include <Engine/Core/HitProbe.h>
 #include <Engine/Core/Intersection/Primitive.h>
@@ -55,4 +56,19 @@ TEST(AGeometricLightTest, ReflectedBakeHonorsGeometryNormalPolicy)
 
 	expectNormals(false, Vector3R(0, 0, 1));
 	expectNormals(true, Vector3R(0, 0, -1));
+}
+
+TEST(AGeometricLightTest, CooksNonBlockingLight)
+{
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+	auto light = TSdl<ASphereLight>::makeResource();
+	light->setIsIntersectable(false);
+	const auto result = light->stagelessCook(ctx);
+
+	EXPECT_TRUE(result.intersectables.empty());
+	EXPECT_EQ(result.nonBlockingEmitterPrimitives.size(), 1);
+	ASSERT_EQ(result.surfaceEmitters.size(), 1);
+	EXPECT_TRUE(result.surfaceEmitters.front().isNonPhysical);
+	EXPECT_NE(result.surfaceEmitters.front().emitter, nullptr);
 }

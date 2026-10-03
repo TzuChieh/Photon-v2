@@ -17,6 +17,10 @@
 #include <Common/logging.h>
 #include <Common/utility.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <unordered_map>
+
 namespace ph
 {
 
@@ -59,85 +63,96 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	if(sourceElement.surfaceEmitters.empty())
 	{
 		PH_LOG(ActorCooking, Warning,
-			"ignoring this IES light: no emitters were found");
-		return {};
+			"ignoring IES attenuation: no emitters were found");
+		return sourceElement;
 	}
 
-	if(!sourceElement.primitivesView.empty() &&
-	   sourceElement.surfaceEmitters.size() != 1 &&
-	   sourceElement.surfaceEmitters.size() != sourceElement.primitivesView.size())
-	{
-		PH_LOG(ActorCooking, Warning,
-			"ignoring this IES light: no match between emitters and primitives "
-			"(# emitters: {}, # primitives: {})",
-			sourceElement.surfaceEmitters.size(), sourceElement.primitivesView.size());
-		return {};
-	}
-
-	TransientVisualElement result;
+	TransientVisualElement result = sourceElement;
 
 	// Modulate source emitters with IES profile
-	std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture = loadAttenuationTexture();
-	for(auto* sourceEmitter : sourceElement.surfaceEmitters)
+	const std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture = loadAttenuationTexture();
+	for(auto& emitterUnit : result.surfaceEmitters)
 	{
-		auto* attenuatedEmitter = ctx.getResources().makeEmitter<TOmniModulatedEmitter<SurfaceEmitter>>(sourceEmitter);
+		auto* attenuatedEmitter = ctx.getResources().makeEmitter<TOmniModulatedEmitter<SurfaceEmitter>>(
+			emitterUnit.emitter);
 		attenuatedEmitter->setFilter(attenuationTexture);
-		result.surfaceEmitters.push_back(attenuatedEmitter);
+		emitterUnit.emitter = attenuatedEmitter;
 	}
 
 	// Update source primitives with the modulated emitters
-	if(!sourceElement.primitivesView.empty())
+	std::unordered_map<const PrimitiveMetadata*, PrimitiveMetadata*> sourceMetadataToIesMetadata;
+	std::unordered_map<const Intersectable*, const Primitive*> sourcePrimitiveToIesPrimitive;
+	for(const Primitive*& primitive : result.primitivesView)
 	{
-		const PrimitiveMetadata& refMetadata = sourceElement.primitivesView[0]->getMetadata(0);
-
-		bool hasSingleMetadata = true;
-		for(auto* pi : sourceElement.primitivesView)
+		bool isEmissive = false;
+		for(uint32 slot = 0; slot < primitive->numMetadataSlots(); ++slot)
 		{
-			if(pi->numMetadataSlots() != 1 || &pi->getMetadata(0) != &refMetadata)
+			if(primitive->getMetadata(slot).getSurface().isEmissive())
 			{
-				hasSingleMetadata = false;
+				isEmissive = true;
 				break;
 			}
 		}
+		if(!isEmissive)
+		{
+			continue;
+		}
 
-		// This case can be implemented in the future.
-		if(!hasSingleMetadata)
+		// Wrapping emissive primitives with multiple metadata slots can be implemented in the future.
+		if(primitive->numMetadataSlots() != 1)
 		{
 			PH_NOT_IMPLEMENTED_WARNING();
 			return {};
 		}
 
-		// 1 emitter to many primitives
-		if(result.surfaceEmitters.size() == 1)
+		// Primitives sharing source metadata also share the decorated metadata.
+		const PrimitiveMetadata& sourceMetadata = primitive->getMetadata(0);
+		PrimitiveMetadata*& iesMetadata = sourceMetadataToIesMetadata[&sourceMetadata];
+		if(!iesMetadata)
 		{
-			auto* iesMetadata = ctx.getResources().makeMetadata(refMetadata);
-			iesMetadata->surface().setEmitter(result.surfaceEmitters[0]);
-			for(auto* pi : sourceElement.primitivesView)
+			// Find source emitter's index so we can access the wrapped one.
+			const auto emitterIter = std::ranges::find(
+				sourceElement.surfaceEmitters,
+				&sourceMetadata.getSurface().getEmitter(),
+				&TransientVisualElement::SurfaceEmitterUnit::emitter);
+			if(emitterIter == sourceElement.surfaceEmitters.end())
 			{
-				auto* iesPrimitive = ctx.getResources().copyIntersectable(
-					PrimitiveBuilder::referencing(pi)
-						.injectMetadata(iesMetadata)
-						.build());
-
-				result.add(iesPrimitive);
+				throw ActorCookException(
+					"IES light source primitive references an unregistered emitter");
 			}
+
+			const auto emitterIndex = static_cast<std::size_t>(
+				emitterIter - sourceElement.surfaceEmitters.begin());
+			iesMetadata = ctx.getResources().makeMetadata(sourceMetadata);
+			iesMetadata->surface().setEmitter(result.surfaceEmitters[emitterIndex].emitter);
 		}
-		// 1 emitter to 1 primitive, with N pairs (N > 1)
-		else
+
+		const Primitive*& iesPrimitive = sourcePrimitiveToIesPrimitive[primitive];
+		if(!iesPrimitive)
 		{
-			PH_ASSERT_EQ(result.surfaceEmitters.size(), sourceElement.primitivesView.size());
-			for(std::size_t i = 0; i < result.surfaceEmitters.size(); ++i)
-			{
-				auto* iesMetadata = ctx.getResources().makeMetadata(refMetadata);
-				iesMetadata->surface().setEmitter(result.surfaceEmitters[i]);
+			iesPrimitive = ctx.getResources().copyIntersectable(
+				PrimitiveBuilder::referencing(primitive)
+					.injectMetadata(iesMetadata)
+					.build());
+		}
+		primitive = iesPrimitive;
+	}
 
-				auto* iesPrimitive = ctx.getResources().copyIntersectable(
-					PrimitiveBuilder::referencing(sourceElement.primitivesView[i])
-						.injectMetadata(iesMetadata)
-						.build());
-
-				result.add(iesPrimitive);
-			}
+	// Update entity lists to reference the IES wrappers already in `primitivesView`.
+	for(const Intersectable*& intersectable : result.intersectables)
+	{
+		const auto replacementIter = sourcePrimitiveToIesPrimitive.find(intersectable);
+		if(replacementIter != sourcePrimitiveToIesPrimitive.end())
+		{
+			intersectable = replacementIter->second;
+		}
+	}
+	for(const Primitive*& primitive : result.nonBlockingEmitterPrimitives)
+	{
+		const auto replacementIter = sourcePrimitiveToIesPrimitive.find(primitive);
+		if(replacementIter != sourcePrimitiveToIesPrimitive.end())
+		{
+			primitive = replacementIter->second;
 		}
 	}
 

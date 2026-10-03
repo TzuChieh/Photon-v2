@@ -34,7 +34,7 @@ inline math::Vector3R TIndexedPolygonBuffer<N>::getFaceAttribute(
 	uint32* const out_customBits) const
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
-	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Face);
+	PH_ASSERT(!hasAttribute(attribute) || getAttributeDomain(attribute) == EAttributeDomain::Face);
 	return m_attributeBuffer.getAttribute(attribute, faceIndex, out_customBits);
 }
 
@@ -45,7 +45,7 @@ inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceVertexAttr
 	std::array<uint32, N>* const out_customBits) const
 {
 	PH_ASSERT_LT(faceIndex, numFaces());
-	PH_ASSERT(m_attributeBuffer.getAttributeDomain(attribute) == EAttributeDomain::Vertex);
+	PH_ASSERT(!hasAttribute(attribute) || getAttributeDomain(attribute) == EAttributeDomain::Vertex);
 	const auto indices = m_indexBuffer.getUInt<N>(N * faceIndex);
 	return m_attributeBuffer.getAttribute(attribute, indices, out_customBits);
 }

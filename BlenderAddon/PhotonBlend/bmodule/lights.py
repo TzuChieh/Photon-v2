@@ -49,6 +49,9 @@ class PH_LIGHT_PT_properties(PhLightPanel):
         elif light_type == 'POINT':
             col.prop(b_light, 'shadow_soft_size', text="Radius")
 
+        if light_type == 'AREA' or (light_type == 'POINT' and b_light.shadow_soft_size > 0):
+            col.prop(b_light.photon, 'emit_backward')
+
         col.separator()
 
         col.prop(b_light.photon, 'attenuation_type')
@@ -69,6 +72,7 @@ class PH_LIGHT_PT_advanced(PhLightPanel):
         b_light = b_context.light
         layout = self.layout
 
+        layout.prop(b_light.photon, 'intersectable')
         layout.prop(b_light.photon, 'directly_visible')
 
         if b_light.type == 'POINT':

@@ -21,13 +21,14 @@ inline Ray trim_ray_tail(const Ray& ray, const math::Vector3R& whereToTrim, cons
 }// end anonymous namespace
 
 bool SurfaceTracer::traceNextSurface(
-	const Ray&                ray,
-	const SidednessAgreement& sidedness,
-	VolumeTracker&            volumeTracker,
-	SurfaceHit* const         out_X) const
+	const Ray&        ray,
+	VolumeTracker&    volumeTracker,
+	SurfaceHit* const out_X,
+	Ray* const        out_boundedRay) const
 {
 	PH_ASSERT(out_X);
 	SurfaceHit& X = *out_X;
+	if(out_boundedRay) { *out_boundedRay = ray; }
 
 	HitProbe probe;
 	if(!getScene().isIntersecting(ray, &probe))
@@ -73,8 +74,13 @@ bool SurfaceTracer::traceNextSurface(
 		}
 	}
 
-	sidedness.adjustForSidednessAgreement(X);
-	return sidedness.isSidednessAgreed(X, remainingRay.getDir());
+	if(out_boundedRay)
+	{
+		// Skipped volume boundaries can move the ray origin, so here we bound the original segment
+		out_boundedRay->setMaxT(out_boundedRay->getSegment().getProjectedT(X.getPos()));
+	}
+
+	return true;
 }
 
 }// end namespace ph::lta

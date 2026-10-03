@@ -85,6 +85,26 @@ inline auto TBinaryBvhIntersector<Index>
 
 template<typename Index>
 inline void TBinaryBvhIntersector<Index>
+::forEachIntersection(const Ray& ray, const HitVisitor& visitor) const
+{
+	m_bvh.exhaustiveTraversal(
+		ray.getSegment(),
+		[&ray, &visitor](const Intersectable* intersectable, const math::TLineSegment<real>& segment)
+		{
+			PH_ASSERT(intersectable);
+
+			forEachIntersectionInTarget(*intersectable, Ray(segment, ray.getTime()), visitor);
+		});
+}
+
+template<typename Index>
+inline bool TBinaryBvhIntersector<Index>::supportsForEachIntersection() const
+{
+	return true;
+}
+
+template<typename Index>
+inline void TBinaryBvhIntersector<Index>
 ::rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables)
 {
 	constexpr auto itemToAABB =

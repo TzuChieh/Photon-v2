@@ -38,6 +38,12 @@ public:
 		const math::Vector2S&          sampleIndex,
 		const math::Spectrum&          pathThroughput);
 
+	void impl_onPathTraced(
+		std::size_t           pathLength,
+		const Ray&            ray,
+		const math::Spectrum& pathThroughput,
+		SampleFlow&           sampleFlow);
+
 	auto impl_onPathHitSurface(
 		std::size_t                    pathLength,
 		const SurfaceHit&              surfaceHit,
@@ -145,6 +151,25 @@ inline bool TVPMRadianceEvaluator<Photon, PhotonMap>
 	m_sampledRadiance.setColorValues(0);
 
 	return true;
+}
+
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::impl_onPathTraced(
+	const std::size_t     pathLength,
+	const Ray&            ray,
+	const math::Spectrum& pathThroughput,
+	SampleFlow&           sampleFlow)
+{
+	const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMap->getInfo()};
+	m_sampledRadiance += residualEnergy.certainlyLostEnergy(
+		pathLength,
+		ray,
+		lta::SidednessAgreement{lta::ESidednessPolicy::Strict},
+		pathThroughput,
+		sampleFlow,
+		m_minFullPathLength,
+		m_maxFullPathLength);
 }
 
 template<CPhoton Photon, typename PhotonMap>

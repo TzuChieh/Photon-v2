@@ -53,7 +53,7 @@ public:
 	that do not break any keyword or symbol of PSDL. For example, you can break any
 	opening/closing braces, but you cannot break a type name.
 
-	@param commandSegment A valid segment of command.
+	@param rawCommandSegment A valid segment of command.
 	*/
 	void parse(std::string_view rawCommandSegment);
 

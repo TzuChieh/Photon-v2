@@ -32,11 +32,27 @@ public:
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
+	/*! @brief Find the nearest hit among candidates.
+	@tparam TesterFunc Must satisfy `CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>`.
+	@param intersectionTester Returns a hit t or `std::nullopt` for each candidate.
+	*/
 	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
+	/*! @brief Stop at any hit among candidates.
+	@tparam TesterFunc Must satisfy `CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>`.
+	@param intersectionTester Returns a hit t or `std::nullopt` for each candidate.
+	*/
 	template<typename TesterFunc, bool IS_ROBUST = true>
 	bool occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+
+	/*! @brief Visit all candidates overlapping the segment.
+	Visitation order is unspecified.
+	@param visitor Called as `visitor(const Item& item, const TLineSegment<real>& segment)`;
+	its return value is ignored.
+	*/
+	template<typename VisitorFunc, bool IS_ROBUST = true>
+	void exhaustiveTraversal(const TLineSegment<real>& segment, VisitorFunc&& visitor) const;
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
@@ -45,8 +61,12 @@ public:
 	std::size_t memoryUsage() const;
 
 private:
-	template<typename TesterFunc, bool IS_OCCLUSION_ONLY = false, bool IS_ROBUST = true>
-	bool generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
+	template<
+		typename CallbackFunc,
+		bool IS_OCCLUSION_ONLY,
+		bool IS_EXHAUSTIVE,
+		bool IS_ROBUST>
+	bool generalTraversal(const TLineSegment<real>& segment, CallbackFunc&& callback) const;
 
 	void buildNodesRecursive(
 		const TBvhInfoNode<2, Item>* infoNode);

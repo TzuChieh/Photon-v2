@@ -29,7 +29,7 @@ bool AModelLight::isVolumetricEmissionSupported() const
 	return true;
 }
 
-const SurfaceEmitter* AModelLight::buildSurfaceEmitter(
+SurfaceEmitter* AModelLight::buildSurfaceEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const
 {
@@ -70,15 +70,6 @@ const SurfaceEmitter* AModelLight::buildSurfaceEmitter(
 			lightPrimitives, emittedEnergy, getEmitterFeatureSet());
 	}
 
-	if(m_isBackFaceEmit)
-	{
-		lightEmitter->setBackFaceEmit();
-	}
-	else
-	{
-		lightEmitter->setFrontFaceEmit();
-	}
-
 	return lightEmitter;
 }
 
@@ -92,11 +83,6 @@ void AModelLight::setMaterial(const std::shared_ptr<Material>& material)
 {
 	// Material can be null
 	m_material = material;
-}
-
-void AModelLight::setBackFaceEmit(bool isBackFaceEmit)
-{
-	m_isBackFaceEmit = isBackFaceEmit;
 }
 
 }// end namespace ph

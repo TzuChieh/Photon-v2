@@ -129,7 +129,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	ctx.getResources().getNamed()->setBackgroundPrimitive(domePrimitive);
 
 	TransientVisualElement result;
-	result.surfaceEmitters.push_back(domeEmitter);
+	result.surfaceEmitters.push_back({domeEmitter});
 	return result;
 }
 

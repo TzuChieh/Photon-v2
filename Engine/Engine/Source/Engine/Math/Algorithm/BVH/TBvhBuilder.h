@@ -55,7 +55,7 @@ public:
 	- Split axis: The axis of the offset between children. The split axis associated with child `i`
 	is for the axis of offset between child `i` and child `i + 1`. 
 	- Split method: How the split axis and its offset value is chosen. This can be set by `BvhParams`.
-	@return The root node of the built BVH. Memory of the BVH is managed by this builder.
+	@return Root node of the built BVH, or `nullptr` if @p items is empty. The builder owns its memory.
 	@note This method will clear any previous build data.
 	*/
 	auto buildInformativeBvh(TSpanView<Item> items)

@@ -28,6 +28,12 @@ class PhotonLightData(bpy.types.PropertyGroup):
         max=sys.float_info.max
     )
 
+    emit_backward: bpy.props.BoolProperty(
+        name="Emit Backward",
+        description=sdl.GeometricLightActorCreator.set_emit_backward.__doc__,
+        default=False
+    )
+
     attenuation_type: bpy.props.EnumProperty(
 		items=[
 			('NONE', "None", "", 0),
@@ -43,6 +49,12 @@ class PhotonLightData(bpy.types.PropertyGroup):
 		default="",
 		subtype='FILE_PATH'
 	)
+
+    intersectable: bpy.props.BoolProperty(
+        name="Intersectable",
+        description=sdl.GeometricLightActorCreator.set_intersectable.__doc__,
+        default=True
+    )
 
     directly_visible: bpy.props.BoolProperty(
         name="Directly Visible",

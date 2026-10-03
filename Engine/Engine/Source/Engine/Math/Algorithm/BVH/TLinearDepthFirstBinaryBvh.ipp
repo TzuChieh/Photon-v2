@@ -11,6 +11,7 @@
 #include <limits>
 #include <array>
 #include <utility>
+#include <concepts>
 
 namespace ph::math
 {
@@ -47,7 +48,7 @@ template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
-	return generalTraversal<TesterFunc, false, IS_ROBUST>(
+	return generalTraversal<TesterFunc, false, false, IS_ROBUST>(
 		segment,
 		std::forward<TesterFunc>(intersectionTester));
 }
@@ -57,17 +58,34 @@ template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
-	return generalTraversal<TesterFunc, true, IS_ROBUST>(
+	return generalTraversal<TesterFunc, true, false, IS_ROBUST>(
 		segment,
 		std::forward<TesterFunc>(intersectionTester));
 }
 
 template<typename Item, typename Index>
-template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
-inline bool TLinearDepthFirstBinaryBvh<Item, Index>
-::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+template<typename VisitorFunc, bool IS_ROBUST>
+inline void TLinearDepthFirstBinaryBvh<Item, Index>
+::exhaustiveTraversal(const TLineSegment<real>& segment, VisitorFunc&& visitor) const
 {
-	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+	generalTraversal<VisitorFunc, false, true, IS_ROBUST>(segment, std::forward<VisitorFunc>(visitor));
+}
+
+template<typename Item, typename Index>
+template<typename CallbackFunc, bool IS_OCCLUSION_ONLY, bool IS_EXHAUSTIVE, bool IS_ROBUST>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+::generalTraversal(const TLineSegment<real>& segment, CallbackFunc&& callback) const
+{
+	static_assert(!(IS_OCCLUSION_ONLY && IS_EXHAUSTIVE));
+	
+	if constexpr(IS_EXHAUSTIVE)
+	{
+		static_assert(std::invocable<CallbackFunc&, const Item&, const TLineSegment<real>&>);
+	}
+	else
+	{
+		static_assert(CItemSegmentIntersectionTesterVanilla<CallbackFunc, Item>);
+	}
 
 	if(isEmpty())
 	{
@@ -108,17 +126,24 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 				{
 					const Item& item = m_items[node.getItemOffset() + i];
 
-					const auto optHitT = intersectionTester(item, longestSegment);
-					if(optHitT)
+					if constexpr(IS_EXHAUSTIVE)
 					{
-						if constexpr(IS_OCCLUSION_ONLY)
+						callback(item, segment);
+					}
+					else
+					{
+						const auto optHitT = callback(item, longestSegment);
+						if(optHitT)
 						{
-							return true;
-						}
-						else
-						{
-							longestSegment.setMaxT(*optHitT);
-							hasHit = true;
+							if constexpr(IS_OCCLUSION_ONLY)
+							{
+								return true;
+							}
+							else
+							{
+								longestSegment.setMaxT(*optHitT);
+								hasHit = true;
+							}
 						}
 					}
 				}

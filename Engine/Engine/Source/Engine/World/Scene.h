@@ -3,6 +3,9 @@
 #include "Engine/Math/math_fwd.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/Quantity/TimeStep.h"
+#include "Engine/Core/Intersection/Intersector.h"
+#include "Engine/Core/Emitter/SurfaceEmitter.h"
+#include "Engine/Core/SurfaceHit.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -23,15 +26,29 @@ class SampleFlow;
 class VolumeBehavior;
 
 /*! @brief A unified interface for accessing cooked content in a visual world.
+Input data are fixed at construction and must outlive the scene.
 */
 class Scene final
 {
 public:
-	Scene();
-	Scene(const Intersector* intersector, const EmitterSampler* emitterSampler, TimeStep timeStep);
+	Scene(
+		const Intersector* intersector,
+		const EmitterSampler* emitterSampler,
+		TimeStep timeStep,
+		const Primitive* backgroundPrimitive = nullptr,
+		const Intersector* nonBlockingLightIntersector = nullptr);
 
 	bool isOccluding(const Ray& ray) const;
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
+
+	/*! @brief Visit nonblocking emitter hits within a ray segment.
+	@tparam FEATURE Allowed features. An emitter must enable at least one.
+	@param visitor Called as `visitor(SurfaceHit& emitterHit)`; the hit is local to the callback.
+	*/
+	template<EEmitterFeatureSet FEATURE = EEmitterFeatureSet::Default, typename Visitor>
+	void forEachNonBlockingEmitterHit(
+		const Ray& ray,
+		Visitor&& visitor) const;
 
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_PDF) const;
 
@@ -55,11 +72,7 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const;
 
-	/*! @brief Set the primitive to use when no other intersection is found.
-	*/
-	void setBackgroundPrimitive(const Primitive* const primitive);
-
-	/*!
+	/*! @brief The primitive to use when no other intersection is found.
 	Background primitive uses only metadata at slot 0.
 	*/
 	const Primitive* getBackgroundPrimitive() const;
@@ -71,17 +84,32 @@ public:
 	const TimeStep& getTimeStep() const;
 
 private:
-	const Intersector*    m_intersector;
-	const EmitterSampler* m_emitterSampler;
-	const Primitive*      m_backgroundPrimitive;
-	TimeStep              m_timeStep;
+	const Intersector* const m_intersector;
+	const Intersector* const m_nonBlockingLightIntersector;
+	const EmitterSampler* const m_emitterSampler;
+	const Primitive* const m_backgroundPrimitive;
+	const TimeStep m_timeStep;
 };
 
 // In-header Implementations:
 
-inline void Scene::setBackgroundPrimitive(const Primitive* const primitive)
+template<EEmitterFeatureSet FEATURE, typename Visitor>
+inline void Scene::forEachNonBlockingEmitterHit(
+	const Ray& ray,
+	Visitor&& visitor) const
 {
-	m_backgroundPrimitive = primitive;
+	if(m_nonBlockingLightIntersector)
+	{
+		m_nonBlockingLightIntersector->forEachIntersection(ray,
+			[&visitor](const Ray& hitRay, const HitProbe& probe)
+			{
+				SurfaceHit Xe(hitRay, probe, ESurfaceHitReason::IncidentRay);
+				if(Xe.getSurfaceEmitter().getFeatureSet().hasAny(FEATURE))
+				{
+					visitor(Xe);
+				}
+			});
+	}
 }
 
 inline const Primitive* Scene::getBackgroundPrimitive() const

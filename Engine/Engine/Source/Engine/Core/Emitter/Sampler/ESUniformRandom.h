@@ -10,7 +10,10 @@ namespace ph
 class ESUniformRandom : public EmitterSampler
 {
 public:
-	void update(TSpanView<const Emitter*> emitters) override;
+	void update(
+		TSpanView<const Emitter*> emitters,
+		TSpanView<const Emitter*> nonPhysicalEmitters) override;
+		
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const override;
 
 	void genDirectSample(

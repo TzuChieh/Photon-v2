@@ -4,6 +4,7 @@
 #include "Engine/Core/Renderer/PM/TPhotonMap.h"
 #include "Engine/Core/Renderer/PM/PMCommonParams.h"
 #include "Engine/Core/LTA/SidednessAgreement.h"
+#include "Engine/Core/LTA/SurfaceTracer.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/Core/LTA/IndirectLightEstimator.h"
@@ -75,6 +76,45 @@ public:
 		PH_ASSERT(m_scene);
 	}
 
+	/*! @brief Estimate nonblocking emission along a segment that can never be obtained by utilizing a photon map.
+	Only zero-bounce emission is handled here. Physical endpoint emission is handled by the
+	surface-hit overload.
+	@param ray The traced segment, already bounded by physical geometry (if any).
+	@return The energy weighted by `viewPathThroughput`.
+	*/
+	[[nodiscard]]
+	inline math::Spectrum certainlyLostEnergy(
+		const std::size_t              viewPathLength,
+		const Ray&                     ray,
+		const lta::SidednessAgreement& sidedness,
+		const math::Spectrum&          viewPathThroughput,
+		SampleFlow&                    sampleFlow,
+		const std::size_t              minFullPathLength = 1,
+		const std::size_t              maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH) const
+	{
+		PH_ASSERT_GE(viewPathLength, 1);
+		PH_ASSERT_GE(minFullPathLength, 1);
+		PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
+
+		math::Spectrum lostEnergy(0);
+		if(viewPathLength == 1 && minFullPathLength == 1)
+		{
+			const lta::DirectLightEstimator directLight{m_scene, sidedness};
+			lostEnergy = directLight.accumulateSurfaceEmission<EEmitterFeatureSet::ZeroBounceSample>(
+				ray,
+				nullptr,
+				sampleFlow,
+				[](const SurfaceHit& Xe)
+				{
+					math::Spectrum Le;
+					Xe.getSurfaceEmitter().evalEmittedEnergy(Xe, &Le);
+					return Le;
+				});
+			lostEnergy *= viewPathThroughput;
+		}
+		return lostEnergy;
+	}
+
 	/*! @brief Estimate the energy that can never be obtained by utilizing a photon map.
 	The estimation is for the current hit point only. To account for lost energy along a path
 	with multiple hit points, call this function for each hit point and sum the results.
@@ -116,7 +156,10 @@ public:
 		PH_ASSERT_GE(m_photonMapInfo.minPathLength, 1);
 
 		// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
-		if(viewPathLength == 1 && X.getMetadata().getSurface().isEmissive() && minFullPathLength == 1)
+		if(viewPathLength == 1 &&
+		   X.getMetadata().getSurface().isEmissive() &&
+		   minFullPathLength == 1 &&
+		   X.getSurfaceEmitter().getFeatureSet().hasAny(EEmitterFeatureSet::ZeroBounceSample))
 		{
 			PH_ASSERT_IN_RANGE_INCLUSIVE(viewPathLength, minFullPathLength, maxFullPathLength);
 

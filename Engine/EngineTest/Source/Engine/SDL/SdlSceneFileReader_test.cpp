@@ -89,3 +89,15 @@ TEST(SdlSceneFileReaderTest, UnknownDirectiveReportsParseError)
 
 	EXPECT_GT(reader.numParseErrors(), 0);
 }
+
+TEST(SdlSceneFileReaderTest, KeepsWhitespaceBetweenSegments)
+{
+	SdlSceneFileReader reader;
+
+	reader.parse("#version\n");
+	reader.parse("1.2.0;\n");
+	reader.flush();
+
+	EXPECT_EQ(reader.numParsedCommands(), 1);
+	EXPECT_EQ(reader.numParseErrors(), 0);
+}

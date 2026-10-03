@@ -11,6 +11,7 @@
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Estimator/Integrand.h"
@@ -48,6 +49,7 @@ void BVVPTEstimator::estimate(
 	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
+	const lta::DirectLightEstimator directLight{&integrand.getScene(), sidedness};
 
 	// Common variables
 	uint32 pathLength = 0;
@@ -65,29 +67,37 @@ void BVVPTEstimator::estimate(
 
 	SurfaceHit X;
 	SurfaceHit nextX;
-	bool foundNextX = false;
-	while(pathLength <= getPTParams().maxPathLength)
+	while(true)
 	{
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, volumeTracker, &X))
+			Ray boundedRay;
+			const bool foundGeometry = surfaceTracer.traceNextSurface(
+				tracingRay, volumeTracker, &X, &boundedRay);
+			if(foundGeometry)
+			{
+				sidedness.adjustForSidednessAgreement(X);
+			}
+
+			pathEnergy += directLight.accumulateSurfaceEmission<EEmitterFeatureSet::ZeroBounceSample>(
+				boundedRay,
+				nullptr,
+				sampleFlow,
+				[](const SurfaceHit& Xe)
+				{
+					math::Spectrum radianceLe;
+					Xe.getSurfaceEmitter().evalEmittedEnergy(Xe, &radianceLe);
+					return radianceLe;
+				});
+			if(!foundGeometry || !sidedness.isSidednessAgreed(X, boundedRay.getDir()))
 			{
 				break;
 			}
 		}
-		else if(foundNextX)
-		{
-			X = nextX;
-			foundNextX = false;
-		}
-		else 
-		{
-			if(!surfaceTracer.traceNextSurfaceFrom(
-				X, tracingRay, sidedness, volumeTracker, &X))
-			{
-				break;
-			}
-		}
+
+		const auto emitterFeature = pathLength == 0
+			? EEmitterFeatureSet::ZeroBounceSample
+			: EEmitterFeatureSet::BsdfSample;
 
 		// FIXME: also update in volume rendering part
 		++pathLength;
@@ -95,15 +105,18 @@ void BVVPTEstimator::estimate(
 		const PrimitiveMetadata& metadata = X.getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata.getSurface();
 
-		if(hitSurfaceBehavior.isEmissive())
+		if(hitSurfaceBehavior.isEmissive() &&
+		   X.getSurfaceEmitter().getFeatureSet().has(emitterFeature))
 		{
 			math::Spectrum radianceLe;
 			hitSurfaceBehavior.getEmitter().evalEmittedEnergy(X, &radianceLe);
-
-			// Avoid excessive, negative weight and possible NaNs
-			pathThroughput.safeClampLocal(0.0_r, 1e9_r);
-
 			pathEnergy += radianceLe * pathThroughput;
+		}
+
+		// The next segment would exceed the requested path length
+		if(pathLength > getPTParams().maxPathLength)
+		{
+			break;
 		}
 
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
@@ -118,6 +131,10 @@ void BVVPTEstimator::estimate(
 		const math::Vector3R L = nextRay.getDir();
 
 		pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+		if(pathThroughput.isZero())
+		{
+			break;
+		}
 
 		// Prevent premature termination of the path due to solid angle compression/expansion
 		rrScale /= bsdfSample.outputs.getRelativeIor2();
@@ -135,11 +152,6 @@ void BVVPTEstimator::estimate(
 			}
 		}
 
-		if(pathThroughput.isZero())
-		{
-			break;
-		}
-
 		if(sidedness.isOppositeHemisphere(X, V, L))
 		{
 			if(N.dot(V) > 0)
@@ -154,16 +166,62 @@ void BVVPTEstimator::estimate(
 
 		const VolumeOptics* volumeOptics = volumeTracker.getCurrentVolumeOptics();
 
+		Ray boundedRay;
+		const bool foundGeometry = surfaceTracer.traceNextSurfaceFrom(
+			X,
+			nextRay,
+			volumeTracker,
+			&nextX,
+			&boundedRay);
+		if(foundGeometry)
+		{
+			sidedness.adjustForSidednessAgreement(nextX);
+		}
+
+		// Volumetric transport is evaluated to each emitting surface's distance
+		pathEnergy += directLight.accumulateSurfaceEmission<EEmitterFeatureSet::BsdfSample>(
+			boundedRay,
+			nullptr,
+			sampleFlow,
+			[&X, &nextRay, &N, &L, &sampleFlow, &pathThroughput, volumeOptics](const SurfaceHit& Xe)
+			{
+				math::Spectrum radianceLe;
+				Xe.getSurfaceEmitter().evalEmittedEnergy(Xe, &radianceLe);
+				if(radianceLe.isZero())
+				{
+					return math::Spectrum(0);
+				}
+
+				math::Spectrum weight = pathThroughput;
+				if(volumeOptics)
+				{
+					// Volume sampling starts at the departing surface
+					const bool isFrontHemisphere = N.dot(L) > 0;
+					const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);
+
+					MediumDistanceSampleQuery distanceSample;
+					distanceSample.inputs.set(volumeHit, L, (Xe.getPos() - X.getPos()).length());
+					volumeOptics->genDistanceSample(distanceSample, sampleFlow);
+					if(!distanceSample.outputs)
+					{
+						return math::Spectrum(0);
+					}
+
+					weight *= distanceSample.outputs.getPdfAppliedWeight();
+				}
+				
+				weight.safeClampLocal(0.0_r, 1e9_r);
+				return radianceLe * weight;
+			});
+
+		if(!foundGeometry || !sidedness.isSidednessAgreed(nextX, boundedRay.getDir()))
+		{
+			break;
+		}
+
 		// Volumetric transport
 		if(volumeOptics)
 		{
-			foundNextX = surfaceTracer.traceNextSurfaceFrom(
-				X, nextRay, sidedness, volumeTracker, &nextX);
-			if(!foundNextX)
-			{
-				break;
-			}
-
 			const auto penetrationDepth = (nextX.getPos() - X.getPos()).length();
 			const bool isFrontHemisphere = N.dot(L) > 0;
 			const VolumeHit volumeHit(X, nextRay, !isFrontHemisphere);
@@ -185,13 +243,18 @@ void BVVPTEstimator::estimate(
 			}*/
 
 			pathThroughput *= distanceSample.outputs.getPdfAppliedWeight();
-			if(pathThroughput.isZero())
-			{
-				break;
-			}
+		}
+
+		// Avoid excessive, negative weight and possible NaNs
+		pathThroughput.safeClampLocal(0.0_r, 1e9_r);
+
+		if(pathThroughput.isZero())
+		{
+			break;
 		}
 
 		// Will extend the path, update states for next bounce
+		X = nextX;
 		tracingRay = nextRay;
 		bsdfContext.key = bsdfContext.key.makeRandom();
 	}// end while

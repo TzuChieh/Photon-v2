@@ -69,6 +69,13 @@ CookingContext CookingContext::withGeometryConfig(GeometryCookingConfig config) 
 	return ctx;
 }
 
+CookingContext CookingContext::withMaterialConfig(MaterialCookingConfig config) const
+{
+	CookingContext ctx = *this;
+	ctx.setMaterialConfig(std::move(config));
+	return ctx;
+}
+
 CookedGeometryKey CookingContext::getKey(const Geometry& resource) const
 {
 	return CookedGeometryKey(

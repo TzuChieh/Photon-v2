@@ -16,22 +16,18 @@
 namespace ph
 {
 
-Scene::Scene()
-	: m_intersector        (nullptr)
-	, m_emitterSampler     (nullptr)
-	, m_backgroundPrimitive(nullptr)
-	, m_timeStep           ()
-{}
-
 Scene::Scene(
-	const Intersector* const    intersector,
+	const Intersector* const intersector,
 	const EmitterSampler* const emitterSampler,
-	TimeStep                    timeStep)
+	const TimeStep timeStep,
+	const Primitive* const backgroundPrimitive,
+	const Intersector* const nonBlockingLightIntersector)
 
-	: m_intersector        (intersector)
-	, m_emitterSampler     (emitterSampler)
-	, m_backgroundPrimitive(nullptr)
-	, m_timeStep           (timeStep)
+	: m_intersector                (intersector)
+	, m_nonBlockingLightIntersector(nonBlockingLightIntersector)
+	, m_emitterSampler             (emitterSampler)
+	, m_backgroundPrimitive        (backgroundPrimitive)
+	, m_timeStep                   (timeStep)
 {
 	PH_ASSERT(intersector);
 	PH_ASSERT(emitterSampler);

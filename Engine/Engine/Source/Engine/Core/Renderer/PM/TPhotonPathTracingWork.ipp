@@ -119,7 +119,13 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			PH_ASSERT_LT(photonPathLength, m_maxPhotonPathLength);
 
 			if(!surfaceTracer.traceNextSurfaceFrom(
-				surfaceHit, tracingRay, bsdfContext.sidedness, &surfaceHit))
+				surfaceHit, tracingRay, &surfaceHit))
+			{
+				break;
+			}
+
+			bsdfContext.sidedness.adjustForSidednessAgreement(surfaceHit);
+			if(!bsdfContext.sidedness.isSidednessAgreed(surfaceHit, surfaceHit.getIncidentRay().getDir()))
 			{
 				break;
 			}

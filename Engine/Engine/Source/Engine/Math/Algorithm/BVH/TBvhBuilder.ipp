@@ -37,6 +37,10 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 -> const InfoNodeType*
 {
 	clearBuildData();
+	if(items.empty())
+	{
+		return nullptr;
+	}
 
 	m_infoBuffer.resize(items.size());
 	for(std::size_t i = 0; i < items.size(); i++)

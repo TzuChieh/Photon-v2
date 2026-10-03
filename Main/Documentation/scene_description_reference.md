@@ -834,10 +834,13 @@ Energy emitters that come with a physical geometry. Please be aware that changin
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
-| directly-visible | `bool` | Whether the light is directly visible. For example, you can see a bright sphere for a directly visible spherical area light. |
+| intersectable | `bool` | Whether the light's material affects rays. When disabled, rays pass through without scattering or shadowing, while emission remains available to all enabled sampling techniques. This is a non-physical artistic control, independent of directly-visible. |
+| directly-visible | `bool` | Whether the light's emitted energy is visible before the camera ray interacts with any surface optics. Disabling this suppresses only zero-bounce emission; the light's material still interacts with rays normally. This is a non-physical artistic control. |
 | bsdf-sample | `bool` | Whether to use BSDF sampling technique for rendering the light, i.e., choosing a direction based on BSDF and relying on randomly hitting a light. |
 | direct-sample | `bool` | Whether to use direct sampling technique for rendering the light, i.e., directly establish a connection from a light to the illuminated location. |
 | emission-sample | `bool` | Whether to use emission sampling technique for rendering the light, i.e., start rendering the light from the light source itself. |
+| emit-backward | `bool` | Emit opposite to the surface's shading normal without changing geometry orientation. For a sphere, this emits toward its center. |
+| should-flip-ng | `bool` | Flips the geometric normal (Ng) after transform and preserves explicit shading normals. To reverse light emission, use emit-backward. |
 
 
 ## Area Light Actor
@@ -846,7 +849,7 @@ Energy emitters that come with a physical geometry. Please be aware that changin
 * Type: `Area Light`
 * Note: **blueprint only**, based on **Geometric Light Actor**
 
-This type of light source has a finite area, with various simplifications on the characteristics of the emission profile. Energy is allowed to emit diffusively and uniformally within the area. By default, the energy emitting surface absorbs all incoming energy (which is effectively a pure absorber).
+This type of light source has a finite area, with various simplifications on the characteristics of the emission profile. Energy is allowed to emit diffusively and uniformally within the area. By default, the energy emitting surface absorbs all incoming energy (which is effectively a pure absorber). Disable intersectable to let rays pass through without scattering or shadowing.
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
@@ -860,16 +863,15 @@ This type of light source has a finite area, with various simplifications on the
 * Type: `Model Light`
 * Note: **concrete**, based on **Geometric Light Actor**
 
-A light source that emits energy from the surface of a geometry. A surface material model can also be given to describe its surface appearance.
+A light source that emits energy from the surface of an arbitrary geometry. This type of light has much more flexibility than other types of light. A surface material model can also be given to describe its surface appearance.
 
 > Creation: `actor(model-light)`
 
 | Inputs | Types | Descriptions |
 | --- | --- | --- |
 | geometry | `geometry` | A geometry that defines the surface energy is going to emit from. |
-| material | `material` | A material that describes this source's surface appearance. |
+| material | `material` | A material that describes this source's surface appearance. When omitted, the light emits without blocking rays or casting shadows. This is a non-physical artistic control. |
 | emitted-energy | `image` | An image that describes the emitted energy (e.g., radiance) across the surface. |
-| back-face-emit | `bool` | Whether the energy should emit from the back face of the geometry. |
 
 
 ## Point Light Actor

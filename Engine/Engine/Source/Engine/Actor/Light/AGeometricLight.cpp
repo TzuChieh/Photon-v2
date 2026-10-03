@@ -1,7 +1,6 @@
 #include "Engine/Actor/Light/AGeometricLight.h"
 #include "Engine/Actor/Basic/exceptions.h"
 #include "Engine/Math/math.h"
-#include "Engine/Actor/Material/MatteOpaque.h"
 #include "Engine/SDL/TSdl.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
 #include "Engine/Core/Intersection/PrimitiveBuilder.h"
@@ -25,7 +24,32 @@ PH_DEFINE_INTERNAL_LOG_GROUP(AGeometricLight, Actor);
 
 std::shared_ptr<Material> AGeometricLight::getMaterial(const CookingContext& ctx) const
 {
-	return TSdl<MatteOpaque>::makeResource();
+	return nullptr;
+}
+
+void AGeometricLight::setIsIntersectable(const bool isIntersectable)
+{
+	m_isIntersectable = isIntersectable;
+}
+
+bool AGeometricLight::isIntersectable() const
+{
+	return m_isIntersectable;
+}
+
+void AGeometricLight::setIsDirectlyVisible(const bool isDirectlyVisible)
+{
+	m_isDirectlyVisible = isDirectlyVisible;
+}
+
+void AGeometricLight::setEmitBackward(const bool shouldEmitBackward)
+{
+	m_shouldEmitBackward = shouldEmitBackward;
+}
+
+bool AGeometricLight::shouldEmitBackward() const
+{
+	return m_shouldEmitBackward;
 }
 
 void AGeometricLight::setShouldFlipNg(const bool shouldFlipNg)
@@ -64,24 +88,14 @@ PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 
 TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
-	std::shared_ptr<Geometry> geometry = getGeometry(ctx);
-	std::shared_ptr<Material> material = getMaterial(ctx);
-
-	if(!geometry)
+	const CookedGeometry* cookedGeometry = getSanifiedGeometry(ctx);
+	if(!cookedGeometry)
 	{
 		throw ActorCookException(
 			"cannot build geometric light, please make sure the actor is geometric or supply a "
 			"valid geometry resource");
 	}
 
-	if(!material)
-	{
-		PH_LOG(AGeometricLight, Note,
-			"material is not specified, using default material");
-		material = TSdl<MatteOpaque>::makeResource();
-	}
-
-	const CookedGeometry* cookedGeometry = getSanifiedGeometry(geometry, m_localToWorld, ctx);
 	if(cookedGeometry->primitives.empty())
 	{
 		return TransientVisualElement();
@@ -95,34 +109,30 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	PrimitiveMetadata* metadata = ctx.getResources().makeMetadata();
 	metadata->setGeometryInfo(&cookedGeometry->geometryInfo);
 
-	const CookedMaterial* cookedMaterial = ctx.getCooked(material);
-	if(!cookedMaterial)
+	std::shared_ptr<Material> material;
+	const CookedMaterial* cookedMaterial = getSanifiedMaterial(ctx, &material);
+	if(cookedMaterial)
 	{
-		const auto materialKey = ctx.getKey(*material);
-		CookedMaterial* const newCookedMaterial = ctx.getResources().makeMaterial(materialKey);
-		material->cook(ctx, *newCookedMaterial);
-		cookedMaterial = newCookedMaterial;
-	}
+		if(cookedMaterial->interfaceMask)
+		{
+			throw ActorCookException(
+				"geometric light does not support masking");
+		}
 
-	if(cookedMaterial->interfaceMask)
-	{
-		throw ActorCookException(
-			"geometric light does not support masking");
-	}
-	
-	metadata->surface().setOptics(cookedMaterial->surfaceOptics);
+		metadata->surface().setOptics(cookedMaterial->surfaceOptics);
 
-	if(isVolumetricEmissionSupported() && material->getOverlapPriority() > 0)
-	{
-		// Assuming the geometry has a closed shape, so its interior and exterior are well defined.
-		// It is user's responsibility to not set the interior and exterior for open shapes.
-		const VolumeOptics* interiorOptics = nullptr;
-		const VolumeOptics* exteriorOptics = nullptr;
-		cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
+		if(isVolumetricEmissionSupported() && material->getOverlapPriority() > 0)
+		{
+			// Assuming the geometry has a closed shape, so its interior and exterior are well defined.
+			// It is user's responsibility to not set the interior and exterior for open shapes.
+			const VolumeOptics* interiorOptics = nullptr;
+			const VolumeOptics* exteriorOptics = nullptr;
+			cookedMaterial->findFirstCompatibleOptics(&interiorOptics, &exteriorOptics);
 
-		metadata->interior().setOptics(interiorOptics);
-		metadata->exterior().setOptics(exteriorOptics);
-		metadata->setInteriorPriority(material->getOverlapPriority());
+			metadata->interior().setOptics(interiorOptics);
+			metadata->exterior().setOptics(exteriorOptics);
+			metadata->setInteriorPriority(material->getOverlapPriority());
+		}
 	}
 
 	if(m_localToWorld.getDecomposed().isIdentity())
@@ -181,21 +191,44 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 		lightPrimitives.push_back(lightPrimitive);
 	}
 
-	TransientVisualElement cookedLight;
-	for(const Primitive* primitive : lightPrimitives)
-	{
-		cookedLight.add(primitive);
-	}
-
-	const SurfaceEmitter* surfaceEmitter = buildSurfaceEmitter(ctx, lightPrimitives);
+	SurfaceEmitter* surfaceEmitter = buildSurfaceEmitter(ctx, lightPrimitives);
 	if(!surfaceEmitter)
 	{
-		PH_LOG(AGeometricLight, Error,
-			"no emitter generated");
-		return cookedLight;
+		PH_LOG(AGeometricLight, Error, "no emitter generated");
+		return {};
 	}
 
-	cookedLight.surfaceEmitters.push_back(surfaceEmitter);
+	TransientVisualElement cookedLight;
+
+	if(cookedMaterial)
+	{
+		for(const Primitive* primitive : lightPrimitives)
+		{
+			cookedLight.add(primitive);
+		}
+	}
+	// A light without a physical material is non-blocking
+	else
+	{
+		for(const Primitive* primitive : lightPrimitives)
+		{
+			cookedLight.addNonBlockingEmitterPrimitive(primitive);
+		}
+	}
+
+	if(m_shouldEmitBackward)
+	{
+		surfaceEmitter->setBackFaceEmit();
+	}
+	else
+	{
+		surfaceEmitter->setFrontFaceEmit();
+	}
+
+	const bool isNonPhysical =
+		!cookedMaterial ||
+		surfaceEmitter->getFeatureSet().hasNo(EEmitterFeatureSet::ZeroBounceSample);
+	cookedLight.surfaceEmitters.push_back({surfaceEmitter, isNonPhysical});
 	metadata->surface().setEmitter(surfaceEmitter);
 	return cookedLight;
 }
@@ -232,41 +265,81 @@ EmitterFeatureSet AGeometricLight::getEmitterFeatureSet() const
 }
 
 const CookedGeometry* AGeometricLight::getSanifiedGeometry(
-	const std::shared_ptr<Geometry>& srcGeometry,
-	const TransformInfo& srcLocalToWorld,
-	const CookingContext& ctx)
+	const CookingContext& ctx,
+	std::shared_ptr<Geometry>* const out_geometryResource) const
 {
-	if(!srcGeometry)
-	{
-		return nullptr;
-	}
-
 	GeometryCookingConfig geometryConfig = ctx.getGeometryConfig();
 
 	// TODO: test "isRigid()" may be more appropriate
-	if(srcLocalToWorld.getDecomposed().hasScaleEffect())
+	if(m_localToWorld.getDecomposed().hasScaleEffect())
 	{
 		PH_LOG(AGeometricLight, Note,
 			"scale detected (which is {}), this is undesirable since many light attributes will "
 			"be affected; baking the full transform can incur additional memory overhead as a "
 			"separate cooked geometry variant may be required",
-			srcLocalToWorld.getScale());
+			m_localToWorld.getScale());
 
 		// Bake the full transform so light sampling uses the correct geometry surface area.
 		geometryConfig.forceBakedTransform = true;
-		geometryConfig.bakedTransform = srcLocalToWorld.getDecomposed();
+		geometryConfig.bakedTransform = m_localToWorld.getDecomposed();
 	}
 
 	const CookingContext geometryCtx = ctx.withGeometryConfig(geometryConfig);
-	const auto key = geometryCtx.getKey(srcGeometry);
+	const std::shared_ptr<Geometry> geometry = getGeometry(geometryCtx);
+	if(out_geometryResource)
+	{
+		*out_geometryResource = geometry;
+	}
+	if(!geometry)
+	{
+		return nullptr;
+	}
+
+	const auto key = geometryCtx.getKey(geometry);
 	if(const CookedGeometry* cookedGeometry = geometryCtx.getResources().getGeometry(key))
 	{
 		return cookedGeometry;
 	}
 
 	CookedGeometry cookedGeometry;
-	srcGeometry->cook(geometryCtx, cookedGeometry);
+	geometry->cook(geometryCtx, cookedGeometry);
 	return geometryCtx.getResources().makeGeometry(key, std::move(cookedGeometry));
+}
+
+const CookedMaterial* AGeometricLight::getSanifiedMaterial(
+	const CookingContext& ctx,
+	std::shared_ptr<Material>* const out_materialResource) const
+{
+	if(out_materialResource)
+	{
+		*out_materialResource = nullptr;
+	}
+
+	if(!isIntersectable())
+	{
+		return nullptr;
+	}
+
+	const CookingContext materialCtx = ctx.withMaterialConfig(ctx.getMaterialConfig());
+	const std::shared_ptr<Material> material = getMaterial(materialCtx);
+	if(out_materialResource)
+	{
+		*out_materialResource = material;
+	}
+	if(!material)
+	{
+		return nullptr;
+	}
+
+	const auto key = materialCtx.getKey(material);
+	if(const CookedMaterial* cookedMaterial = materialCtx.getResources().getMaterial(key))
+	{
+		return cookedMaterial;
+	}
+
+	CookedMaterial cookedMaterial;
+	material->cook(materialCtx, cookedMaterial);
+	return materialCtx.getResources().makeMaterial(key, std::move(cookedMaterial));
 }
 
 }// end namespace ph

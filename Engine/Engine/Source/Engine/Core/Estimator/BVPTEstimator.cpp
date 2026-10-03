@@ -11,6 +11,7 @@
 #include "Engine/Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Engine/Math/Color/Spectrum.h"
 #include "Engine/Core/LTA/SurfaceTracer.h"
+#include "Engine/Core/LTA/DirectLightEstimator.h"
 #include "Engine/Core/LTA/RussianRoulette.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Estimator/Integrand.h"
@@ -59,6 +60,7 @@ void BVPTEstimator::estimate(
 	const lta::SidednessAgreement sidedness{sidednessPolicy};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
+	const lta::DirectLightEstimator directLight{&integrand.getScene(), sidedness};
 
 	// Common variables
 	uint32 pathLength = 0;
@@ -76,37 +78,31 @@ void BVPTEstimator::estimate(
 	SurfaceHit surfaceHit;
 	while(pathLength <= getPTParams().maxPathLength)
 	{
+		math::Spectrum radianceLe;
+		bool foundSurface;
 		if(pathLength == 0)
 		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &surfaceHit))
-			{
-				break;
-			}
+			foundSurface = directLight.sampleSurfaceEmission<EEmitterFeatureSet::ZeroBounceSample>(
+				tracingRay, sampleFlow, &surfaceHit, &radianceLe);
 		}
 		else
 		{
-			if(!surfaceTracer.traceNextSurfaceFrom(
-				surfaceHit, tracingRay, sidedness, &surfaceHit))
-			{
-				break;
-			}
+			const Ray emissionRay = surfaceTracer.getRefinedRayOriginatedFrom(surfaceHit, tracingRay);
+			foundSurface = directLight.sampleSurfaceEmission<EEmitterFeatureSet::BsdfSample>(
+				emissionRay, sampleFlow, &surfaceHit, &radianceLe);
+		}
+
+		if(!radianceLe.isZero())
+		{
+			pathEnergy += radianceLe * pathThroughput;
+		}
+
+		if(!foundSurface)
+		{
+			break;
 		}
 
 		++pathLength;
-
-		const PrimitiveMetadata& metadata = surfaceHit.getMetadata();
-		const SurfaceBehavior& hitSurfaceBehavior = metadata.getSurface();
-
-		if(hitSurfaceBehavior.isEmissive())
-		{
-			math::Spectrum radianceLe;
-			hitSurfaceBehavior.getEmitter().evalEmittedEnergy(surfaceHit, &radianceLe);
-
-			// Avoid excessive, negative weight and possible NaNs
-			pathThroughput.safeClampLocal(0.0_r, 1e9_r);
-
-			pathEnergy += radianceLe * pathThroughput;
-		}
 
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
@@ -135,6 +131,9 @@ void BVPTEstimator::estimate(
 				break;
 			}
 		}
+
+		// Avoid excessive, negative weight and possible NaNs
+		pathThroughput.safeClampLocal(0.0_r, 1e9_r);
 
 		if(pathThroughput.isZero())
 		{

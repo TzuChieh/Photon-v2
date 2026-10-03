@@ -19,6 +19,7 @@
 #include <functional>
 #include <cmath>
 #include <bit>
+#include <optional>
 
 namespace ph::math
 {
@@ -84,9 +85,25 @@ template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::occlusionTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
-	return anyHitTraversal<TesterFunc, IS_ROBUST>(
+	return anyHitTraversal<IS_ROBUST>(
 		segment,
 		std::forward<TesterFunc>(intersectionTester));
+}
+
+template<std::size_t N, typename Item, typename Index>
+template<typename VisitorFunc, bool IS_ROBUST>
+inline void TLinearDepthFirstWideBvh<N, Item, Index>
+::exhaustiveTraversal(const TLineSegment<real>& segment, VisitorFunc&& visitor) const
+{
+	auto visitItem =
+		[&visitor](const Item& item, const TLineSegment<real>& itemSegment)
+		-> std::optional<real>
+		{
+			visitor(item, itemSegment);
+			return std::nullopt;
+		};
+
+	anyHitTraversal<IS_ROBUST>(segment, visitItem);
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -94,7 +111,7 @@ template<typename TesterFunc, bool IS_OCCLUSION_ONLY, bool IS_ROBUST>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::generalTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
-	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+	static_assert(CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>);
 	static_assert(std::numeric_limits<real>::has_infinity);
 
 #if PH_PROFILE_ACCELERATION_STRUCTURES
@@ -301,13 +318,13 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 }
 
 template<std::size_t N, typename Item, typename Index>
-template<typename TesterFunc, bool IS_ROBUST>
+template<bool IS_ROBUST, typename TesterFunc>
 inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::anyHitTraversal(
 	const TLineSegment<real>& segment,
 	TesterFunc&& intersectionTester) const
 {
-	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+	static_assert(CItemSegmentIntersectionTesterVanilla<TesterFunc, Item>);
 	static_assert(std::numeric_limits<real>::has_infinity);
 
 #if PH_PROFILE_ACCELERATION_STRUCTURES

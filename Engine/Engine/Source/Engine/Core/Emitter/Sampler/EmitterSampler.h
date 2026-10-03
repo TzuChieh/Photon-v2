@@ -23,7 +23,14 @@ class EmitterSampler
 public:
 	virtual ~EmitterSampler();
 
-	virtual void update(TSpanView<const Emitter*> emitters) = 0;
+	/*! @brief Build one sampling population from disjoint emitter lists.
+	@param nonPhysicalEmitters Nonblocking or directly invisible. Both lists share the same
+	selection probabilities for direct sampling, emission sampling, and PDF evaluation.
+	*/
+	virtual void update(
+		TSpanView<const Emitter*> emitters,
+		TSpanView<const Emitter*> nonPhysicalEmitters) = 0;
+
 	virtual const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const = 0;
 
 	/*! @brief Sample direct lighting for a target position.

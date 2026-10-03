@@ -14,7 +14,6 @@
 #include "Engine/World/Foundation/CookingContext.h"
 #include "Engine/World/Foundation/PreCookReport.h"
 #include "Engine/World/Foundation/TransientVisualElement.h"
-#include "Engine/World/SceneGlobals.h"
 
 #include <cstddef>
 #include <utility>
@@ -103,10 +102,6 @@ TransientVisualElement ABlenderPlyModel::cook(
 				metadata->exterior().setOptics(exteriorOptics);
 				metadata->setInteriorPriority(material->getOverlapPriority());
 			}
-		}
-		else
-		{
-			metadata->surface().setOptics(SceneGlobals::getFullyTransmissiveSurfaceOptics());
 		}
 
 		metadatas[slotIndex] = metadata;

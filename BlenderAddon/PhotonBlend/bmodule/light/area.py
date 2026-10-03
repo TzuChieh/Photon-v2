@@ -30,6 +30,12 @@ def light_to_sdl_area_light_actor(
 
         # Advanced feature flags: set if different from Photon's default to reduce file size
 
+        if not b_light.photon.intersectable:
+            creator.set_intersectable(sdl.Bool(False))
+
+        if b_light.photon.emit_backward:
+            creator.set_emit_backward(sdl.Bool(True))
+
         if not b_light.photon.directly_visible:
             creator.set_directly_visible(sdl.Bool(False))
 

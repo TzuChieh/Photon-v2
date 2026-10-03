@@ -71,6 +71,26 @@ inline bool TWideBvhIntersector<N, Index>
 }
 
 template<std::size_t N, typename Index>
+inline void TWideBvhIntersector<N, Index>
+::forEachIntersection(const Ray& ray, const HitVisitor& visitor) const
+{
+	m_bvh.exhaustiveTraversal(ray.getSegment(),
+		[&ray, &visitor](const Intersectable* intersectable, const math::TLineSegment<real>& segment)
+		{
+			PH_ASSERT(intersectable);
+
+			forEachIntersectionInTarget(*intersectable, Ray(segment, ray.getTime()), visitor);
+		});
+}
+
+template<std::size_t N, typename Index>
+inline bool TWideBvhIntersector<N, Index>
+::supportsForEachIntersection() const
+{
+	return true;
+}
+
+template<std::size_t N, typename Index>
 inline auto TWideBvhIntersector<N, Index>
 ::calcAABB() const
 -> math::AABB3D

@@ -27,8 +27,7 @@ std::shared_ptr<Geometry> AAreaLight::getGeometry(const CookingContext& ctx) con
 
 std::shared_ptr<Material> AAreaLight::getMaterial(const CookingContext&) const
 {
-	// TODO: transmitter if not want to cast shadow
-
+	// The default material is created here rather than supplied as an SDL dependency.
 	auto material = TSdl<IdealSubstance>::makeResource();
 	material->setSubstance(EIdealSubstance::Absorber);
 	return material;
@@ -39,7 +38,7 @@ bool AAreaLight::isVolumetricEmissionSupported() const
 	return false;
 }
 
-const SurfaceEmitter* AAreaLight::buildSurfaceEmitter(
+SurfaceEmitter* AAreaLight::buildSurfaceEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const
 {
@@ -74,7 +73,7 @@ const SurfaceEmitter* AAreaLight::buildSurfaceEmitter(
 		emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(defaultRadiance);
 	}
 
-	const SurfaceEmitter* lightEmitter = nullptr;
+	SurfaceEmitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
 		lightEmitter = ctx.getResources().makeEmitter<DiffuseSurfaceEmitter>(

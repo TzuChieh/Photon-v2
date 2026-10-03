@@ -155,14 +155,19 @@ inline bool IndirectLightEstimator::bsdfSampleSurfacePathWithNee(
 		{
 			math::Spectrum Lo;
 			std::optional<SurfaceHit> nextHit;
-			if(!directLight.bsdfSampleSurfacePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) ||
-			   !bsdfSample.outputs.isContributable() ||
-			   !nextHit)
+			if(!directLight.bsdfSampleSurfacePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit))
 			{
 				break;
 			}
 
 			accuLo += pathThroughput * Lo;
+
+			// Break after energy accumulation, so we account for energy came from any technique.
+			if(!bsdfSample.outputs.isContributable() || !nextHit)
+			{
+				break;
+			}
+
 			currentHit = *nextHit;
 		}
 		// Extend the path

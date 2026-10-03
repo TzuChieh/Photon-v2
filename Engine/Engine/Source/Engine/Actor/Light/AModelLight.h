@@ -13,7 +13,7 @@ public:
 	std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const override;
 	std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const override;
 
-	const SurfaceEmitter* buildSurfaceEmitter(
+	SurfaceEmitter* buildSurfaceEmitter(
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const override;
 
@@ -21,13 +21,11 @@ public:
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
-	void setBackFaceEmit(bool isBackFaceEmit);
 
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
 	std::shared_ptr<Image> m_emittedEnergy;
-	bool m_isBackFaceEmit;
 
 public:
 	PH_DEFINE_SDL_CLASS(AModelLight, clazz)
@@ -46,7 +44,9 @@ public:
 		clazz.addField(geometry);
 
 		TSdlReference<Material, OwnerType> material("material", &OwnerType::m_material);
-		material.description("A material that describes this source's surface appearance.");
+		material.description(
+			"A material that describes this source's surface appearance. When omitted, the light "
+			"emits without blocking rays or casting shadows which is non-physical.");
 		material.optional();
 		clazz.addField(material);
 
@@ -55,12 +55,6 @@ public:
 			"An image that describes the emitted energy (e.g., radiance) across the surface.");
 		emittedEnergy.optional();
 		clazz.addField(emittedEnergy);
-
-		TSdlBool<OwnerType> isBackFaceEmit("back-face-emit", &OwnerType::m_isBackFaceEmit);
-		isBackFaceEmit.description("Whether the energy should emit from the back face of the geometry.");
-		isBackFaceEmit.defaultTo(false);
-		isBackFaceEmit.optional();
-		clazz.addField(isBackFaceEmit);
 	}
 };
 

@@ -14,6 +14,7 @@ namespace ph
 
 class Primitive;
 class CookedGeometry;
+class CookedMaterial;
 
 class AGeometricLight : public ALight
 {
@@ -24,10 +25,11 @@ public:
 	*/
 	virtual std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const = 0;
 
-	/*!
-	Generates the surface emission part of the light source.
+	/*! @brief Construct the surface emission part of the light source.
+	@return A newly constructed emitter or `nullptr` on failure.
+	The result is mutable so `cook()` can apply common emission settings.
 	*/
-	virtual const SurfaceEmitter* buildSurfaceEmitter(
+	virtual SurfaceEmitter* buildSurfaceEmitter(
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const = 0;
 
@@ -40,19 +42,14 @@ public:
 
 	PreCookReport preCook(const CookingContext& ctx) const override;
 	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override;
-	void setShouldFlipNg(bool shouldFlipNg);
-	bool shouldFlipNg() const;
 
-	/*! @brief Get geometry cooked into a form suitable for emitter calculations.
-	If @p srcLocalToWorld contains scale, its complete transform is baked into a dedicated cooked
-	variant. Otherwise, the regular cooked geometry is used and the transform is left to primitive
-	instancing.
-	@return Cooked geometry, or nullptr if @p srcGeometry is empty.
-	*/
-	static const CookedGeometry* getSanifiedGeometry(
-		const std::shared_ptr<Geometry>& srcGeometry,
-		const TransformInfo& srcLocalToWorld,
-		const CookingContext& ctx);
+	void setIsIntersectable(bool isIntersectable);
+	bool isIntersectable() const;
+	bool shouldEmitBackward() const;
+	bool shouldFlipNg() const;
+	void setIsDirectlyVisible(bool isDirectlyVisible);
+	void setEmitBackward(bool shouldEmitBackward);
+	void setShouldFlipNg(bool shouldFlipNg);
 
 protected:
 	/*!
@@ -60,12 +57,28 @@ protected:
 	*/
 	virtual EmitterFeatureSet getEmitterFeatureSet() const;
 
+	bool m_isIntersectable;
 	bool m_isDirectlyVisible;
 	bool m_useBsdfSample;
 	bool m_useDirectSample;
 	bool m_useEmissionSample;
 
 private:
+	/*! @brief Get cooked geometry, baking the light's full transform if it contains scale.
+	@return `nullptr` if no geometry is supplied.
+	*/
+	const CookedGeometry* getSanifiedGeometry(
+		const CookingContext& ctx,
+		std::shared_ptr<Geometry>* out_geometryResource = nullptr) const;
+
+	/*! @brief Get cooked material when the light needs a physical surface.
+	@return `nullptr` if non-intersectable or no material is supplied.
+	*/
+	const CookedMaterial* getSanifiedMaterial(
+		const CookingContext& ctx,
+		std::shared_ptr<Material>* out_materialResource = nullptr) const;
+
+	bool m_shouldEmitBackward;
 	bool m_shouldFlipNg;
 
 public:
@@ -80,10 +93,20 @@ public:
 			"on specular surfaces.");
 		clazz.baseOn<ALight>();
 
+		TSdlBool<OwnerType> intersectable("intersectable", &OwnerType::m_isIntersectable);
+		intersectable.description(
+			"Whether the light's material affects rays. When disabled, rays pass through without "
+			"scattering or shadowing, while emission remains available to all enabled sampling "
+			"techniques. This is a non-physical artistic control, independent of directly-visible.");
+		intersectable.defaultTo(true);
+		intersectable.optional();
+		clazz.addField(intersectable);
+
 		TSdlBool<OwnerType> directlyVisible("directly-visible", &OwnerType::m_isDirectlyVisible);
 		directlyVisible.description(
-			"Whether the light is directly visible. For example, you can see a bright sphere "
-			"for a directly visible spherical area light.");
+			"Whether the light's emitted energy is visible before the camera ray interacts with "
+			"any surface optics. Disabling this suppresses only zero-bounce emission; the light's "
+			"material still interacts with rays normally. This is a non-physical artistic control.");
 		directlyVisible.defaultTo(true);
 		directlyVisible.optional();
 		clazz.addField(directlyVisible);
@@ -112,10 +135,17 @@ public:
 		emissionSample.optional();
 		clazz.addField(emissionSample);
 
+		TSdlBool<OwnerType> emitBackward("emit-backward", &OwnerType::m_shouldEmitBackward);
+		emitBackward.description(
+			"Emit opposite to the surface's shading normal without changing geometry orientation.");
+		emitBackward.defaultTo(false);
+		emitBackward.optional();
+		clazz.addField(emitBackward);
+
 		TSdlBool<OwnerType> shouldFlipNg("should-flip-ng", &OwnerType::m_shouldFlipNg);
 		shouldFlipNg.description(
-			"Flips only the geometric normal (Ng) after transform; the shading normal (Ns) is not flipped. "
-			"Flipping Ng will also affect the side of emission.");
+			"Flips the geometric normal (Ng) after transform and preserves explicit shading normals. "
+			"To reverse light emission, use emit-backward.");
 		shouldFlipNg.defaultTo(false);
 		shouldFlipNg.optional();
 		clazz.addField(shouldFlipNg);

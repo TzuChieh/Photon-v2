@@ -9,9 +9,10 @@ namespace ph
 class ALight : public PhysicalActor
 {
 public:
-	/*! Guaranteed to provide primitives view if the emitters generated are based on primitives 
-	(i.e., emitting light from primitives). Emitters and primitives are either in one-to-one mapping, 
-	or in one-to-many mapping (all primitives correspond to one emitter).
+	/*! Guaranteed to provide primitives view if the emitters generated have intersectable geometry
+	(i.e., emitting light from primitives that rays can hit). Emitters and primitives are either in
+	one-to-one mapping, or in one-to-many mapping (all primitives correspond to one emitter).
+	Lights without intersectable geometry keep their sampling primitives outside this view.
 	*/
 	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override = 0;
 

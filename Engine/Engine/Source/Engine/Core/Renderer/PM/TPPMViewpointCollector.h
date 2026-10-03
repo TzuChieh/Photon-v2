@@ -41,6 +41,12 @@ public:
 		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
 
+	void impl_onPathTraced(
+		std::size_t           pathLength,
+		const Ray&            ray,
+		const math::Spectrum& pathThroughput,
+		SampleFlow&           sampleFlow);
+
 	auto impl_onPathHitSurface(
 		std::size_t           pathLength,
 		const SurfaceHit&     surfaceHit,
@@ -129,6 +135,25 @@ inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleBegi
 	m_numBranchedPathViewpoints = 0;
 
 	return true;
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathTraced(
+	const std::size_t     pathLength,
+	const Ray&            ray,
+	const math::Spectrum& pathThroughput,
+	SampleFlow&           sampleFlow)
+{
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+	{
+		const TPhotonMapResidualEnergyEstimator<Photon> residualEnergy{m_scene, m_photonMapInfo};
+		m_viewRadiance += residualEnergy.certainlyLostEnergy(
+			pathLength,
+			ray,
+			lta::SidednessAgreement{lta::ESidednessPolicy::Strict},
+			pathThroughput,
+			sampleFlow);
+	}
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
@@ -234,8 +259,12 @@ inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	}
 	else
 	{
-		//// If no viewpoint is found for current receiver sample, we should add an
-		//// zero-contribution viewpoint.
+		// Preserve accumulated radiance and film normalization when no viewpoint is found.
+		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+		{
+			m_viewpoint.template set<EViewpointData::ViewRadiance>(m_viewRadiance);
+		}
+		addViewpoint(SurfaceHit{}, math::Vector3R(0), math::Spectrum(0));
 
 		//// HACK
 		//m_viewpoint.template set<EViewpointData::RADIUS>(0.0_r);

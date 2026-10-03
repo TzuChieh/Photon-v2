@@ -135,23 +135,23 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 	while(true)
 	{
 		SurfaceHit X;
-		if(pathLength == 0)
-		{
-			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
-			{
-				break;
-			}
-		}
-		else
-		{
-			if(!surfaceTracer.traceNextSurfaceFrom(
-				prevHit, tracingRay, sidedness, &X))
-			{
-				break;
-			}
-		}
+		// Bound the segment regardless of sidedness
+		const bool foundGeometry = pathLength == 0
+			? surfaceTracer.traceNextSurface(tracingRay, &X, &tracingRay)
+			: surfaceTracer.traceNextSurfaceFrom(prevHit, tracingRay, &X, &tracingRay);
 
 		++pathLength;
+		m_handler->onPathTraced(pathLength, tracingRay, pathThroughput, sampleFlow);
+		if(!foundGeometry)
+		{
+			break;
+		}
+
+		sidedness.adjustForSidednessAgreement(X);
+		if(!sidedness.isSidednessAgreed(X, tracingRay.getDir()))
+		{
+			break;
+		}
 
 		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, X, pathThroughput);
 		if(policy.isKilled())

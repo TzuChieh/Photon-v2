@@ -22,6 +22,8 @@
 #include <Common/assertion.h>
 
 #include <limits>
+#include <type_traits>
+#include <utility>
 
 namespace ph { class SampleFlow; }
 
@@ -39,51 +41,63 @@ class SurfaceTracer final
 public:
 	explicit SurfaceTracer(const Scene* scene);
 
-	/*! @brief Find the next surface.
+	/*! @brief Find the next physical surface.
 	This variant does not refine the surface hit point. If refining is desired,
 	see `traceNextSurfaceFrom()`.
 	@param ray The ray that is used for finding the next surface.
-	@param sidedness Sidedness policy.
-	@param out_X The next surface.
-	@return Is the next surface found. Output parameters are not usable if `false` is returned.
+	@param out_X The next physical surface. Usable only when `true` is returned.
+	@param out_boundedRay Optional input ray bounded by the physical hit, or the full ray on a miss.
+	Always usable when provided.
+	@return Whether a physical surface is hit, regardless of sidedness.
 	@note If you are tracing from a surface (not a point from the mid-air),
-	`traceNextSurfaceFrom(const SurfaceHit&, const Ray&, const SidednessAgreement&, SurfaceHit*)`
-	may be more robust.
+	`traceNextSurfaceFrom()` may be more robust.
 	*/
-	bool traceNextSurface(
-		const Ray&                ray, 
-		const SidednessAgreement& sidedness, 
-		SurfaceHit*               out_X) const;
+	bool traceNextSurface(const Ray& ray, SurfaceHit* out_X, Ray* out_boundedRay = nullptr) const;
 
 	/*! @brief Find the next surface from a location.
 	This variant also refines the surface hit point before starting the trace.
 	@param X The location to start the find from. Can also use the same object as `out_X`.
 	@param ray The ray that is used for finding the next surface. Must be originated from `X`.
-	@param sidedness Sidedness policy.
-	@param out_X The next surface.
-	@return Is the next surface found. Output parameters are not usable if `false` is returned.
+	@param out_X The next physical surface, usable only when `true` is returned.
+	@param out_boundedRay Optional refined ray ending at the hit, or the full refined ray on a miss.
+	Always usable when provided.
+	@return Whether a physical surface is hit, regardless of sidedness.
 	*/
 	bool traceNextSurfaceFrom(
-		const SurfaceHit&         X,
-		const Ray&                ray, 
-		const SidednessAgreement& sidedness, 
-		SurfaceHit*               out_X) const;
+		const SurfaceHit& X,
+		const Ray&        ray,
+		SurfaceHit*       out_X,
+		Ray*              out_boundedRay = nullptr) const;
 
+	/*! @brief Find the next physical surface while tracking volumes.
+	@param out_X The next physical surface. Usable only when `true` is returned.
+	@param out_boundedRay Optional input ray bounded by the physical hit, or the full ray on a miss.
+	Always usable when provided.
+	*/
 	bool traceNextSurface(
-		const Ray&                ray,
-		const SidednessAgreement& sidedness,
-		VolumeTracker&            volumeTracker,
-		SurfaceHit*               out_X) const;
+		const Ray&     ray,
+		VolumeTracker& volumeTracker,
+		SurfaceHit*    out_X,
+		Ray*           out_boundedRay = nullptr) const;
 
+	/*!
+	@param out_boundedRay Optional refined ray ending at the hit, or the full refined ray on a miss.
+	Always usable when provided.
+	*/
 	bool traceNextSurfaceFrom(
-		const SurfaceHit&         X,
-		const Ray&                ray,
-		const SidednessAgreement& sidedness,
-		VolumeTracker&            volumeTracker,
-		SurfaceHit*               out_X) const;
+		const SurfaceHit& X,
+		const Ray&        ray,
+		VolumeTracker&    volumeTracker,
+		SurfaceHit*       out_X,
+		Ray*              out_boundedRay = nullptr) const;
+
+	/*! @brief Refine a ray originating at `X` to avoid self-intersection.
+	*/
+	Ray getRefinedRayOriginatedFrom(const SurfaceHit& X, const Ray& ray) const;
 
 	/*! @brief Uses BSDF sample to trace the next surface.
-	@return Is the next surface found. Output parameters are not usable if `false` is returned.
+	@return Whether the next surface agrees with `bsdfSample.context.sidedness`.
+	Output parameters are not usable if `false` is returned.
 	*/
 	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
@@ -124,10 +138,19 @@ public:
 		const SurfaceHit&         Xe, 
 		const SidednessAgreement& sidedness,
 		math::Spectrum*           out_Le) const;
+
+	/*! @brief Visit nonblocking emitter hits within a ray segment, regardless of sidedness.
+	@tparam FEATURE Allowed features. Must enable at least one.
+	@param ray Bounds the segment to find non-blocking emitters.
+	@param visitor Called as `visitor(SurfaceHit& emitterHit)`. The hit is local to the callback.
+	*/
+	template<EEmitterFeatureSet FEATURE = EEmitterFeatureSet::Default, typename Visitor>
+	void forEachNonBlockingEmitterHit(
+		const Ray& ray,
+		Visitor&&  visitor) const;
 	
 private:
 	const Scene& getScene() const;
-	Ray getRefinedRayOriginatedFrom(const SurfaceHit& X, const Ray& ray) const;
 	
 	const Scene* m_scene;
 };
@@ -141,51 +164,69 @@ inline SurfaceTracer::SurfaceTracer(const Scene* const scene)
 }
 
 inline bool SurfaceTracer::traceNextSurface(
-	const Ray&                ray,
-	const SidednessAgreement& sidedness,
-	SurfaceHit* const         out_X) const
+	const Ray&        ray,
+	SurfaceHit* const out_X,
+	Ray* const        out_boundedRay) const
 {
 	PH_ASSERT(out_X);
 
 	HitProbe probe;
 	if(!getScene().isIntersecting(ray, &probe))
 	{
+		if(out_boundedRay) { *out_boundedRay = ray; }
 		return false;
 	}
 
 	*out_X = SurfaceHit(ray, probe, ESurfaceHitReason::IncidentRay);
-	sidedness.adjustForSidednessAgreement(*out_X);
+	if(out_boundedRay)
+	{
+		*out_boundedRay = Ray(
+			ray.getOrigin(),
+			ray.getDir(),
+			ray.getMinT(),
+			out_X->getDetail().getRayT(),
+			ray.getTime());
+	}
+	return true;
+}
 
-	return sidedness.isSidednessAgreed(*out_X, ray.getDir());
+template<EEmitterFeatureSet FEATURE, typename Visitor>
+inline void SurfaceTracer::forEachNonBlockingEmitterHit(
+	const Ray& ray,
+	Visitor&&  visitor) const
+{
+	static_assert(std::is_invocable_r_v<void, Visitor&, SurfaceHit&>);
+
+	getScene().forEachNonBlockingEmitterHit<FEATURE>(
+		ray,
+		std::forward<Visitor>(visitor));
 }
 
 inline bool SurfaceTracer::traceNextSurfaceFrom(
-	const SurfaceHit&         X,
-	const Ray&                ray, 
-	const SidednessAgreement& sidedness, 
-	SurfaceHit* const         out_X) const
+	const SurfaceHit& X,
+	const Ray&        ray,
+	SurfaceHit* const out_X,
+	Ray* const        out_boundedRay) const
 {
 	// Not tracing from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
-	return traceNextSurface(getRefinedRayOriginatedFrom(X, ray), sidedness, out_X);
+	const Ray refinedRay = getRefinedRayOriginatedFrom(X, ray);
+	return traceNextSurface(refinedRay, out_X, out_boundedRay);
 }
 
 inline bool SurfaceTracer::traceNextSurfaceFrom(
-	const SurfaceHit&         X,
-	const Ray&                ray,
-	const SidednessAgreement& sidedness,
-	VolumeTracker&            volumeTracker,
-	SurfaceHit* const         out_X) const
+	const SurfaceHit& X,
+	const Ray&        ray,
+	VolumeTracker&    volumeTracker,
+	SurfaceHit* const out_X,
+	Ray* const        out_boundedRay) const
 {
 	// Not tracing from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
-	return traceNextSurface(
-		getRefinedRayOriginatedFrom(X, ray),
-		sidedness,
-		volumeTracker,
-		out_X);
+	const Ray refinedRay = getRefinedRayOriginatedFrom(X, ray);
+	return traceNextSurface(refinedRay, volumeTracker, out_X, out_boundedRay);
 }
 
 inline bool SurfaceTracer::bsdfSampleNextSurface(
@@ -199,11 +240,14 @@ inline bool SurfaceTracer::bsdfSampleNextSurface(
 		return false;
 	}
 
-	return traceNextSurfaceFrom(
-		bsdfSample.inputs.getX(), 
-		sampledRay, 
-		bsdfSample.context.sidedness, 
-		out_X);
+	if(!traceNextSurfaceFrom(bsdfSample.inputs.getX(), sampledRay, out_X))
+	{
+		return false;
+	}
+
+	const SidednessAgreement& sidedness = bsdfSample.context.sidedness;
+	sidedness.adjustForSidednessAgreement(*out_X);
+	return sidedness.isSidednessAgreed(*out_X, out_X->getIncidentRay().getDir());
 }
 
 inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const

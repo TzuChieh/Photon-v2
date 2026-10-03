@@ -24,6 +24,8 @@
 #include <Common/primitive_type.h>
 #include <Common/stats.h>
 
+#include <optional>
+
 #define MAX_RAY_BOUNCES 10000
 //#define MAX_RAY_BOUNCES 1
 
@@ -75,20 +77,14 @@ void BNEEPTEstimator::estimate(
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
-	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
-	{
-		out_estimation[getPathEnergyIndex()] = pathEnergy;
-		return;
-	}
-
 	// 0-bounce direct lighting
 	{
 		PH_SCOPED_TIMER(ZeroBounceDirect);
-		
-		math::Spectrum radianceLe;
-		if(surfaceTracer.sampleZeroBounceEmission(X, sidedness, &radianceLe))
+		if(!directLight.sampleSurfaceEmission<EEmitterFeatureSet::ZeroBounceSample>(
+			tracingRay, sampleFlow, &X, &pathEnergy))
 		{
-			pathEnergy.addLocal(radianceLe);
+			out_estimation[getPathEnergyIndex()] = pathEnergy;
+			return;
 		}
 	}
 
@@ -173,70 +169,84 @@ void BNEEPTEstimator::estimate(
 			PH_ASSERT_MSG(L.isFinite(),
 				"L = " + L.toString() + ", from " + surfaceOptics.toString());
 
-			// TODO: skip non-obstructive surface
+			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 
 			// Trace a ray using BSDF's suggestion
 			tracingRay.setOrigin(X.getPos());
 			tracingRay.setDir(L);
 			SurfaceHit nextX;
-			if(!surfaceTracer.traceNextSurfaceFrom(X, tracingRay, sidedness, &nextX))
+			Ray boundedRay;
+			const bool foundGeometry = surfaceTracer.traceNextSurfaceFrom(
+				X,
+				tracingRay,
+				&nextX,
+				&boundedRay);
+			if(foundGeometry)
 			{
-				break;
+				sidedness.adjustForSidednessAgreement(nextX);
 			}
 
-			const SurfaceEmitter& nextEmitter = nextX.getSurfaceEmitter();
-			if(useBsdfLightSampling &&
-			   nextX.getMetadata().getSurface().isEmissive() &&
-			   nextEmitter.getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
+			const bool foundSurface = foundGeometry && sidedness.isSidednessAgreed(nextX, boundedRay.getDir());
+			if(useBsdfLightSampling)
 			{
-				math::Spectrum radianceLe;
-				nextEmitter.evalEmittedEnergy(nextX, &radianceLe);
-
-				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
-				// deltas and MIS for non-deltas
-
-				// MIS: BSDF sample + NEE
-				if(useNeeLightSampling &&
-				   !radianceLe.isZero())
-				{
-					// `directLightPdfW` can be 0 (e.g., delta BSDF) and this is fine--MIS weighting
-					// still works. No need to test occlusion again as we already done that.
-					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(X, nextX);
-
-					BsdfPdfQuery bsdfPdfQuery(bsdfContext, bsdfSample);
-					surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
-
-					// `isNeeSamplable()` is already `true`, but BSDF PDF can still be empty or 0
-					// (e.g., sidedness policy or by the distribution itself)
-					if(bsdfPdfQuery.outputs)
+				std::optional<real> bsdfSamplePdfW;
+				pathEnergy += directLight.accumulateSurfaceEmission<EEmitterFeatureSet::BsdfSample>(
+					boundedRay,
+					foundSurface ? &nextX : nullptr,
+					sampleFlow,
+					[&](const SurfaceHit& Xe)
 					{
-						const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
+						math::Spectrum radianceLe;
+						Xe.getSurfaceEmitter().evalEmittedEnergy(Xe, &radianceLe);
+						if(radianceLe.isZero())
+						{
+							return math::Spectrum(0);
+						}
 
-						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
-						weight *= pathThroughput;
+						// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
+						// deltas and MIS for non-deltas
+
+						// No MIS: BSDF sample only
+						real misWeighting = 1;
+
+						// MIS: BSDF sample + NEE
+						if(useNeeLightSampling)
+						{
+							// All emitter hits on this segment share the same BSDF PDF
+							if(!bsdfSamplePdfW)
+							{
+								BsdfPdfQuery bsdfPdfQuery(bsdfContext, bsdfSample);
+								surfaceOptics.calcBsdfPdf(bsdfPdfQuery);
+								bsdfSamplePdfW = bsdfPdfQuery.outputs ? bsdfPdfQuery.outputs.getSampleDirPdfW() : 0;
+							}
+
+							// `isNeeSamplable()` is already `true`, but BSDF PDF can still be empty or 0
+							// (e.g., sidedness policy or by the distribution itself)
+							if(*bsdfSamplePdfW == 0)
+							{
+								return math::Spectrum(0);
+							}
+
+							// `directLightPdfW` can be 0 and MIS weighting still works.
+							// No need to test occlusion again here.
+							const real directLightPdfW = directLight.calcNeePdfWUnoccluded(X, Xe);
+							misWeighting = mis.weight(*bsdfSamplePdfW, directLightPdfW);
+						}
+
+						math::Spectrum weight = pathThroughput;
 						weight *= misWeighting;
 
 						// Avoid excessive, negative weight and possible NaNs
 						rationalClamp(weight);
 
-						pathEnergy += radianceLe * weight;
-					}
-				}
-				// No MIS: BSDF sample only
-				else
-				{
-					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
-					weight *= pathThroughput;
-
-					// Avoid excessive, negative weight and possible NaNs
-					rationalClamp(weight);
-
-					pathEnergy += radianceLe * weight;
-				}
+						return radianceLe * weight;
+					});
 			}
 
-			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+			if(!foundSurface)
+			{
+				break;
+			}
 
 			// Prevent premature termination of the path due to solid angle compression/expansion
 			rrScale /= bsdfSample.outputs.getRelativeIor2();

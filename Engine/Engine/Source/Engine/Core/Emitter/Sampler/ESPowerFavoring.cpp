@@ -19,7 +19,9 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PowerFavoringEmitterSampler, EmitterSampler);
 
-void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
+void ESPowerFavoring::update(
+	TSpanView<const Emitter*> emitters,
+	TSpanView<const Emitter*> nonPhysicalEmitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
@@ -27,6 +29,10 @@ void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
 	m_emitterToIndexMap = std::unordered_map<const Emitter*, std::size_t>();
 
 	for(const Emitter* emitter : emitters)
+	{
+		m_emitters.push_back(emitter);
+	}
+	for(const Emitter* emitter : nonPhysicalEmitters)
 	{
 		m_emitters.push_back(emitter);
 	}

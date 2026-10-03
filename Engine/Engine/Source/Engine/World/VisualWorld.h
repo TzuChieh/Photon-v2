@@ -39,7 +39,7 @@ public:
 	void setReceiverPosition(const math::Vector3R& receiverPos);
 
 	/*!
-	@return The top-level acceleration structure of this world.
+	@return The main top-level accelerator, used for surface and occlusion queries.
 	*/
 	const Intersector* getTLAS() const;
 
@@ -76,6 +76,7 @@ private:
 	math::AABB3D m_allActorsBound;
 
 	std::unique_ptr<Intersector> m_tlas;
+	std::unique_ptr<Intersector> m_nonBlockingLightTlas;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
 	std::unique_ptr<Scene> m_scene;
 	const Primitive* m_backgroundPrimitive;

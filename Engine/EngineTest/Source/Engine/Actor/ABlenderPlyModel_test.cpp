@@ -213,3 +213,28 @@ TEST(ABlenderPlyModelTest, ThrowsOnOutOfRangeMaterialSlot)
 
 	EXPECT_THROW(actor->stagelessCook(ctx), ActorCookException);
 }
+
+TEST(ABlenderPlyModelTest, EmptyMaterialSlotKeepsSurface)
+{
+	const Path testDirectory = EngineTestIntermediatePath("ABlenderPlyModelTest/EmptyMaterialSlotKeepsSurface");
+	Filesystem::remove(testDirectory, true);
+	Filesystem::createDirectories(testDirectory);
+	const Path plyFile = testDirectory / "triangle.ply";
+	write_material_range_blender_ply(plyFile, {0});
+
+	CookedResourceCollection resources;
+	CookingContext ctx(&resources, nullptr);
+	auto geometry = TSdl<GBlenderPlyPolygonMesh>::makeResource();
+	geometry->setPlyFile(plyFile);
+	geometry->cook(ctx, *resources.makeGeometry(ctx.getKey(geometry)));
+	auto actor = TSdl<ABlenderPlyModel>::makeResource();
+	actor->setGeometry(geometry);
+	actor->setMaterials({nullptr});// empty slot
+	const auto cooked = actor->stagelessCook(ctx);
+
+	EXPECT_EQ(cooked.intersectables.size(), 1);
+	EXPECT_TRUE(cooked.nonBlockingEmitterPrimitives.empty());
+	EXPECT_TRUE(cooked.surfaceEmitters.empty());
+	ASSERT_EQ(cooked.primitivesView.size(), 1);
+	EXPECT_FALSE(cooked.primitivesView.front()->getMetadata(0).getSurface().isObstructive());// non-obstructive
+}

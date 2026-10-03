@@ -48,6 +48,11 @@ public:
 	*/
 	CookingContext withGeometryConfig(GeometryCookingConfig config) const;
 
+	/*! @brief Make a context using `config` for material cooking.
+	Other configuration and referenced world storage are preserved.
+	*/
+	CookingContext withMaterialConfig(MaterialCookingConfig config) const;
+
 	/*! @brief Make a cooked-resource key for `resource` using current config.
 	*/
 	///@{

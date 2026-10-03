@@ -4,6 +4,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 
+#include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
 #include <limits>
@@ -78,6 +79,21 @@ math::AABB3D BruteForceIntersector::calcAABB() const
 	}
 
 	return unionedAabb;
+}
+
+void BruteForceIntersector::forEachIntersection(const Ray& ray, const HitVisitor& visitor) const
+{
+	for(const Intersectable* intersectable : m_intersectables)
+	{
+		PH_ASSERT(intersectable);
+
+		forEachIntersectionInTarget(*intersectable, ray, visitor);
+	}
+}
+
+bool BruteForceIntersector::supportsForEachIntersection() const
+{
+	return true;
 }
 
 }// end namespace ph

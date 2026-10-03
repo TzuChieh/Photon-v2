@@ -78,7 +78,17 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	std::vector<FullPhoton> photonCache;
 	for(Viewpoint& viewpoint : m_viewpoints)
 	{
-		const SurfaceHit&    surfaceHit = viewpoint.template get<EViewpointData::SurfaceHit>();
+		const SurfaceHit& surfaceHit = viewpoint.template get<EViewpointData::SurfaceHit>();
+
+		// Still need to keep track of view radiance if there is no hit
+		if(surfaceHit.getReason().hasExactly(ESurfaceHitReason::Invalid))
+		{
+			const auto rasterCoord = viewpoint.template get<EViewpointData::RasterCoord>();
+			const auto viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
+			m_film->addSample(rasterCoord.x(), rasterCoord.y(), viewRadiance);
+			continue;
+		}
+
 		const math::Vector3R V          = viewpoint.template get<EViewpointData::ViewDir>();
 		const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
 		const math::Vector3R Ns         = surfaceHit.getShadingNormal();

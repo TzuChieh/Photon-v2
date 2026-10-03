@@ -20,6 +20,8 @@ def light_to_sdl_point_light_actor(
     else:
         creator = sdl.SphereLightActorCreator()
         creator.set_radius(sdl.Real(light_radius))
+        if b_light.photon.emit_backward:
+            creator.set_emit_backward(sdl.Bool(True))
 
     creator.set_data_name(actor_name)
     creator.set_display_name(sdl.String(b_light_obj.name))
@@ -30,6 +32,9 @@ def light_to_sdl_point_light_actor(
         creator.phantomize()
 
     # Advanced feature flags: set if different from Photon's default to reduce file size
+
+    if not b_light.photon.intersectable:
+        creator.set_intersectable(sdl.Bool(False))
 
     if not b_light.photon.directly_visible:
         creator.set_directly_visible(sdl.Bool(False))
