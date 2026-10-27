@@ -30,13 +30,13 @@ bool SurfaceTracer::traceNextSurface(
 	SurfaceHit& X = *out_X;
 	if(out_boundedRay) { *out_boundedRay = ray; }
 
-	HitProbe probe;
-	if(!getScene().isIntersecting(ray, &probe))
+	HitEvent event(ray);
+	if(!getScene().isIntersecting(event))
 	{
 		return false;
 	}
 
-	X = SurfaceHit(ray, probe, ESurfaceHitReason::IncidentRay);
+	X = SurfaceHit(event);
 
 	// For false hits, do not use strict policy as our intension is to cull geometry. Strict policy can result
 	// in premature hit termination while the geometry can be skipped.
@@ -64,13 +64,15 @@ bool SurfaceTracer::traceNextSurface(
 
 		remainingRay = trim_ray_tail(X.getRay(), X.getPos(), advancedT);
 		remainingRay = getRefinedRayOriginatedFrom(X, remainingRay);
-		if(!getScene().isIntersecting(remainingRay, &probe))
+		
+		event.reset(remainingRay);
+		if(!getScene().isIntersecting(event))
 		{
 			return false;
 		}
 		else
 		{
-			X = SurfaceHit(remainingRay, probe, ESurfaceHitReason::IncidentRay);
+			X = SurfaceHit(event);
 		}
 	}
 

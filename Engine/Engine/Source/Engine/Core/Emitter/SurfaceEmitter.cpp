@@ -43,6 +43,7 @@ void SurfaceEmitter::calcDirectPdfWForSrcPrimitive(
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample) ||
 	   !canEmit(emitterToTargetPos, query.inputs.getEmitPosNormal()))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -51,6 +52,7 @@ void SurfaceEmitter::calcDirectPdfWForSrcPrimitive(
 	query.inputs.getSrcPrimitive().calcPosPdf(posPdf);
 	if(!posPdf.outputs)
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 

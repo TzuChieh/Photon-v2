@@ -1,4 +1,6 @@
 #include "Engine/Core/Emitter/DiffuseSurfaceEmitter.h"
+#include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
+#include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
 #include "Engine/Core/HitProbe.h"
@@ -33,10 +35,9 @@ void DiffuseSurfaceEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectr
 
 void DiffuseSurfaceEmitter::genDirectSample(
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
-	genDirectSampleFromSurface(getSurface(), getEmittedEnergy(), query, sampleFlow, probe);
+	genDirectSampleFromSurface(getSurface(), getEmittedEnergy(), query, sampleFlow);
 }
 
 void DiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
@@ -44,12 +45,9 @@ void DiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 	calcDirectPdfWForSrcPrimitive(query);
 }
 
-void DiffuseSurfaceEmitter::emitRay(
-	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void DiffuseSurfaceEmitter::emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	emitRayFromSurface(getSurface(), getEmittedEnergy(), query, sampleFlow, probe);
+	emitRayFromSurface(getSurface(), getEmittedEnergy(), query, sampleFlow);
 }
 
 real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
@@ -62,8 +60,7 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 	PrimitivePosSampleQuery posSample;
 	posSample.inputs.set(Time{});
 	SampleFlow randomFlow;
-	HitProbe probe;
-	getSurface().genPosSample(posSample, randomFlow, probe);
+	getSurface().genPosSample(posSample, randomFlow);
 	if(!posSample.outputs)
 	{
 		return SurfaceEmitter::calcRadiantFluxApprox();
@@ -73,7 +70,7 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 	// And assume the surface emits constant radiance sampled from that point
 
 	HitDetail detail;
-	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	posSample.outputs.getHitEvent().calcHitDetail(&detail);
 
 	const auto sampledL = TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(
 		*m_emittedEnergy, detail.getUVW());

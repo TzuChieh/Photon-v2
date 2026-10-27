@@ -83,13 +83,10 @@ public:
 
 	/*! @brief Sample direct lighting for a target position.
 	@note
-	- Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`)
+	- Generates a hit event in `DirectEnergySampleOutput::getHitEvent()`
 	- Handles `EEmitterFeatureSet::DirectSample`
 	*/
-	virtual void genDirectSample(
-		DirectEnergySampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const = 0;
+	virtual void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const = 0;
 
 	/*! @brief Calculate the PDF of direct lighting for a target position.
 	@note
@@ -99,13 +96,10 @@ public:
 
 	/*! @brief Emit a ray that carries some amount of energy from this emitter.
 	@note
-	- Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`)
+	- Generates a hit event in `EnergyEmissionSampleOutput::getHitEvent()`
 	- Handles `EEmitterFeatureSet::EmissionSample`
 	*/
-	virtual void emitRay(
-		EnergyEmissionSampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const = 0;
+	virtual void emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const = 0;
 
 	virtual real calcRadiantFluxApprox() const;
 

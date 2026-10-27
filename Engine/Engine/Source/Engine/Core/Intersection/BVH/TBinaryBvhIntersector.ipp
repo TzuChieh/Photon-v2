@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/Intersection/BVH/TBinaryBvhIntersector.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/Algorithm/BVH/TBvhBuilder.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
@@ -24,24 +24,22 @@ inline void TBinaryBvhIntersector<Index>
 
 template<typename Index>
 inline bool TBinaryBvhIntersector<Index>
-::isIntersecting(const Ray& ray, HitProbe& probe) const
+::isIntersecting(HitEvent& event) const
 {
 	return m_bvh.nearestTraversal(
-		ray.getSegment(),
-		[ray, &probe, originalProbe = probe](
+		event.getRay().getSegment(),
+		[&event, originalEvent = event](
 			const Intersectable* const      intersectable,
 			const math::TLineSegment<real>& segment)
 		-> std::optional<real>
 		{
 			PH_ASSERT(intersectable);
 
-			const Ray raySegment(segment, ray.getTime());
-
-			HitProbe trialProbe = originalProbe;
-			if(intersectable->isIntersecting(raySegment, trialProbe))
+			HitEvent trialEvent(segment, originalEvent);
+			if(intersectable->isIntersecting(trialEvent))
 			{
-				probe = trialProbe;
-				return trialProbe.getHitRayT();
+				event.copyHitAndKeepRay(trialEvent);
+				return trialEvent.getHitRayT();
 			}
 			else
 			{
@@ -56,15 +54,14 @@ inline bool TBinaryBvhIntersector<Index>
 {
 	return m_bvh.occlusionTraversal(
 		ray.getSegment(),
-		[ray](
+		[time = ray.getTime()](
 			const Intersectable* const      intersectable,
 			const math::TLineSegment<real>& segment)
 		-> std::optional<real>
 		{
 			PH_ASSERT(intersectable);
 
-			const Ray raySegment(segment, ray.getTime());
-			return intersectable->isOccluding(raySegment)
+			return intersectable->isOccluding(Ray(segment, time))
 				? std::make_optional(segment.getMinT())
 				: std::nullopt;
 		});

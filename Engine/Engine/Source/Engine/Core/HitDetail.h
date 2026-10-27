@@ -69,6 +69,7 @@ public:
 	Notice that parametric distance is not ordinary distance but defined in terms of a ray
 	direction vector's length. This means if the ray direction vector is normalized, the parametric
 	distance is equal to the ordinary distance.
+	@return Hit distance, or `std::numeric_limits<real>::max()` if no hit has been set.
 	*/
 	real getRayT() const;
 

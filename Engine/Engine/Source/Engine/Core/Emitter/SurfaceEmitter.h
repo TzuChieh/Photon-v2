@@ -23,17 +23,11 @@ public:
 
 	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override = 0;
 
-	void genDirectSample(
-		DirectEnergySampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override = 0;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const override = 0;
 
-	void emitRay(
-		EnergyEmissionSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override = 0;
+	void emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 	
 	virtual void setFrontFaceEmit();
 	virtual void setBackFaceEmit();

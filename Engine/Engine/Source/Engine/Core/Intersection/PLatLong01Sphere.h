@@ -11,15 +11,9 @@ class PLatLong01Sphere : public PBasicSphere
 public:
 	explicit PLatLong01Sphere(real radius);
 
-	void calcHitDetail(
-		const Ray& ray,
-		HitProbe&  probe,
-		HitDetail* out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
-	void genPosSample(
-		PrimitivePosSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 

@@ -91,14 +91,13 @@ auto SurfaceHitRefinery::iterativeOffset(
 	real minDist = 0.0_r;
 	while(true)
 	{
-		HitProbe probe;
-		Ray ray(X.getPos() + offsetDir * maxDist, escapeDir, X.getTime());
-		if(!reintersect(X, ray, probe))
+		HitEvent event(Ray(X.getPos() + offsetDir * maxDist, escapeDir, X.getTime()));
+		if(!reintersect(X, event))
 		{
 			break;
 		}
 
-		maxDist += probe.getHitRayT() * escapeCos;
+		maxDist += event.getHitRayT() * escapeCos;
 		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
@@ -121,9 +120,8 @@ auto SurfaceHitRefinery::iterativeOffset(
 			break;
 		}
 
-		HitProbe probe;
-		Ray ray(X.getPos() + offsetDir * midDist, escapeDir, X.getTime());
-		if(!reintersect(X, ray, probe))
+		HitEvent event(Ray(X.getPos() + offsetDir * midDist, escapeDir, X.getTime()));
+		if(!reintersect(X, event))
 		{
 			maxDist = midDist;
 
@@ -132,7 +130,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 		}
 		else
 		{
-			minDist = math::clamp(midDist + probe.getHitRayT() * escapeCos, midDist, maxDist);
+			minDist = math::clamp(midDist + event.getHitRayT() * escapeCos, midDist, maxDist);
 		}
 	}
 
@@ -187,19 +185,13 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	real minDist = 0.0_r;
 	while(distanceToX2 > maxDist)
 	{
-		HitProbe probe;
-		Ray ray(
-			resultOrigin,
-			resultX.unitDir, 
-			0, 
-			distanceToX2 - maxDist,
-			X.getTime());
-		if(!reintersect(X2, ray, probe))
+		HitEvent event(Ray(resultOrigin, resultX.unitDir, 0, distanceToX2 - maxDist, X.getTime()));
+		if(!reintersect(X2, event))
 		{
 			break;
 		}
 
-		maxDist = std::max(distanceToX2 - probe.getHitRayT(), maxDist);
+		maxDist = std::max(distanceToX2 - event.getHitRayT(), maxDist);
 		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
@@ -222,14 +214,8 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 			break;
 		}
 
-		HitProbe probe;
-		Ray ray(
-			resultOrigin,
-			resultX.unitDir,
-			0,
-			distanceToX2 - midDist,
-			X.getTime());
-		if(!reintersect(X2, ray, probe))
+		HitEvent event(Ray(resultOrigin, resultX.unitDir, 0, distanceToX2 - midDist, X.getTime()));
+		if(!reintersect(X2, event))
 		{
 			maxDist = midDist;
 
@@ -238,7 +224,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 		}
 		else
 		{
-			minDist = math::clamp(distanceToX2 - probe.getHitRayT(), midDist, maxDist);
+			minDist = math::clamp(distanceToX2 - event.getHitRayT(), midDist, maxDist);
 		}
 	}
 

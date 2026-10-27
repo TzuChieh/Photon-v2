@@ -19,17 +19,11 @@ public:
 
 	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override = 0;
 
-	void genDirectSample(
-		DirectEnergySampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override = 0;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const override = 0;
 
-	void emitRay(
-		EnergyEmissionSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override = 0;
+	void emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 
 protected:
 	void evalEnergyFromSurface(
@@ -39,27 +33,25 @@ protected:
 
 	/*!
 	@note
-	- Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`)
+	- Generates a hit event in `DirectEnergySampleOutput::getHitEvent()`
 	- Handles `EEmitterFeatureSet::DirectSample`
 	*/
 	void genDirectSampleFromSurface(
 		const Primitive& surface,
 		const TTexture<math::Spectrum>& energy,
 		DirectEnergySampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+		SampleFlow& sampleFlow) const;
 
 	/*!
 	@note
-	- Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`)
+	- Generates a hit event in `EnergyEmissionSampleOutput::getHitEvent()`
 	- Handles `EEmitterFeatureSet::EmissionSample`
 	*/
 	void emitRayFromSurface(
 		const Primitive& surface,
 		const TTexture<math::Spectrum>& energy,
 		EnergyEmissionSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+		SampleFlow& sampleFlow) const;
 };
 
 }// end namespace ph

@@ -32,7 +32,7 @@ public:
 	OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
 	{
 		OutputType value;
-		if(m_sampledChannel == X.getProbe().getChannel())
+		if(m_sampledChannel == X.getChannel())
 		{
 			texture.sample(SampleLocation(&X, m_sampleUsage), &value);
 		}

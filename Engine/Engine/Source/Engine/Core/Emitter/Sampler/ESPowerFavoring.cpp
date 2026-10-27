@@ -64,15 +64,12 @@ const Emitter* ESPowerFavoring::pickEmitter(SampleFlow& sampleFlow, real* const 
 	return m_emitters[pickedIndex];
 }
 
-void ESPowerFavoring::genDirectSample(
-	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void ESPowerFavoring::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
 	const std::size_t pickedIndex = m_distribution.sampleDiscrete(sampleFlow.flow1D());// FIXME: use pick
 	const real        pickPdf     = m_distribution.pdfDiscrete(pickedIndex);
 
-	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow, probe);
+	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;

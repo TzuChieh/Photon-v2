@@ -261,11 +261,9 @@ void Transform::transform(
 
 	PH_ASSERT(out_surfaceHit);
 	*out_surfaceHit = SurfaceHit(
-		surfaceHit.getRay(),
-		surfaceHit.getProbe(),
+		surfaceHit.getHitEvent(),
 		tDetail,
 		&SurfaceHit::getPrimitiveMetadataRef(tDetail),
-		surfaceHit.getReason(),
 		surfaceHit.hasFullHitDetail());
 }
 

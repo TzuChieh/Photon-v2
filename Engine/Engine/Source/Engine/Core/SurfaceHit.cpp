@@ -15,27 +15,25 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 	// Since channel switching is fairly expensive, do not perform a redundant
 	// switch if we are already on the target channel.
 	//
-	if(newChannel == m_recordedProbe.getChannel())
+	if(newChannel == getChannel())
 	{
 		return *this;
 	}
 
-	HitProbe newProbe = m_recordedProbe;
-	newProbe.setChannel(newChannel);
+	HitEvent newEvent = m_event;
+	newEvent.setChannel(static_cast<uint8>(newChannel));
 
 	HitDetail newDetail;
-	newProbe.calcHitDetail(m_ray, &newDetail);
+	newEvent.calcHitDetail(&newDetail);
 	if(m_hasFullHitDetail)
 	{
 		newDetail.computeBases();
 	}
 
 	return SurfaceHit(
-		m_ray,
-		newProbe,
+		newEvent,
 		newDetail,
 		m_metadata,
-		m_reason,
 		m_hasFullHitDetail);
 }
 

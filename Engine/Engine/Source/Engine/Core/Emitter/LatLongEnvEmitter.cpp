@@ -1,4 +1,5 @@
 #include "Engine/Core/Emitter/LatLongEnvEmitter.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
 #include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
@@ -96,11 +97,11 @@ void LatLongEnvEmitter::evalEmittedEnergy(
 
 void LatLongEnvEmitter::genDirectSample(
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -113,14 +114,15 @@ void LatLongEnvEmitter::genDirectSample(
 		query.inputs,
 		{uvSample.x(), uvSample.y(), 0},
 		{.value = uvSamplePdf, .domain = lta::EDomain::UV01});
-	m_envSurface->genPosSample(posSample, sampleFlow, probe);
+	m_envSurface->genPosSample(posSample, sampleFlow);
 	if(!posSample.outputs)
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
 	HitDetail detail;
-	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	posSample.outputs.getHitEvent().calcHitDetail(&detail);
 
 	// The intension of this method is to importance sample based on UV, so the sampled UV should
 	// not differ much to the one from hit event (up to some numerical error).
@@ -132,21 +134,22 @@ void LatLongEnvEmitter::genDirectSample(
 #endif
 
 	// TODO: use sampler with surface hit
+	query.outputs.setHitEvent(posSample.outputs.getHitEvent());
+	query.outputs.setSrcPrimitive(m_envSurface);
 	query.outputs.setEmittedEnergy(TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
 		*m_radiance, uvSample));
 	query.outputs.setEmitPos(posSample.outputs.getPos());
 	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
-		posSample.outputs.getPdfA(), 
+		posSample.outputs.getPdfA(),
 		query.inputs.getTargetPos() - posSample.outputs.getPos(),
 		detail.getShadingNormal())));
-	query.outputs.setSrcPrimitive(m_envSurface);
-	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
 void LatLongEnvEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -158,6 +161,7 @@ void LatLongEnvEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 	m_envSurface->calcPosPdf(posPdf);
 	if(!posPdf.outputs)
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -167,13 +171,11 @@ void LatLongEnvEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 		query.inputs.getXe().getShadingNormal())));
 }
 
-void LatLongEnvEmitter::emitRay(
-	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void LatLongEnvEmitter::emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
@@ -188,9 +190,10 @@ void LatLongEnvEmitter::emitRay(
 		{uvSample.x(), uvSample.y(), 0},
 		{.value = uvSamplePdf, .domain = lta::EDomain::UV01},
 		true);
-	m_envSurface->genPosSample(posSample, sampleFlow, probe);
+	m_envSurface->genPosSample(posSample, sampleFlow);
 	if(!posSample.outputs)
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
@@ -205,10 +208,9 @@ void LatLongEnvEmitter::emitRay(
 	emittedRay.setRange(0, std::numeric_limits<real>::max());
 
 	query.outputs.setEmittedEnergy(emittedEnergy);
-	query.outputs.setEmittedRay(emittedRay);
-	query.outputs.setPdf(posSample.outputs.getPdfPos(), posSample.outputs.getPdfDir());
 
-	probe.replaceBaseHitRayT(emittedRay.getMinT());
+	query.outputs.setHitEvent(posSample.outputs, emittedRay);// hit is at ray start
+	query.outputs.setPdf(posSample.outputs.getPdfPos(), posSample.outputs.getPdfDir());
 }
 
 real LatLongEnvEmitter::calcRadiantFluxApprox() const

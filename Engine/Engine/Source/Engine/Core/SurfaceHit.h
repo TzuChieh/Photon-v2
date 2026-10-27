@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/hit_fwd.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
@@ -22,31 +22,6 @@ class SurfaceOptics;
 class VolumeOptics;
 class SurfaceEmitter;
 
-enum class ESurfaceHitReason : detail::HitReasonIntType
-{
-	/*! Invalid state. Most likely the reason has not been set. */
-	Invalid = 0,
-
-	/*! An uncategorized, unknown reason. */
-	Unknown = detail::hr_unknown_bits,
-
-	/*! A ray has hit the surface. */
-	IncidentRay = detail::hr_incident_ray_bits,
-
-	/*! A position from the surface has been picked. */
-	SampledPos = detail::hr_sampled_pos_bits,
-
-	/*! A direction from the surface has been picked. */
-	SampledDir = detail::hr_sampled_dir_bits,
-
-	/*! Both a position and a direction from the surface are picked. */
-	SampledPosDir = detail::hr_sampled_pos_bits | detail::hr_sampled_dir_bits,
-};
-
-PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);
-
-using SurfaceHitReasons = TEnumFlags<ESurfaceHitReason>;
-
 /*! @brief General information about a ray-surface intersection event.
 */
 class SurfaceHit final
@@ -59,37 +34,31 @@ public:
 	*/
 	SurfaceHit();
 
-	/*! @brief Construct from the ray and probe involved in a hit event.
+	/*! @brief Construct from a recorded hit event.
 	A full hit detail will be computed. If this is undesirable (e.g., full hit detail is not
 	required), use the overload that lets you set the hit detail directly.
 	*/
-	SurfaceHit(
-		const Ray&               ray,
-		const HitProbe&          probe,
-		SurfaceHitReasons        reason);
+	explicit SurfaceHit(const HitEvent& event);
 
 	/*! @brief Construct with all internal data specified explicitly.
 	No extra calculation is performed.
 	*/
 	SurfaceHit(
-		const Ray&               ray,
-		const HitProbe&          probe,
+		const HitEvent&          event,
 		const HitDetail&         detail,
 		const PrimitiveMetadata* metadata,
-		SurfaceHitReasons        reason,
 		bool                     hasFullHitDetail);
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
 
 	/*! @brief Intersect the intersected object again with a different ray.
-	@param ray The different ray to use for intersection test.
-	@param probe The probe to record the intersection.
-	@note Generates hit event (with `ray` and `probe`).
+	@param event The destination event that will record the new intersection, initialized with the different ray.
 	*/
-	bool reintersect(const Ray& ray, HitProbe& probe) const;
+	bool reintersect(HitEvent& event) const;
 
 	const HitDetail& getDetail() const;
-	const HitProbe& getProbe() const;
+	const HitEvent& getHitEvent() const;
+	uint32 getChannel() const;
 	SurfaceHitReasons getReason() const;
 
 	/*!
@@ -125,38 +94,28 @@ public:
 	///@}
 
 private:
-	Ray                      m_ray;
-	HitProbe                 m_recordedProbe;
+	HitEvent                 m_event;
 	HitDetail                m_detail;
 	const PrimitiveMetadata* m_metadata;
-	SurfaceHitReasons        m_reason;
 	bool                     m_hasFullHitDetail;
 };
 
 // In-header Implementations:
 
 inline SurfaceHit::SurfaceHit()
-	: m_ray             {}
-	, m_recordedProbe   {}
+	: m_event           {}
 	, m_detail          {}
 	, m_metadata        {}
-	, m_reason          {}
 	, m_hasFullHitDetail{false}
 {}
 
-inline SurfaceHit::SurfaceHit(
-	const Ray&               ray,
-	const HitProbe&          probe,
-	const SurfaceHitReasons  reason)
-
-	: m_ray             {ray}
-	, m_recordedProbe   {probe}
+inline SurfaceHit::SurfaceHit(const HitEvent& event)
+	: m_event           {event}
 	, m_detail          {}
 	, m_metadata        {nullptr}
-	, m_reason          {reason}
 	, m_hasFullHitDetail{false}
 {
-	probe.calcHitDetail(ray, &m_detail);
+	event.calcHitDetail(&m_detail);
 
 	// Cache this as obtaining metadata can incur some cost
 	m_metadata = &getPrimitiveMetadataRef(m_detail);
@@ -166,24 +125,20 @@ inline SurfaceHit::SurfaceHit(
 }
 
 inline SurfaceHit::SurfaceHit(
-	const Ray&               ray,
-	const HitProbe&          probe,
+	const HitEvent&          event,
 	const HitDetail&         detail,
 	const PrimitiveMetadata* metadata,
-	const SurfaceHitReasons  reason,
 	const bool               hasFullHitDetail)
 
-	: m_ray             {ray}
-	, m_recordedProbe   {probe}
+	: m_event           {event}
 	, m_detail          {detail}
 	, m_metadata        {metadata}
-	, m_reason          {reason}
 	, m_hasFullHitDetail{hasFullHitDetail}
 {}
 
-inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
+inline bool SurfaceHit::reintersect(HitEvent& event) const
 {
-	return m_recordedProbe.reintersect(ray, probe, getRay());
+	return m_event.reintersect(event);
 }
 
 inline const HitDetail& SurfaceHit::getDetail() const
@@ -191,31 +146,36 @@ inline const HitDetail& SurfaceHit::getDetail() const
 	return m_detail;
 }
 
-inline const HitProbe& SurfaceHit::getProbe() const
+inline const HitEvent& SurfaceHit::getHitEvent() const
 {
-	return m_recordedProbe;
+	PH_ASSERT(!getReason().hasExactly(ESurfaceHitReason::Invalid));
+	return m_event;
+}
+
+inline uint32 SurfaceHit::getChannel() const
+{
+	return m_event.getChannel();
 }
 
 inline SurfaceHitReasons SurfaceHit::getReason() const
 {
-	return m_reason;
+	return m_event.getReason();
 }
 
 inline const Ray& SurfaceHit::getRay() const
 {
-	PH_ASSERT(!m_reason.hasExactly(ESurfaceHitReason::Invalid));
-	return m_ray;
+	return getHitEvent().getRay();
 }
 
 inline const Ray& SurfaceHit::getIncidentRay() const
 {
-	PH_ASSERT(m_reason.has(ESurfaceHitReason::IncidentRay));
-	return m_ray;
+	PH_ASSERT(getReason().has(ESurfaceHitReason::IncidentRay));
+	return getRay();
 }
 
 inline const Time& SurfaceHit::getTime() const
 {
-	return m_ray.getTime();
+	return getRay().getTime();
 }
 
 inline math::Vector3R SurfaceHit::getPos() const

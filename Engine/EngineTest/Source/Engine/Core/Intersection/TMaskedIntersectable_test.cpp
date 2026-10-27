@@ -1,7 +1,7 @@
 #include "engine_test_util.h"
 
 #include <Engine/Actor/Geometry/GCuboid.h>
-#include <Engine/Core/HitProbe.h>
+#include <Engine/Core/HitEvent.h>
 #include <Engine/Core/Intersection/BruteForceIntersector.h>
 #include <Engine/Core/Intersection/Intersectable.h>
 #include <Engine/Core/Intersection/TMaskedIntersectable.h>
@@ -43,10 +43,16 @@ TEST(MaskedIntersectableTest, FindsNextUnmaskedCuboidHit)
 	};
 	TMaskedIntersectable maskedCuboid(&cuboidAggregate, mask);
 
-	HitProbe probe;
 	const Ray ray({0.2_r, 0.1_r, 2.0_r}, {0, 0, -1});
+	HitEvent event(ray);
 
 	// Ray from z = 2 must hit the z = -0.5 face (t = 2.5)
-	ASSERT_TRUE(maskedCuboid.isIntersecting(ray, probe));
-	PH_EXPECT_REAL_EQ(2.5_r, probe.getHitRayT());
+	ASSERT_TRUE(maskedCuboid.isIntersecting(event));
+	PH_EXPECT_REAL_EQ(2.5_r, event.getHitRayT());
+	EXPECT_EQ(event.getRay().getOrigin(), ray.getOrigin());
+	EXPECT_EQ(event.getRay().getDir(), ray.getDir());
+
+	HitDetail detail;
+	event.calcHitDetail(&detail);
+	PH_EXPECT_REAL_EQ(-0.5_r, detail.getPos().z());
 }

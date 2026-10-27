@@ -70,15 +70,20 @@ private:
 };
 
 /*! @brief Output for `PrimitivePosPdfOutput`.
+@note Output data is available only when the output converts to true.
 */
 class PrimitivePosPdfOutput final
 {
 public:
+	/*! @brief Set the PDF.
+	*/
 	void setPdf(const lta::PDF& pdf);
 
 	real getPdfA() const;
 	const lta::PDF& getPdf() const;
 
+	/*! @brief Whether the PDF is sane and positive.
+	*/
 	operator bool () const;
 
 private:

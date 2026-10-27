@@ -18,10 +18,7 @@ public:
 		
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const override;
 
-	void genDirectSample(
-		DirectEnergySampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const override;
 

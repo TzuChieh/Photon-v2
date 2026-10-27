@@ -1,7 +1,7 @@
 #include "Engine/Core/Intersection/PLatLong01Sphere.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Math/Geometry/TSphere.h"
 #include "Engine/Core/SampleGenerator/SampleFlow.h"
@@ -17,19 +17,16 @@ PLatLong01Sphere::PLatLong01Sphere(const real radius) :
 	PBasicSphere(radius)
 {}
 
-void PLatLong01Sphere::calcHitDetail(
-	const Ray&       ray,
-	HitProbe&        probe,
-	HitDetail* const out_detail) const
+void PLatLong01Sphere::calcHitDetail(HitEvent& event, HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 
-	probe.popHit();
+	event.popHit();
 
 	// Refine hit point by normal and radius since the ray can be far away
 	// and contains large numerical error
 	const auto [hitPosition, hitNormal] = getRefinedSurfaceAndNormal(
-		ray.getSegment().getPoint(probe.getHitRayT()));
+		event.getRay().getSegment().getPoint(event.getHitRayT()));
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
 		"hitPosition = " + hitPosition.toString() + "\n"
@@ -60,7 +57,7 @@ void PLatLong01Sphere::calcHitDetail(
 	out_detail->setHitIntrinsics(
 		this, 
 		math::Vector3R(hitUv.x(), hitUv.y(), 0), 
-		probe.getHitRayT(),
+		event.getHitRayT(),
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Convex}));
 
@@ -73,10 +70,7 @@ void PLatLong01Sphere::calcHitDetail(
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }
 
-void PLatLong01Sphere::genPosSample(
-	PrimitivePosSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void PLatLong01Sphere::genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	const math::TSphere<real> sphere(getRadius());
 	const auto pos = sphere.sampleToSurfaceArchimedes(sampleFlow.flow2D());
@@ -91,9 +85,8 @@ void PLatLong01Sphere::genPosSample(
 
 	query.outputs.setPos(pos);
 	query.outputs.setPdfPos(lta::PDF::A(pdfA));
-	query.outputs.setObservationRay(observationRay);
-
-	probe.pushBaseHit(this, observationRay.getMaxT());
+	query.outputs.setPdfDir({});
+	query.outputs.setSampledHit(*this, observationRay);
 }
 
 void PLatLong01Sphere::calcPosPdf(PrimitivePosPdfQuery& query) const

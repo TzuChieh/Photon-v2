@@ -7,7 +7,7 @@
 #include <Engine/Core/Intersection/PLatLong01Sphere.h>
 #include <Engine/Core/Intersection/TransformedIntersectable.h>
 #include <Engine/Core/Ray.h>
-#include <Engine/Core/HitProbe.h>
+#include <Engine/Core/HitEvent.h>
 #include <Engine/Core/HitDetail.h>
 #include <Engine/Math/math.h>
 #include <Engine/Math/TVector3.h>
@@ -254,14 +254,14 @@ public:
 		auto ray = makeRandomPosRay(config, potentialHitPos, potentialHitNormal);
 		ray.setRange(0, std::numeric_limits<real>::max());
 
-		HitProbe probe;
-		if(!intersectable.isIntersecting(ray, probe))
+		HitEvent event(ray);
+		if(!intersectable.isIntersecting(event))
 		{
 			return false;
 		}
 
 		HitDetail detail;
-		intersectable.calcHitDetail(ray, probe, &detail);
+		intersectable.calcHitDetail(event, &detail);
 
 		PH_ASSERT(out_actualHitPos);
 		PH_ASSERT(out_actualHitNormal);
@@ -289,10 +289,10 @@ public:
 		maxDist = maxDist > 0.0_r && std::isfinite(maxDist) ? maxDist : 1e-6_r;
 		while(true)
 		{
-			HitProbe probe;
 			Ray ray = targetRay;
 			ray.setOrigin(targetHitPos + offsetDir * maxDist);
-			if(!intersectable.isIntersecting(ray, probe))
+			HitEvent event(ray);
+			if(!intersectable.isIntersecting(event))
 			{
 				break;
 			}
@@ -310,10 +310,10 @@ public:
 				return maxDist;
 			}
 
-			HitProbe probe;
 			Ray ray = targetRay;
 			ray.setOrigin(targetHitPos + offsetDir * midDist);
-			if(!intersectable.isIntersecting(ray, probe))
+			HitEvent event(ray);
+			if(!intersectable.isIntersecting(event))
 			{
 				maxDist = midDist;
 			}
@@ -363,15 +363,15 @@ public:
 					result.expectedHitPos,
 					result.expectedHitNormal);
 
-				HitProbe probe;
-				if(!ptriangle.isIntersecting(ray, probe))
+				HitEvent event(ray);
+				if(!ptriangle.isIntersecting(event))
 				{
 					g_numMissed.fetch_add(1, std::memory_order_relaxed);
 					continue;
 				}
 
 				HitDetail detail;
-				ptriangle.calcHitDetail(ray, probe, &detail);
+				ptriangle.calcHitDetail(event, &detail);
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = detail.getPos();
@@ -450,15 +450,15 @@ public:
 					result.expectedHitPos,
 					result.expectedHitNormal);
 
-				HitProbe probe;
-				if(!data.triangle->isIntersecting(ray, probe))
+				HitEvent event(ray);
+				if(!data.triangle->isIntersecting(event))
 				{
 					g_numMissed.fetch_add(1, std::memory_order_relaxed);
 					continue;
 				}
 
 				HitDetail detail;
-				data.triangle->calcHitDetail(ray, probe, &detail);
+				data.triangle->calcHitDetail(event, &detail);
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = detail.getPos();
@@ -559,15 +559,15 @@ public:
 					result.expectedHitPos,
 					result.expectedHitNormal);
 
-				HitProbe probe;
-				if(!psphere.isIntersecting(ray, probe))
+				HitEvent event(ray);
+				if(!psphere.isIntersecting(event))
 				{
 					g_numMissed.fetch_add(1, std::memory_order_relaxed);
 					continue;
 				}
 
 				HitDetail detail;
-				psphere.calcHitDetail(ray, probe, &detail);
+				psphere.calcHitDetail(event, &detail);
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = detail.getPos();
@@ -638,15 +638,15 @@ public:
 					result.expectedHitPos,
 					result.expectedHitNormal);
 
-				HitProbe probe;
-				if(!data.sphere->isIntersecting(ray, probe))
+				HitEvent event(ray);
+				if(!data.sphere->isIntersecting(event))
 				{
 					g_numMissed.fetch_add(1, std::memory_order_relaxed);
 					continue;
 				}
 
 				HitDetail detail;
-				data.sphere->calcHitDetail(ray, probe, &detail);
+				data.sphere->calcHitDetail(event, &detail);
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = detail.getPos();

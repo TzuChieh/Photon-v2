@@ -18,27 +18,15 @@ class PTriangle : public Primitive
 public:
 	PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
 	bool isOccluding(const Ray& ray) const override;
-
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
-
-	void calcHitDetail(
-		const Ray& ray, 
-		HitProbe&  probe,
-		HitDetail* out_detail) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 
-	void genPosSample(
-		PrimitivePosSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 

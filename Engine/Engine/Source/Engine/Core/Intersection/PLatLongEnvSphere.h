@@ -28,20 +28,17 @@ public:
 		const StaticRigidTransform* localToWorld,
 		const StaticRigidTransform* worldToLocal);
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
+
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
+	
 	bool isOccluding(const Ray& ray) const override;
 
-	void calcHitDetail(
-		const Ray& ray,
-		HitProbe&  probe,
-		HitDetail* out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
 	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 
-	void genPosSample(
-		PrimitivePosSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
@@ -52,29 +49,27 @@ private:
 	Basically a hit event generating version of `latLong01ToSurface(4)`.
 	@param latLong01 The sampled UV coordinates. Determines the direction of observation.
 	@param latLong01Pdf UV space PDF of sampling the UV coordinates.
-	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `PrimitivePosSampleOutput::getHitEvent()`.
 	*/
 	void genPosSampleWithObservationPos(
 		const math::Vector2R& latLong01,
 		real latLong01Pdf,
-		PrimitivePosSampleQuery& query,
-		HitProbe& probe) const;
+		PrimitivePosSampleQuery& query) const;
 
 	/*! @brief Generates a sample point on the surface of this primitive.
 	Basically a hit event generating version of `latLong01ToSurface(5)`.
 	@param latLong01 The sampled UV coordinates. Determines the direction of observation.
 	@param latLong01Pdf UV space PDF of sampling the UV coordinates.
-	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `PrimitivePosSampleOutput::getHitEvent()`.
 	*/
 	void genPosSampleWithoutObservationPos(
 		const math::Vector2R& latLong01,
 		real latLong01Pdf,
 		PrimitivePosSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+		SampleFlow& sampleFlow) const;
 
 	/*!
-	@note Generates hit event (with `PrimitivePosPdfOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `PrimitivePosPdfOutput::getHitEvent()`.
 	*/
 	void calcPosPdfWithObservationPos(
 		const math::Vector2R& latLong01,

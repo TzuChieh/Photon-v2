@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Math/TVector3.h"
+#include "Engine/Core/HitEvent.h"
+#include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Core/LTA/PDF.h"
@@ -72,14 +74,32 @@ private:
 };
 
 /*! @brief Output for `PrimitivePosSampleQuery`.
+@note Read output data only when `isContributable()` returns true.
 */
 class PrimitivePosSampleOutput final
 {
 public:
 	void setPos(const math::Vector3R& pos);
+
+	/*! @brief Set the position PDF.
+	@param pdfPos Determines contributability independently of the optional direction PDF.
+	*/
 	void setPdfPos(const lta::PDF& pdfPos);
+
 	void setPdfDir(const lta::PDF& pdfDir);
-	void setObservationRay(const Ray& observationRay);
+	void setHitEvent(const HitEvent& event);
+
+	/*! @brief Record a sampled primitive in the output's event.
+	@param primitive The sampled primitive.
+	@param observationRay Its maximum t is recorded as the hit distance.
+	@param reason The sampling reason.
+	*/
+	void setSampledHit(
+		const Primitive& primitive,
+		const Ray& observationRay,
+		SurfaceHitReasons reason = ESurfaceHitReason::SampledPos);
+
+	bool isContributable() const;
 
 	/*! @brief Get the sampled position.
 	@return The coordinates of the sampled position. This is generally more accurate (and more
@@ -113,8 +133,14 @@ public:
 	*/
 	const Ray& getObservationRay() const;
 
-	/*! @brief Checks the validity of the sample.
-	@return `true` if the sample is valid. `false` if the sample failed. A failed sample cannot be
+	const HitEvent& getHitEvent() const;
+
+	/*! @brief Mutable access for the stored event.
+	*/
+	HitEvent& event();
+
+	/*! @brief Convenient method for `isContributable()`.
+	@return `true` if the sample is contributable. `false` if the sample failed. A failed sample cannot be
 	used. A typical way to fail is that sampling is not even supported/possible.
 	*/
 	operator bool () const;
@@ -123,7 +149,7 @@ private:
 	math::Vector3R m_pos{0};
 	lta::PDF       m_pdfPos{};
 	lta::PDF       m_pdfDir{};
-	Ray            m_observationRay{};
+	HitEvent       m_hitEvent;
 };
 
 /*! @brief Information for generating a sample point on a primitive.
@@ -197,9 +223,23 @@ inline bool PrimitivePosSampleInput::suggestDir() const
 	return m_suggestDir;
 }
 
-inline void PrimitivePosSampleOutput::setObservationRay(const Ray& observationRay)
+inline bool PrimitivePosSampleOutput::isContributable() const
 {
-	m_observationRay = observationRay;
+	return m_pdfPos;
+}
+
+inline void PrimitivePosSampleOutput::setHitEvent(const HitEvent& event)
+{
+	m_hitEvent = event;
+}
+
+inline void PrimitivePosSampleOutput::setSampledHit(
+	const Primitive& primitive,
+	const Ray& observationRay,
+	const SurfaceHitReasons reason)
+{
+	m_hitEvent.reset(observationRay, reason);
+	m_hitEvent.pushBaseHit(&primitive, observationRay.getMaxT());
 }
 
 inline void PrimitivePosSampleOutput::setPos(const math::Vector3R& pos)
@@ -219,14 +259,12 @@ inline void PrimitivePosSampleOutput::setPdfDir(const lta::PDF& pdfDir)
 
 inline const Ray& PrimitivePosSampleOutput::getObservationRay() const
 {
-	PH_ASSERT(*this);
-	return m_observationRay;
+	return getHitEvent().getRay();
 }
 
 inline const math::Vector3R& PrimitivePosSampleOutput::getPos() const
 {
-	PH_ASSERT(*this);
-	PH_ASSERT(!m_pdfPos.isEmpty());
+	PH_ASSERT(isContributable());
 	return m_pos;
 }
 
@@ -248,19 +286,30 @@ inline real PrimitivePosSampleOutput::getPdfW() const
 
 inline const lta::PDF& PrimitivePosSampleOutput::getPdfPos() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	return m_pdfPos;
 }
 
 inline const lta::PDF& PrimitivePosSampleOutput::getPdfDir() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	return m_pdfDir;
+}
+
+inline const HitEvent& PrimitivePosSampleOutput::getHitEvent() const
+{
+	PH_ASSERT(isContributable());
+	return m_hitEvent;
+}
+
+inline HitEvent& PrimitivePosSampleOutput::event()
+{
+	return m_hitEvent;
 }
 
 inline PrimitivePosSampleOutput::operator bool () const
 {
-	return m_pdfPos;
+	return isContributable();
 }
 
 }// end namespace ph

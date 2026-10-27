@@ -10,6 +10,7 @@ namespace ph
 class HitInfo;
 class HitDetail;
 class HitProbe;
+class HitEvent;
 class SurfaceHit;
 class VolumeHit;
 

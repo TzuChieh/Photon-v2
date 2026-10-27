@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <cstddef>
 #include <cstring>
+#include <cmath>
 
 namespace ph
 {
@@ -21,33 +22,22 @@ class HitDetail;
 class Ray;
 
 /*! @brief Lightweight ray intersection testing and reporting object.
-If an intersection is found, a detailed report can be obtained from the stored information.
+If an intersection is found, a detailed report can be obtained from the stored information, see `HitEvent`.
 */
 class HitProbe final
 {
 public:
 	/*!
-	Creates an empty probe object and makes it ready for probing. To clear a used probe, assign an
-	empty probe to it.
+	Creates an empty probe ready for recording. Use `clearHit()` to retain its channel when reusing it,
+	or assign an empty probe to reset all state.
 	*/
 	HitProbe();
 
-	/*! @brief Calculates basic hit information using this probe.
-	The information is calculated using a copy of the current state of this probe. Only basic hit
-	information is calculated. For detailed hit information, there are dedicated methods such as
-	`HitDetail::computeBases()` so they can be obtained on demand.
+	/*! @brief Clear the recorded hit while retaining the selected channel.
 	*/
-	void calcHitDetail(const Ray& ray, HitDetail* out_detail) const;
+	void clearHit();
 
-	/*! @brief Intersect the intersected object again with a different ray.
-	The operation is done using a copy of the current state of this probe.
-	@param ray The different ray to use for intersection test.
-	@param probe The probe to record the intersection.
-	@param srcRay The ray from a previous hit event (associated with `this` probe).
-	@note Generates hit event (with `ray` and `probe`).
-	*/
-	bool reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay) const;
-
+	bool hasRecordedTargets() const;
 	bool isOnDefaultChannel() const;
 
 	/*! @brief Adds a hit target that will participate in hit detail's calculation to the stack.
@@ -57,6 +47,8 @@ public:
 	/*! @brief Adds the first hit target to the stack.
 	Similar to `pushIntermediateHit()`, except the parametric hit distance `hitRayT` must also 
 	be reported.
+	@param hitTarget First hit target.
+	@param hitRayT Finite hit distance less than `std::numeric_limits<real>::max()`.
 	*/
 	void pushBaseHit(const Intersectable* hitTarget, real hitRayT);
 
@@ -65,16 +57,25 @@ public:
 	void popHit();
 
 	void replaceTopHit(const Intersectable* newTopHit);
+
+	/*! @brief Replace the recorded base hit's parametric distance.
+	Other hit data is left unchanged.
+	@param newHitRayT Finite hit distance, or `std::numeric_limits<real>::max()` to mark no hit.
+	*/
 	void replaceBaseHitRayT(real newHitRayT);
 
 	void setChannel(uint8 channel);
 	uint8 getChannel() const;
 
 	/*!
-	@return Most recent hit target on the stack. May be `nullptr` if the probe is empty.
+	@return Most recent hit target on the stack. Requires a non-empty probe.
 	*/
 	const Intersectable* getTopHit() const;
 
+	/*!
+	@return Recorded parametric hit distance, or `std::numeric_limits<real>::max()` for no hit.
+	The no-hit value is also set on construction and by `clearHit()`. Popping targets retains the distance.
+	*/
 	real getHitRayT() const;
 
 	template<typename T>
@@ -105,6 +106,21 @@ inline HitProbe::HitProbe()
 	, m_hitDetailChannel(0)
 {}
 
+inline void HitProbe::clearHit()
+{
+	m_hitStack.clear();
+	m_cacheHead = 0;
+	m_hitRayT = std::numeric_limits<real>::max();
+#if PH_DEBUG
+	m_hasBaseHitSet = false;
+#endif
+}
+
+inline bool HitProbe::hasRecordedTargets() const
+{
+	return !m_hitStack.isEmpty();
+}
+
 inline void HitProbe::pushIntermediateHit(const Intersectable* const hitTarget)
 {
 	m_hitStack.push(hitTarget);
@@ -112,6 +128,9 @@ inline void HitProbe::pushIntermediateHit(const Intersectable* const hitTarget)
 
 inline void HitProbe::pushBaseHit(const Intersectable* const hitTarget, const real hitRayT)
 {
+	PH_ASSERT(std::isfinite(hitRayT));
+	PH_ASSERT_LT(hitRayT, std::numeric_limits<real>::max());
+
 	m_hitStack.push(hitTarget);
 	m_hitRayT = hitRayT;
 
@@ -134,6 +153,8 @@ inline void HitProbe::replaceTopHit(const Intersectable* const newTopHit)
 inline void HitProbe::replaceBaseHitRayT(const real newHitRayT)
 {
 	PH_ASSERT(m_hasBaseHitSet);
+	PH_ASSERT(std::isfinite(newHitRayT));
+
 	m_hitRayT = newHitRayT;
 }
 
@@ -154,7 +175,6 @@ inline const Intersectable* HitProbe::getTopHit() const
 
 inline real HitProbe::getHitRayT() const
 {
-	PH_ASSERT(m_hasBaseHitSet);
 	return m_hitRayT;
 }
 

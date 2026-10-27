@@ -2,6 +2,7 @@
 #include "Engine/Math/TVector3.h"
 #include "Engine/World/Scene.h"
 #include "Engine/Core/SurfaceHit.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/VolumeBehavior/VolumeOptics.h"
@@ -38,11 +39,10 @@ inline bool TVolumetricLightEstimator<POLICY>::sample(
 	math::Vector3R currL = L;
 	while(interior)
 	{
-		HitProbe probe;
-		Ray ray(currXs.getPos(), currL, 0.0001_r, std::numeric_limits<real>::max());
-		if(scene.isIntersecting(ray, &probe))
+		HitEvent event(Ray(currXs.getPos(), currL, 0.0001_r, std::numeric_limits<real>::max()));
+		if(scene.isIntersecting(event))
 		{
-			//currXe = SurfaceHit(ray, probe);
+			//currXe = SurfaceHit(event);
 		}
 		else
 		{

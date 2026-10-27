@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/HitDetail.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Intersection/Primitive.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
 #include "Engine/Core/Intersection/primitive_decorations.h"
@@ -29,45 +29,38 @@ public:
 		, m_inner(std::move(primitiveGetter))
 	{}
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
+	bool isIntersecting(HitEvent& event) const override
 	{
-		if(m_inner().isIntersecting(ray, probe))
+		if(m_inner().isIntersecting(event))
 		{
-			probe.pushIntermediateHit(this);
+			event.pushIntermediateHit(this);
 			return true;
 		}
 
 		return false;
 	}
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override
 	{
-		PH_ASSERT(srcProbe.getTopHit() == this);
-		srcProbe.popHit();
+		PH_ASSERT(srcEvent.getTopHit() == this);
+		srcEvent.popHit();
 
-		if(srcProbe.getTopHit()->reintersect(ray, probe, srcRay, srcProbe))
+		if(srcEvent.getTopHit()->reintersect(event, srcEvent))
 		{
-			probe.pushIntermediateHit(this);
+			event.pushIntermediateHit(this);
 			return true;
 		}
 
 		return false;
 	}
 
-	void calcHitDetail(
-		const Ray& ray,
-		HitProbe& probe,
-		HitDetail* const out_detail) const override
+	void calcHitDetail(HitEvent& event, HitDetail* const out_detail) const override
 	{
-		PH_ASSERT(probe.getTopHit() == this);
-		probe.popHit();
+		PH_ASSERT(event.getTopHit() == this);
+		event.popHit();
 
-		PH_ASSERT(probe.getTopHit());
-		probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
+		PH_ASSERT(event.getTopHit());
+		event.getTopHit()->calcHitDetail(event, out_detail);
 		out_detail->updatePrimitive(this);
 		if constexpr(SHOULD_FLIP_NG)
 		{
@@ -92,15 +85,12 @@ public:
 		return m_inner().calcAABB();
 	}
 
-	void genPosSample(
-		PrimitivePosSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override
+	void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override
 	{
-		m_inner().genPosSample(query, sampleFlow, probe);
+		m_inner().genPosSample(query, sampleFlow);
 		if(query.outputs)
 		{
-			probe.pushIntermediateHit(this);
+			query.outputs.event().pushIntermediateHit(this);
 		}
 	}
 

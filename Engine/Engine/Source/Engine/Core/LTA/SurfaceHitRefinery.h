@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Core/SurfaceHit.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Math/math.h"
@@ -129,7 +130,7 @@ private:
 		const math::Vector3R& dir,
 		std::size_t numIters);
 
-	static bool reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe);
+	static bool reintersect(const SurfaceHit& X, HitEvent& event);
 
 	/*! Unfortunately we cannot test whether the escape was successful or not for some face
 	topologies as the ray can have valid self-intersect against them. This method checks whether
@@ -427,13 +428,13 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 	return offsetVec;
 }
 
-inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe)
+inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, HitEvent& event)
 {
 #if PH_HIT_EVENT_STATS
 	s_stats.markReintersect();
 #endif
 
-	return X.reintersect(ray, probe);
+	return X.reintersect(event);
 }
 
 inline bool SurfaceHitRefinery::canVerifyOffset(const SurfaceHit& X, const math::Vector3R& dir)
@@ -455,9 +456,8 @@ inline bool SurfaceHitRefinery::verifyOffset(
 {
 	PH_ASSERT(canVerifyOffset(X, dir));
 
-	HitProbe probe;
-	const Ray ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime());
-	return !X.reintersect(ray, probe);
+	HitEvent event(Ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime()));
+	return !X.reintersect(event);
 }
 
 }// end namespace ph::lta

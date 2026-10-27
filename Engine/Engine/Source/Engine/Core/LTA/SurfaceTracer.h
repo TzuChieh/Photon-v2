@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/World/Scene.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/LTA/lta.h"
 #include "Engine/Core/LTA/SidednessAgreement.h"
@@ -170,14 +170,14 @@ inline bool SurfaceTracer::traceNextSurface(
 {
 	PH_ASSERT(out_X);
 
-	HitProbe probe;
-	if(!getScene().isIntersecting(ray, &probe))
+	HitEvent event(ray);
+	if(!getScene().isIntersecting(event))
 	{
 		if(out_boundedRay) { *out_boundedRay = ray; }
 		return false;
 	}
 
-	*out_X = SurfaceHit(ray, probe, ESurfaceHitReason::IncidentRay);
+	*out_X = SurfaceHit(event);
 	if(out_boundedRay)
 	{
 		*out_boundedRay = Ray(

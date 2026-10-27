@@ -1,7 +1,7 @@
 #include "Engine/Core/Intersection/PLatLongEnvSphere.h"
 #include "Engine/Math/TVector3.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Math/Geometry/TSphere.h"
 #include "Engine/Math/Geometry/THemisphere.h"
@@ -44,11 +44,24 @@ PLatLongEnvSphere::PLatLongEnvSphere(
 	m_localToWorld->transformP({0, 0, 0}, &m_worldOrigin);
 }
 
-bool PLatLongEnvSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
+bool PLatLongEnvSphere::isIntersecting(HitEvent& event) const
 {
 	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-	return PBasicSphere::isIntersecting(localRay, probe);
+	m_worldToLocal->transform(event.getRay(), &localRay);
+	
+	return event.withRay(
+		localRay,
+		[this](HitEvent& localEvent)
+		{
+			return PBasicSphere::isIntersecting(localEvent);
+		});
+}
+
+bool PLatLongEnvSphere::reintersect(HitEvent& event, HitEvent& srcEvent) const
+{
+	srcEvent.popHit();
+
+	return PLatLongEnvSphere::isIntersecting(event);
 }
 
 bool PLatLongEnvSphere::isOccluding(const Ray& ray) const
@@ -58,22 +71,19 @@ bool PLatLongEnvSphere::isOccluding(const Ray& ray) const
 	return PBasicSphere::isOccluding(localRay);
 }
 
-void PLatLongEnvSphere::calcHitDetail(
-	const Ray&       ray,
-	HitProbe&        probe,
-	HitDetail* const out_detail) const
+void PLatLongEnvSphere::calcHitDetail(HitEvent& event, HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 
-	probe.popHit();
+	event.popHit();
 
 	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
+	m_worldToLocal->transform(event.getRay(), &localRay);
 
 	// Refine hit point by normal and radius since the ray can be far away
 	// and contains large numerical error
 	auto [localHitPosition, localHitNormal] = getRefinedSurfaceAndNormal(
-		localRay.getSegment().getPoint(probe.getHitRayT()));
+		localRay.getSegment().getPoint(event.getHitRayT()));
 
 	// Normal is always facing the sphere's center
 	localHitNormal *= -1;
@@ -102,7 +112,7 @@ void PLatLongEnvSphere::calcHitDetail(
 	out_detail->setHitIntrinsics(
 		this, 
 		math::Vector3R(hitUV.x(), hitUV.y(), 0),
-		probe.getHitRayT(), 
+		event.getHitRayT(),
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Concave}));
 
@@ -118,10 +128,7 @@ void PLatLongEnvSphere::calcHitDetail(
 	// a hemisphere of directions.
 }
 
-void PLatLongEnvSphere::genPosSample(
-	PrimitivePosSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void PLatLongEnvSphere::genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	PH_ASSERT(query.inputs.getUvwPdf().domain == lta::EDomain::UV01);
 
@@ -130,8 +137,7 @@ void PLatLongEnvSphere::genPosSample(
 		genPosSampleWithObservationPos(
 			{query.inputs.getUvw().x(), query.inputs.getUvw().y()},
 			*query.inputs.getUvwPdf(),
-			query,
-			probe);
+			query);
 	}
 	else
 	{
@@ -139,8 +145,7 @@ void PLatLongEnvSphere::genPosSample(
 			{query.inputs.getUvw().x(), query.inputs.getUvw().y()},
 			*query.inputs.getUvwPdf(),
 			query,
-			sampleFlow,
-			probe);
+			sampleFlow);
 	}
 }
 
@@ -158,6 +163,7 @@ void PLatLongEnvSphere::calcPosPdf(PrimitivePosPdfQuery& query) const
 	}
 	else
 	{
+		query.outputs.setPdf({});
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 }
@@ -165,8 +171,7 @@ void PLatLongEnvSphere::calcPosPdf(PrimitivePosPdfQuery& query) const
 void PLatLongEnvSphere::genPosSampleWithObservationPos(
 	const math::Vector2R& latLong01,
 	const real latLong01Pdf,
-	PrimitivePosSampleQuery& query,
-	HitProbe& probe) const
+	PrimitivePosSampleQuery& query) const
 {
 	// Observation position must present so one-to-one mapping is possible
 	PH_ASSERT(query.inputs.getObservationPos());
@@ -175,6 +180,7 @@ void PLatLongEnvSphere::genPosSampleWithObservationPos(
 	math::Vector3R unitObservationDir;
 	if(!latLong01ToSurface(latLong01, *query.inputs.getObservationPos(), &surface, &unitObservationDir))
 	{
+		query.outputs.setPdfPos({});
 		return;
 	}
 
@@ -183,8 +189,7 @@ void PLatLongEnvSphere::genPosSampleWithObservationPos(
 	// Absolute value of the determinant of Jacobian from UV space to Cartesian
 	const real detJacobian = 2.0_r * math::constant::pi2<real> * getRadius() * getRadius() * sinTheta;
 
-	real pdfA = latLong01Pdf / detJacobian;
-	pdfA = std::isfinite(pdfA) ? pdfA : 0.0_r;
+	const real pdfA = latLong01Pdf / detJacobian;
 
 	const Ray observationRay(
 		*query.inputs.getObservationPos(),
@@ -194,18 +199,16 @@ void PLatLongEnvSphere::genPosSampleWithObservationPos(
 		query.inputs.getTime());
 
 	query.outputs.setPos(surface);
-	query.outputs.setObservationRay(observationRay);
+	query.outputs.setSampledHit(*this, observationRay);
 	query.outputs.setPdfPos(lta::PDF::A(pdfA));
-
-	probe.pushBaseHit(this, observationRay.getMaxT());
+	query.outputs.setPdfDir({});
 }
 
 void PLatLongEnvSphere::genPosSampleWithoutObservationPos(
 	const math::Vector2R& latLong01,
 	const real latLong01Pdf,
 	PrimitivePosSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	// Observation position must not present, otherwise it does not make sense to use this
 	// method for one-to-many mapping
@@ -232,11 +235,9 @@ void PLatLongEnvSphere::genPosSampleWithoutObservationPos(
 		query.inputs.getTime());
 
 	query.outputs.setPos(surface);
-	query.outputs.setObservationRay(observationRay);
+	query.outputs.setSampledHit(*this, observationRay, ESurfaceHitReason::SampledPosDir);
 	query.outputs.setPdfPos(lta::PDF::A(pdfA));
 	query.outputs.setPdfDir(lta::PDF::W(latLong01Pdf / detJacobian));
-
-	probe.pushBaseHit(this, observationRay.getMaxT());
 }
 
 void PLatLongEnvSphere::calcPosPdfWithObservationPos(

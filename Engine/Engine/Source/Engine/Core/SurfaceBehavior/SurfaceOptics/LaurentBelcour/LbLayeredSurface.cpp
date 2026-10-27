@@ -194,11 +194,9 @@ void LbLayeredSurface::genElementalBsdfSample(
 	LbLayeredSurface::calcElementalBsdf(ctx, evalInput, evalOutput);
 
 	const real absNoL = N.absDot(L);
-	const math::Spectrum bsdf =
-		evalOutput.isContributable() ? evalOutput.getBsdf() : math::Spectrum(0);
-
-	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
+	const math::Spectrum bsdf = evalOutput ? evalOutput.getBsdf() : math::Spectrum(0);
 	out.setL(L);
+	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 }
 
 void LbLayeredSurface::calcElementalBsdfPdf(
@@ -206,10 +204,9 @@ void LbLayeredSurface::calcElementalBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	out.setSampleDirPdf({});
-
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
+		out.setSampleDirPdf({});
 		return;
 	}
 
@@ -218,6 +215,7 @@ void LbLayeredSurface::calcElementalBsdfPdf(
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
+		out.setSampleDirPdf({});
 		return;
 	}
 

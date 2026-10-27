@@ -1,6 +1,6 @@
 #include "Engine/Core/Intersection/BruteForceIntersector.h"
 #include "Engine/Core/Intersection/Intersectable.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 
@@ -23,33 +23,22 @@ void BruteForceIntersector::update(TSpanView<const Intersectable*> intersectable
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
+bool BruteForceIntersector::isIntersecting(HitEvent& event) const
 {
-	HitProbe closestProbe;
-	real closestRayHitT = std::numeric_limits<real>::max();
-
+	const HitEvent originalEvent(event);
 	for(const Intersectable* intersectable : m_intersectables)
 	{
-		HitProbe currentProbe(probe);
-		if(intersectable->isIntersecting(ray, currentProbe))
+		HitEvent currentEvent(originalEvent);
+		if(intersectable->isIntersecting(currentEvent))
 		{
-			if(currentProbe.getHitRayT() < closestRayHitT)
+			if(currentEvent.getHitRayT() < event.getHitRayT())
 			{
-				closestRayHitT = currentProbe.getHitRayT();
-				closestProbe   = currentProbe;
+				event.copyHitAndKeepRay(currentEvent);
 			}
 		}
 	}
 
-	if(closestRayHitT < std::numeric_limits<real>::max())
-	{
-		probe = closestProbe;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return event.getHitRayT() < std::numeric_limits<real>::max();
 }
 
 bool BruteForceIntersector::isOccluding(const Ray& ray) const

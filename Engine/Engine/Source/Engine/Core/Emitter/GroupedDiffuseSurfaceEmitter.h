@@ -29,17 +29,11 @@ public:
 
 	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override;
 
-	void genDirectSample(
-		DirectEnergySampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const override;
 
-	void emitRay(
-		EnergyEmissionSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override;
+	void emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	real calcRadiantFluxApprox() const override;
 

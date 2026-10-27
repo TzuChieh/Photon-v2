@@ -60,15 +60,20 @@ private:
 };
 
 /*! @brief Output for `DirectEnergyPdfQuery`.
+@note Output data is available only when the output can be converted to `true`.
 */
 class DirectEnergyPdfOutput final
 {
 public:
+	/*! @brief Set the PDF. Empty PDF invalidates the output.
+	*/
 	void setPdf(const lta::PDF& pdf);
 
 	real getPdfW() const;
 	const lta::PDF& getPdf() const;
 
+	/*! @brief Whether the PDF is sane and positive.
+	*/
 	operator bool () const;
 
 private:

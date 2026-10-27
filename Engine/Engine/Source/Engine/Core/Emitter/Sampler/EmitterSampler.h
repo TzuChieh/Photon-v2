@@ -34,12 +34,9 @@ public:
 	virtual const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_pdf) const = 0;
 
 	/*! @brief Sample direct lighting for a target position.
-	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `DirectEnergySampleOutput::getHitEvent()`.
 	*/
-	virtual void genDirectSample(
-		DirectEnergySampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const = 0;
+	virtual void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const = 0;
 
 	/*! @brief Calculate the PDF of direct lighting for a target position.
 	*/

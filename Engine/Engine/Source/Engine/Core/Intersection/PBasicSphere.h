@@ -15,18 +15,13 @@ class PBasicSphere : public Primitive
 public:
 	explicit PBasicSphere(real radius);
 
-	void calcHitDetail(
-		const Ray& ray,
-		HitProbe&  probe,
-		HitDetail* out_detail) const override = 0;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override = 0;
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
+
+	bool isOccluding(const Ray& ray) const override;
 
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;

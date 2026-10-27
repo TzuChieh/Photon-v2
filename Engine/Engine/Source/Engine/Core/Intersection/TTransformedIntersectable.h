@@ -6,7 +6,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Quantity/Time.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 #include "Engine/Math/hash.h"
 
@@ -31,18 +31,11 @@ public:
 		const Transform*     localToWorld,
 		const Transform*     worldToLocal);
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
 
-	void calcHitDetail(
-		const Ray&       ray,
-		HitProbe&        probe,
-		HitDetail* const out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* const out_detail) const override;
 
 	bool isOccluding(const Ray& ray) const override;
 
@@ -75,65 +68,73 @@ inline TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::TTransfor
 
 template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
 inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::isIntersecting(
-	const Ray& ray,
-	HitProbe& probe) const
+	HitEvent& event) const
 {
 	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-	if(m_inner().isIntersecting(localRay, probe))
+	m_worldToLocal->transform(event.getRay(), &localRay);
+
+	const bool hasHit = event.withRay(
+		localRay,
+		[this](HitEvent& localEvent)
+		{
+			return m_inner().isIntersecting(localEvent);
+		});
+
+	if(hasHit)
 	{
-		probe.pushIntermediateHit(this);
-		return true;
+		event.pushIntermediateHit(this);
 	}
-	else
-	{
-		return false;
-	}
+
+	return hasHit;
 }
 
 template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
 inline bool TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::reintersect(
-	const Ray& ray,
-	HitProbe& probe,
-	const Ray& srcRay,
-	HitProbe& srcProbe) const
+	HitEvent& event,
+	HitEvent& srcEvent) const
 {
-	PH_ASSERT(srcProbe.getTopHit() == this);
-	srcProbe.popHit();
+	PH_ASSERT(srcEvent.getTopHit() == this);
+	srcEvent.popHit();
 
 	Ray localRay, localSrcRay;
-	m_worldToLocal->transform(ray, &localRay);
-	m_worldToLocal->transform(srcRay, &localSrcRay);
-	if(srcProbe.getTopHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
+	m_worldToLocal->transform(event.getRay(), &localRay);
+	m_worldToLocal->transform(srcEvent.getRay(), &localSrcRay);
+
+	srcEvent.setRay(localSrcRay);
+	const bool hasHit = event.withRay(
+		localRay,
+		[&srcEvent](HitEvent& localEvent)
+		{
+			return srcEvent.getTopHit()->reintersect(localEvent, srcEvent);
+		});
+		
+	if(hasHit)
 	{
-		probe.pushIntermediateHit(this);
-		return true;
+		event.pushIntermediateHit(this);
 	}
-	else
-	{
-		return false;
-	}
+	
+	return hasHit;
 }
 
 template<typename IntersectableGetter, bool SHOULD_FLIP_NG>
 inline void TTransformedIntersectable<IntersectableGetter, SHOULD_FLIP_NG>::calcHitDetail(
-	const Ray&       ray,
-	HitProbe&        probe,
+	HitEvent& event,
 	HitDetail* const out_detail) const
 {
-	// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+	// If failed, it is likely to be caused by: 1. mismatched/missing event push or pop in
 	// the hit stack; 2. the hit event is invalid
-	PH_ASSERT(probe.getTopHit() == this);
-	probe.popHit();
+	PH_ASSERT(event.getTopHit() == this);
+	event.popHit();
 
 	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
+	m_worldToLocal->transform(event.getRay(), &localRay);
 
 	// Current hit is not necessary `m_inner()`. For example, if `m_inner()` contains
 	// multiple instances then it could simply skip over to one of them.
-	PH_ASSERT(probe.getTopHit());
+	PH_ASSERT(event.getTopHit());
 	HitDetail localDetail;
-	probe.getTopHit()->calcHitDetail(localRay, probe, &localDetail);
+	event.setRay(localRay);
+	event.getTopHit()->calcHitDetail(event, &localDetail);
 
 	*out_detail = localDetail;
 	m_localToWorld->transform(

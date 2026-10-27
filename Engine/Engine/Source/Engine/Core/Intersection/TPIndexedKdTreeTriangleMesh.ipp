@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Intersection/TPIndexedKdTreeTriangleMesh.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Math/TVector3.h"
 
@@ -39,14 +39,14 @@ inline TPIndexedKdTreeTriangleMesh<Index>::TPIndexedKdTreeTriangleMesh(
 }
 
 template<typename Index>
-inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, HitProbe& probe) const
+inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(HitEvent& event) const
 {
 	real closestHitT = std::numeric_limits<real>::max();
 	ClosestHitProbeResult closestHit;
 
-	const bool hasHit = m_kdTree.nearestTraversal(
-		ray.getSegment(), 
-		[ray, &closestHitT, &closestHit](
+	m_kdTree.nearestTraversal(
+		event.getRay().getSegment(),
+		[&closestHitT, &closestHit](
 			const Triangle& triangle,
 			const math::TLineSegment<real>& segment,
 			const std::size_t triangleIdx)
@@ -66,10 +66,10 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 			return hitT;
 		});
 
-	if(hasHit)
+	if(closestHitT < std::numeric_limits<real>::max())
 	{
-		probe.pushBaseHit(this, closestHitT);
-		probe.pushCache(closestHit);
+		event.pushBaseHit(this, closestHitT);
+		event.probe().pushCache(closestHit);
 
 		return true;
 	}
@@ -95,23 +95,21 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isOccluding(const Ray& ray) cons
 
 template<typename Index>
 inline bool TPIndexedKdTreeTriangleMesh<Index>::reintersect(
-	const Ray& ray,
-	HitProbe& probe,
-	const Ray& /* srcRay */,
-	HitProbe& srcProbe) const
+	HitEvent& event,
+	HitEvent& srcEvent) const
 {
-	auto closestHit = srcProbe.popCache<ClosestHitProbeResult>();
-	srcProbe.popHit();
+	auto closestHit = srcEvent.probe().popCache<ClosestHitProbeResult>();
+	srcEvent.popHit();
 
 	const Triangle triangle = m_kdTree.getItem(closestHit.faceIdx);
 
 	real hitT;
 	math::Vector3R hitBary;
-	if(triangle.isIntersecting(ray.getSegment(), &hitT, &hitBary))
+	if(triangle.isIntersecting(event.getRay().getSegment(), &hitT, &hitBary))
 	{
 		closestHit.bary = hitBary;
-		probe.pushBaseHit(this, hitT);
-		probe.pushCache(closestHit);
+		event.pushBaseHit(this, hitT);
+		event.probe().pushCache(closestHit);
 
 		return true;
 	}
@@ -123,18 +121,17 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::reintersect(
 
 template<typename Index>
 inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
-	const Ray&       ray,
-	HitProbe&        probe,
+	HitEvent& event,
 	HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 	PH_ASSERT(m_triangleBuffer);
 
-	const auto closestHit = probe.popCache<ClosestHitProbeResult>();
+	const auto closestHit = event.probe().popCache<ClosestHitProbeResult>();
 	PH_ASSERT_MSG(!closestHit.bary.isZero() && closestHit.bary.isFinite(),
 		closestHit.bary.toString());
 
-	probe.popHit();
+	event.popHit();
 
 	const auto& positions = m_triangleBuffer->getPositions(closestHit.faceIdx);
 	const auto& texCoords = m_triangleBuffer->getTexCoords(closestHit.faceIdx);
@@ -231,7 +228,7 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	out_detail->setHitIntrinsics(
 		this, 
 		uvw, 
-		probe.getHitRayT(),
+		event.getHitRayT(),
 		lossless_cast<uint64>(closestHit.faceIdx),
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 	if(hasMikkTSpaceTangent)

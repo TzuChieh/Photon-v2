@@ -8,7 +8,7 @@ namespace ph
 {
 
 class Ray;
-class HitProbe;
+class HitEvent;
 class HitDetail;
 
 /*! @brief An object in the scene that a ray can intersect with.
@@ -36,64 +36,55 @@ public:
 
 	/*! @brief Determine whether a given ray hits the object.
 
-	Checks whether the specified ray intersects this intersectable. If there is
+	Checks whether the ray in `event` intersects this intersectable. If there is
 	an intersection, `true` is returned and a brief hit report is stored
-	inside the probe. If there is no intersection, `false` is returned and the
-	state of the probe is undefined. `ray` and `probe` can be used for
-	obtaining hit detail if an intersection is found.
+	inside its probe. If there is no intersection, `false` is returned and the
+	hit record is undefined. The event's ray is preserved on return. Prepare or reset the
+	event before a new attempt. On success, the recorded hit distance is finite and less than
+	`std::numeric_limits<real>::max()`, which is reserved for no hit.
 
-	@note Generates hit event (with `ray` and `probe`).
+	@note Records the resulting hit in `event`.
 	*/
-	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
+	virtual bool isIntersecting(HitEvent& event) const = 0;
 
 	/*! @brief Intersect the intersected object again with a different ray.
 	
-	This method is different to isIntersecting(const Ray, HitProbe&) const.
-	Given `srcRay` and `srcProbe`, this method performs an intersection
-	test against the chain of intersectables recorded in `srcProbe` (so it is
+	This method is different to isIntersecting(HitEvent&) const.
+	Given `srcEvent`, this method performs an intersection
+	test against the chain of intersectables recorded in `srcEvent` (so it is
 	impossible to "discover" new intersectables with this method). Taking BVH
 	as an example, the implementation may only record the intersected object
-	in the probe so this method can bypass the entire BVH traversal.
+	in the event so this method can bypass the entire BVH traversal.
 
-	@param ray The ray to test for intersection.
-	@param probe The probe to record the intersection.
-	@param srcRay The ray from a previous hit event.
-	@param srcProbe The probe from a hit event. The process of re-intersect
-	will destroy the probe.
-	@return Whether `ray` intersects the object.
+	@param event Destination working event, initialized with the ray to test.
+	Its ray is preserved on return. Prepare it as for `isIntersecting()`. A miss leaves its
+	hit record undefined.
+	@param srcEvent Source working event. Reintersection consumes its probe.
+	@return Whether the destination ray intersects the object.
 
-	@note Generates hit event (with `ray` and `probe`).
-	@warning This method will destroy `srcProbe`.
+	@note Records the resulting hit in `event`.
+	@warning This method will destroy `srcEvent`. Source and destination must be distinct.
 	*/
-	virtual bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const = 0;
+	virtual bool reintersect(HitEvent& event, HitEvent& srcEvent) const = 0;
 
 	/*! @brief Calculates properties of a hit, such as coordinates and normal.
 
-	This method calculates a detailed description of a hit from the ray and
-	probe involved in a hit event. For example, the ray and probe used for
-	calling isIntersecting() can be the inputs of this method (if an
-	intersection is found). The process of calculating intersection detail will
-	destroy the input probe.
+	This method calculates a detailed description of a hit from its working
+	event. For example, the event used for calling `isIntersecting()` can be
+	the input of this method (if an intersection is found). The process of
+	calculating intersection detail will destroy the input event.
 
-	@param ray The ray from a hit event.
-	@param probe The probe from a hit event. The process of detail calculation
-	will destroy the probe.
+	@param event Working event containing the ray and recorded hit. Detail calculation
+	will destroy the event.
 	@param out_detail Stores the calculated details. This method calculates the
 	essential details only. Some information such as coordinate bases will only
 	be available if specifically requested afterwards (for an example, see
 	`HitDetail::computeBases()`).
 
 	@note See `Primitive` for more methods that can generate a hit event.
-	@warning This method will destroy the probe.
+	@warning This method will destroy the event.
 	*/
-	virtual void calcHitDetail(
-		const Ray& ray, 
-		HitProbe& probe,
-		HitDetail* out_detail) const = 0;
+	virtual void calcHitDetail(HitEvent& event, HitDetail* out_detail) const = 0;
 
 	/*! @brief Calculates Axis-Aligned Bounding Box (AABB) of itself.
 	*/
@@ -102,7 +93,7 @@ public:
 	/*! @brief Determines whether this object blocks the ray.
 
 	If greater performance is desired, you can override the default implementation which 
-	simply calls isIntersecting(const Ray&, HitProbe&) const to do the job. The test generally
+	simply calls isIntersecting(HitEvent&) const to do the job. The test generally
 	considers the underlying shape as **hollow** (for closed shape), e.g., a sphere is not occluding
 	a line segment inside the sphere.
 

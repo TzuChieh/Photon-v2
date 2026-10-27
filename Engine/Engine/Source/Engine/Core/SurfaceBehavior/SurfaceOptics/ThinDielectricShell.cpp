@@ -96,6 +96,11 @@ void ThinDielectricShell::genElementalBsdfSample(
 {
 	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
 	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
+	if(!canReflect && !canTransmit)
+	{
+		out.setContributability(false);
+		return;
+	}
 
 	const math::Vector3R N = in.getX().getShadingNormal();
 

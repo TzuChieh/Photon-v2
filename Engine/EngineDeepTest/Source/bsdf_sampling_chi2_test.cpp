@@ -24,6 +24,7 @@ the expected frequencies.
 #include <Engine/Core/SampleGenerator/SGUniformRandom.h>
 #include <Engine/Core/SampleGenerator/SGHalton.h>
 #include <Engine/Core/SurfaceHit.h>
+#include <Engine/Core/HitEvent.h>
 #include <Engine/Core/Intersection/PTriangle.h>
 #include <Engine/Core/Intersection/PrimitiveBuilder.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
@@ -151,11 +152,11 @@ inline SurfaceHit make_hit(const FictionalScene& scene)
 	// Any ray that points to the origin
 	const Ray ray{math::Vector3R{10}, math::Vector3R{-1}.normalize()};
 
-	HitProbe probe;
-	const bool hasHit = scene.unitObj->isIntersecting(ray, probe);
+	HitEvent event(ray);
+	const bool hasHit = scene.unitObj->isIntersecting(event);
 	PH_ASSERT(hasHit);
 
-	SurfaceHit X{ray, probe, ESurfaceHitReason::IncidentRay};
+	SurfaceHit X{event};
 	PH_ASSERT(&X.getSurfaceOptics() == scene.optics);
 	return X;
 }

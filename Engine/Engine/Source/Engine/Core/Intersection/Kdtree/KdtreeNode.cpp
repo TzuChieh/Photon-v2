@@ -1,6 +1,6 @@
 #include "Engine/Core/Intersection/Kdtree/KdtreeNode.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Intersection/Intersectable.h"
 #include "Engine/Math/TVector3.h"
 
@@ -77,18 +77,18 @@ void KdtreeNode::buildTree(const std::vector<const Intersectable*>& intersectabl
 	buildChildrenNodes(intersectables);
 }
 
-bool KdtreeNode::findClosestIntersection(const Ray& ray, HitProbe& probe) const
+bool KdtreeNode::findClosestIntersection(HitEvent& event) const
 {
 	real rayNearHitDist;
 	real rayFarHitDist;
 
-	if(!m_aabb.isIntersectingVolume(ray, &rayNearHitDist, &rayFarHitDist))
+	if(!m_aabb.isIntersectingVolume(event.getRay(), &rayNearHitDist, &rayFarHitDist))
 	{
 		// ray missed root node's aabb
 		return false;
 	}
 
-	return traverseAndFindClosestIntersection(ray, probe, rayNearHitDist, rayFarHitDist);
+	return traverseAndFindClosestIntersection(event, rayNearHitDist, rayFarHitDist);
 }
 
 void KdtreeNode::analyzeSplitCostSAH(const std::vector<const Intersectable*>& intersectables,
@@ -259,11 +259,12 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 	return childNode;
 }
 
-bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray, 
-                                                    HitProbe& probe,
-                                                    const real rayDistMin, 
-                                                    const real rayDistMax) const
+bool KdtreeNode::traverseAndFindClosestIntersection(
+	HitEvent& event,
+	const real rayDistMin,
+	const real rayDistMax) const
 {
+	const Ray& ray = event.getRay();
 	if(!isLeaf())
 	{
 		const real splitAxisRayOrigin = ray.getOrigin()[m_splitAxis];
@@ -292,7 +293,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 		{
 			if(nearHitNode != nullptr)
 			{
-				return nearHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, rayDistMax);
+				return nearHitNode->traverseAndFindClosestIntersection(event, rayDistMin, rayDistMax);
 			}
 		}
 		// Case II: Split plane is between ray origin and near intersection point, only far node is hit.
@@ -300,7 +301,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 		{
 			if(farHitNode != nullptr)
 			{
-				return farHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, rayDistMax);
+				return farHitNode->traverseAndFindClosestIntersection(event, rayDistMin, rayDistMax);
 			}
 		}
 		// Case III: Split plane is within ray's range, and both near and far node are hit.
@@ -308,7 +309,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 		{
 			if(nearHitNode != nullptr)
 			{
-				if(nearHitNode->traverseAndFindClosestIntersection(ray, probe, rayDistMin, raySplitPlaneDist))
+				if(nearHitNode->traverseAndFindClosestIntersection(event, rayDistMin, raySplitPlaneDist))
 				{
 					return true;
 				}
@@ -316,7 +317,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 
 			if(farHitNode != nullptr)
 			{
-				if(farHitNode->traverseAndFindClosestIntersection(ray, probe, raySplitPlaneDist, rayDistMax))
+				if(farHitNode->traverseAndFindClosestIntersection(event, raySplitPlaneDist, rayDistMax))
 				{
 					return true;
 				}
@@ -327,26 +328,22 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 	}
 	else
 	{
-		const Ray segmentRay(ray.getOrigin(), ray.getDir(), rayDistMin, rayDistMax);
+		const Ray segmentRay(ray.getOrigin(), ray.getDir(), rayDistMin, rayDistMax, ray.getTime());
 
 		for(std::size_t isableIndex = m_nodeBufferStartIndex; isableIndex < m_nodeBufferEndIndex; isableIndex++)
 		{
-			HitProbe currentProbe;
-			if((*m_intersectableBuffer)[isableIndex]->isIntersecting(segmentRay, currentProbe))
+			HitEvent currentEvent(segmentRay, event.getReason());
+			currentEvent.setChannel(event.getChannel());
+			if((*m_intersectableBuffer)[isableIndex]->isIntersecting(currentEvent))
 			{
-				if(currentProbe.getHitRayT() < probe.getHitRayT())
+				if(currentEvent.getHitRayT() < event.getHitRayT())
 				{
-					probe = currentProbe;
+					event.copyHitAndKeepRay(currentEvent);
 				}
 			}
 		}
 
-		// Notice that rayDistMax can be NaN or +infinity, in such cases the return value (does the 
-		// closest intersection in the entire tree found) can be false even if we've actually found 
-		// one and stored it in the intersection. Since these are rare situations, and to properly 
-		// handle them may slow down the algorithm quite a bit, so I assumed that simply ignoring 
-		// these cases won't generate any noticeable visual artifacts.
-		return (probe.getHitRayT() < std::numeric_limits<real>::max());
+		return event.getHitRayT() < std::numeric_limits<real>::max();
 	}
 
 	//std::cerr << "warning: kdtree is broken" << std::endl;

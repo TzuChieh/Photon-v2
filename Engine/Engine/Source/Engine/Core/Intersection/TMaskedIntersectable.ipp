@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Intersection/TMaskedIntersectable.h"
 #include "Engine/Core/HitDetail.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/LTA/SurfaceHitRefinery.h"
 #include "Engine/Core/Ray.h"
@@ -31,17 +31,15 @@ inline real MaterialInterfaceMask::operator () (const SurfaceHit& X) const
 namespace detail::masked_intersectable
 {
 
-inline SurfaceHit report_hit(const Ray& ray, const HitProbe& probe)
+inline SurfaceHit report_hit(const HitEvent& event)
 {
 	// We do not need to compute bases for sampling the mask
 	HitDetail detail;
-	probe.calcHitDetail(ray, &detail);
+	event.calcHitDetail(&detail);
 	return SurfaceHit(
-		ray,
-		probe,
+		event,
 		detail,
 		&SurfaceHit::getPrimitiveMetadataRef(detail),
-		ESurfaceHitReason::IncidentRay,
 		false);
 }
 
@@ -89,26 +87,24 @@ inline TMaskedIntersectable<Mask>::TMaskedIntersectable(
 }
 
 template<typename Mask>
-inline bool TMaskedIntersectable<Mask>::isIntersecting(const Ray& ray, HitProbe& probe) const
+inline bool TMaskedIntersectable<Mask>::isIntersecting(HitEvent& event) const
 {
-	Ray nextRay = ray;
-	HitProbe nextProbe = probe;
+	HitEvent nextEvent = event;
 	for(uint32 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
 	{
-		if(!m_intersectable->isIntersecting(nextRay, nextProbe))
+		if(!m_intersectable->isIntersecting(nextEvent))
 		{
 			break;
 		}
 
-		const SurfaceHit X(detail::masked_intersectable::report_hit(nextRay, nextProbe));
+		const SurfaceHit X(detail::masked_intersectable::report_hit(nextEvent));
 		if(isOnMask(X))
 		{
-			const auto hitPos = nextRay.getSegment().getPoint(nextProbe.getHitRayT());
-			const real hitT = ray.getSegment().getProjectedT(hitPos);
+			const auto hitPos = nextEvent.getRay().getSegment().getPoint(nextEvent.getHitRayT());
+			const real hitT = event.getRay().getSegment().getProjectedT(hitPos);
 
-			probe = nextProbe;
-			probe.replaceBaseHitRayT(hitT);
-			probe.pushIntermediateHit(this);
+			event.copyHitAndKeepRay(nextEvent, hitT);
+			event.pushIntermediateHit(this);
 			return true;
 		}
 		else if(numIterations + 1 < m_maxIterations)
@@ -119,8 +115,7 @@ inline bool TMaskedIntersectable<Mask>::isIntersecting(const Ray& ray, HitProbe&
 				break;
 			}
 
-			nextRay = *optNextRay;
-			nextProbe = probe;
+			nextEvent = HitEvent(*optNextRay, event);
 		}
 	}
 
@@ -128,36 +123,30 @@ inline bool TMaskedIntersectable<Mask>::isIntersecting(const Ray& ray, HitProbe&
 }
 
 template<typename Mask>
-inline bool TMaskedIntersectable<Mask>::reintersect(
-	const Ray& ray,
-	HitProbe& probe,
-	const Ray& srcRay,
-	HitProbe& srcProbe) const
+inline bool TMaskedIntersectable<Mask>::reintersect(HitEvent& event, HitEvent& srcEvent) const
 {
-	PH_ASSERT(srcProbe.getTopHit() == this);
-	srcProbe.popHit();
+	PH_ASSERT(srcEvent.getTopHit() == this);
+	srcEvent.popHit();
 
-	// May need to restore the state of `srcProbe` later
-	const HitProbe srcProbeRecord = srcProbe;
+	// May need to restore the state of `srcEvent` later
+	const HitEvent srcEventRecord = srcEvent;
 
-	Ray nextRay = ray;
-	HitProbe nextProbe = probe;
+	HitEvent nextEvent = event;
 	for(uint32 numIterations = 0; numIterations < m_maxIterations; ++numIterations)
 	{
-		if(!srcProbe.getTopHit()->reintersect(nextRay, nextProbe, srcRay, srcProbe))
+		if(!srcEvent.getTopHit()->reintersect(nextEvent, srcEvent))
 		{
 			return false;
 		}
 
-		const SurfaceHit X(detail::masked_intersectable::report_hit(nextRay, nextProbe));
+		const SurfaceHit X(detail::masked_intersectable::report_hit(nextEvent));
 		if(isOnMask(X))
 		{
-			const auto hitPos = nextRay.getSegment().getPoint(nextProbe.getHitRayT());
-			const real hitT = ray.getSegment().getProjectedT(hitPos);
+			const auto hitPos = nextEvent.getRay().getSegment().getPoint(nextEvent.getHitRayT());
+			const real hitT = event.getRay().getSegment().getProjectedT(hitPos);
 
-			probe = nextProbe;
-			probe.replaceBaseHitRayT(hitT);
-			probe.pushIntermediateHit(this);
+			event.copyHitAndKeepRay(nextEvent, hitT);
+			event.pushIntermediateHit(this);
 			return true;
 		}
 		else if(numIterations + 1 < m_maxIterations)
@@ -168,9 +157,8 @@ inline bool TMaskedIntersectable<Mask>::reintersect(
 				break;
 			}
 
-			nextRay = *optNextRay;
-			nextProbe = probe;
-			srcProbe = srcProbeRecord;
+			nextEvent = HitEvent(*optNextRay, event);
+			srcEvent = srcEventRecord;
 		}
 	}
 
@@ -179,15 +167,14 @@ inline bool TMaskedIntersectable<Mask>::reintersect(
 
 template<typename Mask>
 inline void TMaskedIntersectable<Mask>::calcHitDetail(
-	const Ray& ray,
-	HitProbe& probe,
+	HitEvent& event,
 	HitDetail* const out_detail) const
 {
-	PH_ASSERT(probe.getTopHit() == this);
-	probe.popHit();
+	PH_ASSERT(event.getTopHit() == this);
+	event.popHit();
 
-	PH_ASSERT(probe.getTopHit());
-	probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
+	PH_ASSERT(event.getTopHit());
+	event.getTopHit()->calcHitDetail(event, out_detail);
 }
 
 template<typename Mask>

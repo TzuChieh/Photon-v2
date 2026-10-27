@@ -207,7 +207,8 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 
 	// Precompute common values
 
-	constexpr auto largestHitT = std::numeric_limits<real>::infinity();
+	// Misses must fail the `minT < longestSegment.getMaxT()` check
+	const real missT = segment.getMaxT();
 
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
@@ -235,7 +236,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #endif
 			simdCtx.setNode(node);
 			simdCtx.template intersectAabbVolumes<IS_ROBUST>(longestSegment.getMinT(), longestSegment.getMaxT());
-			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
+			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(missT);
 		}
 		else
 		{
@@ -246,7 +247,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			{
 				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).template isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
-				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
+				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : missT;
 			}
 		}
 
@@ -452,7 +453,8 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 
 	// Precompute common values
 
-	constexpr auto largestHitT = std::numeric_limits<real>::infinity();
+	// Misses must fail the `minT < longestSegment.getMaxT()` check
+	const real missT = segment.getMaxT();
 
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
@@ -491,7 +493,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 #endif
 			simdCtx.setNode(node);
 			simdCtx.template intersectAabbVolumes<IS_ROBUST>(longestSegment.getMinT(), longestSegment.getMaxT());
-			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(largestHitT);
+			simdHitTs = simdCtx.getIntersectResultAsMinTsOr(missT);
 		}
 		else
 		{
@@ -502,7 +504,7 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 			{
 				const auto [aabbMinT, aabbMaxT] = node.getAABB(i).template isIntersectingVolume<IS_ROBUST>(
 					longestSegment, rcpSegmentDir);
-				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : largestHitT;
+				hitTs[i] = aabbMinT <= aabbMaxT ? aabbMinT : missT;
 			}
 		}
 

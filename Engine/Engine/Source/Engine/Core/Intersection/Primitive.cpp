@@ -10,16 +10,15 @@ namespace ph
 
 void Primitive::genPosSample(
 	PrimitivePosSampleQuery& query,
-	SampleFlow& /* sampleFlow */,
-	HitProbe& /* probe */) const
+	SampleFlow& /* sampleFlow */) const
 {
-	query.outputs = {};
-	PH_ASSERT(!query.outputs);
+	query.outputs.setPdfPos({});
+	PH_ASSERT(!query.outputs.isContributable());
 }
 
 void Primitive::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
-	query.outputs = {};
+	query.outputs.setPdf({});
 	PH_ASSERT(!query.outputs);
 }
 

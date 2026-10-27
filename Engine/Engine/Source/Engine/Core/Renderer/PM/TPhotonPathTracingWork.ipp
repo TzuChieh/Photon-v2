@@ -91,16 +91,14 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 		SurfaceHit surfaceHit;
 		Ray tracingRay;
 		{
-			HitProbe probe;
-			m_scene->emitRay(energyEmission, sampleFlow, probe);
+			m_scene->emitRay(energyEmission, sampleFlow);
 			if(!energyEmission.outputs)
 			{
 				continue;
 			}
 
-			constexpr SurfaceHitReasons reason(ESurfaceHitReason::SampledPosDir);
 			tracingRay = energyEmission.outputs.getEmittedRay();
-			surfaceHit = SurfaceHit(tracingRay, probe, reason);
+			surfaceHit = SurfaceHit(energyEmission.outputs.getHitEvent());
 		}
 
 		PH_ASSERT_IN_RANGE(tracingRay.getDir().lengthSquared(), 0.9_r, 1.1_r);

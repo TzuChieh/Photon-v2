@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Engine/Core/Intersection/Primitive.h"
+#include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
 #include "Engine/Core/Intersection/primitive_decorations.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/compiler.h>
@@ -47,12 +48,12 @@ public:
 		, m_slotMapper(std::move(slotMapper))
 	{}
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override final
+	bool isIntersecting(HitEvent& event) const override final
 	{
-		if(m_primitiveGetter().isIntersecting(ray, probe))
+		if(m_primitiveGetter().isIntersecting(event))
 		{
 			// Hit detail will be modified by this primitive
-			probe.pushIntermediateHit(this);
+			event.pushIntermediateHit(this);
 
 			return true;
 		}
@@ -62,18 +63,14 @@ public:
 		}
 	}
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override final
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override final
 	{
-		PH_ASSERT(srcProbe.getTopHit() == this);
-		srcProbe.popHit();
+		PH_ASSERT(srcEvent.getTopHit() == this);
+		srcEvent.popHit();
 
-		if(srcProbe.getTopHit()->reintersect(ray, probe, srcRay, srcProbe))
+		if(srcEvent.getTopHit()->reintersect(event, srcEvent))
 		{
-			probe.pushIntermediateHit(this);
+			event.pushIntermediateHit(this);
 			return true;
 		}
 		else
@@ -82,19 +79,16 @@ public:
 		}
 	}
 
-	void calcHitDetail(
-		const Ray&       ray,
-		HitProbe&        probe,
-		HitDetail* const out_detail) const override final
+	void calcHitDetail(HitEvent& event, HitDetail* const out_detail) const override final
 	{
-		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+		// If failed, it is likely to be caused by: 1. mismatched/missing event push or pop in
 		// the hit stack; 2. the hit event is invalid
-		PH_ASSERT(probe.getTopHit() == this);
-		probe.popHit();
+		PH_ASSERT(event.getTopHit() == this);
+		event.popHit();
 
 		// Current hit is not necessary the injectee (as obtained via `getInjectee()`). For example,
 		// if the injectee contains multiple instances then it could simply skip over to one of them.
-		probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
+		event.getTopHit()->calcHitDetail(event, out_detail);
 
 		// This is a representative of the original primitive
 		out_detail->updatePrimitive(this);
@@ -117,15 +111,15 @@ public:
 		return m_primitiveGetter().mayOverlapVolume(volume);
 	}
 
-	void genPosSample(
-		PrimitivePosSampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const override final
+	void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override final
 	{
-		m_primitiveGetter().genPosSample(query, sampleFlow, probe);
+		m_primitiveGetter().genPosSample(query, sampleFlow);
 
 		// Hit detail will be modified by this primitive
-		probe.pushIntermediateHit(this);
+		if(query.outputs)
+		{
+			query.outputs.event().pushIntermediateHit(this);
+		}
 	}
 
 	void calcPosPdf(PrimitivePosPdfQuery& query) const override final

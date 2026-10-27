@@ -219,8 +219,7 @@ inline void BsdfSampleOutput::setPdfAppliedBsdfCos(
 
 	if(inferContributability)
 	{
-		setContributability(pdfAppliedBsdfCos);
-		setContributability(isContributable() && 0.0_r < cos && cos < 1.1_r);
+		setContributability(pdfAppliedBsdfCos.isFinite() && 0.0_r < cos && cos < 1.1_r);
 	}
 }
 

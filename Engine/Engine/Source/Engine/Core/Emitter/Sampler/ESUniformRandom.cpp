@@ -48,10 +48,7 @@ const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const 
 	return m_emitters[pickedIndex];
 }
 
-void ESUniformRandom::genDirectSample(
-	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void ESUniformRandom::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
 	// FIXME: use sampleFlow for index
 	// Randomly and uniformly select an emitter
@@ -59,7 +56,7 @@ void ESUniformRandom::genDirectSample(
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
-	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow, probe);
+	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;

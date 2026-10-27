@@ -57,17 +57,17 @@ void GroupedDiffuseSurfaceEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math:
 
 void GroupedDiffuseSurfaceEmitter::genDirectSample(
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
 	// FIXME: use sampleFlow
 	const Primitive& surface = getSurface(math::Random::index(0, numSurfaces()));
-	genDirectSampleFromSurface(surface, getEmittedEnergy(), query, sampleFlow, probe);
+	genDirectSampleFromSurface(surface, getEmittedEnergy(), query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;
@@ -85,11 +85,11 @@ void GroupedDiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) co
 
 void GroupedDiffuseSurfaceEmitter::emitRay(
 	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
@@ -97,7 +97,7 @@ void GroupedDiffuseSurfaceEmitter::emitRay(
 
 	// FIXME: use sampleFlow
 	const Primitive& surface = getSurface(math::Random::index(0, numSurfaces()));
-	emitRayFromSurface(surface, getEmittedEnergy(), query, sampleFlow, probe);
+	emitRayFromSurface(surface, getEmittedEnergy(), query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;

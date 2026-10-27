@@ -1,5 +1,5 @@
 #include "Engine/Core/Intersection/Intersector.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Ray.h"
 
 #include <Common/exceptions.h>
@@ -15,21 +15,14 @@ void Intersector::forEachIntersection(const Ray& /* ray */, const HitVisitor& /*
 	throw IllegalOperationException("intersection enumeration is unsupported by this intersector");
 }
 
-bool Intersector::reintersect(
-	const Ray& ray,
-	HitProbe& probe,
-	const Ray& srcRay,
-	HitProbe& srcProbe) const
+bool Intersector::reintersect(HitEvent& event, HitEvent& srcEvent) const
 {
-	return srcProbe.getTopHit()->reintersect(ray, probe, srcRay, srcProbe);
+	return srcEvent.getTopHit()->reintersect(event, srcEvent);
 }
 
-void Intersector::calcHitDetail(
-	const Ray&       ray, 
-	HitProbe&        probe,
-	HitDetail* const out_detail) const
+void Intersector::calcHitDetail(HitEvent& event, HitDetail* const out_detail) const
 {
-	probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
+	event.getTopHit()->calcHitDetail(event, out_detail);
 }
 
 bool Intersector::supportsForEachIntersection() const
@@ -43,19 +36,19 @@ void Intersector::forEachIntersectionInTarget(
 	const HitVisitor& visitor)
 {
 	Ray remaining(ray);
-	HitProbe probe{};
+	HitEvent event(remaining);
 	while(remaining.getMinT() < remaining.getMaxT() &&
-	      target.isIntersecting(remaining, probe))
+	      target.isIntersecting(event))
 	{
-		const real hitT = probe.getHitRayT();
+		const real hitT = event.getHitRayT();
 		if(remaining.getMinT() <= hitT && hitT <= remaining.getMaxT())
 		{
-			visitor(remaining, probe);
+			visitor(event);
 		}
 		// Advance past the hit for, e.g., closed shapes
 		remaining.setMinT(std::nextafter(
 			std::max(hitT, remaining.getMinT()), remaining.getMaxT()));
-		probe = HitProbe{};
+		event.reset(remaining);
 	}
 }
 

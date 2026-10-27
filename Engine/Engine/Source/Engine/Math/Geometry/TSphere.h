@@ -28,13 +28,13 @@ public:
 	*/
 	explicit TSphere(T radius);
 
-	/*! @brief Checks whether the `segment` is interseting with this sphere.
+	/*! @brief Checks whether `segment` intersects this sphere.
 	@param segment The line section to intersect with.
-	@param[out] out_hitT The parametric distance of the hit point for `segment`.
+	@param[out] out_hitT Optional hit parameter on `segment`. Written only on a hit.
 	*/
 	bool isIntersecting(
 		const TLineSegment<T>& segment,
-		real*                  out_hitT) const;
+		real*                  out_hitT = nullptr) const;
 
 	/*! @brief Same as `isIntersecting()`, except the cost is slightly higher to reduce numerical error.
 	*/

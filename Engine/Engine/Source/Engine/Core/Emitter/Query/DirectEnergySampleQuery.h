@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Math/TVector3.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Quantity/Time.h"
 #include "Engine/Core/SurfaceHit.h"
@@ -39,16 +40,23 @@ private:
 };
 
 /*! @brief Output for `DirectEnergySampleQuery`.
+@note Output data is available only when `isContributable()` returns true.
 */
 class DirectEnergySampleOutput final
 {
 public:
 	void setEmitPos(const math::Vector3R& emitPos);
 	void setEmittedEnergy(const math::Spectrum& emittedEnergy);
-	void setPdf(const lta::PDF& pdf);
-	void setSrcPrimitive(const Primitive* srcPrimitive);
-	void setObservationRay(const Ray& observationRay);
 
+	/*! @brief Set the PDF. Invalid PDF makes this sample not contributable.
+	*/
+	void setPdf(const lta::PDF& pdf);
+
+	void setSrcPrimitive(const Primitive* srcPrimitive);
+	void setHitEvent(const HitEvent& event);
+	
+	bool isContributable() const;
+	
 	/*!
 	@return The position that emits energy.
 	*/
@@ -68,9 +76,11 @@ public:
 	tail of the observation ray tends to have larger numerical error.
 	*/
 	const Ray& getObservationRay() const;
+	
+	const HitEvent& getHitEvent() const;
 
-	/*! @brief Checks the validity of the sample.
-	@return `true` if the sample is valid. `false` if the sample failed. A failed sample cannot be
+	/*! @brief Convenient method for `isContributable()`.
+	@return `true` if the sample is contributable. `false` if the sample failed. A failed sample cannot be
 	used. A typical way to fail is that sampling is not even supported/possible.
 	*/
 	operator bool () const;
@@ -80,7 +90,7 @@ private:
 	math::Spectrum   m_emittedEnergy{0};
 	lta::PDF         m_pdf{};
 	const Primitive* m_srcPrimitive{nullptr};
-	Ray              m_observationRay{};
+	HitEvent         m_hitEvent;
 };
 
 /*! @brief Information for generating a sample for direct energy estimation.
@@ -120,6 +130,12 @@ inline math::Vector3R DirectEnergySampleInput::getTargetPos() const
 	return getX().getPos();
 }
 
+inline bool DirectEnergySampleOutput::isContributable() const
+{
+	PH_ASSERT(!m_pdf || (m_pdf && m_emittedEnergy.isFinite()));
+	return m_pdf;
+}
+
 inline void DirectEnergySampleOutput::setEmitPos(const math::Vector3R& emitPos)
 {
 	m_emitPos = emitPos;
@@ -140,51 +156,56 @@ inline void DirectEnergySampleOutput::setSrcPrimitive(const Primitive* srcPrimit
 	m_srcPrimitive = srcPrimitive;
 }
 
-inline void DirectEnergySampleOutput::setObservationRay(const Ray& observationRay)
+inline void DirectEnergySampleOutput::setHitEvent(const HitEvent& event)
 {
-	m_observationRay = observationRay;
+	m_hitEvent = event;
 }
 
 inline const math::Vector3R& DirectEnergySampleOutput::getEmitPos() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	return m_emitPos;
 }
 
 inline const math::Spectrum& DirectEnergySampleOutput::getEmittedEnergy() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	return m_emittedEnergy;
 }
 
 inline real DirectEnergySampleOutput::getPdfW() const
 {
-	PH_ASSERT(*this);
-	return m_pdf.getPdfW();
+	return getPdf().getPdfW();
 }
 
 inline const lta::PDF& DirectEnergySampleOutput::getPdf() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	return m_pdf;
 }
 
 inline const Primitive& DirectEnergySampleOutput::getSrcPrimitive() const
 {
-	PH_ASSERT(*this);
+	PH_ASSERT(isContributable());
 	PH_ASSERT(m_srcPrimitive);
 	return *m_srcPrimitive;
 }
 
 inline const Ray& DirectEnergySampleOutput::getObservationRay() const
 {
-	PH_ASSERT(*this);
-	return m_observationRay;
+	PH_ASSERT(isContributable());
+	return getHitEvent().getRay();
+}
+
+inline const HitEvent& DirectEnergySampleOutput::getHitEvent() const
+{
+	PH_ASSERT(isContributable());
+	return m_hitEvent;
 }
 
 inline DirectEnergySampleOutput::operator bool () const
 {
-	return m_pdf;
+	return isContributable();
 }
 
 inline math::Vector3R DirectEnergySampleQuery::getTargetToEmit() const

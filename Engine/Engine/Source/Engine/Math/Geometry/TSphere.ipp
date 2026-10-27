@@ -72,7 +72,6 @@ inline bool TSphere<T>::isIntersectingNaive(
 	real* const out_hitT) const
 {
 	PH_ASSERT_GE(m_radius, T(0));
-	PH_ASSERT(out_hitT);
 
 	// Construct a ray/line then use its parametric form to test against the sphere and solve for t
 	//
@@ -154,7 +153,10 @@ inline bool TSphere<T>::isIntersectingNaive(
 
 		PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
 
-		*out_hitT = static_cast<real>(tClosest);
+		if(out_hitT)
+		{
+			*out_hitT = static_cast<real>(tClosest);
+		}
 		return true;
 	}
 }
@@ -171,7 +173,6 @@ inline bool TSphere<T>::isIntersectingHearnBaker(
 	real* const out_hitT) const
 {
 	PH_ASSERT_GE(m_radius, T(0));
-	PH_ASSERT(out_hitT);
 
 	// We use the same notation as `isIntersectingNaive()` for the geometries
 
@@ -251,7 +252,10 @@ inline bool TSphere<T>::isIntersectingHearnBaker(
 
 		PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
 
-		*out_hitT = static_cast<real>(tClosest);
+		if(out_hitT)
+		{
+			*out_hitT = static_cast<real>(tClosest);
+		}
 		return true;
 	}
 }

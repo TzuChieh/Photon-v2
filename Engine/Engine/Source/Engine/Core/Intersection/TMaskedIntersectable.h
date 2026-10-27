@@ -45,18 +45,11 @@ public:
 		Mask mask,
 		uint32 maxIterations = 1024);
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
 
-	void calcHitDetail(
-		const Ray& ray,
-		HitProbe& probe,
-		HitDetail* out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
 	math::AABB3D calcAABB() const override;
 

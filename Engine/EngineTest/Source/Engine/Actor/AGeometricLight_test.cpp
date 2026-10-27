@@ -2,7 +2,7 @@
 #include <Engine/Actor/Light/AModelLight.h>
 #include <Engine/Actor/Light/ASphereLight.h>
 #include <Engine/Core/HitDetail.h>
-#include <Engine/Core/HitProbe.h>
+#include <Engine/Core/HitEvent.h>
 #include <Engine/Core/Intersection/Primitive.h>
 #include <Engine/Core/Ray.h>
 #include <Engine/Math/TDecomposedTransform.h>
@@ -45,11 +45,11 @@ TEST(AGeometricLightTest, ReflectedBakeHonorsGeometryNormalPolicy)
 		ASSERT_NE(primitive, nullptr);
 
 		const Ray ray({-0.25_r, 0.25_r, 1}, {0, 0, -1});
-		HitProbe probe;
-		ASSERT_TRUE(primitive->isIntersecting(ray, probe));
+		HitEvent event(ray);
+		ASSERT_TRUE(primitive->isIntersecting(event));
 
 		HitDetail detail;
-		probe.calcHitDetail(ray, &detail);
+		event.calcHitDetail(&detail);
 		EXPECT_EQ(detail.getGeometryNormal(), expectedNg);
 		EXPECT_EQ(detail.getShadingNormal(), Vector3R(0, 0, 1));
 	};

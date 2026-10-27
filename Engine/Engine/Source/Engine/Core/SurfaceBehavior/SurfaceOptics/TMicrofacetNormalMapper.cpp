@@ -379,8 +379,6 @@ void TMicrofacetNormalMapper<Strength>::calcElementalBsdfPdf(
 		return;
 	}
 
-	out.setSampleDirPdf({});
-
 	const auto Nt = tangentFacetNormal(N, Np);
 	const real lambdaP = lambdaOfPerturbedFacet(N, Np, Nt, in.getV());
 	const real G1PForL = G1OfPerturbedFacet(N, Np, Nt, in.getL());

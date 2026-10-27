@@ -8,7 +8,7 @@
 #include "Engine/Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
@@ -52,26 +52,28 @@ void DiffuseSurfaceEmitterBase::genDirectSampleFromSurface(
 	const Primitive& surface,
 	const TTexture<math::Spectrum>& energy,
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
 	PrimitivePosSampleQuery posSample;
 	posSample.inputs.set(query.inputs);
-	surface.genPosSample(posSample, sampleFlow, probe);
+	surface.genPosSample(posSample, sampleFlow);
 	if(!posSample.outputs)
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
-	const SurfaceHit Xe(posSample.outputs.getObservationRay(), probe, ESurfaceHitReason::SampledPos);
+	const SurfaceHit Xe(posSample.outputs.getHitEvent());
 	const auto emitterToTargetPos = query.inputs.getTargetPos() - posSample.outputs.getPos();
 	if(!canEmit(emitterToTargetPos, Xe.getShadingNormal()))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -81,28 +83,29 @@ void DiffuseSurfaceEmitterBase::genDirectSampleFromSurface(
 	query.outputs.setEmitPos(posSample.outputs.getPos());
 	query.outputs.setEmittedEnergy(emittedEnergy);
 	query.outputs.setSrcPrimitive(&surface);
+	query.outputs.setHitEvent(posSample.outputs.getHitEvent());
 	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
 		posSample.outputs.getPdfA(), emitterToTargetPos, Xe.getShadingNormal())));
-	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
 void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 	const Primitive& surface,
 	const TTexture<math::Spectrum>& energy,
 	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
 	PrimitivePosSampleQuery posSample;
 	posSample.inputs.set(query.inputs.getTime());
-	surface.genPosSample(posSample, sampleFlow, probe);
+	surface.genPosSample(posSample, sampleFlow);
 	if(!posSample.outputs)
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
@@ -115,12 +118,13 @@ void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 	}
 
 	HitDetail detail;
-	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	posSample.outputs.getHitEvent().calcHitDetail(&detail);
 
 	const auto sampleBasis = math::Basis3R::makeFromUnitY(detail.getShadingNormal());
 	const auto rayDir = sampleBasis.localToWorld(localRayDir);
 	if(!canEmit(rayDir, detail.getShadingNormal()))
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
@@ -132,15 +136,14 @@ void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 		query.inputs.getTime());
 
 	// The emitted ray will be representing the hit event
-	probe.replaceBaseHitRayT(emittedRay.getMinT());
+	query.outputs.setHitEvent(posSample.outputs, emittedRay);
 
-	const SurfaceHit Xe(emittedRay, probe, ESurfaceHitReason::SampledPosDir);
+	const SurfaceHit Xe(query.outputs.event());
 	const TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
 	const math::Spectrum emittedEnergy = sampler.sample(energy, Xe);
 
-	query.outputs.setEmittedRay(emittedRay);
-	query.outputs.setPdf(posSample.outputs.getPdfPos(), lta::PDF::W(pdfW));
 	query.outputs.setEmittedEnergy(emittedEnergy);
+	query.outputs.setPdf(posSample.outputs.getPdfPos(), lta::PDF::W(pdfW));
 }
 
 }// end namespace ph

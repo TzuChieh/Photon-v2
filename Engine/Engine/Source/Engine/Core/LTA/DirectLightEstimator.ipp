@@ -108,15 +108,14 @@ inline bool DirectLightEstimator::neeSampleSurfaceEmission(
 
 	const SurfaceHit& X = directSample.inputs.getX();
 
-	HitProbe probe;
-	getScene().genDirectSample(directSample, sampleFlow, probe);
-	if(!directSample.outputs || !m_defaultSidedness.isSidednessAgreed(X, directSample.getTargetToEmit()))
+	getScene().genDirectSample(directSample, sampleFlow);
+	if(!directSample.outputs ||
+	   !m_defaultSidedness.isSidednessAgreed(X, directSample.getTargetToEmit()))
 	{
 		return false;
 	}
 
-	constexpr SurfaceHitReasons reason{ESurfaceHitReason::SampledPos};
-	const SurfaceHit Xe(directSample.outputs.getObservationRay(), probe, reason);
+	const SurfaceHit Xe(directSample.outputs.getHitEvent());
 	const auto optVisibilityRay = SurfaceHitRefinery{X}.tryEscape(Xe);
 	if(!optVisibilityRay || getScene().isOccluding(*optVisibilityRay))
 	{

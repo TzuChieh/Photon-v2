@@ -1,7 +1,7 @@
 #include "Engine/Core/Intersection/PTriangle.h"
 #include "Engine/Core/Transform/StaticAffineTransform.h"
 #include "Engine/Core/Ray.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Math/Geometry/TAABB3D.h"
 #include "Engine/Core/Intersection/Query/PrimitivePosSampleQuery.h"
@@ -35,17 +35,17 @@ PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const m
 	m_nC = m_faceNormal;
 }
 
-bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
+bool PTriangle::isIntersecting(HitEvent& event) const
 {
 	real hitT;
 	math::Vector3R hitBaryABC;
-	if(!m_triangle.isIntersecting(ray.getSegment(), &hitT, &hitBaryABC))
+	if(!m_triangle.isIntersecting(event.getRay().getSegment(), &hitT, &hitBaryABC))
 	{
 		return false;
 	}
 
-	probe.pushBaseHit(this, hitT);
-	probe.pushCache(hitBaryABC);
+	event.pushBaseHit(this, hitT);
+	event.probe().pushCache(hitBaryABC);
 	return true;
 }
 
@@ -54,33 +54,26 @@ bool PTriangle::isOccluding(const Ray& ray) const
 	return m_triangle.isIntersecting(ray.getSegment());
 }
 
-bool PTriangle::reintersect(
-	const Ray& ray,
-	HitProbe& probe,
-	const Ray& /* srcRay */,
-	HitProbe& srcProbe) const
+bool PTriangle::reintersect(HitEvent& event, HitEvent& srcEvent) const
 {
 	// Popping may seem redudant, but it is not. Upper-level intersectables may cache their
-	// own data, and popping data consistently during probe consumption makes sure everybody
+	// own data, and popping data consistently during event consumption makes sure everybody
 	// gets their data.
-	srcProbe.popCache<math::Vector3R>();
-	srcProbe.popHit();
+	srcEvent.probe().popCache<math::Vector3R>();
+	srcEvent.popHit();
 
-	return PTriangle::isIntersecting(ray, probe);
+	return PTriangle::isIntersecting(event);
 }
 
-void PTriangle::calcHitDetail(
-	const Ray&       ray,
-	HitProbe&        probe,
-	HitDetail* const out_detail) const
+void PTriangle::calcHitDetail(HitEvent& event, HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 
-	const auto hitBaryABC = probe.popCache<math::Vector3R>();
+	const auto hitBaryABC = event.probe().popCache<math::Vector3R>();
 	PH_ASSERT_MSG(!hitBaryABC.isZero() && hitBaryABC.isFinite(), 
 		hitBaryABC.toString());
 
-	probe.popHit();
+	event.popHit();
 
 	const auto hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
 	const auto hitShadingNormal = Triangle::interpolate(m_nA, m_nB, m_nC, hitBaryABC).normalize();
@@ -131,7 +124,7 @@ void PTriangle::calcHitDetail(
 	out_detail->setHitIntrinsics(
 		this, 
 		hitUVW, 
-		probe.getHitRayT(), 
+		event.getHitRayT(),
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 
@@ -276,10 +269,7 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	return true;
 }
 
-void PTriangle::genPosSample(
-	PrimitivePosSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void PTriangle::genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	real pdfA;
 	const auto baryABC = m_triangle.sampleToBarycentricOsada(
@@ -296,10 +286,9 @@ void PTriangle::genPosSample(
 
 	query.outputs.setPos(pos);
 	query.outputs.setPdfPos(lta::PDF::A(pdfA));
-	query.outputs.setObservationRay(observationRay);
-
-	probe.pushBaseHit(this, observationRay.getMaxT());
-	probe.pushCache(baryABC);
+	query.outputs.setPdfDir({});
+	query.outputs.setSampledHit(*this, observationRay);
+	query.outputs.event().probe().pushCache(baryABC);
 }
 
 void PTriangle::calcPosPdf(PrimitivePosPdfQuery& query) const

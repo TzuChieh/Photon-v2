@@ -150,9 +150,7 @@ public:
 		TOrenNayar::calcElementalBsdf(ctx, evalIn, evalOut);
 
 		const real absNoL = N.absDot(L);
-		const math::Spectrum bsdf =
-			evalOut.isContributable() ? evalOut.getBsdf() : math::Spectrum(0);
-
+		const math::Spectrum bsdf = evalOut ? evalOut.getBsdf() : math::Spectrum(0);
 		out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 		out.setL(L);
 	}

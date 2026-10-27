@@ -36,7 +36,9 @@ Follow surrounding style and the scoped rules below.
 
 ## Git Rules
 - Read-only git by default.
-- Never stage or unstage paths unless the user explicitly asks; preserve the existing index state.
+- Never stage or unstage file contents unless the user explicitly asks; preserve existing staged content.
+  For newly created task files, stage an empty blob in the index while keeping the working file intact;
+  the user stages the contents after review. Do not substitute `git add -N` for the staged empty blob.
 - One explicit LGTM allows one commit only.
 
 ## External Resources

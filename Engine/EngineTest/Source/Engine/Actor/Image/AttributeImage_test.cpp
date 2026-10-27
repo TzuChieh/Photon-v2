@@ -3,6 +3,7 @@
 #include <Engine/Actor/Image/AttributeImage.h>
 #include <Engine/Core/ECoordSys.h>
 #include <Engine/Core/HitDetail.h>
+#include <Engine/Core/HitEvent.h>
 #include <Engine/Core/Intersection/GeometryInfo.h>
 #include <Engine/Core/Intersection/PrimitiveMetadata.h>
 #include <Engine/Core/SurfaceHit.h>
@@ -30,11 +31,9 @@ TEST(AttributeImageTest, ProducesUvwFromGeometryBound)
 	detail.hitInfo(ECoordSys::Local).setAttributes(
 		Vector3R(-1.0_r, 2.0_r, 5.0_r), Vector3R(0, 1, 0));
 	const SurfaceHit X(
-		Ray(),
-		HitProbe(),
+		HitEvent(Ray(), ESurfaceHitReason::Unknown),
 		detail,
 		&metadata,
-		ESurfaceHitReason::Unknown,
 		false);
 
 	CookedResourceCollection resources;

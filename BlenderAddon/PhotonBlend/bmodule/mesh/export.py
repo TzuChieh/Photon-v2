@@ -209,18 +209,21 @@ def _get_mesh_obj_ply_export_materials(b_mesh_obj: bpy.types.Object):
 
 
 @contextmanager
-def _prepare_ply_mesh(b_mesh: bpy.types.Mesh, needs_tangents):
+def _prepare_ply_mesh(b_mesh_obj: bpy.types.Object, needs_tangents):
     """
     Yield the source mesh, or a temporary mesh with only n-gons triangulated for tangent calculation.
-    Quads and evaluated corner normals are preserved. The temporary mesh is removed on exit.
+    Quads and evaluated corner normals are preserved. The object-owned temporary mesh is cleared on exit.
     """
+    b_mesh = b_mesh_obj.data
     if (not needs_tangents or
         b_mesh.uv_layers.active is None or
         all(polygon.loop_total <= 4 for polygon in b_mesh.polygons)):
         yield b_mesh
         return
 
-    b_temp_export_mesh = b_mesh.copy()
+    # Keep scratch geometry outside Blender's main database. Creating/removing a main-database
+    # mesh during F12 export can invalidate the render dependency graph.
+    b_temp_export_mesh = b_mesh_obj.to_mesh()
     try:
         # Keep evaluated corner normals to preserve appearance after the topology change
         normals = np.empty(len(b_mesh.loops) * 3, dtype=np.float32)
@@ -249,7 +252,7 @@ def _prepare_ply_mesh(b_mesh: bpy.types.Mesh, needs_tangents):
 
         yield b_temp_export_mesh
     finally:
-        bpy.data.meshes.remove(b_temp_export_mesh)
+        b_mesh_obj.to_mesh_clear()
 
 
 def _export_original_mesh_obj_as_ply(
@@ -268,7 +271,7 @@ def _export_original_mesh_obj_as_ply(
     """
     used_geometry_attributes = attributes.find_used_geometry_attributes(b_materials)
     needs_tangents = attributes.GeometryAttribute.MIKK_T_SPACE_TANGENT in used_geometry_attributes
-    with _prepare_ply_mesh(b_mesh_obj.data, needs_tangents) as b_mesh:
+    with _prepare_ply_mesh(b_mesh_obj, needs_tangents) as b_mesh:
         # TODO: maybe we can avoid this by exporting ngon
         b_mesh.calc_loop_triangles()
 
@@ -557,6 +560,8 @@ def get_mesh_obj_source_key(b_mesh_obj: bpy.types.Object):
     """
     Return an export key identifying equivalent mesh source data.
     """
+    # TODO: Account for per-instance attributes used by shading (e.g., color or random ID).
+    # Matching mesh/material keys currently assume instances differ only by transform.
     b_mesh = b_mesh_obj.data
     if b_mesh is None:
         return None

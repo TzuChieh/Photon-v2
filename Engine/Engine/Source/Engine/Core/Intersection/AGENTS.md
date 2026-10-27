@@ -17,5 +17,9 @@
 ## Occlusion Paths
 - `isOccluding()` hot paths should avoid nearest-hit work such as `HitProbe` copies, metadata writes, and max-t updates; confirm primitive/BVH changes with target assembly and repeated real-render timings, not only source inspection.
 
+## Hit Event Traversal
+- Use `HitEvent::withRay()` for temporary ray overrides during delegation; do not add restoration to consumed working events or replace isolated traversal candidates with shared state.
+- When a primitive overrides intersection to transform coordinates, audit inherited reintersection and occlusion paths for skipped or repeated transforms, including virtual calls inside base implementations.
+
 ## Packet Triangles
 - For SIMD/packet triangle experiments, prefer an N-wide math geometry type adapted by existing primitive/BVH templates; gate runtime use by compiled SIMD capability plus geometry SDL accelerator settings, and keep build heuristics, mesh ordering, asset downloads, and perf scene setup as separate measured changes.

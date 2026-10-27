@@ -13,18 +13,11 @@ class PEmpty : public Primitive
 public:
 	PEmpty();
 
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isIntersecting(HitEvent& event) const override;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
 
-	void calcHitDetail(
-		const Ray& ray, 
-		HitProbe&  probe,
-		HitDetail* out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
 	bool isOccluding(const Ray& ray) const override;
 
@@ -38,7 +31,7 @@ inline PEmpty::PEmpty() :
 	Primitive()
 {}
 
-inline bool PEmpty::isIntersecting(const Ray& ray, HitProbe& probe) const
+inline bool PEmpty::isIntersecting(HitEvent& event) const
 {
 	return false;
 }
@@ -48,22 +41,16 @@ inline bool PEmpty::isOccluding(const Ray& ray) const
 	return false;
 }
 
-inline bool PEmpty::reintersect(
-	const Ray& /* ray */,
-	HitProbe& /* probe */,
-	const Ray& /* srcRay */,
-	HitProbe& /* srcProbe */) const
+inline bool PEmpty::reintersect(HitEvent& /* event */, HitEvent& /* srcEvent */) const
 {
+	// Neither the destination ray nor the source ray can hit an empty primitive.
 	return false;
 }
 
-inline void PEmpty::calcHitDetail(
-	const Ray& ray,
-	HitProbe&  probe,
-	HitDetail* const out_detail) const
+inline void PEmpty::calcHitDetail(HitEvent& event, HitDetail* const out_detail) const
 {
 	// An empty always returns false for intersection probing, it is therefore
-	// impossible to have this method called with a valid HitProbe instance.
+	// impossible to have this method called with a valid `HitEvent` instance.
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 

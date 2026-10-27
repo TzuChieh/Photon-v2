@@ -15,7 +15,7 @@ namespace ph
 
 class Intersector;
 class EmitterSampler;
-class HitProbe;
+class HitEvent;
 class DirectEnergySampleQuery;
 class DirectEnergyPdfQuery;
 class EnergyEmissionSampleQuery;
@@ -39,7 +39,11 @@ public:
 		const Intersector* nonBlockingLightIntersector = nullptr);
 
 	bool isOccluding(const Ray& ray) const;
-	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
+
+	/*! @brief Trace a ray and record the result in hit probe.
+	@param event The event for recording hit. Its ray will stay intact. A miss leaves non-ray hit records undefined.
+	*/
+	bool isIntersecting(HitEvent& event) const;
 
 	/*! @brief Visit nonblocking emitter hits within a ray segment.
 	@tparam FEATURE Allowed features. An emitter must enable at least one.
@@ -53,24 +57,18 @@ public:
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* out_PDF) const;
 
 	/*! @brief Sample direct lighting for a target position.
-	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `DirectEnergySampleOutput::getHitEvent()`.
 	*/
-	void genDirectSample(
-		DirectEnergySampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const;
 
 	/*! @brief Calculate the PDF of direct lighting for a target position.
 	*/
 	void calcDirectPdf(DirectEnergyPdfQuery& query) const;
 
 	/*! @brief Emit a ray that carries some amount of energy from an emitter.
-	@note Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`).
+	@note Generates a hit event in `EnergyEmissionSampleOutput::getHitEvent()`.
 	*/
-	void emitRay(
-		EnergyEmissionSampleQuery& query,
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+	void emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const;
 
 	/*! @brief The primitive to use when no other intersection is found.
 	Background primitive uses only metadata at slot 0.
@@ -101,9 +99,9 @@ inline void Scene::forEachNonBlockingEmitterHit(
 	if(m_nonBlockingLightIntersector)
 	{
 		m_nonBlockingLightIntersector->forEachIntersection(ray,
-			[&visitor](const Ray& hitRay, const HitProbe& probe)
+			[&visitor](const HitEvent& event)
 			{
-				SurfaceHit Xe(hitRay, probe, ESurfaceHitReason::IncidentRay);
+				SurfaceHit Xe(event);
 				if(Xe.getSurfaceEmitter().getFeatureSet().hasAny(FEATURE))
 				{
 					visitor(Xe);

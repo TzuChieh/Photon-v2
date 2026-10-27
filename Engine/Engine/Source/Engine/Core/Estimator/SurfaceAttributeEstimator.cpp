@@ -2,7 +2,7 @@
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Estimator/Integrand.h"
 #include "Engine/Core/SurfaceHit.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/World/Scene.h"
 #include "Engine/Math/Geometry/THemisphere.h"
 #include "Engine/Math/constant.h"
@@ -36,10 +36,10 @@ void SurfaceAttributeEstimator::estimate(
 	Ray probingRay = Ray(ray).reverse();
 	probingRay.setMaxT(std::numeric_limits<real>::max());
 
-	HitProbe probe;
-	if(integrand.getScene().isIntersecting(probingRay, &probe))
+	HitEvent event(probingRay);
+	if(integrand.getScene().isIntersecting(event))
 	{
-		//SurfaceHit surfaceHit(probingRay, probe);
+		//SurfaceHit surfaceHit(event);
 
 		/*if(out_estimation.numEstimations() >= 1)
 		{

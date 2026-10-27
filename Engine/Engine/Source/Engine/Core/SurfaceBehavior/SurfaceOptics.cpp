@@ -116,6 +116,7 @@ void SurfaceOptics::calcPhenomenalBsdf(
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
+		out.setContributability(false);
 		return;
 	}
 
@@ -152,6 +153,7 @@ void SurfaceOptics::genPhenomenalBsdfSample(
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
+		out.setContributability(false);
 		return;
 	}
 
@@ -188,6 +190,7 @@ void SurfaceOptics::calcPhenomenalBsdfPdf(
 	const auto optElemental = selectElementalFromKey(ctx, &pdf);
 	if(!optElemental)
 	{
+		out.setSampleDirPdf({});
 		return;
 	}
 

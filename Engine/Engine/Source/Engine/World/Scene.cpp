@@ -1,6 +1,7 @@
 #include "Engine/World/Scene.h"
+#include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Engine/Core/Emitter/Sampler/EmitterSampler.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 #include "Engine/Core/HitDetail.h"
 #include "Engine/Core/Ray.h"
 #include "Engine/Core/Intersection/Intersector.h"
@@ -33,19 +34,18 @@ Scene::Scene(
 	PH_ASSERT(emitterSampler);
 }
 
-bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
+bool Scene::isIntersecting(HitEvent& event) const
 {
-	PH_ASSERT(out_probe);
-
-	*out_probe = HitProbe{};
-	if(m_intersector->isIntersecting(ray, *out_probe))
+	PH_ASSERT(!event.hasRecordedTargets());
+	
+	if(m_intersector->isIntersecting(event))
 	{
 		return true;
 	}
 	else if(getBackgroundPrimitive())
 	{
-		*out_probe = HitProbe{};
-		return getBackgroundPrimitive()->isIntersecting(ray, *out_probe);
+		event.clearHit();
+		return getBackgroundPrimitive()->isIntersecting(event);
 	}
 
 	return false;
@@ -74,12 +74,9 @@ const Emitter* Scene::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) c
 	return m_emitterSampler->pickEmitter(sampleFlow, out_PDF);
 }
 
-void Scene::genDirectSample(
-	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void Scene::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
-	m_emitterSampler->genDirectSample(query, sampleFlow, probe);
+	m_emitterSampler->genDirectSample(query, sampleFlow);
 }
 
 void Scene::calcDirectPdf(DirectEnergyPdfQuery& query) const
@@ -87,16 +84,13 @@ void Scene::calcDirectPdf(DirectEnergyPdfQuery& query) const
 	m_emitterSampler->calcDirectPdf(query);
 }
 
-void Scene::emitRay(
-	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void Scene::emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	real pickPdf;
 	const Emitter* emitter = m_emitterSampler->pickEmitter(sampleFlow, &pickPdf);
 
 	PH_ASSERT(emitter);
-	emitter->emitRay(query, sampleFlow, probe);
+	emitter->emitRay(query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;

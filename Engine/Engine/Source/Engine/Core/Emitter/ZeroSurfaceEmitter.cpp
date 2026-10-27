@@ -21,23 +21,19 @@ void ZeroSurfaceEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum*
 
 void ZeroSurfaceEmitter::genDirectSample(
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
-	query.outputs = DirectEnergySampleOutput{};
+	query.outputs.setPdf({});
 }
 
 void ZeroSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	query.outputs = DirectEnergyPdfOutput{};
+	query.outputs.setPdf({});
 }
 
-void ZeroSurfaceEmitter::emitRay(
-	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+void ZeroSurfaceEmitter::emitRay(EnergyEmissionSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	query.outputs = EnergyEmissionSampleOutput{};
+	query.outputs.setPdf({}, {});
 }
 
 real ZeroSurfaceEmitter::calcRadiantFluxApprox() const

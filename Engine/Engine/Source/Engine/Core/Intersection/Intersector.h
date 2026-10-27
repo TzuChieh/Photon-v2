@@ -9,34 +9,27 @@ namespace ph
 {
 
 class Ray;
-class HitProbe;
+class HitEvent;
 class Intersectable;
 
 class Intersector : public Intersectable
 {
 public:
-	using HitVisitor = TFunction<void(const Ray& ray, const HitProbe& probe)>;
+	using HitVisitor = TFunction<void(const HitEvent& event)>;
 
 	virtual void update(TSpanView<const Intersectable*> intersectables) = 0;
 	
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
+	bool isIntersecting(HitEvent& event) const override = 0;
 
 	math::AABB3D calcAABB() const override = 0;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override;
 
-	void calcHitDetail(
-		const Ray& ray, 
-		HitProbe&  probe,
-		HitDetail* out_detail) const override;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override;
 
 	/*! @brief Visit all hits without shortening the query segment.
-	The visitor receives the ray and probe for each hit, and visitation order is unspecified.
-	Ray and probe references are valid only during the call.
+	The visitor receives each recorded hit event, and visitation order is unspecified.
+	Event references are valid only during the call.
 	@exception IllegalOperationException If `supportsForEachIntersection()` is false.
 	*/
 	virtual void forEachIntersection(const Ray& ray, const HitVisitor& visitor) const;

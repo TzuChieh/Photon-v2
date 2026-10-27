@@ -1,5 +1,5 @@
 #include "Engine/Core/Intersection/Kdtree/KdtreeIntersector.h"
-#include "Engine/Core/HitProbe.h"
+#include "Engine/Core/HitEvent.h"
 
 #include <Common/assertion.h>
 
@@ -23,9 +23,9 @@ void KdtreeIntersector::update(TSpanView<const Intersectable*> intersectables)
 	m_rootKdtreeNode.buildTree(treeIntersectables);
 }
 
-bool KdtreeIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
+bool KdtreeIntersector::isIntersecting(HitEvent& event) const
 {
-	return m_rootKdtreeNode.findClosestIntersection(ray, probe);
+	return m_rootKdtreeNode.findClosestIntersection(event);
 }
 
 math::AABB3D KdtreeIntersector::calcAABB() const

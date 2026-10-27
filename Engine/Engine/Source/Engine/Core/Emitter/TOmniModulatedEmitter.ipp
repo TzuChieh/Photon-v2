@@ -2,6 +2,7 @@
 #include "Engine/Core/Intersection/PrimitiveMetadata.h"
 #include "Engine/Core/SurfaceHit.h"
 #include "Engine/Core/Texture/TSampler.h"
+#include "Engine/Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Engine/Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Engine/Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
@@ -66,15 +67,15 @@ inline void TOmniModulatedEmitter<SourceEmitter>::evalEmittedEnergy(const Surfac
 template<typename SourceEmitter>
 inline void TOmniModulatedEmitter<SourceEmitter>::genDirectSample(
 	DirectEnergySampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
-	getSource().genDirectSample(query, sampleFlow, probe);
+	getSource().genDirectSample(query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;
@@ -97,6 +98,7 @@ inline void TOmniModulatedEmitter<SourceEmitter>::calcDirectPdf(DirectEnergyPdfQ
 {
 	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
 	{
+		query.outputs.setPdf({});
 		return;
 	}
 
@@ -108,15 +110,15 @@ inline void TOmniModulatedEmitter<SourceEmitter>::calcDirectPdf(DirectEnergyPdfQ
 template<typename SourceEmitter>
 inline void TOmniModulatedEmitter<SourceEmitter>::emitRay(
 	EnergyEmissionSampleQuery& query,
-	SampleFlow& sampleFlow,
-	HitProbe& probe) const
+	SampleFlow& sampleFlow) const
 {
 	if(this->getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
 	{
+		query.outputs.setPdf({}, {});
 		return;
 	}
 
-	getSource().emitRay(query, sampleFlow, probe);
+	getSource().emitRay(query, sampleFlow);
 	if(!query.outputs)
 	{
 		return;

@@ -57,10 +57,13 @@ private:
 };
 
 /*! @brief Output for `BsdfPdfQuery`.
+@note Output data is available only when the output converts to true.
 */
 class BsdfPdfOutput final
 {
 public:
+	/*! @brief Set the PDF.
+	*/
 	void setSampleDirPdf(const lta::PDF& pdf);
 
 	real getSampleDirPdfW() const;
@@ -70,6 +73,8 @@ public:
 	*/
 	const lta::PDF& getSampleDirPdf() const;
 
+	/*! @brief Whether the PDF is sane and positive.
+	*/
 	operator bool () const;
 
 private:

@@ -14,7 +14,7 @@ namespace ph
 {
 
 class Ray;
-class HitProbe;
+class HitEvent;
 class HitDetail;
 class PrimitiveMetadata;
 class PrimitivePosSampleQuery;
@@ -26,28 +26,18 @@ class SampleFlow;
 class Primitive : public Intersectable
 {
 public:
-	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
+	bool isIntersecting(HitEvent& event) const override = 0;
 
-	void calcHitDetail(
-		const Ray& ray, 
-		HitProbe&  probe,
-		HitDetail* out_detail) const override = 0;
+	void calcHitDetail(HitEvent& event, HitDetail* out_detail) const override = 0;
 
-	bool reintersect(
-		const Ray& ray,
-		HitProbe& probe,
-		const Ray& srcRay,
-		HitProbe& srcProbe) const override = 0;
+	bool reintersect(HitEvent& event, HitEvent& srcEvent) const override = 0;
 
 	math::AABB3D calcAABB() const override = 0;
 
 	/*! @brief Generates a sample point on the surface of this primitive.
-	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
+	@note Generates a hit event in `PrimitivePosSampleOutput::getHitEvent()`.
 	*/
-	virtual void genPosSample(
-		PrimitivePosSampleQuery& query, 
-		SampleFlow& sampleFlow,
-		HitProbe& probe) const;
+	virtual void genPosSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const;
 
 	/*! @brief Given a point on the surface of this primitive, calculates the PDF of sampling this point.
 	*/
